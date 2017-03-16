@@ -1,0 +1,7 @@
+---
+# handlers file for ossec-agent
+
+- name: restart wazuh-agent
+  service: name=wazuh-agent
+           state=restarted
+           enabled=yes

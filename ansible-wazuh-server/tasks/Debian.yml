@@ -1,0 +1,49 @@
+---
+- name: Debian/Ubuntu | Install apt-transport-https
+  apt: pkg=apt-transport-https
+       state=present
+       update_cache=yes
+       cache_valid_time=3600
+
+- name: Debian/Ubuntu | Installing Wazuh repository key
+  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+
+- name: Add Wazuh epositories.
+  apt_repository:
+    repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
+    state: present
+  register: wazuh_repo
+
+- name: Debian/Ubuntu | Installing NodeJS repository key
+  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+- name: Add NodeSource repositories for Node.js.
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main
+    - deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main
+  register: node_repo
+
+- name: Update apt cache if repo was added.
+  apt: update_cache=yes
+  when:
+    - node_repo.changed
+    - wazuh_repo.changed
+
+- name: Debian/Ubuntu | Install wazuh-manager
+  apt: pkg={{ item }}
+       state=present
+       update_cache=yes
+       cache_valid_time=3600
+  with_items:
+    - wazuh-manager
+    - wazuh-api
+  tags:
+    - init
+
+- name: Set Distribution CIS filename for Debian/Ubuntu
+  set_fact:
+    cis_distribution_filename: cis_debian_linux_rcl.txt
+  when: ansible_os_family == "Debian"

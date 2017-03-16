@@ -1,0 +1,21 @@
+---
+driver:
+  name: vagrant
+  provision_command: sed -i '/tsflags=nodocs/d' /etc/yum.conf
+
+provisioner:
+  name: ansible_playbook
+  ansible_yum_repo: "http://mirror.logol.ru/epel/6/x86_64/epel-release-6-8.noarch.rpm"
+  hosts: localhost
+  require_chef_for_busser: false
+  require_ruby_for_busser: true
+
+platforms:
+  - name: centos-7.2
+  - name: ubuntu-14.04
+
+verifier:
+  ruby_bindir: '/usr/bin' 
+
+suites:
+  - name: default

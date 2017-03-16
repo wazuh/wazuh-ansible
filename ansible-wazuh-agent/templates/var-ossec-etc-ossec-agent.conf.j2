@@ -1,0 +1,53 @@
+<!-- OSSEC example config -->
+
+<ossec_config>
+  <client>
+    <server-ip>{{ ossec_server_ip }}</server-ip>
+    {% if ossec_profile is defined %}
+    <config-profile>{{ ossec_profile }}</config-profile>
+    {% endif %}
+  </client>
+
+  {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
+    <wodle name="open-scap">
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
+
+    <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
+  {% elif ansible_distribution == 'CentOS' %}
+  <wodle name="open-scap">
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
+
+    {% if ansible_distribution_major_version == '7' %}
+    <content type="xccdf" path="ssg-centos-7-ds.xml">
+    {% elif ansible_distribution_major_version == '6' %}
+    <content type="xccdf" path="ssg-centos-6-ds.xml">
+    {% endif %}
+    <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
+{% elif ansible_distribution == 'RedHat' %}
+   <wodle name="open-scap">
+  <timeout>1800</timeout>
+  <interval>1d</interval>
+  <scan-on-start>yes</scan-on-start>
+
+  {% if ansible_distribution_major_version == '7' %}
+  <content type="xccdf" path="ssg-rhel-7-ds.xml">
+  {% elif ansible_distribution_major_version == '6' %}
+  <content type="xccdf" path="ssg-rhel-7-ds.xml">
+  {% endif %}
+  <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+    <profile>xccdf_org.ssgproject.content_profile_common</profile>
+  </content>
+</wodle>
+{% endif %}
+
+</ossec_config>

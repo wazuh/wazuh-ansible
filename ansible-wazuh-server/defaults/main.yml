@@ -1,0 +1,6 @@
+---
+# defaults file for ossec-server
+#
+ossec_server_config: []
+ossec_agent_configs: []
+ossec_server_fqdn: "ossec-server"

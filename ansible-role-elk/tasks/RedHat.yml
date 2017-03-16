@@ -1,0 +1,40 @@
+---
+- name: download Java RPM
+  shell:
+    "curl -L  -H 'Cookie:oraclelicense=accept-securebackup-cookie' -o /tmp/jdk-8-linux-x64.rpm http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm"
+  args:
+    creates: "/tmp/jdk-8-linux-x64.rpm"
+  register: oracle_java_task_rpm_download
+  become: yes
+  tags:
+    - installation
+
+- name: install RPM
+  action: "yum name=/tmp/jdk-8-linux-x64.rpm state=present"
+  when: not oracle_java_task_rpm_download|skipped
+  become: yes
+  tags:
+    - installation
+
+- name: Add Elasticsearch GPG key.
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: RedHat | Install ELK repo
+  yum_repository:
+    name: elk_repo
+    description: Elastic repository for 5.x packages
+    baseurl: https://artifacts.elastic.co/packages/5.x/yum
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    gpgcheck: yes
+
+- name: RedHat | Install ELK
+  yum: pkg={{ item }}
+       state=present
+  with_items:
+    - logstash-5.2.2
+    - elasticsearch-5.2.2
+    - kibana-5.2.2
+  tags:
+    - init

@@ -1,0 +1,23 @@
+---
+# Tasks specific for RedHat systems
+
+- name: RedHat | Set some facts
+  set_fact:
+    ansible_distribution: centos
+  when: ansible_distribution == "RedHat"
+
+- name: RedHat | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: CentOS-$releasever - Wazuh
+    baseurl: https://packages.wazuh.com/yum/el/$releasever/$basearch
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgcheck: yes
+
+- name: RedHat | Install Wazuh Agent
+  yum: pkg={{ item }}
+       state=present
+  with_items:
+    - wazuh-agent
+  tags:
+    - init

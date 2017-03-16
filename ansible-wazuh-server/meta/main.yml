@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: Werner Dijkerman
+  description: Installing and maintaining the ossec-server.
+  company: myCompany.Dotcom
+  license: license (GPLv3)
+  min_ansible_version: 1.4
+  platforms:
+  - name: EL
+    versions:
+    - all
+  - name: Fedora
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+  categories:
+  - monitoring
+dependencies: []

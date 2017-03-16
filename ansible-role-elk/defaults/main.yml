@@ -1,0 +1,9 @@
+---
+elasticsearch_cluster_name: wazuh
+elasticsearch_node_name: node-1
+elasticsearch_http_port: 9200
+elasticsearch_network_host: localhost
+elasticsearch_jvm_xms: 1g
+
+
+kibana_server_host: "0.0.0.0"

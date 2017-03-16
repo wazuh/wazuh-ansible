@@ -1,0 +1,212 @@
+<!--
+  Wazuh - Manager - Default configuration
+  More info at: https://documentation.wazuh.com
+  Mailing list: https://groups.google.com/forum/#!forum/wazuh
+-->
+
+<ossec_config>
+  <global>
+    <jsonout_output>yes</jsonout_output>
+    <alerts_log>yes</alerts_log>
+    {% if ossec_server_config.email_notification is not defined or ossec_server_config.email_notification | lower == "yes" %}
+    <email_notification>yes</email_notification>
+{% for to in ossec_server_config.mail_to %}
+    <email_to>{{ to }}</email_to>
+{% endfor %}
+    <smtp_server>{{ ossec_server_config.mail_smtp_server }}</smtp_server>
+    <email_from>{{ ossec_server_config.mail_from }}</email_from>
+    {% else %}
+    <email_notification>no</email_notification>
+    {% endif %}
+  </global>
+
+{% if ossec_server_config.extra_emails is defined %}
+{% for mail in ossec_server_config.extra_emails %}
+  <email_alerts>
+    <email_to>{{ mail.mail_to }}</email_to>
+    {% if mail.format is defined %}
+    <format>{{ mail.format }}</format>
+    {% endif %}
+    {% if mail.level is defined %}
+    <level>{{ mail.level }}</level>
+    {% endif %}
+    {% if mail.event_location is defined %}
+    <event_location>{{ mail.event_location }}</event_location>
+    {% endif %}
+    {% if mail.group is defined %}
+    <group>{{ mail.group }}</group>
+    {% endif %}
+    {% if mail.do_not_delay is defined and mail.do_not_delay == true %}
+    <do_not_delay />
+    {% endif %}
+    {% if mail.do_not_group is defined and mail.do_not_group == true %}
+    <do_not_group />
+    {% endif %}
+    {% if mail.rule_id is defined %}
+    <rule_id>{{ mail.rule_id }}</rule_id>
+    {% endif %}
+  </email_alerts>
+{% endfor %}
+{% endif %}
+
+  <alerts>
+    <log_alert_level>{{ ossec_server_config.log_level }}</log_alert_level>
+    <email_alert_level>{{ ossec_server_config.email_level }}</email_alert_level>
+  </alerts>
+
+  <remote>
+{% for connection in ossec_server_config.connection %}
+    <connection>{{ connection.type }}</connection>
+    <port>{{ connection.port }}</port>
+    <protocol>{{ connection.protocol }}</protocol>
+{% endfor %}
+  </remote>
+
+  <rootcheck>
+    <disabled>no</disabled>
+    <check_unixaudit>yes</check_unixaudit>
+    <check_files>yes</check_files>
+    <check_trojans>yes</check_trojans>
+    <check_dev>yes</check_dev>
+    <check_sys>yes</check_sys>
+    <check_pids>yes</check_pids>
+    <check_ports>yes</check_ports>
+    <check_if>yes</check_if>
+
+    <!-- Frequency that rootcheck is executed - every 12 hours -->
+    <frequency>43200</frequency>
+
+    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
+
+    <skip_nfs>yes</skip_nfs>
+  </rootcheck>
+
+  <syscheck>
+    <!-- Frequency that syscheck is executed -- default every 20 hours -->
+    <frequency>{{ ossec_server_config.frequency_check }}</frequency>
+    <scan_on_start>{{ ossec_server_config.syscheck_scan_on_start }}</scan_on_start>
+
+    <!-- Directories to check  (perform all possible verifications) -->
+{% for directory in ossec_server_config.directories %}
+   <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
+{% endfor %}
+
+    <!-- Files/directories to ignore -->
+    {% for ignore_file in ossec_server_config.ignore_files %}
+    <ignore>{{ ignore_file }}</ignore>
+    {% endfor %}
+
+    <!-- Files no diff -->
+    {% for no_diff in ossec_server_config.no_diff %}
+    <nodiff>{{ no_diff }}</nodiff>
+    {% endfor %}
+  </syscheck>
+
+  {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
+    <wodle name="open-scap">
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
+
+    <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
+  {% elif ansible_distribution == 'CentOS' %}
+  <wodle name="open-scap">
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
+
+    {% if ansible_distribution_major_version == '7' %}
+    <content type="xccdf" path="ssg-centos-7-ds.xml">
+    {% elif ansible_distribution_major_version == '6' %}
+    <content type="xccdf" path="ssg-centos-6-ds.xml">
+    {% endif %}
+    <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
+{% elif ansible_distribution == 'RedHat' %}
+   <wodle name="open-scap">
+  <timeout>1800</timeout>
+  <interval>1d</interval>
+  <scan-on-start>yes</scan-on-start>
+
+  {% if ansible_distribution_major_version == '7' %}
+  <content type="xccdf" path="ssg-rhel-7-ds.xml">
+  {% elif ansible_distribution_major_version == '6' %}
+  <content type="xccdf" path="ssg-rhel-7-ds.xml">
+  {% endif %}
+  <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+    <profile>xccdf_org.ssgproject.content_profile_common</profile>
+  </content>
+</wodle>
+{% endif %}
+
+
+  <global>
+{% for white_list in ossec_server_config.globals %}
+    <white_list>{{ white_list }}</white_list>
+{% endfor %}
+  </global>
+
+  {% for command in ossec_server_config.commands %}
+    <command>
+      <name>{{ command.name }}</name>
+      <executable>{{ command.executable }}</executable>
+      <expect>{{ command.expect }}</expect>
+      <timeout_allowed>{{ command.timeout_allowed }}</timeout_allowed>
+    </command>
+  {% endfor %}
+
+
+  <ruleset>
+    <!-- Default ruleset -->
+    <decoder_dir>ruleset/decoders</decoder_dir>
+    <rule_dir>ruleset/rules</rule_dir>
+    <rule_exclude>0215-policy_rules.xml</rule_exclude>
+    <list>etc/lists/audit-keys</list>
+
+    <!-- User-defined ruleset -->
+    <decoder_dir>etc/decoders</decoder_dir>
+    <rule_dir>etc/rules</rule_dir>
+  </ruleset>
+
+  <!-- Active Response Config -->
+{% for response in ossec_server_config.active_responses %}
+  <active-response>
+    <command>{{ response.command }}</command>
+    <location>{{ response.location }}</location>
+    <level>{{ response.level }}</level>
+    <timeout>{{ response.timeout }}</timeout>
+  </active-response>
+{% endfor %}
+
+  <!-- Files to monitor (localfiles) -->
+{% for localfile in ossec_server_config.localfiles %}
+  <localfile>
+     <log_format>{{ localfile.format }}</log_format>
+     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+     <command>{{ localfile.command }}</command>
+     <frequency>{{ localfile.frequency }}</frequency>
+     {% else %}
+     <location>{{ localfile.location }}</location>
+     {% endif %}
+  </localfile>
+{% endfor %}
+
+{% if ossec_server_config.syslog_outputs is defined %}
+{% for syslog_output in ossec_server_config.syslog_outputs %}
+  <syslog_output>
+    <server>{{ syslog_output.server }}</server>
+    <port>{{ syslog_output.port }}</port>
+    <format>{{ syslog_output.format }}</format>
+  </syslog_output>
+{% endfor %}
+{% endif %}
+
+</ossec_config>

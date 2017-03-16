@@ -1,0 +1,42 @@
+{% for item in ossec_agent_configs %}
+<agent_config {{ item.type }}="{{ item.type_value }}">
+  <syscheck>
+  <!-- Directories to check (perform all possible verifications) -->
+{% for directory in item.directories %}
+  <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
+{% endfor %}
+    <!-- files we don't watch/ignore -->
+    <frequency>{{ item.frequency_check }}</frequency>
+    {% for ignore_file in item.ignore_files %}
+    <ignore>{{ ignore_file }}</ignore>
+    {% endfor %}
+  </syscheck>
+
+  <!-- Files to monitor (localfiles) -->
+{% for localfile in item.localfiles %}
+  <localfile>
+     <log_format>{{ localfile.format }}</log_format>
+     {% if localfile.command is defined %}
+     <command>{{ localfile.command }}</command>
+     {% else %}
+     <location>{{ localfile.location }}</location>
+     {% endif %}
+  </localfile>
+{% endfor %}
+
+  <rootcheck>
+    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
+    {% if item.cis_distribution_filename is defined %}
+    <system_audit>/var/ossec/etc/shared/{{ item.cis_distribution_filename }}</system_audit>
+    {% else %}
+    {# none specified so install all #}
+    <system_audit>/var/ossec/etc/shared/cis_debian_linux_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/cis_rhel_linux_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/cis_rhel5_linux_rcl.txt</system_audit>
+    {% endif %}
+  </rootcheck>
+
+</agent_config>
+{% endfor %}

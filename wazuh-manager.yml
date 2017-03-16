@@ -1,0 +1,4 @@
+- hosts: wazuh-manager
+  roles:
+    - role: ansible-wazuh-server
+    - role: ansible-role-filebeat
