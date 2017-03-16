@@ -18,6 +18,15 @@ Network host to listen for incoming connections on. By default we only listen on
 
 Whether to allow inline scripting against ElasticSearch. You should read the following link as there are possible security implications for enabling these options: [Enable Dynamic Scripting](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html#enable-dynamic-scripting). Available options include: `true`, `false`, and `sandbox`.
 
+
+
+## Example Playbook
+
+    - hosts: search
+      roles:
+        - geerlingguy.java
+        - geerlingguy.elasticsearch
+
 ## License
 
 MIT / BSD

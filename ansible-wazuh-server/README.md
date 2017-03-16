@@ -169,7 +169,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: ossec-server.example.com
       roles:
-         - { role: dj-wasabi.ossec-server }
+         - { role: ansible-wazuh-manager }
 
 License
 -------

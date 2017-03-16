@@ -10,7 +10,6 @@ This role will work on:
  * Red Hat
  * Debian
 
-So, you'll need one of those operating systems.. :-)
 
 Role Variables
 --------------
