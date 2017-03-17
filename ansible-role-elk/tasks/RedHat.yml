@@ -33,7 +33,7 @@
   yum: pkg={{ item }}
        state=present
   with_items:
-    - logstash-5.2.2
+    - logstash-5.1.2
     - elasticsearch-5.2.2
     - kibana-5.2.2
   tags:

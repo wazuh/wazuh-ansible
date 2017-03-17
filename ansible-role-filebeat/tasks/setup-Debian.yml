@@ -4,11 +4,11 @@
 
 - name: Add Elasticsearch apt key.
   apt_key:
-    url: https://packages.elastic.co/GPG-KEY-elasticsearch
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     state: present
 
 - name: Add Filebeat repository.
   apt_repository:
-    repo: 'deb https://packages.elastic.co/beats/apt stable main'
+    repo: 'deb https://artifacts.elastic.co/packages/5.x/apt stable main'
     state: present
     update_cache: yes

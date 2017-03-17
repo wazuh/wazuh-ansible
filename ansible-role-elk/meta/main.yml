@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  author: geerlingguy
-  description: Elasticsearch for Linux.
-  company: "Midwestern Mac, LLC"
+  author: Jose Luis Ruiz
+  description: Elasticsearch Logstash and Kibana for Linux.
+  company: "Wazuh"
   license: "license (BSD, MIT)"
   min_ansible_version: 1.8
   platforms:

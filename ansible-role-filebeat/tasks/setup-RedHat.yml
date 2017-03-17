@@ -1,11 +1,13 @@
 ---
 - name: Add Elasticsearch GPG key.
   rpm_key:
-    key: https://packages.elastic.co/GPG-KEY-elasticsearch
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     state: present
 
-- name: Add Filebeat repository.
-  template:
-    src: beats.repo.j2
-    dest: /etc/yum.repos.d/beats.repo
-    mode: 0644
+- name: RedHat | Install Filebeats repo
+  yum_repository:
+    name: elk_repo
+    description: Elastic repository for 5.x packages
+    baseurl: https://artifacts.elastic.co/packages/5.x/yum
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    gpgcheck: yes
