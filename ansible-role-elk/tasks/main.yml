@@ -51,8 +51,14 @@
     mode: 0664
   notify: restart kibana
 
-- name: Install Wazuh-APP (can take a while)
-  shell: if ! /usr/share/kibana/bin/kibana-plugin list | grep wazuh; then /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_5.2.2.zip; fi;
+
+- name: Verify if Wazuh-APP is installed
+  command: /bin/bash /usr/share/kibana/bin/kibana-plugin list
+  register: kibanainstalled
+
+- name: Restart Kibana if Wazuh-APP is installed
+  shell: /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_5.2.2.zip && service kibana restart
+  when: kibanainstalled.stdout.find('wazuh') == -1
 
 - name: Ensure Logstash, Kibana and Elasticsearch started and enabled
   service:

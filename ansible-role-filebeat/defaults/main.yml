@@ -16,7 +16,7 @@ filebeat_output_elasticsearch_hosts:
 
 filebeat_output_logstash_enabled: true
 filebeat_output_logstash_hosts:
-  - "192.168.212.153:5000"
+  - "192.168.212.158:5000"
 
 filebeat_enable_logging: true
 filebeat_log_level: debug
