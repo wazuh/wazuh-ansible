@@ -1,3 +1,1 @@
-wazuh-agent.retry
-wazuh-manager.retry
-elk.retry
+*.retry
