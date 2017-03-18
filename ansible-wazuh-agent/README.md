@@ -30,7 +30,7 @@ The following is an example how this role can be used:
 
     - hosts: all:!wazuh-manager
       roles:
-         - { role: ansible-ossec-agent, ossec_server_ip: 192.168.1.1 }
+         - { role: ansible-wazuh-agent, ossec_server_ip: 192.168.1.1 }
 
 License
 -------
