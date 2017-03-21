@@ -107,7 +107,7 @@ $ ansible-playbook wazuh-agent.yml -e"@vars.yml"
 
 ```
 
-### Created by
+### Original created by
 
 Github: https://github.com/dj-wasabi/ansible-ossec-server
 
