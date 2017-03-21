@@ -1,4 +1,4 @@
-## Install Ansible (server)
+## Install Ansible
 
 ```
 Debian
@@ -36,7 +36,7 @@ Open the file with root privileges:
 $ sudo nano /etc/ansible/hosts
 ```
 
-Add ossec hosts:
+Add destination hosts:
 
 ```
 [wazuh-manager]
@@ -55,8 +55,8 @@ Add ossec hosts:
 
 ```
 cd ~
-git clone https://github.com/wazuh/ossec-playbook/
-cp -pr ossec-playbook/* /etc/ansible/roles/
+git clone https://github.com/wazuh/wazuh-playbook/
+cp -pr wazuh-playbook/* /etc/ansible/roles/
 ```
 
 
@@ -85,7 +85,7 @@ Run the playbook for a manager
 $ ansible-playbook wazuh-manager.yml -e"@vars.yml"
 ```
 
-Run the playbbok for an agent:
+Run the playbook for an agent:
 
 
 ```
@@ -111,6 +111,6 @@ $ ansible-playbook wazuh-agent.yml -e"@vars.yml"
 
 Github: https://github.com/dj-wasabi/ansible-ossec-server
 
-mail: ikben [ at ] werner-dijkerman . nl
+### Modified
 
-Modificated by Wazuh
+The playbooks have been modified by Wazuh, Inc, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
