@@ -42,12 +42,68 @@
   {% if ansible_distribution_major_version == '7' %}
   <content type="xccdf" path="ssg-rhel-7-ds.xml">
   {% elif ansible_distribution_major_version == '6' %}
-  <content type="xccdf" path="ssg-rhel-7-ds.xml">
+  <content type="xccdf" path="ssg-rhel-6-ds.xml">
   {% endif %}
   <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
     <profile>xccdf_org.ssgproject.content_profile_common</profile>
   </content>
 </wodle>
 {% endif %}
+
+<rootcheck>
+  <disabled>no</disabled>
+  <check_unixaudit>yes</check_unixaudit>
+  <check_files>yes</check_files>
+  <check_trojans>yes</check_trojans>
+  <check_dev>yes</check_dev>
+  <check_sys>yes</check_sys>
+  <check_pids>yes</check_pids>
+  <check_ports>yes</check_ports>
+  <check_if>yes</check_if>
+
+  <!-- Frequency that rootcheck is executed - every 12 hours -->
+  <frequency>43200</frequency>
+
+  <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
+  <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+  <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
+  <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
+
+  <skip_nfs>yes</skip_nfs>
+</rootcheck>
+
+<syscheck>
+  <!-- Frequency that syscheck is executed -- default every 20 hours -->
+  <frequency>{{ ossec_agent_config.frequency_check }}</frequency>
+  <scan_on_start>{{ ossec_agent_config.syscheck_scan_on_start }}</scan_on_start>
+
+  <!-- Directories to check  (perform all possible verifications) -->
+{% for directory in ossec_agent_config.directories %}
+ <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
+{% endfor %}
+
+  <!-- Files/directories to ignore -->
+  {% for ignore_file in ossec_agent_config.ignore_files %}
+  <ignore>{{ ignore_file }}</ignore>
+  {% endfor %}
+
+  <!-- Files no diff -->
+  {% for no_diff in ossec_agent_config.no_diff %}
+  <nodiff>{{ no_diff }}</nodiff>
+  {% endfor %}
+</syscheck>
+
+<!-- Files to monitor (localfiles) -->
+{% for localfile in ossec_agent_config.localfiles %}
+<localfile>
+   <log_format>{{ localfile.format }}</log_format>
+   {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+   <command>{{ localfile.command }}</command>
+   <frequency>{{ localfile.frequency }}</frequency>
+   {% else %}
+   <location>{{ localfile.location }}</location>
+   {% endif %}
+</localfile>
+{% endfor %}
 
 </ossec_config>

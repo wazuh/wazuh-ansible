@@ -1,6 +1,6 @@
 ossec_server_config:
   mail_to:
-    - me@example.com
+    - jose@wazuh.com
   mail_smtp_server: localhost
   mail_from: ossec@example.com
   frequency_check: 43200

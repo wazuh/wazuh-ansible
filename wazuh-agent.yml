@@ -1,3 +1,3 @@
 - hosts: all:!wazuh-manager
   roles:
-     - { role: ansible-wazuh-agent, ossec_server_ip: 192.168.33.170 }
+     - { role: ansible-wazuh-agent, ossec_server_ip: 192.168.33.169 }

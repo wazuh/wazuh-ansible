@@ -21,6 +21,11 @@
   apt: update_cache=yes
   when: wazuh_repo.changed
 
+- name: Set Distribution CIS filename for debian
+  set_fact:
+    cis_distribution_filename: cis_debian_linux_rcl.txt
+  when: ansible_os_family == "Debian"
+
 - name: Debian/Ubuntu | Install wazuh-agent
   apt: pkg={{ item }}
        state=present
