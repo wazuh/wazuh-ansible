@@ -1,0 +1,34 @@
+---
+- include: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: 'check parm is null or invalid'
+  fail: msg="This playbook is not compatible with Debian/Ubuntu"
+  when: ansible_os_family == 'Debian'
+
+- name: Logstash configuration
+  template:
+    src: 01-wazuh.conf.j2
+    dest: /etc/logstash/conf.d/01-wazuh.conf
+    owner: root
+    group: root
+  notify: restart logstash
+
+- name: Logstash template
+  template:
+    src: wazuh-elastic5-template.json.j2
+    dest: /etc/logstash/wazuh-elastic5-template.json
+    owner: root
+    group: root
+  notify: restart logstash
+
+
+- name: Ensure Logstash started and enabled
+  service:
+    name: logstash
+    enabled: yes
+    state: started
+
+- name: Remove the correct repository
+  include: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"

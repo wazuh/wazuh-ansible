@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Jose Luis Ruiz
+  description: Logstash for Linux.
+  company: "Wazuh"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 1.8
+  platforms:
+  - name: EL
+    versions:
+    - all
+  galaxy_tags:
+    - web
+    - system
+    - monitoring

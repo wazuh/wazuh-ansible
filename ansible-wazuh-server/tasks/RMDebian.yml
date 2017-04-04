@@ -1,0 +1,19 @@
+---
+# Remove Nodejs and Wazuh repositories from sources list.
+- name: Remove Wazuh repository.
+  apt_repository:
+    repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
+    state: absent
+
+- name: Remove Nodejs repository.
+  apt_repository:
+    repo: deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main
+      - deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main
+      - deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main
+      - deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
+    state: absent
+
+- name: Remove Nodejs repository.
+  apt_repository:
+    repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
+    state: absent

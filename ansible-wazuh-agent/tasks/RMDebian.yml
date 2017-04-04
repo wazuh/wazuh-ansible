@@ -1,0 +1,5 @@
+---
+# Remove Nodejs and Wazuh repositories from sources list.
+- apt_repository:
+    repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
+    state: absent

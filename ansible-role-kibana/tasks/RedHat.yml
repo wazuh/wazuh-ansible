@@ -4,10 +4,20 @@
     key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     state: present
 
-- name: RedHat | Install Filebeats repo
+- name: RedHat | Install Kibana repo
   yum_repository:
-    name: filebeat
+    name: elk_repo
     description: Elastic repository for 5.x packages
     baseurl: https://artifacts.elastic.co/packages/5.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: yes
+
+- name: RedHat | Install Kibana
+  yum: pkg=kibana-5.3.0
+       state=present
+  tags:
+    - init
+
+- name: Remove the correct repository
+  include: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"

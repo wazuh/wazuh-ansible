@@ -35,7 +35,7 @@ filter {
 output {
     #stdout { codec => rubydebug }
     elasticsearch {
-        hosts => ["localhost:9200"]
+        hosts => ["{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"]
         index => "wazuh-alerts-%{+YYYY.MM.dd}"
         document_type => "wazuh"
         template => "/etc/logstash/wazuh-elastic5-template.json"

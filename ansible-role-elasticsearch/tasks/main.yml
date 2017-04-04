@@ -1,0 +1,38 @@
+---
+- include: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: 'check parm is null or invalid'
+  fail: msg="This playbook is not compatible with Debian/Ubuntu"
+  when: ansible_os_family == 'Debian'
+
+- name: Configure Elasticsearch.
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+
+- name: Configure Elasticsearch JVM memmory.
+  template:
+    src: jvm.options.j2
+    dest: /etc/elasticsearch/jvm.options
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+
+- name: Start Elasticsearch.
+  service: name=elasticsearch state=started enabled=yes
+
+- name: Ensure Elasticsearch started and enabled
+  service:
+    name: elasticsearch
+    enabled: yes
+    state: started
+
+- name: Remove the correct repository
+  include: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"

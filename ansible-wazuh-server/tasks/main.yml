@@ -1,6 +1,5 @@
 ---
-# tasks file for ossec-server
-
+# tasks file for wazuh-manager
 - name: Install the correct repository
   include: "RedHat.yml"
   when: ansible_os_family == "RedHat"
@@ -18,43 +17,30 @@
   tags:
       - config
 
-- name: Configure the shared-agent.conf
-  template: src=var-ossec-etc-shared-agent.conf.j2
-            dest=/var/ossec/etc/shared/agent.conf
-            owner=ossec
-            group=ossec
-            mode=0644
-  notify: restart wazuh-manager
-  tags:
-    - init
-    - config
-
-- name: Installing custom local_rules.xml
-  template:
-    src: "{{ playbook_dir }}/{{ ossec_server_config.local_rules_template }}"
-    dest: /var/ossec/rules/local_rules.xml
-    owner: root
-    group: root
-    mode: 0644
-  when: ossec_server_config.local_rules_template is defined
-  notify: restart wazuh-manager
-  tags:
-    - init
-    - config
-    - rules
-
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest=/var/ossec/etc/rules/local_rules.xml
             owner=root
-            group=root
-            mode=0644
-  when: ossec_server_config.local_rules_template is not defined
+            group=ossec
+            mode=0640
   notify: restart wazuh-manager
   tags:
     - init
     - config
     - rules
+
+- name: Installing the local_decoder.xml
+  template: src=var-ossec-rules-local_decoder.xml.j2
+            dest=/var/ossec/etc/decoders/local_decoder.xml
+            owner=root
+            group=ossec
+            mode=0640
+  notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+    - rules
+
 
 - name: Check if client-syslog is enabled
   shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-csyslogd is running' | xargs echo"
@@ -115,3 +101,11 @@
     - wazuh-manager
     - wazuh-api
     - ossec-authd
+
+- name: Remove the correct repository
+  include: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+- name: Remove the correct repository
+  include: "RMDebian.yml"
+  when: ansible_os_family == "Debian"

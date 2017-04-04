@@ -39,3 +39,12 @@
     state: started
   with_items:
     - wazuh-agent
+
+
+- name: Remove the correct repository
+  include: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+- name: Remove the correct repository
+  include: "RMDebian.yml"
+  when: ansible_os_family == "Debian"

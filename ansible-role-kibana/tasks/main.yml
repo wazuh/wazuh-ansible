@@ -1,0 +1,34 @@
+---
+- include: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: 'check parm is null or invalid'
+  fail: msg="This playbook is not compatible with Debian/Ubuntu"
+  when: ansible_os_family == 'Debian'
+
+- name: Make sure Elasticsearch is running before proceeding.
+  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
+
+- name: Kibana configuration
+  template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: 0664
+  notify: restart kibana
+
+
+- name: Verify if Wazuh-APP is installed
+  command: /bin/bash /usr/share/kibana/bin/kibana-plugin list
+  register: kibanainstalled
+
+- name: Install Wazuh-APP (can take a while)
+  shell: /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_5.3.0.zip && service kibana restart
+  when: kibanainstalled.stdout.find('wazuh') == -1
+
+- name: Ensure Logstash, Kibana and Elasticsearch started and enabled
+  service:
+    name: kibana
+    enabled: yes
+    state: started

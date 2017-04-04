@@ -1,1 +1,4 @@
 *.retry
+wazuh-manager.yml
+wazuh-agent.yml
+elk.yml

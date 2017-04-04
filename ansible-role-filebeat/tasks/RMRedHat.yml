@@ -1,0 +1,6 @@
+---
+# Remove repositories
+- name: Remove Filebeat repository (and clean up left-over metadata)
+  yum_repository:
+    name: filebeat
+    state: absent

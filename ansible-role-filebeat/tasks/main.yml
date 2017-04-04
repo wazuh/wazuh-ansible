@@ -16,3 +16,11 @@
     name: filebeat
     state: started
     enabled: yes
+
+- name: Remove the correct repository
+  include: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+- name: Remove the correct repository
+  include: "RMDebian.yml"
+  when: ansible_os_family == "Debian"

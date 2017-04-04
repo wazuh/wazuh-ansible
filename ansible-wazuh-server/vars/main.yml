@@ -79,32 +79,3 @@ ossec_server_config:
       location: 'local'
       level: 6
       timeout: 600
-
-ossec_agent_configs:
-  - type: os
-    type_value: linux
-    frequency_check: 79200
-    ignore_files:
-      - /etc/mtab
-      - /etc/mnttab
-      - /etc/hosts.deny
-      - /etc/mail/statistics
-      - /etc/svc/volatile
-    directories:
-      - check_all: yes
-        dirs: /etc,/usr/bin,/usr/sbin
-      - check_all: yes
-        dirs: /bin,/sbin
-    localfiles:
-      - format: 'syslog'
-        location: '/var/log/messages'
-      - format: 'syslog'
-        location: '/var/log/secure'
-      - format: 'syslog'
-        location: '/var/log/maillog'
-      - format: 'apache'
-        location: '/var/log/httpd/error_log'
-      - format: 'apache'
-        location: '/var/log/httpd/access_log'
-      - format: 'apache'
-        location: '/var/ossec/logs/active-responses.log'

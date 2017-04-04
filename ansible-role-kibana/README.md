@@ -1,14 +1,14 @@
 # Ansible Role: Elasticsearch
 
 
-An Ansible Role that installs Elasticsearch, Logstash, Kibana and WazuhAPP  on RedHat/CentOS.
+An Ansible Role that installs Kibana and WazuhAPP  on RedHat/CentOS.
 
 ## Requirements
 
 Requires at least Java 8 (Java 8+ preferred).
 
 ## Role Variables
-Available variables are listed below, along with default values (see `defaults/main.yml`):
+Available variables are listed below, along with default values (see `vars/main.yml`):
 
     elasticsearch_network_host: localhost
 
