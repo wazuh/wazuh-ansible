@@ -2,3 +2,6 @@
 wazuh-manager.yml
 wazuh-agent.yml
 elk.yml
+wazuh-elastic.yml
+wazuh-kibana.yml
+wazuh-logstash.yml
