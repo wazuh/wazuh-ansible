@@ -1,11 +1,5 @@
 ---
-# Tasks specific for RedHat systems
-
-- name: RedHat | Set some facts
-  set_fact:
-    ansible_distribution: centos
-  when: ansible_distribution == "RedHat"
-
+# Tasks specific for RedHat/CentOS systems
 - name: RedHat | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
@@ -13,7 +7,17 @@
     baseurl: https://packages.wazuh.com/yum/el/$releasever/$basearch
     gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
+  when: ansible_distribution == 'CentOS'
 
+# Tasks specific for RedHat systems
+- name: RedHat | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: CentOS-$releasever - Wazuh
+    baseurl: https://packages.wazuh.com/yum/rhel/$releasever/$basearch
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgcheck: yes
+  when: ansible_distribution == 'RedHat'
 
 - name: Set Distribution CIS filename for RHEL5
   set_fact:

@@ -41,7 +41,6 @@
     - config
     - rules
 
-
 - name: Check if client-syslog is enabled
   shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-csyslogd is running' | xargs echo"
   register: csyslog_running
@@ -91,6 +90,20 @@
   tags:
     - init
     - config
+
+- name: Import secret variable file
+  include_vars: "api-user.yml"
+  no_log: true
+
+- name: Wazuh-api User
+  copy:
+    content: "{{user}}"
+    dest: "/var/ossec/api/configuration/auth/user"
+    owner: root
+    group: root
+    mode: 0750
+  no_log: true
+  notify: restart wazuh-api
 
 - name: Ensure Wazuh Manager, wazuh api and ossec-authd service is started and enabled
   service:

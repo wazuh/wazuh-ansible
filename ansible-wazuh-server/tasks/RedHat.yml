@@ -1,11 +1,5 @@
 ---
 # Tasks specific for RedHat systems
-
-- name: RedHat | Set some facts
-  set_fact:
-    ansible_distribution: centos
-  when: ansible_distribution == "RedHat"
-
 - name: RedHat | Install Nodejs repo
   yum_repository:
     name: NodeJS
@@ -14,13 +8,24 @@
     gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
     gpgcheck: yes
 
-- name: RedHat | Install Wazuh repo
+- name: CentOS | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
     description: CentOS-$releasever - Wazuh
     baseurl: https://packages.wazuh.com/yum/el/$releasever/$basearch
     gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
+  when: ansible_distribution == 'CentOS'
+
+# Tasks specific for RedHat systems
+- name: RedHat | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: CentOS-$releasever - Wazuh
+    baseurl: https://packages.wazuh.com/yum/rhel/$releasever/$basearch
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgcheck: yes
+  when: ansible_distribution == 'RedHat'
 
 - name: RedHat | Install epel repo
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm state=present
