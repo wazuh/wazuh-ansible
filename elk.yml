@@ -1,3 +1,0 @@
-- hosts: elk
-  roles:
-    - role: ansible-role-elk
