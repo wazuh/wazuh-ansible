@@ -1,6 +1,6 @@
 ossec_server_config:
   mail_to:
-    - jose@wazuh.com
+    - victor@wazuh.com
   mail_smtp_server: localhost
   mail_from: ossec@example.com
   frequency_check: 43200
@@ -46,7 +46,7 @@ ossec_server_config:
   connection:
     - type: 'secure'
       port: '1514'
-      protocol: 'udp'
+      protocol: 'tcp'
   log_level: 1
   email_level: 12
   commands:

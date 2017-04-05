@@ -21,6 +21,12 @@ ossec_server_config: []
 ossec_agent_configs: []
 ```
 
+
+
+---
+user: "jose:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
+
+
 ###Example setup
 
 Edit the vars file for the host which runs the ossec-server:

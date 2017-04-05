@@ -27,9 +27,6 @@
     gpgcheck: yes
   when: ansible_distribution == 'RedHat'
 
-- name: RedHat | Install epel repo
-  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm state=present
-
 - name: RedHat | Install Wazuh Manager and Wazuh Api
   yum: pkg={{ item }}
        state=present

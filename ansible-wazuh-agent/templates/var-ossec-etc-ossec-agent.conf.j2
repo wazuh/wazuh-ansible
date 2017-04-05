@@ -6,6 +6,7 @@
     {% if ossec_profile is defined %}
     <config-profile>{{ ossec_profile }}</config-profile>
     {% endif %}
+    <protocol>tcp</protocol>
   </client>
 
   {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
