@@ -147,6 +147,20 @@
 </wodle>
 {% endif %}
 
+{% if ossec_server_config.agentless is defined %}
+{% for agentless in ossec_server_config.agentless %}
+  <agentless>
+    <type>{{ agentless.type }}</type>
+    <frequency>{{ agentless.frequency }}</frequency>
+    <host>{{ agentless.host }}</host>
+    <state>{{ agentless.state }}</state>
+    {% if agentless.arguments is defined %}
+      <arguments>{{ agentless.arguments }}</arguments>
+    {% endif %}
+  </agentless>
+  
+{% endfor %}
+{% endif %}
 
   <global>
 {% for white_list in ossec_server_config.globals %}

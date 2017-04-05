@@ -41,6 +41,17 @@
     - config
     - rules
 
+- name: Configure the shared-agent.conf
+  template: src=var-ossec-etc-shared-agent.conf.j2
+            dest=/var/ossec/etc/shared/agent.conf
+            owner=ossec
+            group=ossec
+            mode=0640
+  notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+
 - name: Check if client-syslog is enabled
   shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-csyslogd is running' | xargs echo"
   register: csyslog_running
@@ -53,6 +64,19 @@
 - name: Start client-syslog if not running and ossec_server_config.syslog_outputs is given
   command: /var/ossec/bin/ossec-control start client-syslog
   when: csyslog_running.stdout == '0' and ossec_server_config.syslog_outputs is defined
+
+- name: Check if ossec-agentlessd is enabled
+  shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-agentlessd is running' | xargs echo"
+  register: agentless_running
+  changed_when: False
+
+- name: Enable client-syslog if not running and ossec_server_config.syslog_outputs is given
+  command: /var/ossec/bin/ossec-control enable agentless
+  when: agentless_running.stdout == '0' and ossec_server_config.agentless is defined
+
+- name: Start client-syslog if not running and ossec_server_config.syslog_outputs is given
+  command: /var/ossec/bin/ossec-control start agentless
+  when: agentless_running.stdout == '0' and ossec_server_config.agentless is defined
 
 - name: Set ossec deploy facts for Debian
   set_fact:
@@ -91,19 +115,37 @@
     - init
     - config
 
-- name: Import secret variable file
-  include_vars: "api-user.yml"
+- name: Import api_user secret variable file
+  include_vars: "api_user.yml"
+  no_log: true
+
+- name: Import agentless secret variable file
+  include_vars: "agentless.yml"
   no_log: true
 
 - name: Wazuh-api User
-  copy:
-    content: "{{user}}"
+  template:
+    src: api_user.j2
     dest: "/var/ossec/api/configuration/auth/user"
     owner: root
     group: root
     mode: 0750
   no_log: true
   notify: restart wazuh-api
+
+- name: Agentless Credentials
+  template:
+    src: agentless.j2
+    dest: "/var/ossec/agentless/.passlist2"
+    owner: root
+    group: root
+    mode: 0644
+  no_log: true
+  when: agentless_passlist is defined
+
+- name: Encode the secret
+  shell: /usr/bin/base64 /var/ossec/agentless/.passlist2 > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist2
+  when: agentless_passlist is defined
 
 - name: Ensure Wazuh Manager, wazuh api and ossec-authd service is started and enabled
   service:

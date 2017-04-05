@@ -10,7 +10,6 @@ This role will work on:
  * Red Hat
  * Debian
 
-So, you'll need one of those operating systems.. :-)
 
 Role Variables
 --------------
@@ -19,13 +18,20 @@ This role has some variables which you can or need to override.
 ```
 ossec_server_config: []
 ossec_agent_configs: []
+api_user: []
 ```
 
+Vault variables
+----------------
 
+### vars/api_user.yml
 
+```
 ---
-user: "jose:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
-
+user:
+  - "wazuh:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
+  - "wazuh2:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
+```
 
 ###Example setup
 
