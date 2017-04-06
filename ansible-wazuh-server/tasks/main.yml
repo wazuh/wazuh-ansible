@@ -78,12 +78,6 @@
   command: /var/ossec/bin/ossec-control start agentless
   when: agentless_running.stdout == '0' and ossec_server_config.agentless is defined
 
-- name: Set ossec deploy facts for Debian
-  set_fact:
-    ossec_server_config_filename: ossec.conf
-    ossec_init_name: ossec
-  when: ansible_os_family == "Debian"
-
 - name: Configure ossec.conf
   template: src=var-ossec-etc-ossec-server.conf.j2
             dest=/var/ossec/etc/ossec.conf

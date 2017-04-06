@@ -57,9 +57,3 @@
   set_fact:
     cis_distribution_filename: cis_rhel7_linux_rcl.txt
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "7"
-
-- name: Set ossec deploy facts for RedHat/CentOS
-  set_fact:
-    ossec_server_config_filename: ossec-server.conf
-    ossec_init_name: wazuh-manager
-  when: ansible_os_family == "RedHat"

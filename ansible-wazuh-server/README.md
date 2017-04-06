@@ -20,12 +20,56 @@ ossec_server_config: []
 ossec_agent_configs: []
 api_user: []
 ```
-
 Vault variables
 ----------------
 
-### vars/api_user.yml
+### vars/agentless.yml
+This file has the agenless c.
+```
+---
+agentless_passlist:
+  - host: wazuh@wazuh.com
+    passwd: testpasswd
+  - host: wazuh2@wazuh.com
+    passwd: test2passwd
+```
 
+### templates/agentless.j2
+
+In this template we create the file with the format .passlist that ossec needs.
+
+```
+{% for agentless in agentless_passlist %}
+{{ agentless.host }}|{{ agentless.passwd }}
+{% endfor %}
+```
+
+### tasks/main
+
+In the main we import the variables included in the vault file agentless.yml, then we move to a temporal file the folder /var/ossec/agentless/.passlist_tmp and then encode to base64.
+
+```
+- name: Import agentless secret variable file
+  include_vars: "agentless.yml"
+  no_log: true
+
+- name: Agentless Credentials
+  template:
+    src: agentless.j2
+    dest: "/var/ossec/agentless/.passlist_tmp"
+    owner: root
+    group: root
+    mode: 0644
+  no_log: true
+  when: agentless_passlist is defined
+
+- name: Encode the secret
+  shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
+  when: agentless_passlist is defined
+```
+
+### vars/api_user.yml
+This file has user and password created in httpasswd format.
 ```
 ---
 user:
@@ -33,7 +77,8 @@ user:
   - "wazuh2:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
 ```
 
-###Example setup
+
+### Example setup
 
 Edit the vars file for the host which runs the ossec-server:
 ### host_vars/ossec-server
