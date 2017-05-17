@@ -2,9 +2,8 @@
 - include: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- name: 'check parm is null or invalid'
-  fail: msg="This playbook is not compatible with Debian/Ubuntu"
-  when: ansible_os_family == 'Debian'
+- include: Debian.yml
+  when: ansible_os_family == "Debian"
 
 - name: Configure Elasticsearch.
   template:
@@ -36,3 +35,7 @@
 - name: Remove the correct repository
   include: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
+
+- name: Remove the correct repository
+  include: "RMDebian.yml"
+  when: ansible_os_family == "Debian"

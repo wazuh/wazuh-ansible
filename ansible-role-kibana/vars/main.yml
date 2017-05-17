@@ -1,5 +1,0 @@
----
-elasticsearch_http_port: "9200"
-elasticsearch_network_host: "192.168.33.182"
-
-kibana_server_host: "0.0.0.0"

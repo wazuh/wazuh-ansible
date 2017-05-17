@@ -1,0 +1,46 @@
+---
+- name: Debian/Ubuntu | apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+    update_cache: yes
+
+- name: Debian/Ubuntu | ca-certificates
+  apt:
+    name: ca-certificates
+    state: present
+
+- name: Debian/Ubuntu | Setting webupd8 repository
+  apt_repository:
+    repo: 'ppa:webupd8team/java'
+    codename: 'xenial'
+    update_cache: yes
+
+- name: Debian/Ubuntu | Accept Oracle Java 8 license
+  debconf:
+    name: oracle-java8-installer
+    question: shared/accepted-oracle-license-v1-1
+    value: true
+    vtype: boolean
+
+- name: Debian/Ubuntu | Oracle Java 8 installer
+  apt:
+    name: oracle-java8-installer
+    state: present
+
+- name: Debian/Ubuntu | Add Elasticsearch GPG key.
+  apt_key:
+    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    state: present
+
+- name: Debian/Ubuntu | Install Elastic repo
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+    state: present
+    filename: 'elk_repo'
+    update_cache: yes
+
+- name: Debian/Ubuntu | Install Elasticsarch
+  apt:
+    name: elasticsearch={{ elk_stack_version }}
+    state: present

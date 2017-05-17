@@ -2,5 +2,5 @@
 # Remove ELK REPOSITORY and Wazuh repositories from sources list.
 - name: Remove Filebeat repository (and clean up left-over metadata)
   apt_repository:
-    repo: ddeb https://artifacts.elastic.co/packages/5.x/apt stable main
+    repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
     state: absent

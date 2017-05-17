@@ -1,1 +1,7 @@
 ---
+elasticsearch_cluster_name: wazuh
+elasticsearch_node_name: node-1
+elasticsearch_http_port: 9200
+elasticsearch_network_host: 127.0.0.1
+elasticsearch_jvm_xms: 1g
+elk_stack_version: 5.4.0
