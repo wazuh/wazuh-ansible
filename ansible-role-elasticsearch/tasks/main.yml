@@ -13,6 +13,7 @@
     group: elasticsearch
     mode: 0660
   notify: restart elasticsearch
+  tags: configure
 
 - name: Configure Elasticsearch JVM memmory.
   template:
@@ -22,9 +23,7 @@
     group: elasticsearch
     mode: 0660
   notify: restart elasticsearch
-
-- name: Start Elasticsearch.
-  service: name=elasticsearch state=started enabled=yes
+  tags: configure
 
 - name: Ensure Elasticsearch started and enabled
   service:

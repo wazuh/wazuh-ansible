@@ -11,6 +11,7 @@
   action: "yum name=/tmp/jdk-8-linux-x64.rpm state=present"
   when: not oracle_java_task_rpm_download|skipped
   become: yes
+  tags: install
 
 - name: RedHat | Add Elasticsearch GPG key
   rpm_key:
@@ -27,3 +28,4 @@
 
 - name: RedHat | Install Elasticsarch
   yum: pkg=elasticsearch-{{ elk_stack_version }} state=present
+  tags: install

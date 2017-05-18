@@ -33,6 +33,7 @@
   with_items:
     - wazuh-manager
     - wazuh-api
+    - expect
   tags:
     - init
 

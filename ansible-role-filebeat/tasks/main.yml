@@ -7,6 +7,8 @@
 
 - name: Install Filebeat.
   package: name=filebeat state=present
+  tags:
+    - install
 
 - include: config.yml
   when: filebeat_create_config

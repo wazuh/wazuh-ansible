@@ -12,6 +12,7 @@
     owner: root
     group: root
   notify: restart logstash
+  tags: configure
 
 - name: Logstash template
   template:
@@ -20,6 +21,7 @@
     owner: root
     group: root
   notify: restart logstash
+  tags: configure
 
 - name: Ensure Logstash started and enabled
   service:

@@ -1,0 +1,8 @@
+# Be sure you encrypt this file with ansible-vault.
+# agentless_creeds:
+# - type: ssh_integrity_check_linux
+#   frequency: 3600
+#   host: root@example.net
+#   state: periodic
+#   arguments: '/bin /etc/ /sbin'
+#   passwd: qwerty

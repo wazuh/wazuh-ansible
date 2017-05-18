@@ -27,6 +27,7 @@
   apt:
     name: oracle-java8-installer
     state: present
+  tags: install
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
@@ -44,3 +45,4 @@
   apt:
     name: elasticsearch={{ elk_stack_version }}
     state: present
+  tags: install

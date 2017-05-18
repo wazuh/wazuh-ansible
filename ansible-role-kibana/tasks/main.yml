@@ -7,6 +7,7 @@
 
 - name: Make sure Elasticsearch is running before proceeding.
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
+  tags: configure
 
 - name: Kibana configuration
   template:
@@ -16,6 +17,7 @@
     group: root
     mode: 0664
   notify: restart kibana
+  tags: configure
 
 - name: Checking Wazuh-APP version compatibility
   shell: grep -E 'version.*{{ elk_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json
@@ -23,15 +25,18 @@
   register: wazuh_app_notok
   ignore_errors: yes
   changed_when: "wazuh_app_notok.rc != 0"
+  tags: install
 
 - name: Removing Wazuh-APP by compatibility issues
   shell: /usr/share/kibana/bin/kibana-plugin remove wazuh
   when: wazuh_app_notok.rc != 0
+  tags: install
 
 - name: Install Wazuh-APP (can take a while)
   shell: /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_{{ elk_stack_version }}.zip
     creates=/usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana
+  tags: install
 
 - name: Ensure Kibana started and enabled
   service:

@@ -28,6 +28,7 @@
     name: oracle-java8-installer
     update_cache: yes
     state: present
+  tags: install
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key
   apt_key:
@@ -45,3 +46,4 @@
   apt:
     name: logstash=1:{{ elk_stack_version }}-1
     state: present
+  tags: install
