@@ -1,0 +1,18 @@
+---
+- name: Debian/Ubuntu | Add Elasticsearch GPG key
+  apt_key:
+    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    state: present
+
+- name: Debian/Ubuntu | Install Elastic repo
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+    state: present
+    filename: 'elk_repo'
+    update_cache: yes
+
+- name: Debian/Ubuntu | Install Kibana
+  apt:
+    name: kibana={{ elk_stack_version }}
+    state: present
+  tags: install

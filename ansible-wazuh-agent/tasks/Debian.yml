@@ -15,12 +15,8 @@
   apt_repository:
     repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
     state: present
-  register: wazuh_repo
-
-- name: Update apt cache if repo was added.
-  apt: update_cache=yes
-  when: wazuh_repo.changed
-
+    update_cache: yes
+  
 - name: Set Distribution CIS filename for debian
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt

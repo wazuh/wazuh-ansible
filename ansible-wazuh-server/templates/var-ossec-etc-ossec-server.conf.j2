@@ -8,11 +8,11 @@
   <global>
     <jsonout_output>yes</jsonout_output>
     <alerts_log>yes</alerts_log>
-    {% if ossec_server_config.email_notification is not defined or ossec_server_config.email_notification | lower == "yes" %}
+    {% if ossec_server_config.email_notification | lower == "yes" %}
     <email_notification>yes</email_notification>
-{% for to in ossec_server_config.mail_to %}
+    {% for to in ossec_server_config.mail_to %}
     <email_to>{{ to }}</email_to>
-{% endfor %}
+    {% endfor %}
     <smtp_server>{{ ossec_server_config.mail_smtp_server }}</smtp_server>
     <email_from>{{ ossec_server_config.mail_from }}</email_from>
     {% else %}
@@ -147,8 +147,8 @@
 </wodle>
 {% endif %}
 
-{% if ossec_server_config.agentless is defined %}
-{% for agentless in ossec_server_config.agentless %}
+{% if agentless_creeds is defined %}
+{% for agentless in agentless_creeds %}
   <agentless>
     <type>{{ agentless.type }}</type>
     <frequency>{{ agentless.frequency }}</frequency>
@@ -158,7 +158,7 @@
       <arguments>{{ agentless.arguments }}</arguments>
     {% endif %}
   </agentless>
-  
+
 {% endfor %}
 {% endif %}
 

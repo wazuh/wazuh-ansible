@@ -7,12 +7,14 @@
     group: root
     mode: 0644
   notify: restart filebeat
+  tags: configure
 
 - name: Ensure Filebeat SSL key pair directory exists.
   file:
     path: "{{ filebeat_ssl_dir }}"
     state: directory
   when: filebeat_ssl_key_file
+  tags: configure
 
 - name: Copy SSL key and cert for filebeat.
   copy:
@@ -24,3 +26,4 @@
     - "{{ filebeat_ssl_certificate_file }}"
   notify: restart filebeat
   when: filebeat_ssl_key_file and filebeat_ssl_certificate_file
+  tags: configure

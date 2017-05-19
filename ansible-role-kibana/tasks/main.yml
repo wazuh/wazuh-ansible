@@ -2,12 +2,12 @@
 - include: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- name: 'check parm is null or invalid'
-  fail: msg="This playbook is not compatible with Debian/Ubuntu"
+- include: Debian.yml
   when: ansible_os_family == 'Debian'
 
 - name: Make sure Elasticsearch is running before proceeding.
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
+  tags: configure
 
 - name: Kibana configuration
   template:
@@ -17,18 +17,35 @@
     group: root
     mode: 0664
   notify: restart kibana
+  tags: configure
 
+- name: Checking Wazuh-APP version compatibility
+  shell: grep -E 'version.*{{ elk_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json
+    removes=/usr/share/kibana/plugins/wazuh/package.json
+  register: wazuh_app_notok
+  ignore_errors: yes
+  changed_when: "wazuh_app_notok.rc != 0"
+  tags: install
 
-- name: Verify if Wazuh-APP is installed
-  command: /bin/bash /usr/share/kibana/bin/kibana-plugin list
-  register: kibanainstalled
+- name: Removing Wazuh-APP by compatibility issues
+  shell: /usr/share/kibana/bin/kibana-plugin remove wazuh
+  when: wazuh_app_notok.rc != 0
+  tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_5.3.0.zip && service kibana restart
-  when: kibanainstalled.stdout.find('wazuh') == -1
+  shell: /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_{{ elk_stack_version }}.zip
+    creates=/usr/share/kibana/plugins/wazuh/package.json
+  notify: restart kibana
+  tags: install
 
-- name: Ensure Logstash, Kibana and Elasticsearch started and enabled
+- name: Ensure Kibana started and enabled
   service:
     name: kibana
     enabled: yes
     state: started
+
+- include: RMRedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include: RMDebian.yml
+  when: ansible_os_family == 'Debian'

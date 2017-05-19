@@ -1,6 +1,6 @@
 ---
 # Remove logstash repository
-- name: Remove logstash repository (and clean up left-over metadata)
+- name: RedHat | Remove logstash repository (and clean up left-over metadata)
   yum_repository:
-    name: logstash
+    name: elk_repo
     state: absent

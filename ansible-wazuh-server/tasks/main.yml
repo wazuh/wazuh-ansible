@@ -8,7 +8,6 @@
   include: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-
 - name: Generate SSL files
   command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{ossec_server_fqdn}}/"
   args:
@@ -70,13 +69,19 @@
   register: agentless_running
   changed_when: False
 
-- name: Enable client-syslog if not running and ossec_server_config.syslog_outputs is given
+- name: Enable ossec-agentlessd
   command: /var/ossec/bin/ossec-control enable agentless
   when: agentless_running.stdout == '0' and ossec_server_config.agentless is defined
 
 - name: Start client-syslog if not running and ossec_server_config.syslog_outputs is given
   command: /var/ossec/bin/ossec-control start agentless
   when: agentless_running.stdout == '0' and ossec_server_config.agentless is defined
+
+- name: Retrieving Agentless Credentials
+  include_vars: agentless_creeds.yml
+
+- name: Retrieving Wazuh-api User Credentials
+  include_vars: wazuh_api_creds.yml
 
 - name: Configure ossec.conf
   template: src=var-ossec-etc-ossec-server.conf.j2
@@ -109,10 +114,6 @@
     - init
     - config
 
-- name: Import api_user secret variable file
-  include_vars: "api_user.yml"
-  no_log: true
-
 - name: Wazuh-api User
   template:
     src: api_user.j2
@@ -122,12 +123,9 @@
     mode: 0750
   no_log: true
   notify: restart wazuh-api
+  when: wazuh_api_user is defined
 
-- name: Import agentless secret variable file
-  include_vars: "agentless.yml"
-  no_log: true
-
-- name: Agentless Credentials
+- name: Agentless Hosts & Passwd
   template:
     src: agentless.j2
     dest: "/var/ossec/agentless/.passlist_tmp"
@@ -135,11 +133,11 @@
     group: root
     mode: 0644
   no_log: true
-  when: agentless_passlist is defined
+  when: agentless_creeds is defined
 
 - name: Encode the secret
   shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
-  when: agentless_passlist is defined
+  when: agentless_creeds is defined
 
 - name: Ensure Wazuh Manager, wazuh api and ossec-authd service is started and enabled
   service:
