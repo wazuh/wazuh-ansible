@@ -8,9 +8,15 @@
   become: yes
 
 - name: RedHat | Install Oracle Java RPM
-  action: "yum name=/tmp/jdk-8-linux-x64.rpm state=present"
-  when: not oracle_java_task_rpm_download|skipped
+  yum: name=/tmp/jdk-8-linux-x64.rpm state=present
+  when: not oracle_java_task_rpm_download|skipped and ansible_distribution_major_version|int <= 21
   become: yes
+
+- name: Fedora | Install Oracle Java RPM
+  dnf: name=/tmp/jdk-8-linux-x64.rpm state=present
+  when: not oracle_java_task_rpm_download|skipped and ansible_distribution_major_version|int >= 22
+  become: yes
+  tags: install
 
 - name: RedHat | Add Elasticsearch GPG key.
   rpm_key:
@@ -26,5 +32,11 @@
     gpgcheck: yes
 
 - name: RedHat | Install Logstash
-  yum: pkg=logstash-{{ elk_stack_version }} state=present
+  yum: name=logstash-{{ elk_stack_version }} state=present
+  when: ansible_distribution_major_version|int <= 21
+  tags: install
+
+- name: Fedora | Install Logstash
+  dnf: name=logstash-1:{{ elk_stack_version }} state=present
+  when: ansible_distribution_major_version|int >= 22
   tags: install
