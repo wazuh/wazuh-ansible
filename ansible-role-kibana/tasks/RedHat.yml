@@ -13,5 +13,11 @@
     gpgcheck: yes
 
 - name: RedHat | Install Kibana
-  yum: pkg=kibana-{{ elk_stack_version }} state=present
+  yum: name=kibana-{{ elk_stack_version }} state=present
+  when: ansible_distribution_major_version|int <= 21
+  tags: install
+
+- name: Fedora | Install Kibana
+  dnf: name=kibana-{{ elk_stack_version }} state=present
+  when: ansible_distribution_major_version|int >= 22
   tags: install

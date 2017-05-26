@@ -7,6 +7,16 @@
     baseurl: https://rpm.nodesource.com/pub_6.x/el/$releasever/x86_64
     gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
     gpgcheck: yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+- name: Fedora | Install Nodejs repo
+  yum_repository:
+    name: NodeJS
+    description: NodeJS-$releasever
+    baseurl: https://rpm.nodesource.com/pub_6.x/fc/$releasever/x86_64
+    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
+    gpgcheck: yes
+  when: ansible_distribution == 'Fedora'
 
 - name: CentOS | Install Wazuh repo
   yum_repository:
@@ -17,7 +27,15 @@
     gpgcheck: yes
   when: ansible_distribution == 'CentOS'
 
-# Tasks specific for RedHat systems
+- name: Fedora | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: Fedora-$releasever - Wazuh
+    baseurl: https://packages.wazuh.com/yum/fc/$releasever/$basearch
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgcheck: yes
+  when: ansible_distribution == 'Fedora'
+
 - name: RedHat | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
@@ -28,19 +46,36 @@
   when: ansible_distribution == 'RedHat'
 
 - name: RedHat | Install Wazuh Manager and Wazuh Api
-  yum: pkg={{ item }}
-       state=present
+  yum: pkg={{ item }} state=present
   with_items:
     - wazuh-manager
     - wazuh-api
     - expect
   tags:
     - init
+  when: ansible_distribution_major_version|int <= 21
+
+- name: Fedora | Install Wazuh Manager and Wazuh Api
+  dnf: pkg={{ item }} state=present
+  with_items:
+    - wazuh-manager
+    - wazuh-api
+    - expect
+  tags:
+    - init
+  when: ansible_distribution_major_version|int >= 22
 
 - name: RedHat | Install openscap
-  yum: pkg=openscap-scanner
+  yum: name=openscap-scanner
        state=present
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 6
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 21
+  tags:
+    - init
+
+- name: Fedora | Install openscap
+  dnf: name=openscap-scanner
+       state=present
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 22
   tags:
     - init
 
