@@ -1,13 +1,16 @@
 ---
-- name: Ensure depdency is installed (Ubuntu).
-  apt: name=apt-transport-https state=present
+- name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
+  apt: name="{{ item }}" state=present update_cache=yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
 
-- name: Add Elasticsearch apt key.
+- name: Debian/Ubuntu | Add Elasticsearch apt key.
   apt_key:
     url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     state: present
 
-- name: Add Filebeat repository.
+- name: Debian/Ubuntu | Add Filebeat repository.
   apt_repository:
     repo: 'deb https://artifacts.elastic.co/packages/5.x/apt stable main'
     state: present

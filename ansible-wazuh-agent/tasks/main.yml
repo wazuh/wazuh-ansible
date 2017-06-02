@@ -1,13 +1,14 @@
 ---
-# tasks file for ossec-agent
-
-- name: "Install the correct repository"
-  include: "RedHat.yml"
+- include: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- name: Install the correct repository
-  include: "Debian.yml"
+- include: "Debian.yml"
   when: ansible_os_family == "Debian"
+
+- name: Install wazuh-agent
+  package: name=wazuh-agent state=present
+  tags:
+    - init
 
 - name: "Check if client.keys exists"
   stat: path=/var/ossec/etc/client.keys
@@ -17,7 +18,7 @@
 
 - name: "Register client"
   shell: /var/ossec/bin/agent-auth -m {{ ossec_server_ip }} -p 1515
-  when: ossec_server_ip and check_keys.stat.size == 0
+  when: ossec_register_client == true and check_keys.stat.size == 0
   tags:
     - config
 
@@ -25,7 +26,7 @@
   template: src=var-ossec-etc-ossec-agent.conf.j2
             dest=/var/ossec/etc/ossec.conf
             owner=root
-            group=root
+            group=ossec
             mode=0644
   notify: restart wazuh-agent
   tags:
@@ -34,17 +35,12 @@
 
 - name: Ensure Wazuh Manager service is started and enabled
   service:
-    name: "{{ item }}"
+    name: wazuh-agent
     enabled: yes
     state: started
-  with_items:
-    - wazuh-agent
 
-
-- name: Remove the correct repository
-  include: "RMRedHat.yml"
+- include: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- name: Remove the correct repository
-  include: "RMDebian.yml"
+- include: "RMDebian.yml"
   when: ansible_os_family == "Debian"

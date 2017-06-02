@@ -1,7 +1,6 @@
 ---
 ossec_server_ip: 127.0.0.1
-ossec_server_name: ""
-ossec_managed_server: true
+ossec_register_client: false
 ossec_agent_config:
   frequency_check: 43200
   syscheck_scan_on_start: 'yes'
@@ -40,6 +39,3 @@ ossec_agent_config:
     - format: 'full_command'
       command: 'last -n 20'
       frequency: '360'
-  globals:
-    - '127.0.0.1'
-    - '192.168.2.1'

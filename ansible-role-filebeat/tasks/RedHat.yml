@@ -1,10 +1,10 @@
 ---
-- name: Add Elasticsearch GPG key.
+- name: RedHat/CentOS/Fedora | Add Elasticsearch GPG key.
   rpm_key:
     key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     state: present
 
-- name: RedHat | Install Filebeats repo
+- name: RedHat/CentOS/Fedora | Install Filebeats repo
   yum_repository:
     name: elk_repo
     description: Elastic repository for 5.x packages

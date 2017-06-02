@@ -1,12 +1,21 @@
 ---
 galaxy_info:
   author: Jose Luis Ruiz
-  description: Elasticsearch for Linux.
-  company: "Wazuh"
-  license: "license (BSD, MIT)"
-  min_ansible_version: 1.8
+  description: Installing and maintaining Elasticsearch.
+  company: wazuh.com
+  license: license (GPLv3)
+  min_ansible_version: 2.0
   platforms:
   - name: EL
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+  - name: Fedora
     versions:
     - all
   galaxy_tags:

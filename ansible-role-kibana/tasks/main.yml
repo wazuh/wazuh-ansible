@@ -20,21 +20,21 @@
   tags: configure
 
 - name: Checking Wazuh-APP version compatibility
-  shell: grep -E 'version.*{{ elk_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json
-    removes=/usr/share/kibana/plugins/wazuh/package.json
-  register: wazuh_app_notok
-  ignore_errors: yes
-  changed_when: "wazuh_app_notok.rc != 0"
+  shell: "grep -c -E 'version.*{{ elk_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo"
+  args:
+    removes: /usr/share/kibana/plugins/wazuh/package.json
+  register: wazuh_app_verify
   tags: install
 
 - name: Removing Wazuh-APP by compatibility issues
   shell: /usr/share/kibana/bin/kibana-plugin remove wazuh
-  when: wazuh_app_notok.rc != 0
+  when: wazuh_app_verify.stdout == "0"
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_{{ elk_stack_version }}.zip
-    creates=/usr/share/kibana/plugins/wazuh/package.json
+  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_{{ elk_stack_version }}.zip"
+  args:
+    creates: /usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana
   tags: install
 

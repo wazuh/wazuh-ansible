@@ -1,5 +1,4 @@
 ---
-# Remove logstash repository
 - name: Remove Elasticsearch repository (and clean up left-over metadata)
   yum_repository:
     name: elk_repo

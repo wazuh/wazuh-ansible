@@ -31,10 +31,8 @@
     enabled: yes
     state: started
 
-- name: Remove the correct repository
-  include: "RMRedHat.yml"
+- include: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- name: Remove the correct repository
-  include: "RMDebian.yml"
+- include: "RMDebian.yml"
   when: ansible_os_family == "Debian"

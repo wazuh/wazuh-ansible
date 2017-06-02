@@ -1,6 +1,5 @@
 ---
-# Remove repositories
-- name: Remove Filebeat repository (and clean up left-over metadata)
+- name: RedHat/CentOS/Fedora | Remove Filebeat repository (and clean up left-over metadata)
   yum_repository:
     name: elk_repo
     state: absent

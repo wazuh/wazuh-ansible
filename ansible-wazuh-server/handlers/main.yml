@@ -1,6 +1,4 @@
 ---
-# handlers file for wazuh-manager
-
 - name: restart wazuh-manager
   service: name=wazuh-manager
            state=restarted

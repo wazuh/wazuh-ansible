@@ -1,12 +1,21 @@
 ---
-# Tasks specific for RedHat systems
-- name: RedHat | Install Nodejs repo
+- name: RedHat/CentOS | Install Nodejs repo
   yum_repository:
     name: NodeJS
     description: NodeJS-$releasever
     baseurl: https://rpm.nodesource.com/pub_6.x/el/$releasever/x86_64
     gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
     gpgcheck: yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+- name: Fedora | Install Nodejs repo
+  yum_repository:
+    name: NodeJS
+    description: NodeJS-$releasever
+    baseurl: https://rpm.nodesource.com/pub_6.x/fc/$releasever/x86_64
+    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
+    gpgcheck: yes
+  when: ansible_distribution == 'Fedora'
 
 - name: CentOS | Install Wazuh repo
   yum_repository:
@@ -17,7 +26,15 @@
     gpgcheck: yes
   when: ansible_distribution == 'CentOS'
 
-# Tasks specific for RedHat systems
+- name: Fedora | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: Fedora-$releasever - Wazuh
+    baseurl: https://packages.wazuh.com/yum/fc/$releasever/$basearch
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgcheck: yes
+  when: ansible_distribution == 'Fedora'
+
 - name: RedHat | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
@@ -27,20 +44,8 @@
     gpgcheck: yes
   when: ansible_distribution == 'RedHat'
 
-- name: RedHat | Install Wazuh Manager and Wazuh Api
-  yum: pkg={{ item }}
-       state=present
-  with_items:
-    - wazuh-manager
-    - wazuh-api
-    - expect
-  tags:
-    - init
-
-- name: RedHat | Install openscap
-  yum: pkg=openscap-scanner
-       state=present
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= 6
+- name: RedHat/CentOS/Fedora | Install openscap
+  package: name=openscap-scanner state=present
   tags:
     - init
 

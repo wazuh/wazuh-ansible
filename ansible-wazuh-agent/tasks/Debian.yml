@@ -1,33 +1,23 @@
 ---
+- name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
+  apt: name="{{ item }}" state=present update_cache=yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+
 - name: Debian/Ubuntu | Installing repository key
   apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
-
-- name: Debian/Ubuntu | Install apt-transport-https
-  apt: pkg=apt-transport-https
-       state=present
-       update_cache=yes
-       cache_valid_time=3600
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
 
-- name: Add Wazuh epositories.
+- name: Debian/Ubuntu | Add Wazuh repositories.
   apt_repository:
     repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
     state: present
     update_cache: yes
-  
+
 - name: Set Distribution CIS filename for debian
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
   when: ansible_os_family == "Debian"
-
-- name: Debian/Ubuntu | Install wazuh-agent
-  apt: pkg={{ item }}
-       state=present
-       update_cache=yes
-       cache_valid_time=3600
-  with_items:
-    - wazuh-agent
-  tags:
-    - init

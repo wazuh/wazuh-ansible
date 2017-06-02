@@ -1,4 +1,10 @@
 ---
+- name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
+  apt: name="{{ item }}" state=present update_cache=yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+
 - name: Debian/Ubuntu | Add Elasticsearch GPG key
   apt_key:
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
@@ -9,10 +15,7 @@
     repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
     state: present
     filename: 'elk_repo'
-    update_cache: yes
 
 - name: Debian/Ubuntu | Install Kibana
-  apt:
-    name: kibana={{ elk_stack_version }}
-    state: present
+  apt: name=kibana={{ elk_stack_version }} state=present update_cache=yes
   tags: install

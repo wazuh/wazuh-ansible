@@ -6,7 +6,7 @@
     {% if ossec_profile is defined %}
     <config-profile>{{ ossec_profile }}</config-profile>
     {% endif %}
-    <protocol>tcp</protocol>
+    <protocol>udp</protocol>
   </client>
 
   {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
@@ -34,22 +34,34 @@
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
   </wodle>
-{% elif ansible_distribution == 'RedHat' %}
-   <wodle name="open-scap">
-  <timeout>1800</timeout>
-  <interval>1d</interval>
-  <scan-on-start>yes</scan-on-start>
+  {% elif ansible_distribution == 'RedHat' %}
+     <wodle name="open-scap">
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
 
-  {% if ansible_distribution_major_version == '7' %}
-  <content type="xccdf" path="ssg-rhel-7-ds.xml">
-  {% elif ansible_distribution_major_version == '6' %}
-  <content type="xccdf" path="ssg-rhel-6-ds.xml">
+    {% if ansible_distribution_major_version == '7' %}
+    <content type="xccdf" path="ssg-rhel-7-ds.xml">
+    {% elif ansible_distribution_major_version == '6' %}
+    <content type="xccdf" path="ssg-rhel-6-ds.xml">
+    {% endif %}
+    <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
+  {% elif ansible_distribution == 'Fedora' %}
+  <wodle name="open-scap">
+    <disabled>yes</disabled>
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
+
+    <content type="xccdf" path="ssg-fedora-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
   {% endif %}
-  <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-    <profile>xccdf_org.ssgproject.content_profile_common</profile>
-  </content>
-</wodle>
-{% endif %}
 
 <rootcheck>
   <disabled>no</disabled>
@@ -68,7 +80,10 @@
   <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
   <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
   <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
+  <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
+  {% if cis_distribution_filename is defined %}
   <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
+  {% endif %}
 
   <skip_nfs>yes</skip_nfs>
 </rootcheck>
