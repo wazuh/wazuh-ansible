@@ -10,7 +10,7 @@ sudo yum install ansible (EPEL)
 
 ## Generate keys
 
-If you do not already have an SSH key pair that you would like to use for Ansible administration, we can create one now on your Ansible, locate in OSSEC Manager host and run:
+If you do not already have an SSH key pair that you would like to use for Ansible administration, we can create one now on your Ansible, locate in Wazuh Manager host and run:
 
 ```
 $ ssh-keygen
@@ -47,7 +47,7 @@ Add destination hosts:
 10.0.0.122
 10.0.0.121
 
-[elk]
+[elastic-stack]
 10.0.0.124
 ```
 
@@ -65,7 +65,7 @@ cp -pr wazuh-playbook/* /etc/ansible/roles/
 Create in your home o preferred folder the file agent.yml with the content:
 
 ```
-- hosts: all:!ossec-manager
+- hosts: all:!wazuh-agents
   roles:
      - { role: ansible-wazuh-agent, ossec_server_ip: 10.0.0.51 }
 ```
@@ -107,10 +107,12 @@ $ ansible-playbook wazuh-agent.yml -e"@vars.yml"
 
 ```
 
-### Original created by
+### Based on previous work from dj-wasabi
 
-Github: https://github.com/dj-wasabi/ansible-ossec-server
+https://github.com/dj-wasabi/ansible-ossec-server
 
-### Modified
+### Modified by Wazuh
 
-The playbooks have been modified by Wazuh, Inc, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+
+
