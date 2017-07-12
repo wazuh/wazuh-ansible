@@ -3,10 +3,10 @@ Ansible Playbook - Wazuh agent
 
 This role will install and configure an Wazuh Agent.
 
-Requirements
-------------
+OS Requirements
+----------------
 
-This role will work on:
+This role is compatible with:
  * Red Hat
  * CentOS
  * Fedora
