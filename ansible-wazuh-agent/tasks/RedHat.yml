@@ -1,5 +1,5 @@
 ---
-- name: CentOS | Install Wazuh repo
+- name: CentOS | Install Wazuh repository
   yum_repository:
     name: wazuh_repo
     description: CentOS-$releasever - Wazuh
@@ -8,7 +8,7 @@
     gpgcheck: yes
   when: ansible_distribution == 'CentOS'
 
-- name: Fedora | Install Wazuh repo
+- name: Fedora | Install Wazuh repository
   yum_repository:
     name: wazuh_repo
     description: Fedora-$releasever - Wazuh
@@ -17,7 +17,7 @@
     gpgcheck: yes
   when: ansible_distribution == 'Fedora'
 
-- name: RedHat | Install Wazuh repo
+- name: RedHat | Install Wazuh repository
   yum_repository:
     name: wazuh_repo
     description: CentOS-$releasever - Wazuh

@@ -5,13 +5,10 @@
     - apt-transport-https
     - ca-certificates
 
-- name: Debian/Ubuntu | Installing repository key
-  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+- name: Debian/Ubuntu | Installing repository keyyyy
+  shell: curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
 
-- name: Debian/Ubuntu | Installing Wazuh repository key
-  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
-
-- name: Debian/Ubuntu | Add Wazuh repositories.
+- name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
     repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
     state: present
