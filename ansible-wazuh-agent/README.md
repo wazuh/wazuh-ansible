@@ -1,47 +1,47 @@
-ansible-ossec-agent
-=========
+ansible-wazuh-agent
+===================
 
-This role will install and configure an ossec-agent on the server. When there there is an parameter `ossec_server_name` configured, it will delagate an action for automatically authenticate the agent.
+This role will install and configure an Wazuh Agent.
 
 Requirements
 ------------
 
 This role will work on:
  * Red Hat
+ * CentOS
+ * Fedora
  * Debian
+ * Ubuntu
 
 
 Role Variables
 --------------
 
 This role needs 1 parameters:
-* `ossec_server_ip`: This is the ip address of the server running the ossec-server.
+* `wazuh_manager_ip`: Wazuh Manager IP Address.
+* `wazuh_authd_port`: Registration service port (Default: 1515).
+* `wazuh_register_client`: If true, agent will request a new key from registration service (Default: True).
+* `wazuh_agent_config`: Includes several parameters for configuring agent components as syscheck, rootcheck, open-scap and localfiles.
 
 
-Dependencies
-------------
-
-No dependencies.
-
-Example Playbook
+Playbook example
 ----------------
 
 The following is an example how this role can be used:
 
     - hosts: all:!wazuh-manager
       roles:
-         - { role: ansible-wazuh-agent, ossec_server_ip: 192.168.1.1 }
+         - { role: ansible-wazuh-agent, wazuh_manager_ip: 192.168.1.1, wazuh_register_client: true, wazuh_authd_port: 1515 }
 
-License
--------
+License and copyright
+---------------------
 
-GPLv3
+WAZUH Copyright (C) 2017 Wazuh Inc. (License GPLv3)
 
-Author Information
-------------------
+### Based on previous work from dj-wasabi
 
-Github: https://github.com/dj-wasabi/ansible-ossec-agent
+  - https://github.com/dj-wasabi/ansible-ossec-server
 
-mail: ikben [ at ] werner-dijkerman . nl
+### Modified by Wazuh
 
-Modified by Wazuh
+The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
