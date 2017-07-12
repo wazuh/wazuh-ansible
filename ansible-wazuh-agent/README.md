@@ -17,7 +17,6 @@ This role will work on:
 Role Variables
 --------------
 
-This role needs 1 parameters:
 * `wazuh_manager_ip`: Wazuh Manager IP Address.
 * `wazuh_authd_port`: Registration service port (Default: 1515).
 * `wazuh_register_client`: If true, agent will request a new key from registration service (Default: True).
