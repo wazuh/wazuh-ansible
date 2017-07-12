@@ -27,8 +27,11 @@
   tags: install
 
 - name: Removing Wazuh-APP by compatibility issues
-  shell: /usr/share/kibana/bin/kibana-plugin remove wazuh
+  shell: "{{ item }}"
   when: wazuh_app_verify.stdout == "0"
+  with_items:
+    - /usr/share/kibana/bin/kibana-plugin remove wazuh
+    - rm -rf /usr/share/kibana/optimize/bundles
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
