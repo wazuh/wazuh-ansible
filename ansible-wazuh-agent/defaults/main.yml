@@ -1,7 +1,8 @@
 ---
-ossec_server_ip: 127.0.0.1
-ossec_register_client: false
-ossec_agent_config:
+wazuh_manager_ip: 127.0.0.1
+wazuh_authd_port: 1515
+wazuh_register_client: true
+wazuh_agent_config:
   frequency_check: 43200
   syscheck_scan_on_start: 'yes'
   ignore_files:

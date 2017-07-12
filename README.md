@@ -65,7 +65,7 @@ cp -pr wazuh-playbook/* /etc/ansible/roles/
 Create in your home o preferred folder the file agent.yml with the content:
 
 ```
-- hosts: all:!wazuh-agents
+- hosts: all:!wazuh-manager
   roles:
      - { role: ansible-wazuh-agent, ossec_server_ip: 10.0.0.51 }
 ```

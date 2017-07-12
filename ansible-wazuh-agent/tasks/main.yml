@@ -10,19 +10,20 @@
   tags:
     - init
 
-- name: "Check if client.keys exists"
-  stat: path=/var/ossec/etc/client.keys
-  register: check_keys
+- name: "Register agent"
+  shell: /var/ossec/bin/agent-auth -m {{ wazuh_manager_ip }} -p {{ wazuh_authd_port }}
+  register: agent_auth_output
+  when: wazuh_register_client == true
   tags:
     - config
 
-- name: "Register client"
-  shell: /var/ossec/bin/agent-auth -m {{ ossec_server_ip }} -p 1515
-  when: ossec_register_client == true and check_keys.stat.size == 0
+- name: "Verify agent registration"
+  shell: echo {{ agent_auth_output }} | grep "Valid key created"
+  when: wazuh_register_client == true
   tags:
     - config
 
-- name: "Installing the ossec.conf"
+- name: "Installing agent configuration (ossec.conf)"
   template: src=var-ossec-etc-ossec-agent.conf.j2
             dest=/var/ossec/etc/ossec.conf
             owner=root
@@ -33,7 +34,7 @@
     - init
     - config
 
-- name: Ensure Wazuh Manager service is started and enabled
+- name: Ensure Wazuh Agent service is started and enabled
   service:
     name: wazuh-agent
     enabled: yes
