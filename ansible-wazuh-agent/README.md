@@ -1,5 +1,5 @@
-ansible-wazuh-agent
-===================
+Ansible Playbook - Wazuh agent
+==============================
 
 This role will install and configure an Wazuh Agent.
 
