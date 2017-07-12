@@ -3,9 +3,8 @@
   apt: name="{{ item }}" state=present update_cache=yes
   with_items:
     - apt-transport-https
-    - ca-certificates
 
-- name: Debian/Ubuntu | Installing repository keyyyy
+- name: Debian/Ubuntu | Installing repository key
   shell: curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
 
 - name: Debian/Ubuntu | Add Wazuh repositories
