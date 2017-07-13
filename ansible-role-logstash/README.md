@@ -1,40 +1,45 @@
-# Ansible Role: Logstash
+Ansible Role: Logstash
+----------------------
 
+An Ansible Role that installs [Logstash](https://www.elastic.co/products/logstash)
 
-An Ansible Role that installs Logstash  on RedHat/CentOS.
+Requirements
+------------
 
-## Requirements
+This role will work on:
+ * Red Hat
+ * CentOS
+ * Fedora
+ * Debian
+ * Ubuntu
 
-Requires at least Java 8 (Java 8+ preferred).
+Role Variables
+--------------
+```
+  ---
+  elasticsearch_network_host: "127.0.0.1"
+  elasticsearch_http_port: "9200"
+  elk_stack_version: 5.4.0
+```
 
-## Role Variables
-Available variables are listed below, along with default values (see `vars/main.yml`):
+Example Playbook
+----------------
 
-    elasticsearch_network_host: localhost
+```
+  - hosts: logstash
+    roles:
+      - { role: ansible-role-logstash, elasticsearch_network_host: '192.168.33.182' }
+```
 
-Network host to listen for incoming connections on. By default we only listen on the localhost interface. Change this to the IP address to listen on a specific interface, or `0.0.0.0` to listen on all interfaces.
+License and copyright
+---------------------
 
-    elasticsearch_http_port: 9200
+WAZUH Copyright (C) 2017 Wazuh Inc. (License GPLv3)
 
-Whether to allow inline scripting against ElasticSearch. You should read the following link as there are possible security implications for enabling these options: [Enable Dynamic Scripting](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html#enable-dynamic-scripting). Available options include: `true`, `false`, and `sandbox`.
+### Based on previous work from geerlingguy
 
+ - https://github.com/geerlingguy/ansible-role-elasticsearch
 
+### Modified by Wazuh
 
-## Example Playbook
-
-    - hosts: search
-      roles:
-        - geerlingguy.java
-        - geerlingguy.elasticsearch
-
-## License
-
-MIT / BSD
-
-## Author Information
-
-This role was created in 2014 by [Jeff Geerling](https://www.jeffgeerling.com/), author of [Ansible for DevOps](https://www.ansiblefordevops.com/).
-
-## Modified
-
-The playbooks have been modified by Wazuh, Inc, including some specific requirements, templates and configuration for integrating Elastic Stack and Wazuh ecosystem.
+The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
