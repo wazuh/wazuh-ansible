@@ -24,7 +24,7 @@ Defaults variables are listed below, along with its values (see `defaults/main.y
   elasticsearch_http_port: 9200
   elasticsearch_network_host: 127.0.0.1
   elasticsearch_jvm_xms: 1g
-  elk_stack_version: 5.4.0
+  elastic_stack_version: 5.4.0
 ```
 
 Example Playbook

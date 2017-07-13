@@ -19,7 +19,7 @@ Role Variables
   ---
   elasticsearch_network_host: "127.0.0.1"
   elasticsearch_http_port: "9200"
-  elk_stack_version: 5.4.0
+  elastic_stack_version: 5.4.0
 ```
 
 Example Playbook

@@ -20,7 +20,7 @@
   tags: configure
 
 - name: Checking Wazuh-APP version
-  shell: "grep -c -E 'version.*{{ elk_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo"
+  shell: "grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo"
   args:
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
@@ -35,7 +35,7 @@
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_{{ elk_stack_version }}.zip"
+  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.0_{{ elastic_stack_version }}.zip"
   args:
     creates: /usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana

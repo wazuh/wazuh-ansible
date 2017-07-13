@@ -13,5 +13,5 @@
     gpgcheck: yes
 
 - name: RedHat/CentOS/Fedora | Install Kibana
-  package: name=kibana-{{ elk_stack_version }} state=present
+  package: name=kibana-{{ elastic_stack_version }} state=present
   tags: install

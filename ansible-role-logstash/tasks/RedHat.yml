@@ -26,6 +26,6 @@
     gpgcheck: yes
 
 - name: RedHat/CentOS/Fedora | Install Logstash
-  package: name=logstash-{{ elk_stack_version }} state=present
+  package: name=logstash-{{ elastic_stack_version }} state=present
   when: oracle_java_task_rpm_installed is defined
   tags: install
