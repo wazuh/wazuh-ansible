@@ -1,4 +1,12 @@
 ---
+logstash_create_config: true
+logstash_input_beats: false
+
 elasticsearch_network_host: "127.0.0.1"
 elasticsearch_http_port: "9200"
 elk_stack_version: 5.4.0
+
+logstash_ssl: false
+logstash_ssl_dir: /etc/pki/logstash
+logstash_ssl_certificate_file: ""
+logstash_ssl_key_file: ""

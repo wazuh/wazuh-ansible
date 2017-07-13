@@ -1,23 +1,30 @@
 # {{ ansible_managed }}
 # Wazuh - Logstash configuration file
+
+{% if logstash_input_beats == true %}
 ## Remote Wazuh Manager - Filebeat input
 input {
     beats {
         port => 5000
         codec => "json_lines"
-#        ssl => true
-#        ssl_certificate => "/etc/logstash/logstash.crt"
-#        ssl_key => "/etc/logstash/logstash.key"
+{% if logstash_ssl == true %}
+        ssl => true
+        ssl_certificate => "{{ logstash_ssl_dir }}/{{ logstash_ssl_certificate_file | basename }}"
+        ssl_key => "{{ logstash_ssl_dir }}/{{ logstash_ssl_key_file | basename }}"
+{% endif %}
     }
 }
+{% else %}
 ## Local Wazuh Manager - JSON file input
-#input {
-#   file {
-#       type => "wazuh-alerts"
-#       path => "/var/ossec/logs/alerts/alerts.json"
-#       codec => "json"
-#   }
-#}
+input {
+   file {
+       type => "wazuh-alerts"
+       path => "/var/ossec/logs/alerts/alerts.json"
+       codec => "json"
+   }
+}
+{% endif %}
+
 filter {
     geoip {
         source => "srcip"
