@@ -33,5 +33,5 @@
     filename: 'elk_repo'
 
 - name: Debian/Ubuntu | Install Elasticsarch
-  apt: name=elasticsearch={{ elk_stack_version }} state=present update_cache=yes
+  apt: name=elasticsearch={{ elastic_stack_version }} state=present update_cache=yes
   tags: install

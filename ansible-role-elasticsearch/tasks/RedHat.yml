@@ -26,6 +26,6 @@
     gpgcheck: yes
 
 - name: RedHat/CentOS/Fedora | Install Elasticsarch
-  package: name=elasticsearch-{{ elk_stack_version }} state=present
+  package: name=elasticsearch-{{ elastic_stack_version }} state=present
   when: oracle_java_task_rpm_installed is defined
   tags: install

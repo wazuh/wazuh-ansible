@@ -5,23 +5,8 @@
 - include: Debian.yml
   when: ansible_os_family == "Debian"
 
-- name: Logstash configuration
-  template:
-    src: 01-wazuh.conf.j2
-    dest: /etc/logstash/conf.d/01-wazuh.conf
-    owner: root
-    group: root
-  notify: restart logstash
-  tags: configure
-
-- name: Logstash template
-  template:
-    src: wazuh-elastic5-template.json.j2
-    dest: /etc/logstash/wazuh-elastic5-template.json
-    owner: root
-    group: root
-  notify: restart logstash
-  tags: configure
+- include: config.yml
+  when: logstash_create_config
 
 - name: Ensure Logstash started and enabled
   service:
