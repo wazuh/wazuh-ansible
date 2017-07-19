@@ -8,20 +8,20 @@
   <global>
     <jsonout_output>yes</jsonout_output>
     <alerts_log>yes</alerts_log>
-    {% if ossec_server_config.email_notification | lower == "yes" %}
+    {% if wazuh_manager_config.email_notification | lower == "yes" %}
     <email_notification>yes</email_notification>
-    {% for to in ossec_server_config.mail_to %}
-    <email_to>{{ to }}</email_to>
-    {% endfor %}
-    <smtp_server>{{ ossec_server_config.mail_smtp_server }}</smtp_server>
-    <email_from>{{ ossec_server_config.mail_from }}</email_from>
     {% else %}
     <email_notification>no</email_notification>
     {% endif %}
+    {% for to in wazuh_manager_config.mail_to %}
+    <email_to>{{ to }}</email_to>
+    {% endfor %}
+    <smtp_server>{{ wazuh_manager_config.mail_smtp_server }}</smtp_server>
+    <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
   </global>
 
-{% if ossec_server_config.extra_emails is defined %}
-{% for mail in ossec_server_config.extra_emails %}
+{% if wazuh_manager_config.extra_emails is defined %}
+{% for mail in wazuh_manager_config.extra_emails %}
   <email_alerts>
     <email_to>{{ mail.mail_to }}</email_to>
     {% if mail.format is defined %}
@@ -50,12 +50,12 @@
 {% endif %}
 
   <alerts>
-    <log_alert_level>{{ ossec_server_config.log_level }}</log_alert_level>
-    <email_alert_level>{{ ossec_server_config.email_level }}</email_alert_level>
+    <log_alert_level>{{ wazuh_manager_config.log_level }}</log_alert_level>
+    <email_alert_level>{{ wazuh_manager_config.email_level }}</email_alert_level>
   </alerts>
 
   <remote>
-{% for connection in ossec_server_config.connection %}
+{% for connection in wazuh_manager_config.connection %}
     <connection>{{ connection.type }}</connection>
     <port>{{ connection.port }}</port>
     <protocol>{{ connection.protocol }}</protocol>
@@ -89,27 +89,28 @@
 
   <syscheck>
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
-    <frequency>{{ ossec_server_config.frequency_check }}</frequency>
-    <scan_on_start>{{ ossec_server_config.syscheck_scan_on_start }}</scan_on_start>
+    <frequency>{{ wazuh_manager_config.frequency_check }}</frequency>
+    <scan_on_start>{{ wazuh_manager_config.syscheck_scan_on_start }}</scan_on_start>
 
     <!-- Directories to check  (perform all possible verifications) -->
-{% for directory in ossec_server_config.directories %}
+{% for directory in wazuh_manager_config.directories %}
    <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
 {% endfor %}
 
     <!-- Files/directories to ignore -->
-    {% for ignore_file in ossec_server_config.ignore_files %}
+    {% for ignore_file in wazuh_manager_config.ignore_files %}
     <ignore>{{ ignore_file }}</ignore>
     {% endfor %}
 
     <!-- Files no diff -->
-    {% for no_diff in ossec_server_config.no_diff %}
+    {% for no_diff in wazuh_manager_config.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
   </syscheck>
 
   {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
-    <wodle name="open-scap">
+  <wodle name="open-scap">
+    <disabled>no</disabled>
     <timeout>1800</timeout>
     <interval>1d</interval>
     <scan-on-start>yes</scan-on-start>
@@ -118,8 +119,20 @@
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
   </wodle>
+  {% elif ansible_distribution == 'Debian'  and ansible_distribution_release == 'jessie' %}
+  <wodle name="open-scap">
+    <disabled>no</disabled>
+    <timeout>1800</timeout>
+    <interval>1d</interval>
+    <scan-on-start>yes</scan-on-start>
+
+    <content type="xccdf" path="ssg-debian-8-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+  </wodle>
   {% elif ansible_distribution == 'CentOS' %}
   <wodle name="open-scap">
+    <disabled>no</disabled>
     <timeout>1800</timeout>
     <interval>1d</interval>
     <scan-on-start>yes</scan-on-start>
@@ -134,7 +147,8 @@
     </content>
   </wodle>
   {% elif ansible_distribution == 'RedHat' %}
-   <wodle name="open-scap">
+  <wodle name="open-scap">
+    <disabled>no</disabled>
     <timeout>1800</timeout>
     <interval>1d</interval>
     <scan-on-start>yes</scan-on-start>
@@ -150,7 +164,7 @@
   </wodle>
   {% elif ansible_distribution == 'Fedora' %}
   <wodle name="open-scap">
-    <disabled>yes</disabled>
+    <disabled>no</disabled>
     <timeout>1800</timeout>
     <interval>1d</interval>
     <scan-on-start>yes</scan-on-start>
@@ -178,12 +192,12 @@
 {% endif %}
 
   <global>
-{% for white_list in ossec_server_config.globals %}
+{% for white_list in wazuh_manager_config.globals %}
     <white_list>{{ white_list }}</white_list>
 {% endfor %}
   </global>
 
-  {% for command in ossec_server_config.commands %}
+  {% for command in wazuh_manager_config.commands %}
     <command>
       <name>{{ command.name }}</name>
       <executable>{{ command.executable }}</executable>
@@ -206,7 +220,7 @@
   </ruleset>
 
   <!-- Active Response Config -->
-{% for response in ossec_server_config.active_responses %}
+{% for response in wazuh_manager_config.active_responses %}
   <active-response>
     <command>{{ response.command }}</command>
     <location>{{ response.location }}</location>
@@ -216,7 +230,7 @@
 {% endfor %}
 
   <!-- Files to monitor (localfiles) -->
-{% for localfile in ossec_server_config.localfiles %}
+{% for localfile in wazuh_manager_config.localfiles %}
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -228,8 +242,8 @@
   </localfile>
 {% endfor %}
 
-{% if ossec_server_config.syslog_outputs is defined %}
-{% for syslog_output in ossec_server_config.syslog_outputs %}
+{% if wazuh_manager_config.syslog_outputs is defined %}
+{% for syslog_output in wazuh_manager_config.syslog_outputs %}
   <syslog_output>
     <server>{{ syslog_output.server }}</server>
     <port>{{ syslog_output.port }}</port>

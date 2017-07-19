@@ -15,7 +15,7 @@
     - init
 
 - name: Generate SSL files
-  command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{ossec_server_fqdn}}/"
+  command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{wazuh_manager_fqdn}}/"
   args:
     creates: sslmanager.cert
     chdir: /var/ossec/etc/
@@ -64,11 +64,11 @@
 
 - name: Enable client-syslog
   command: /var/ossec/bin/ossec-control enable client-syslog
-  when: csyslog_running.stdout == '0' and ossec_server_config.syslog_outputs is defined
+  when: csyslog_running.stdout == '0' and wazuh_manager_config.syslog_outputs is defined
 
 - name: Start client-syslog
   command: /var/ossec/bin/ossec-control start client-syslog
-  when: csyslog_running.stdout == '0' and ossec_server_config.syslog_outputs is defined
+  when: csyslog_running.stdout == '0' and wazuh_manager_config.syslog_outputs is defined
 
 - name: Check if ossec-agentlessd is enabled
   shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-agentlessd is running' | xargs echo"

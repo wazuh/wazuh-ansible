@@ -1,12 +1,12 @@
 ---
-ossec_server_fqdn: "ossec-server"
+wazuh_manager_fqdn: "wazuh-server"
 
-ossec_server_config:
+wazuh_manager_config:
   email_notification: no
   mail_to:
     - admin@example.net
   mail_smtp_server: localhost
-  mail_from: ossec@example.com
+  mail_from: wazuh-server@example.com
   frequency_check: 43200
   syscheck_scan_on_start: 'yes'
   log_level: 1
@@ -84,7 +84,7 @@ ossec_server_config:
       level: 6
       timeout: 600
 
-ossec_agent_configs:
+wazuh_agent_configs:
   - type: os
     type_value: linux
     frequency_check: 79200

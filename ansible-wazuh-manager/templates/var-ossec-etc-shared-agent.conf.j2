@@ -1,4 +1,4 @@
-{% for item in ossec_agent_configs %}
+{% for item in wazuh_agent_configs %}
 <agent_config {{ item.type }}="{{ item.type_value }}">
   <syscheck>
   <!-- Directories to check (perform all possible verifications) -->

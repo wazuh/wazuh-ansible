@@ -1,3 +1,0 @@
-- hosts: ossec-manager
-  roles:
-    - role: ansible-ossec-server

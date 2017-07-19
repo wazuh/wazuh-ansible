@@ -1,95 +1,69 @@
-Role Name
-=========
+Ansible Playbook - Wazuh manager
+================================
 
-This role will install the Wazuh server on a host.
+This role will install the Wazuh manager on a host.
 
 Requirements
 ------------
 
 This role will work on:
  * Red Hat
+ * CentOS
+ * Fedora
  * Debian
-
+ * Ubuntu
 
 Role Variables
 --------------
 
 This role has some variables which you can or need to override.
 ```
-ossec_server_config: []
-ossec_agent_configs: []
-api_user: []
+wazuh_manager_fqdn: []
+wazuh_manager_config: []
+wazuh_agent_configs: []
 ```
+
 Vault variables
 ----------------
 
-### vars/agentless.yml
-This file has the agenless c.
+### vars/agentless_creeds.yml
+This file has the agenless credentials.
 ```
 ---
-agentless_passlist:
-  - host: wazuh@wazuh.com
-    passwd: testpasswd
-  - host: wazuh2@wazuh.com
-    passwd: test2passwd
+ agentless_creeds:
+ - type: ssh_integrity_check_linux
+   frequency: 3600
+   host: root@example.net
+   state: periodic
+   arguments: '/bin /etc/ /sbin'
+   passwd: qwerty
 ```
-
-### templates/agentless.j2
-
-In this template we create the file with the format .passlist that ossec needs.
-
-```
-{% for agentless in agentless_passlist %}
-{{ agentless.host }}|{{ agentless.passwd }}
-{% endfor %}
-```
-
-### tasks/main
-
-In the main we import the variables included in the vault file agentless.yml, then we move to a temporal file the folder /var/ossec/agentless/.passlist_tmp and then encode to base64.
-
-```
-- name: Import agentless secret variable file
-  include_vars: "agentless.yml"
-  no_log: true
-
-- name: Agentless Credentials
-  template:
-    src: agentless.j2
-    dest: "/var/ossec/agentless/.passlist_tmp"
-    owner: root
-    group: root
-    mode: 0644
-  no_log: true
-  when: agentless_passlist is defined
-
-- name: Encode the secret
-  shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
-  when: agentless_passlist is defined
-```
-
-### vars/api_user.yml
+### vars/wazuh_api_creds
 This file has user and password created in httpasswd format.
 ```
 ---
-user:
-  - "wazuh:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
-  - "wazuh2:$apr1$XSwG938n$tDxKvaCBx5C/kdU2xXP3K."
+wazuh_api_user:
+  - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
 ```
 
+Default config
+--------------
 
-### Example setup
-
-Edit the vars file for the host which runs the ossec-server:
-### host_vars/ossec-server
+### defaults/main.yml
 ```
-ossec_server_config:
+---
+wazuh_manager_fqdn: "wazuh-server"
+
+wazuh_manager_config:
+  email_notification: no
   mail_to:
-    - me@example.com
+    - admin@example.net
   mail_smtp_server: localhost
-  mail_from: ossec@example.com
+  mail_from: wazuh-server@example.com
   frequency_check: 43200
   syscheck_scan_on_start: 'yes'
+  log_level: 1
+  email_level: 12
   ignore_files:
     - /etc/mtab
     - /etc/mnttab
@@ -131,9 +105,7 @@ ossec_server_config:
   connection:
     - type: 'secure'
       port: '1514'
-      protocol: 'udp'
-  log_level: 1
-  email_level: 12
+      protocol: 'tcp'
   commands:
     - name: 'disable-account'
       executable: 'disable-account.sh'
@@ -165,7 +137,7 @@ ossec_server_config:
       level: 6
       timeout: 600
 
-ossec_agent_configs:
+wazuh_agent_configs:
   - type: os
     type_value: linux
     frequency_check: 79200
@@ -195,24 +167,19 @@ ossec_agent_configs:
         location: '/var/ossec/logs/active-responses.log'
 ```
 
-####ossec_server_config:
-At first, there is the server configuration. Change it for your needs, as this default setup won't do any good for you. (You don't have access to use the mail.example.com mailhost. :-))
+#### Custom variables:
+You can create a YAML file and change the default variables for this role, to later using it with `-e` option in `ansible-playbooks`, for example:
 
+```
+---
+wazuh_manager_fqdn: "wazuh-server"
 
-####ossec_agent_configs:
-http://ossec-docs.readthedocs.org/en/latest/manual/agent/agent-configuration.html
-
-There are 3 "types":
-  * os
-  * name
-  * profile
-
-In the above setup, the type is os. And this configuration is for the "linux" os. You can have several types configured in the host_vars file, so you can create all kind of different configs.
-
-You can find here some more information about the ossec shared agent configuration: http://ossec-docs.readthedocs.org/en/latest/manual/syscheck/
-
-#### <_role_>/vars/main.yml
-nil
+wazuh_manager_config:
+  email_notification: yes
+  mail_to:
+    - myadmin@mydomain.com
+  mail_smtp_server: mysmtp.mydomain.com
+```
 
 Dependencies
 ------------
@@ -224,22 +191,19 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: ossec-server.example.com
+    - hosts: wazuh-server.example.com
       roles:
-         - { role: ansible-wazuh-manager }
+         - { role: ansible-wazuh-server }
 
-License
--------
+License and copyright
+---------------------
 
-GPLv3
+WAZUH Copyright (C) 2017 Wazuh Inc. (License GPLv3)
 
-Author Information
-------------------
+### Based on previous work from dj-wasabi
 
-Please send suggestion or pull requests to make this role better.
+ - https://github.com/dj-wasabi/ansible-ossec-server
 
-Github: https://github.com/dj-wasabi/ansible-ossec-server
+### Modified by Wazuh
 
-mail: ikben [ at ] werner-dijkerman . nl
-
-Modificated by **Wazuh**
+The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
