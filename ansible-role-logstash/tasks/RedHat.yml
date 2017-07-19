@@ -12,11 +12,6 @@
   register: oracle_java_task_rpm_installed
   tags: install
 
-- name: RedHat/CentOS/Fedora | Add Elasticsearch GPG key.
-  rpm_key:
-    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    state: present
-
 - name: RedHat/CentOS/Fedora | Install Logstash repo
   yum_repository:
     name: elk_repo

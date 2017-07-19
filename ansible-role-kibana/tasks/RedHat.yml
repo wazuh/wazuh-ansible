@@ -1,9 +1,4 @@
 ---
-- name: RedHat/CentOS/Fedora | Add Elasticsearch GPG key
-  rpm_key:
-    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    state: present
-
 - name: RedHat/CentOS/Fedora | Install Elastic repo
   yum_repository:
     name: elk_repo
