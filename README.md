@@ -102,8 +102,8 @@ $ ansible-playbook wazuh-agent.yml -e"@vars.yml"
     - hots: wazuh-manager
         - ansible-wazuh-manager
         - ansible-role-filebeat
-    - hosts: elk
-        - ansible-role-elk
+    - hosts: elasticsearch
+        - ansible-role-elasticsearch
 
 ```
 
