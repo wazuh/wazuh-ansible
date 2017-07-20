@@ -22,7 +22,7 @@ Role Variables
   elasticsearch_network_host: "127.0.0.1"
   kibana_server_host: "0.0.0.0"
   kibana_server_port: "5601"
-  elastic_stack_version: 5.4.0
+  elastic_stack_version: 5.5.0
 ```
 
 Example Playbook
