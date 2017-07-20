@@ -1,4 +1,4 @@
-Ansible Role: Kibana for ELK Stack
+Ansible Role: Kibana for Elastic Stack
 ------------------------------------
 
 An Ansible Role that installs [Kibana](https://www.elastic.co/products/kibana) and [Wazuh APP](https://github.com/wazuh/wazuh-kibana-app).
