@@ -25,7 +25,7 @@ $ eval "$(ssh-agent -s)"
 $ ssh-add ~/.ssh/id_rsa_ansible
 ```
 
-Copy ~/.ssh/id_rsa_ansible.pub content into the .ssh/authorized_keys host where you want to deploy OSSEC Agents in.
+Copy ~/.ssh/id_rsa_ansible.pub content into the .ssh/authorized_keys host where you want to deploy Wazuh Agents in.
 
 
 ## Configuring Ansible Hosts
@@ -55,7 +55,7 @@ Add destination hosts:
 
 ```
 cd ~
-git clone https://github.com/wazuh/wazuh-playbook/
+git clone https://github.com/wazuh/wazuh-ansible/
 cp -pr wazuh-playbook/* /etc/ansible/roles/
 ```
 
@@ -67,7 +67,7 @@ Create in your home o preferred folder the file agent.yml with the content:
 ```
 - hosts: all:!wazuh-manager
   roles:
-     - { role: ansible-wazuh-agent, ossec_server_ip: 10.0.0.51 }
+     - { role: ansible-wazuh-agent, wazuh_manager_ip: 10.0.0.51 }
 ```
 
 and other file with wazuh-manager.yml with the content:
@@ -114,5 +114,3 @@ https://github.com/dj-wasabi/ansible-ossec-server
 ### Modified by Wazuh
 
 The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
-
-
