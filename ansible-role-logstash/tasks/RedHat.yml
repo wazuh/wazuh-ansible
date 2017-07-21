@@ -24,3 +24,18 @@
   package: name=logstash-{{ elastic_stack_version }} state=present
   when: oracle_java_task_rpm_installed is defined
   tags: install
+
+- name: RedHat/CentOS/Fedora | Checking if wazuh-manager is installed
+  command: rpm -q wazuh-manager
+  register: wazuh_manager_check_rpm
+  args:
+    warn: no
+
+- name: RedHat/CentOS/Fedora | Add user logstash to group ossec
+  user:
+    name: logstash
+    groups: ossec
+    append: yes
+  when:
+    - logstash_input_beats == false
+    - wazuh_manager_check_rpm.rc == 0
