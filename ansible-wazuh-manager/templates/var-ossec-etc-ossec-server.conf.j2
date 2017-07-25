@@ -49,6 +49,23 @@
 {% endfor %}
 {% endif %}
 
+{% if wazuh_manager_config.reports is defined %}
+{% for report in wazuh_manager_config.reports %}
+  <reports>
+    <category>{{ report.category }}</category>
+    <title>{{ report.title }}</title>
+    <email_to>{{ report.email_to }}</email_to>
+    {% if report.location is defined %}<location>{{ report.location }}</location>{% endif %}
+    {% if report.group is defined %}<group>{{ report.group }}</group>{% endif %}
+    {% if report.rule is defined %}<rule>{{ report.rule }}</rule>{% endif %}
+    {% if report.level is defined %}<level>{{ report.level }}</level>{% endif %}
+    {% if report.srcip is defined %}<srcip>{{ report.srcip }}</srcip>{% endif %}
+    {% if report.user is defined %}<user>{{ report.user }}</user>{% endif %}
+    {% if report.showlogs is defined %}<showlogs>{{ report.showlogs }}</showlogs>{% endif %}
+  </reports>
+{% endfor %}
+{% endif %}
+
   <alerts>
     <log_alert_level>{{ wazuh_manager_config.log_level }}</log_alert_level>
     <email_alert_level>{{ wazuh_manager_config.email_level }}</email_alert_level>
