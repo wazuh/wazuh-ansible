@@ -26,3 +26,11 @@
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
+
+- name: Debian/Ubuntu | Install OpenScap
+  package: name={{ item }} state=present
+  with_items:
+    - libopenscap8
+    - xsltproc
+  tags:
+    - init

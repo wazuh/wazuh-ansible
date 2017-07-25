@@ -112,73 +112,50 @@
 {% endfor %}
   </syscheck>
 
-  {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
   <wodle name="open-scap">
     <disabled>no</disabled>
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
+    <timeout>{{ wazuh_manager_config.openscap.timeout }}</timeout>
+    <interval>{{ wazuh_manager_config.openscap.interval }}</interval>
+    <scan-on-start>{{ wazuh_manager_config.openscap.scan_on_start }}</scan-on-start>
+    {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
-  </wodle>
-  {% elif ansible_distribution == 'Debian'  and ansible_distribution_release == 'jessie' %}
-  <wodle name="open-scap">
-    <disabled>no</disabled>
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
+    {% elif ansible_distribution == 'Debian' and ansible_distribution_release == 'jessie' %}
     <content type="xccdf" path="ssg-debian-8-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% elif ansible_distribution == 'CentOS' %}
-  <wodle name="open-scap">
-    <disabled>no</disabled>
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    {% if ansible_distribution_major_version == '7' %}
-    <content type="xccdf" path="ssg-centos-7-ds.xml">
-    {% elif ansible_distribution_major_version == '6' %}
-    <content type="xccdf" path="ssg-centos-6-ds.xml">
+      </content>
+    <content type="oval" path="cve-debian-oval.xml"/>
+    {% elif ansible_distribution == 'CentOS' %}
+      {% if ansible_distribution_major_version == '7' %}
+      <content type="xccdf" path="ssg-centos-7-ds.xml">
+      {% elif ansible_distribution_major_version == '6' %}
+      <content type="xccdf" path="ssg-centos-6-ds.xml">
+      {% endif %}
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
+    {% elif ansible_distribution == 'RedHat' %}
+      {% if ansible_distribution_major_version == '7' %}
+      <content type="xccdf" path="ssg-rhel-7-ds.xml">
+      {% elif ansible_distribution_major_version == '6' %}
+      <content type="xccdf" path="ssg-rhel-6-ds.xml">
+      {% endif %}
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
+      {% if ansible_distribution_major_version == '7' %}
+      <content type="oval" path="cve-redhat-7-ds.xml"/>
+      {% elif ansible_distribution_major_version == '6' %}
+      <content type="oval" path="cve-redhat-6-ds.xml"/>
+      {% endif %}
+    {% elif ansible_distribution == 'Fedora' %}
+      <content type="xccdf" path="ssg-fedora-ds.xml">
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
     {% endif %}
-    <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-      <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
   </wodle>
-  {% elif ansible_distribution == 'RedHat' %}
-  <wodle name="open-scap">
-    <disabled>no</disabled>
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    {% if ansible_distribution_major_version == '7' %}
-    <content type="xccdf" path="ssg-rhel-7-ds.xml">
-    {% elif ansible_distribution_major_version == '6' %}
-    <content type="xccdf" path="ssg-rhel-7-ds.xml">
-    {% endif %}
-      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-      <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% elif ansible_distribution == 'Fedora' %}
-  <wodle name="open-scap">
-    <disabled>no</disabled>
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    <content type="xccdf" path="ssg-fedora-ds.xml">
-      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-      <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% endif %}
 
 {% if agentless_creeds is defined %}
 {% for agentless in agentless_creeds %}
