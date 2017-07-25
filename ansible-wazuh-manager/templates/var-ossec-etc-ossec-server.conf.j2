@@ -74,7 +74,7 @@
     <check_if>yes</check_if>
 
     <!-- Frequency that rootcheck is executed - every 12 hours -->
-    <frequency>43200</frequency>
+    <frequency>{{ wazuh_manager_config.rootcheck.frequency }}</frequency>
 
     <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>

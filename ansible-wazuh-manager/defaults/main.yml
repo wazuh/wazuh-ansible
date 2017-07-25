@@ -31,29 +31,10 @@ wazuh_manager_config:
         checks: 'check_all="yes"'
       - dirs: /bin,/sbin
         checks: 'check_all="yes"'
+  rootcheck:
+    frequency: 43200
   log_level: 1
   email_level: 12
-  ignore_files:
-    - /etc/mtab
-    - /etc/mnttab
-    - /etc/hosts.deny
-    - /etc/mail/statistics
-    - /etc/random-seed
-    - /etc/random.seed
-    - /etc/adjtime
-    - /etc/httpd/logs
-    - /etc/utmpx
-    - /etc/wtmpx
-    - /etc/cups/certs
-    - /etc/dumpdates
-    - /etc/svc/volatile
-  no_diff:
-    - /etc/ssl/private.key
-  directories:
-    - check_all: 'yes'
-      dirs: /etc,/usr/bin,/usr/sbin
-    - check_all: 'yes'
-      dirs: /bin,/sbin
   localfiles:
     - format: 'syslog'
       location: '/var/log/messages'
