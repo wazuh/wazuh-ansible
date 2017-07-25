@@ -2,6 +2,9 @@
 wazuh_manager_fqdn: "wazuh-server"
 
 wazuh_manager_config:
+  json_output: 'yes'
+  alerts_log: 'yes'
+  logall: 'no'
   enable_authd: false
   email_notification: no
   mail_to:

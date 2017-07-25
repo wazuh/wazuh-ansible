@@ -6,8 +6,9 @@
 
 <ossec_config>
   <global>
-    <jsonout_output>yes</jsonout_output>
-    <alerts_log>yes</alerts_log>
+    <jsonout_output>{{ wazuh_manager_config.json_output }}</jsonout_output>
+    <alerts_log>{{ wazuh_manager_config.alerts_log }}</alerts_log>
+    <logall>{{ wazuh_manager_config.logall }}</logall>
     {% if wazuh_manager_config.email_notification | lower == "yes" %}
     <email_notification>yes</email_notification>
     {% else %}

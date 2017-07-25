@@ -89,6 +89,15 @@
 - name: Retrieving Wazuh-api User Credentials
   include_vars: wazuh_api_creds.yml
 
+- name: Checking alert log output settings
+  fail: msg="Please enable json_output or alerts_log options."
+  when:
+    - wazuh_manager_config.json_output == 'no'
+    - wazuh_manager_config.alerts_log == 'no'
+  tags:
+    - init
+    - config
+
 - name: Configure ossec.conf
   template: src=var-ossec-etc-ossec-server.conf.j2
             dest=/var/ossec/etc/ossec.conf
