@@ -7,8 +7,30 @@ wazuh_manager_config:
     - admin@example.net
   mail_smtp_server: localhost
   mail_from: wazuh-server@example.com
-  frequency_check: 43200
-  syscheck_scan_on_start: 'yes'
+  syscheck:
+    frequency: 43200
+    scan_on_start: 'yes'
+    ignore:
+      - /etc/mtab
+      - /etc/mnttab
+      - /etc/hosts.deny
+      - /etc/mail/statistics
+      - /etc/random-seed
+      - /etc/random.seed
+      - /etc/adjtime
+      - /etc/httpd/logs
+      - /etc/utmpx
+      - /etc/wtmpx
+      - /etc/cups/certs
+      - /etc/dumpdates
+      - /etc/svc/volatile
+    no_diff:
+      - /etc/ssl/private.key
+    directories:
+      - dirs: /etc,/usr/bin,/usr/sbin
+        checks: 'check_all="yes"'
+      - dirs: /bin,/sbin
+        checks: 'check_all="yes"'
   log_level: 1
   email_level: 12
   ignore_files:

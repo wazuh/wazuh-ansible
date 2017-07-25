@@ -89,23 +89,27 @@
 
   <syscheck>
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
-    <frequency>{{ wazuh_manager_config.frequency_check }}</frequency>
-    <scan_on_start>{{ wazuh_manager_config.syscheck_scan_on_start }}</scan_on_start>
+    <frequency>{{ wazuh_manager_config.syscheck.frequency }}</frequency>
+    <scan_on_start>{{ wazuh_manager_config.syscheck.scan_on_start }}</scan_on_start>
 
     <!-- Directories to check  (perform all possible verifications) -->
-{% for directory in wazuh_manager_config.directories %}
-   <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
-{% endfor %}
+    {% if wazuh_manager_config.syscheck.directories is defined %}
+    {% for directory in wazuh_manager_config.syscheck.directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
+    {% endfor %}
+    {% endif %}
 
     <!-- Files/directories to ignore -->
-    {% for ignore_file in wazuh_manager_config.ignore_files %}
-    <ignore>{{ ignore_file }}</ignore>
+    {% if wazuh_manager_config.syscheck.ignore is defined %}
+    {% for ignore in wazuh_manager_config.syscheck.ignore %}
+    <ignore>{{ ignore }}</ignore>
     {% endfor %}
+    {% endif %}
 
     <!-- Files no diff -->
-    {% for no_diff in wazuh_manager_config.no_diff %}
+{% for no_diff in wazuh_manager_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
-    {% endfor %}
+{% endfor %}
   </syscheck>
 
   {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
