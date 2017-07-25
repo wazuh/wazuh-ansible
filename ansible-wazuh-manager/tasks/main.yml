@@ -106,7 +106,10 @@
             owner=root
             group=root
             mode=0755
-  when: ansible_service_mgr == "upstart" and ansible_os_family != "CoreOS"
+  when:
+    - ansible_service_mgr == "upstart"
+    - ansible_os_family != "CoreOS"
+    - wazuh_manager_config.enable_authd == true
   tags:
     - init
     - config
@@ -115,9 +118,18 @@
   template:
     src: ossec-authd.service
     dest: /lib/systemd/system/ossec-authd.service
-  when: ansible_service_mgr == "systemd" and ansible_os_family != "CoreOS"
+  when:
+    - ansible_service_mgr == "systemd"
+    - ansible_os_family != "CoreOS"
+    - wazuh_manager_config.enable_authd == true
   tags:
     - init
+    - config
+
+- name: Ensure ossec-authd service is started and enabled
+  service: name=ossec-authd enabled=yes state=started
+  when: wazuh_manager_config.enable_authd == true
+  tags:
     - config
 
 - name: Wazuh-api User
@@ -145,7 +157,7 @@
   shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
   when: agentless_creeds is defined
 
-- name: Ensure Wazuh Manager, wazuh api and ossec-authd service is started and enabled
+- name: Ensure Wazuh Manager, wazuh api service is started and enabled
   service:
     name: "{{ item }}"
     enabled: yes
@@ -153,7 +165,8 @@
   with_items:
     - wazuh-manager
     - wazuh-api
-    - ossec-authd
+  tags:
+    - config
 
 - include: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
