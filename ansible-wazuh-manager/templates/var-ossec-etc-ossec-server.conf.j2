@@ -125,9 +125,9 @@
     {% endif %}
 
     <!-- Files no diff -->
-{% for no_diff in wazuh_manager_config.syscheck.no_diff %}
+    {% for no_diff in wazuh_manager_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
-{% endfor %}
+    {% endfor %}
   </syscheck>
 
   <wodle name="open-scap">
@@ -135,14 +135,16 @@
     <timeout>{{ wazuh_manager_config.openscap.timeout }}</timeout>
     <interval>{{ wazuh_manager_config.openscap.interval }}</interval>
     <scan-on-start>{{ wazuh_manager_config.openscap.scan_on_start }}</scan-on-start>
-    {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
+    {% if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial' %}
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
     {% elif ansible_distribution == 'Debian' and ansible_distribution_release == 'jessie' %}
+    {% if openscap_version_valid.stdout == "0" %}
     <content type="xccdf" path="ssg-debian-8-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
-      </content>
+    </content>
+    {% endif %}
     <content type="oval" path="cve-debian-oval.xml"/>
     {% elif ansible_distribution == 'CentOS' %}
       {% if ansible_distribution_major_version == '7' %}

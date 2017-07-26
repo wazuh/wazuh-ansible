@@ -34,3 +34,17 @@
     - xsltproc
   tags:
     - init
+
+- name: Debian/Ubuntu | Get OpenScap installed version
+  shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
+  register: openscap_version
+  changed_when: true
+  tags:
+    - config
+
+- name: Debian/Ubuntu | Check OpenScap version
+  shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
+  register: openscap_version_valid
+  changed_when: true
+  tags:
+    - config
