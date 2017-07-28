@@ -25,8 +25,8 @@
     <check_ports>yes</check_ports>
     <check_if>yes</check_if>
 
-    <!-- Rootcheck scan frequency -->
-    <frequency>43200</frequency>
+    <!-- Frequency that rootcheck is executed - every 12 hours -->
+    <frequency>{{ wazuh_agent_config.rootcheck.frequency }}</frequency>
 
     <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
@@ -40,25 +40,76 @@
   </rootcheck>
 
   <syscheck>
-    <!-- Syscgeck scan frequency -->
-    <frequency>{{ wazuh_agent_config.frequency_check }}</frequency>
-    <scan_on_start>{{ wazuh_agent_config.syscheck_scan_on_start }}</scan_on_start>
+    <!-- Frequency that syscheck is executed -- default every 20 hours -->
+    <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
+    <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
 
-    <!-- Directories to monitor -->
-    {% for directory in wazuh_agent_config.directories %}
-    <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
+    <!-- Directories to check  (perform all possible verifications) -->
+    {% if wazuh_agent_config.syscheck.directories is defined %}
+    {% for directory in wazuh_agent_config.syscheck.directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
+    {% endif %}
 
     <!-- Files/directories to ignore -->
-    {% for ignore_file in wazuh_agent_config.ignore_files %}
-    <ignore>{{ ignore_file }}</ignore>
+    {% if wazuh_agent_config.syscheck.ignore is defined %}
+    {% for ignore in wazuh_agent_config.syscheck.ignore %}
+    <ignore>{{ ignore }}</ignore>
     {% endfor %}
+    {% endif %}
 
     <!-- Files no diff -->
-    {% for no_diff in wazuh_agent_config.no_diff %}
+    {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
   </syscheck>
+
+  <wodle name="open-scap">
+    <disabled>no</disabled>
+    <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
+    <interval>{{ wazuh_agent_config.openscap.interval }}</interval>
+    <scan-on-start>{{ wazuh_agent_config.openscap.scan_on_start }}</scan-on-start>
+    {% if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial' %}
+    <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+    {% elif ansible_distribution == 'Debian' and ansible_distribution_release == 'jessie' %}
+    {% if openscap_version_valid.stdout == "0" %}
+    <content type="xccdf" path="ssg-debian-8-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+    {% endif %}
+    <content type="oval" path="cve-debian-oval.xml"/>
+    {% elif ansible_distribution == 'CentOS' %}
+      {% if ansible_distribution_major_version == '7' %}
+      <content type="xccdf" path="ssg-centos-7-ds.xml">
+      {% elif ansible_distribution_major_version == '6' %}
+      <content type="xccdf" path="ssg-centos-6-ds.xml">
+      {% endif %}
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
+    {% elif ansible_distribution == 'RedHat' %}
+      {% if ansible_distribution_major_version == '7' %}
+      <content type="xccdf" path="ssg-rhel-7-ds.xml">
+      {% elif ansible_distribution_major_version == '6' %}
+      <content type="xccdf" path="ssg-rhel-6-ds.xml">
+      {% endif %}
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
+      {% if ansible_distribution_major_version == '7' %}
+      <content type="oval" path="cve-redhat-7-ds.xml"/>
+      {% elif ansible_distribution_major_version == '6' %}
+      <content type="oval" path="cve-redhat-6-ds.xml"/>
+      {% endif %}
+    {% elif ansible_distribution == 'Fedora' %}
+      <content type="xccdf" path="ssg-fedora-ds.xml">
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
+    {% endif %}
+  </wodle>
 
   <!-- Files to monitor (localfiles) -->
     {% for localfile in wazuh_agent_config.localfiles %}
@@ -72,59 +123,5 @@
     {% endif %}
     </localfile>
   {% endfor %}
-
-  {% if ansible_distribution == 'Ubuntu'  and ansible_distribution_release == 'xenial' %}
-  <wodle name="open-scap">
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
-      <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% elif ansible_distribution == 'CentOS' %}
-  <wodle name="open-scap">
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    {% if ansible_distribution_major_version == '7' %}
-    <content type="xccdf" path="ssg-centos-7-ds.xml">
-    {% elif ansible_distribution_major_version == '6' %}
-    <content type="xccdf" path="ssg-centos-6-ds.xml">
-    {% endif %}
-      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-      <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% elif ansible_distribution == 'RedHat' %} 
-  <wodle name="open-scap">
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    {% if ansible_distribution_major_version == '7' %}
-    <content type="xccdf" path="ssg-rhel-7-ds.xml">
-    {% elif ansible_distribution_major_version == '6' %}
-    <content type="xccdf" path="ssg-rhel-6-ds.xml">
-    {% endif %}
-      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-      <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% elif ansible_distribution == 'Fedora' %}
-  <wodle name="open-scap">
-    <disabled>yes</disabled>
-    <timeout>1800</timeout>
-    <interval>1d</interval>
-    <scan-on-start>yes</scan-on-start>
-
-    <content type="xccdf" path="ssg-fedora-ds.xml">
-        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-        <profile>xccdf_org.ssgproject.content_profile_common</profile>
-    </content>
-  </wodle>
-  {% endif %}
 
 </ossec_config>
