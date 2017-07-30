@@ -1,5 +1,6 @@
 ---
 wazuh_manager_ip: 127.0.0.1
+wazuh_manager_proto: udp
 wazuh_authd_port: 1515
 wazuh_register_client: false
 wazuh_agent_config:
