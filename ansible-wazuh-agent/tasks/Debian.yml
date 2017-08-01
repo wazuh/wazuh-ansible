@@ -21,6 +21,7 @@
 
 - name: Debian/Ubuntu | Install OpenScap
   package: name={{ item }} state=present
+  when: wazuh_agent_config.openscap.disable == 'no'
   with_items:
     - libopenscap8
     - xsltproc
@@ -30,6 +31,7 @@
 - name: Debian/Ubuntu | Get OpenScap installed version
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   register: openscap_version
+  when: wazuh_agent_config.openscap.disable == 'no'
   changed_when: true
   tags:
     - config
@@ -37,6 +39,7 @@
 - name: Debian/Ubuntu | Check OpenScap version
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   register: openscap_version_valid
+  when: wazuh_agent_config.openscap.disable == 'no'
   changed_when: true
   tags:
     - config

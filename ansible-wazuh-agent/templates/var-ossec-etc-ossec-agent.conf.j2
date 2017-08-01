@@ -71,6 +71,7 @@
     {% endfor %}
   </syscheck>
 
+  {% if wazuh_agent_config.openscap.disable  == 'no' %}
   <wodle name="open-scap">
     <disabled>no</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
@@ -117,6 +118,7 @@
       </content>
     {% endif %}
   </wodle>
+  {% endif %}
 
   <!-- Files to monitor (localfiles) -->
     {% for localfile in wazuh_agent_config.localfiles %}
