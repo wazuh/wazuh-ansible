@@ -3,9 +3,10 @@
   apt: name="{{ item }}" state=present update_cache=yes
   with_items:
     - apt-transport-https
+    - ca-certificates
 
 - name: Debian/Ubuntu | Installing repository key
-  shell: curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -13,7 +14,32 @@
     state: present
     update_cache: yes
 
-- name: Set Distribution CIS filename for debian
+- name: Debian/Ubuntu | Set Distribution CIS filename for debian
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
   when: ansible_os_family == "Debian"
+
+- name: Debian/Ubuntu | Install OpenScap
+  package: name={{ item }} state=present
+  when: wazuh_agent_config.openscap.disable == 'no'
+  with_items:
+    - libopenscap8
+    - xsltproc
+  tags:
+    - init
+
+- name: Debian/Ubuntu | Get OpenScap installed version
+  shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
+  register: openscap_version
+  when: wazuh_agent_config.openscap.disable == 'no'
+  changed_when: true
+  tags:
+    - config
+
+- name: Debian/Ubuntu | Check OpenScap version
+  shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
+  register: openscap_version_valid
+  when: wazuh_agent_config.openscap.disable == 'no'
+  changed_when: true
+  tags:
+    - config

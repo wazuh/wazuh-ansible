@@ -1,31 +1,40 @@
 ---
 wazuh_manager_ip: 127.0.0.1
+wazuh_manager_proto: udp
 wazuh_authd_port: 1515
-wazuh_register_client: true
+wazuh_register_client: false
 wazuh_agent_config:
-  frequency_check: 43200
-  syscheck_scan_on_start: 'yes'
-  ignore_files:
-    - /etc/mtab
-    - /etc/mnttab
-    - /etc/hosts.deny
-    - /etc/mail/statistics
-    - /etc/random-seed
-    - /etc/random.seed
-    - /etc/adjtime
-    - /etc/httpd/logs
-    - /etc/utmpx
-    - /etc/wtmpx
-    - /etc/cups/certs
-    - /etc/dumpdates
-    - /etc/svc/volatile
-  no_diff:
-    - /etc/ssl/private.key
-  directories:
-    - check_all: 'yes'
-      dirs: /etc,/usr/bin,/usr/sbin
-    - check_all: 'yes'
-      dirs: /bin,/sbin
+  syscheck:
+    frequency: 43200
+    scan_on_start: 'yes'
+    ignore:
+      - /etc/mtab
+      - /etc/mnttab
+      - /etc/hosts.deny
+      - /etc/mail/statistics
+      - /etc/random-seed
+      - /etc/random.seed
+      - /etc/adjtime
+      - /etc/httpd/logs
+      - /etc/utmpx
+      - /etc/wtmpx
+      - /etc/cups/certs
+      - /etc/dumpdates
+      - /etc/svc/volatile
+    no_diff:
+      - /etc/ssl/private.key
+    directories:
+      - dirs: /etc,/usr/bin,/usr/sbin
+        checks: 'check_all="yes"'
+      - dirs: /bin,/sbin
+        checks: 'check_all="yes"'
+  rootcheck:
+    frequency: 43200
+  openscap:
+    disable: 'yes'
+    timeout: 1800
+    interval: '1d'
+    scan_on_start: 'yes'
   localfiles:
     - format: 'syslog'
       location: '/var/log/messages'

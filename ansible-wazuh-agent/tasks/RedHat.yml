@@ -43,5 +43,6 @@
 
 - name: RedHat/CentOS/RedHat | Install openscap
   package: name=openscap-scanner state=present
+  when: wazuh_agent_config.openscap.disable == 'no'
   tags:
     - init
