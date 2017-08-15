@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 # {{ ansible_managed }}
 ## JVM configuration
 
@@ -19,9 +20,18 @@
 
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
-
--Xms{{ elasticsearch_jvm_xms }}
--Xmx{{ elasticsearch_jvm_xms }}
+{% if elasticsearch_jvm_xms is defined %}
+{% if elasticsearch_jvm_xms < 32000 %}
+-Xms{{ elasticsearch_jvm_xms }}m
+-Xmx{{ elasticsearch_jvm_xms }}m
+{% else %}
+-Xms32000m
+-Xmx32000m
+{% endif %}
+{% else %}
+-Xms{% if ansible_memtotal_mb < 64000 %}{{ ((ansible_memtotal_mb|int)/2)|int }}m{% else %}32000m{% endif %}
+-Xmx{% if ansible_memtotal_mb < 64000 %}{{ ((ansible_memtotal_mb|int)/2)|int }}m{% else %}32000m{% endif %}
+{% endif %}
 
 ################################################################
 ## Expert settings
