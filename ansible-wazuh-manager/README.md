@@ -38,12 +38,20 @@ This file has the agenless credentials.
    arguments: '/bin /etc/ /sbin'
    passwd: qwerty
 ```
-### vars/wazuh_api_creds
+
+### vars/wazuh_api_creds.yml
 This file has user and password created in httpasswd format.
 ```
 ---
 wazuh_api_user:
   - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
+```
+
+### vars/authd_pass.yml
+This file has the password to be used for the authd daemon.
+```
+---
+authd_pass: foobar
 ```
 
 Default config
@@ -55,36 +63,48 @@ Default config
 wazuh_manager_fqdn: "wazuh-server"
 
 wazuh_manager_config:
+  json_output: 'yes'
+  alerts_log: 'yes'
+  logall: 'no'
+  authd:
+    enable: false
   email_notification: no
   mail_to:
     - admin@example.net
   mail_smtp_server: localhost
   mail_from: wazuh-server@example.com
-  frequency_check: 43200
-  syscheck_scan_on_start: 'yes'
+  syscheck:
+    frequency: 43200
+    scan_on_start: 'yes'
+    ignore:
+      - /etc/mtab
+      - /etc/mnttab
+      - /etc/hosts.deny
+      - /etc/mail/statistics
+      - /etc/random-seed
+      - /etc/random.seed
+      - /etc/adjtime
+      - /etc/httpd/logs
+      - /etc/utmpx
+      - /etc/wtmpx
+      - /etc/cups/certs
+      - /etc/dumpdates
+      - /etc/svc/volatile
+    no_diff:
+      - /etc/ssl/private.key
+    directories:
+      - dirs: /etc,/usr/bin,/usr/sbin
+        checks: 'check_all="yes"'
+      - dirs: /bin,/sbin
+        checks: 'check_all="yes"'
+  rootcheck:
+    frequency: 43200
+  openscap:
+    timeout: 1800
+    interval: '1d'
+    scan_on_start: 'yes'
   log_level: 1
   email_level: 12
-  ignore_files:
-    - /etc/mtab
-    - /etc/mnttab
-    - /etc/hosts.deny
-    - /etc/mail/statistics
-    - /etc/random-seed
-    - /etc/random.seed
-    - /etc/adjtime
-    - /etc/httpd/logs
-    - /etc/utmpx
-    - /etc/wtmpx
-    - /etc/cups/certs
-    - /etc/dumpdates
-    - /etc/svc/volatile
-  no_diff:
-    - /etc/ssl/private.key
-  directories:
-    - check_all: 'yes'
-      dirs: /etc,/usr/bin,/usr/sbin
-    - check_all: 'yes'
-      dirs: /bin,/sbin
   localfiles:
     - format: 'syslog'
       location: '/var/log/messages'
