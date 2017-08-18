@@ -14,13 +14,27 @@
   tags:
     - init
 
-- name: Generate SSL files
+- name: Generate SSL files for authd
   command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{wazuh_manager_fqdn}}/"
   args:
     creates: sslmanager.cert
     chdir: /var/ossec/etc/
   tags:
       - config
+  when: wazuh_manager_config.authd.ssl_agent_ca is not defined
+
+- name: Copy CA, SSL key and cert for authd
+  copy:
+    src: "{{ item }}"
+    dest: "/var/ossec/etc/{{ item | basename }}"
+    mode: 0644
+  with_items:
+    - "{{ wazuh_manager_config.authd.ssl_agent_ca }}"
+    - "{{ wazuh_manager_config.authd.ssl_manager_cert }}"
+    - "{{ wazuh_manager_config.authd.ssl_manager_key }}"
+  tags:
+    - config
+  when: wazuh_manager_config.authd.ssl_agent_ca is defined
 
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
@@ -79,15 +93,41 @@
   command: /var/ossec/bin/ossec-control enable agentless
   when: agentless_running.stdout == '0' and agentless_creeds is defined
 
-- name: Start client-syslog
+- name: Start ossec-agentlessd
   command: /var/ossec/bin/ossec-control start agentless
   when: agentless_running.stdout == '0' and agentless_creeds is defined
 
+- name: Check if ossec-authd is enabled
+  shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-authd is running' | xargs echo"
+  register: authd_running
+  changed_when: False
+
+- name: Enable ossec-authd
+  command: /var/ossec/bin/ossec-control enable auth
+  when:
+    - authd_running.stdout == '0'
+    - wazuh_manager_config.authd.enable == true
+
+- name: Start ossec-authd
+  command: /var/ossec/bin/ossec-control start auth
+  when:
+    - authd_running.stdout == '0'
+    - wazuh_manager_config.authd.enable == true
+
+- name: Retrieving authd Credentials
+  include_vars: authd_pass.yml
+  tags:
+    - config
+
 - name: Retrieving Agentless Credentials
   include_vars: agentless_creeds.yml
+  tags:
+    - config
 
 - name: Retrieving Wazuh-api User Credentials
   include_vars: wazuh_api_creds.yml
+  tags:
+    - config
 
 - name: Checking alert log output settings
   fail: msg="Please enable json_output or alerts_log options."
@@ -109,35 +149,18 @@
     - init
     - config
 
-- name: Write ossec-authd init file
-  template: src=ossec-authd-init.service
-            dest=/etc/init.d/ossec-authd
-            owner=root
-            group=root
-            mode=0755
-  when:
-    - ansible_service_mgr == "upstart"
-    - ansible_os_family != "CoreOS"
-    - wazuh_manager_config.enable_authd == true
-  tags:
-    - init
-    - config
-
-- name: Write ossec-authd systemd file
+- name: Ossec-authd password
   template:
-    src: ossec-authd.service
-    dest: /lib/systemd/system/ossec-authd.service
+    src: authd_pass.j2
+    dest: "/var/ossec/etc/authd.pass"
+    owner: ossec
+    group: ossec
+    mode: 0640
+  no_log: true
+  notify: restart wazuh-manager
   when:
-    - ansible_service_mgr == "systemd"
-    - ansible_os_family != "CoreOS"
-    - wazuh_manager_config.enable_authd == true
-  tags:
-    - init
-    - config
-
-- name: Ensure ossec-authd service is started and enabled
-  service: name=ossec-authd enabled=yes state=started
-  when: wazuh_manager_config.enable_authd == true
+    - wazuh_manager_config.authd.use_password is defined
+    - wazuh_manager_config.authd.use_password == true
   tags:
     - config
 

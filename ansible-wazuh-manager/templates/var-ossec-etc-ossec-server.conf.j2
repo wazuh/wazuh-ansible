@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 <!--
   Wazuh - Manager - Default configuration
   More info at: https://documentation.wazuh.com
@@ -20,6 +21,23 @@
     <smtp_server>{{ wazuh_manager_config.mail_smtp_server }}</smtp_server>
     <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
   </global>
+
+{% if wazuh_manager_config.authd.enable == true %}
+  <auth>
+    <disabled>no</disabled>
+    {% if wazuh_manager_config.authd.port is defined %}<port>{{wazuh_manager_config.authd.port}}</port>{% else %}<port>1515</port>{% endif %}
+    {% if wazuh_manager_config.authd.use_source_ip is defined %}<use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>{% endif %}
+    {% if wazuh_manager_config.authd.force_insert is defined %}<force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>{% endif %}
+    {% if wazuh_manager_config.authd.force_time is defined %}<force_time>{{wazuh_manager_config.authd.force_time}}</force_time>{% endif %}
+    {% if wazuh_manager_config.authd.purge is defined %}<purge>{{wazuh_manager_config.authd.purge}}</purge>{% endif %}
+    {% if wazuh_manager_config.authd.use_password is defined %}<use_password>{{wazuh_manager_config.authd.use_password}}</use_password>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_agent_ca is defined %}<ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_verify_host is defined %}<ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_cert is defined %}<ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_key is defined %}<ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_auto_negotiate is defined %}<ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>{% endif %}
+  </auth>
+{% endif %}
 
 {% if wazuh_manager_config.extra_emails is defined %}
 {% for mail in wazuh_manager_config.extra_emails %}

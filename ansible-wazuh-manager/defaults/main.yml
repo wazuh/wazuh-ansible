@@ -5,7 +5,8 @@ wazuh_manager_config:
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
-  enable_authd: false
+  authd:
+    enable: false
   email_notification: no
   mail_to:
     - admin@example.net
