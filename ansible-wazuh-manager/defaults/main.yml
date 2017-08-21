@@ -5,13 +5,50 @@ wazuh_manager_config:
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
+  connection:
+    - type: 'secure'
+      port: '1514'
+      protocol: 'tcp'
   authd:
     enable: false
-  email_notification: no
+    port: 1515
+    use_source_ip: 'no'
+    force_insert: 'no'
+    force_time: 0
+    purge: 'no'
+    use_password: 'no'
+    ssl_agent_ca: null
+    ssl_verify_host: 'no'
+    ssl_manager_cert: null
+    ssl_manager_key: null
+    ssl_auto_negotiate: 'no'
+  email_notification: 'no'
   mail_to:
-    - admin@example.net
+    - 'admin@example.net'
   mail_smtp_server: localhost
   mail_from: wazuh-server@example.com
+  extra_emails:
+    - enable: false
+      mail_to: 'admin@example.net'
+      format: full
+      level: 7
+      event_location: null
+      group: null
+      do_not_delay: false
+      do_not_group: false
+      rule_id: null
+  reports:
+    - enable: false
+      category: 'syscheck'
+      title: 'Daily report: File changes'
+      email_to: 'admin@example.net'
+      location: null
+      group: null
+      rule: null
+      level: null
+      srcip: null
+      user: null
+      showlogs: null
   syscheck:
     frequency: 43200
     scan_on_start: 'yes'
@@ -61,10 +98,6 @@ wazuh_manager_config:
   globals:
     - '127.0.0.1'
     - '192.168.2.1'
-  connection:
-    - type: 'secure'
-      port: '1514'
-      protocol: 'tcp'
   commands:
     - name: 'disable-account'
       executable: 'disable-account.sh'
@@ -95,22 +128,33 @@ wazuh_manager_config:
       location: 'local'
       level: 6
       timeout: 600
+  syslog_outputs:
+    - server: null
+      port: null
+      format: null
 
 wazuh_agent_configs:
   - type: os
     type_value: linux
-    frequency_check: 79200
-    ignore_files:
+    syscheck:
+      frequency: 43200
+      scan_on_start: 'yes'
+      ignore:
       - /etc/mtab
       - /etc/mnttab
       - /etc/hosts.deny
       - /etc/mail/statistics
       - /etc/svc/volatile
-    directories:
-      - check_all: yes
-        dirs: /etc,/usr/bin,/usr/sbin
-      - check_all: yes
-        dirs: /bin,/sbin
+      no_diff:
+        - /etc/ssl/private.key
+      directories:
+        - dirs: /etc,/usr/bin,/usr/sbin
+          checks: 'check_all="yes"'
+        - dirs: /bin,/sbin
+          checks: 'check_all="yes"'
+    rootcheck:
+      frequency: 43200
+      cis_distribution_filename: null
     localfiles:
       - format: 'syslog'
         location: '/var/log/messages'
