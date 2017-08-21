@@ -28,7 +28,10 @@
 
 - name: Verify agent registration
   shell: echo {{ agent_auth_output }} | grep "Valid key created"
-  when: wazuh_register_client == true
+  when:
+    - wazuh_register_client == true
+    - check_keys.stat.size == 0
+    - wazuh_manager_ip is not none
   tags:
     - config
 
