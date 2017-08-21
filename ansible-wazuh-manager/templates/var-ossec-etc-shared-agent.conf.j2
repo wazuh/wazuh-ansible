@@ -1,44 +1,68 @@
-{% for item in wazuh_agent_configs %}
-<agent_config {{ item.type }}="{{ item.type_value }}">
+{% if wazuh_agent_configs is defined %}
+{% for agent_config in wazuh_agent_configs %}
+<agent_config {{ agent_config.type }}="{{ agent_config.type_value }}">
   <syscheck>
-  <!-- Directories to check (perform all possible verifications) -->
-{% for directory in item.directories %}
-  <directories check_all="{{ directory.check_all }}">{{ directory.dirs }}</directories>
-{% endfor %}
-    <!-- files we don't watch/ignore -->
-    <frequency>{{ item.frequency_check }}</frequency>
-    {% for ignore_file in item.ignore_files %}
-    <ignore>{{ ignore_file }}</ignore>
+    <!-- Frequency that syscheck is executed -- default every 20 hours -->
+    <frequency>{{ agent_config.syscheck.frequency }}</frequency>
+    <scan_on_start>{{ agent_config.syscheck.scan_on_start }}</scan_on_start>
+
+    <!-- Directories to check  (perform all possible verifications) -->
+    {% if agent_config.syscheck.directories is defined %}
+    {% for directory in agent_config.syscheck.directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
+    {% endif %}
+
+    <!-- Files/directories to ignore -->
+    {% if agent_config.syscheck.ignore is defined %}
+    {% for ignore in agent_config.syscheck.ignore %}
+    <ignore>{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Files no diff -->
+    {% if agent_config.syscheck.no_diff is defined %}
+    {% for no_diff in agent_config.syscheck.no_diff %}
+    <nodiff>{{ no_diff }}</nodiff>
+    {% endfor %}
+    {% endif %}
   </syscheck>
 
-  <!-- Files to monitor (localfiles) -->
-{% for localfile in item.localfiles %}
-  <localfile>
-     <log_format>{{ localfile.format }}</log_format>
-     {% if localfile.command is defined %}
-     <command>{{ localfile.command }}</command>
-     {% else %}
-     <location>{{ localfile.location }}</location>
-     {% endif %}
-  </localfile>
-{% endfor %}
+  {% for localfile in agent_config.localfiles %}
+    <localfile>
+       <log_format>{{ localfile.format }}</log_format>
+       {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+       <command>{{ localfile.command }}</command>
+       <frequency>{{ localfile.frequency }}</frequency>
+       {% else %}
+       <location>{{ localfile.location }}</location>
+       {% endif %}
+    </localfile>
+  {% endfor %}
 
   <rootcheck>
+    <disabled>no</disabled>
+    <check_unixaudit>yes</check_unixaudit>
+    <check_files>yes</check_files>
+    <check_trojans>yes</check_trojans>
+    <check_dev>yes</check_dev>
+    <check_sys>yes</check_sys>
+    <check_pids>yes</check_pids>
+    <check_ports>yes</check_ports>
+    <check_if>yes</check_if>
+
+    <!-- Frequency that rootcheck is executed - every 12 hours -->
+    <frequency>{{ agent_config.rootcheck.frequency }}</frequency>
+
     <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
     <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
-    {% if item.cis_distribution_filename is defined %}
-    <system_audit>/var/ossec/etc/shared/{{ item.cis_distribution_filename }}</system_audit>
-    {% else %}
-    {# none specified so install all #}
-    <system_audit>/var/ossec/etc/shared/cis_debian_linux_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/cis_rhel_linux_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/cis_rhel5_linux_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/cis_rhel6_linux_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/cis_rhel7_linux_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
+    {% if agent_config.rootcheck.cis_distribution_filename is not none %}
+    <system_audit>/var/ossec/etc/shared/{{ agent_config.rootcheck.cis_distribution_filename }}</system_audit>
     {% endif %}
+    <skip_nfs>yes</skip_nfs>
   </rootcheck>
-
 </agent_config>
 {% endfor %}
+{% endif %}
