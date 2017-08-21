@@ -7,7 +7,11 @@
 
 <ossec_config>
   <client>
+    {% if wazuh_manager_ip is not none %}
     <server-ip>{{ wazuh_manager_ip }}</server-ip>
+    {% else %}
+    <server-ip>SERVER-IP</server-ip>
+    {% endif %}
     {% if wazuh_profile is not none %}
     <config-profile>{{ wazuh_profile }}</config-profile>
     {% endif %}
