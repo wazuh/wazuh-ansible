@@ -8,14 +8,14 @@
 <ossec_config>
   <client>
     <server-ip>{{ wazuh_manager_ip }}</server-ip>
-    {% if wazuh_profile is defined %}
+    {% if wazuh_profile is not none %}
     <config-profile>{{ wazuh_profile }}</config-profile>
     {% endif %}
     <protocol>{{ wazuh_manager_proto }}</protocol>
     {% if wazuh_manager_port is defined %}
     <port>{{ wazuh_manager_port }}</port>
     {% endif %}
-    {% if wazuh_notify_time is defined and wazuh_time_reconnect is defined %}
+    {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
     {% endif %}

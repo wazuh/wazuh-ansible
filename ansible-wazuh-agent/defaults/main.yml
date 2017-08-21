@@ -1,8 +1,10 @@
 ---
 wazuh_manager_ip: 127.0.0.1
+wazuh_profile: null
 wazuh_manager_proto: udp
-wazuh_authd_port: 1515
 wazuh_register_client: false
+wazuh_notify_time: null
+wazuh_time_reconnect: null
 wazuh_agent_config:
   syscheck:
     frequency: 43200
