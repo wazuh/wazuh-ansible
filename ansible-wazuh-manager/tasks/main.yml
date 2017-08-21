@@ -21,7 +21,7 @@
     chdir: /var/ossec/etc/
   tags:
       - config
-  when: wazuh_manager_config.authd.ssl_agent_ca is not defined
+  when: not wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
   copy:
@@ -34,7 +34,7 @@
     - "{{ wazuh_manager_config.authd.ssl_manager_key }}"
   tags:
     - config
-  when: wazuh_manager_config.authd.ssl_agent_ca is defined
+  when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
@@ -78,11 +78,15 @@
 
 - name: Enable client-syslog
   command: /var/ossec/bin/ossec-control enable client-syslog
-  when: csyslog_running.stdout == '0' and wazuh_manager_config.syslog_outputs is defined
+  when:
+    - csyslog_running.stdout == '0'
+    - wazuh_manager_config.syslog_outputs.server is not none
 
 - name: Start client-syslog
   command: /var/ossec/bin/ossec-control start client-syslog
-  when: csyslog_running.stdout == '0' and wazuh_manager_config.syslog_outputs is defined
+  when:
+    - csyslog_running.stdout == '0'
+    - wazuh_manager_config.syslog_outputs.server is not none
 
 - name: Check if ossec-agentlessd is enabled
   shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-agentlessd is running' | xargs echo"

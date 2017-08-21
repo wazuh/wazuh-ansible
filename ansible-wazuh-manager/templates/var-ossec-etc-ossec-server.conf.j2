@@ -25,63 +25,67 @@
 {% if wazuh_manager_config.authd.enable == true %}
   <auth>
     <disabled>no</disabled>
-    {% if wazuh_manager_config.authd.port is defined %}<port>{{wazuh_manager_config.authd.port}}</port>{% else %}<port>1515</port>{% endif %}
-    {% if wazuh_manager_config.authd.use_source_ip is defined %}<use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>{% endif %}
-    {% if wazuh_manager_config.authd.force_insert is defined %}<force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>{% endif %}
-    {% if wazuh_manager_config.authd.force_time is defined %}<force_time>{{wazuh_manager_config.authd.force_time}}</force_time>{% endif %}
-    {% if wazuh_manager_config.authd.purge is defined %}<purge>{{wazuh_manager_config.authd.purge}}</purge>{% endif %}
-    {% if wazuh_manager_config.authd.use_password is defined %}<use_password>{{wazuh_manager_config.authd.use_password}}</use_password>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_agent_ca is defined %}<ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_verify_host is defined %}<ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_cert is defined %}<ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_key is defined %}<ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_auto_negotiate is defined %}<ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>{% endif %}
+    {% if wazuh_manager_config.authd.port is not none %}<port>{{wazuh_manager_config.authd.port}}</port>{% else %}<port>1515</port>{% endif %}
+    {% if wazuh_manager_config.authd.use_source_ip is not none %}<use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>{% endif %}
+    {% if wazuh_manager_config.authd.force_insert is not none %}<force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>{% endif %}
+    {% if wazuh_manager_config.authd.force_time is not none %}<force_time>{{wazuh_manager_config.authd.force_time}}</force_time>{% endif %}
+    {% if wazuh_manager_config.authd.purge is not none %}<purge>{{wazuh_manager_config.authd.purge}}</purge>{% endif %}
+    {% if wazuh_manager_config.authd.use_password is not none %}<use_password>{{wazuh_manager_config.authd.use_password}}</use_password>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}<ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_verify_host is not none %}<ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_cert is not none %}<ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_key is not none %}<ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>{% endif %}
+    {% if wazuh_manager_config.authd.ssl_auto_negotiate is not none %}<ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>{% endif %}
   </auth>
 {% endif %}
 
 {% if wazuh_manager_config.extra_emails is defined %}
 {% for mail in wazuh_manager_config.extra_emails %}
+{% if mail.enable == true %}
   <email_alerts>
     <email_to>{{ mail.mail_to }}</email_to>
-    {% if mail.format is defined %}
+    {% if mail.format is not none %}
     <format>{{ mail.format }}</format>
     {% endif %}
-    {% if mail.level is defined %}
+    {% if mail.level is not none %}
     <level>{{ mail.level }}</level>
     {% endif %}
-    {% if mail.event_location is defined %}
+    {% if mail.event_location is not none %}
     <event_location>{{ mail.event_location }}</event_location>
     {% endif %}
-    {% if mail.group is defined %}
+    {% if mail.group is not none %}
     <group>{{ mail.group }}</group>
     {% endif %}
-    {% if mail.do_not_delay is defined and mail.do_not_delay == true %}
+    {% if mail.do_not_delay is not none and mail.do_not_delay == true %}
     <do_not_delay />
     {% endif %}
-    {% if mail.do_not_group is defined and mail.do_not_group == true %}
+    {% if mail.do_not_group is not none and mail.do_not_group == true %}
     <do_not_group />
     {% endif %}
-    {% if mail.rule_id is defined %}
+    {% if mail.rule_id is not none %}
     <rule_id>{{ mail.rule_id }}</rule_id>
     {% endif %}
   </email_alerts>
+{% endif %}
 {% endfor %}
 {% endif %}
 
 {% if wazuh_manager_config.reports is defined %}
 {% for report in wazuh_manager_config.reports %}
+{% if report.enable == true %}
   <reports>
     <category>{{ report.category }}</category>
     <title>{{ report.title }}</title>
     <email_to>{{ report.email_to }}</email_to>
-    {% if report.location is defined %}<location>{{ report.location }}</location>{% endif %}
-    {% if report.group is defined %}<group>{{ report.group }}</group>{% endif %}
-    {% if report.rule is defined %}<rule>{{ report.rule }}</rule>{% endif %}
-    {% if report.level is defined %}<level>{{ report.level }}</level>{% endif %}
-    {% if report.srcip is defined %}<srcip>{{ report.srcip }}</srcip>{% endif %}
-    {% if report.user is defined %}<user>{{ report.user }}</user>{% endif %}
-    {% if report.showlogs is defined %}<showlogs>{{ report.showlogs }}</showlogs>{% endif %}
+    {% if report.location is not none %}<location>{{ report.location }}</location>{% endif %}
+    {% if report.group is not none %}<group>{{ report.group }}</group>{% endif %}
+    {% if report.rule is not none %}<rule>{{ report.rule }}</rule>{% endif %}
+    {% if report.level is not none %}<level>{{ report.level }}</level>{% endif %}
+    {% if report.srcip is not none %}<srcip>{{ report.srcip }}</srcip>{% endif %}
+    {% if report.user is not none %}<user>{{ report.user }}</user>{% endif %}
+    {% if report.showlogs is not none %}<showlogs>{{ report.showlogs }}</showlogs>{% endif %}
   </reports>
+{% endif %}
 {% endfor %}
 {% endif %}
 
@@ -263,11 +267,13 @@
 
 {% if wazuh_manager_config.syslog_outputs is defined %}
 {% for syslog_output in wazuh_manager_config.syslog_outputs %}
+{% if syslog_output.server is not none  %}
   <syslog_output>
     <server>{{ syslog_output.server }}</server>
     <port>{{ syslog_output.port }}</port>
     <format>{{ syslog_output.format }}</format>
   </syslog_output>
+{% endif %}
 {% endfor %}
 {% endif %}
 
