@@ -3,8 +3,8 @@
   "template": "wazuh*",
   "settings": {
     "index.refresh_interval": "5s",
-    "number_of_shards" :   1,
-    "number_of_replicas" : 0
+    "number_of_shards": {{ elasticsearch_shards }},
+    "number_of_replicas": {{ elasticsearch_replicas }}
   },
   "mappings": {
     "wazuh": {
