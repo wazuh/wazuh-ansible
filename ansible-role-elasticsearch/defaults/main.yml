@@ -5,3 +5,5 @@ elasticsearch_http_port: 9200
 elasticsearch_network_host: 127.0.0.1
 elasticsearch_jvm_xms: null
 elastic_stack_version: 5.5.2
+elasticsearch_shards: 5
+elasticsearch_replicas: 1

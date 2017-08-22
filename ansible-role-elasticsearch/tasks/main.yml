@@ -31,6 +31,30 @@
     enabled: yes
     state: started
 
+- name: Make sure Elasticsearch is running before proceeding
+  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
+  tags:
+    - configure
+    - init
+
+- name: Installing Wazuh template
+  uri:
+    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
+    method: PUT
+    status_code: 200
+    body_format: json
+    body: "{{ lookup('template','wazuh-elastic5-template.json.j2') }}"
+  tags: init
+
+- name: Injecting sample alert
+  uri:
+    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/wazuh-alerts-{{ ansible_date_time.date | regex_replace('-', '.') }}/wazuh/sample"
+    method: PUT
+    status_code: 201
+    body_format: json
+    body: "{{ lookup('template','alert_sample.json.j2') }}"
+  tags: init
+
 - include: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
