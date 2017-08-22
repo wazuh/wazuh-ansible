@@ -6,7 +6,7 @@
   when: ansible_os_family == "Debian"
 
 - name: Install wazuh-agent
-  package: name=wazuh-agent state=present
+  package: name=wazuh-agent state=latest
   tags:
     - init
 

@@ -6,7 +6,7 @@
   when: ansible_os_family == "Debian"
 
 - name: Install wazuh-manager, wazuh-api and expect
-  package: pkg={{ item }} state=present
+  package: pkg={{ item }} state=latest
   with_items:
     - wazuh-manager
     - wazuh-api
