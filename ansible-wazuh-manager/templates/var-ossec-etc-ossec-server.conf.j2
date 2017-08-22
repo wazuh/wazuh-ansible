@@ -245,10 +245,15 @@
   <!-- Active Response Config -->
 {% for response in wazuh_manager_config.active_responses %}
   <active-response>
+    <disabled>no</disabled>
     <command>{{ response.command }}</command>
-    <location>{{ response.location }}</location>
-    <level>{{ response.level }}</level>
-    <timeout>{{ response.timeout }}</timeout>
+    {%if response.location is defined %}<location>{{ response.location }}</location>{% endif %}
+    {%if response.agent_id is defined %}<agent_id>{{ response.agent_id }}</agent_id>{% endif %}
+    {%if response.level is defined %}<level>{{ response.level }}</level>{% endif %}
+    {%if response.rules_group is defined %}<rules_group>{{ response.rules_group }}</rules_group>{% endif %}
+    {%if response.rules_id is defined %}<rules_id>{{ response.rules_id }}</rules_id>{% endif %}
+    {%if response.timeout is defined %}<timeout>{{ response.timeout }}</timeout>{% endif %}
+    {%if response.repeated_offenders is defined %}<repeated_offenders>{{ response.repeated_offenders }}</repeated_offenders>{% endif %}
   </active-response>
 {% endfor %}
 
