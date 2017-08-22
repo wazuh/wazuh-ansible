@@ -37,6 +37,14 @@
     - configure
     - init
 
+- name: Check for Wazuh template
+  uri:
+    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
+    method: GET
+    status_code: 200, 404
+  register: wazuh_template_exits
+  tags: init
+
 - name: Installing Wazuh template
   uri:
     url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
@@ -44,13 +52,14 @@
     status_code: 200
     body_format: json
     body: "{{ lookup('template','wazuh-elastic5-template.json.j2') }}"
+  when: wazuh_template_exits.status != 200
   tags: init
 
 - name: Injecting sample alert
   uri:
     url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/wazuh-alerts-{{ ansible_date_time.date | regex_replace('-', '.') }}/wazuh/sample"
     method: PUT
-    status_code: 201
+    status_code: 200, 201
     body_format: json
     body: "{{ lookup('template','alert_sample.json.j2') }}"
   tags: init
