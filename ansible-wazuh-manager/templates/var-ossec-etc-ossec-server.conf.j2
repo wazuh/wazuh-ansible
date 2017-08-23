@@ -1,4 +1,4 @@
-#jinja2: trim_blocks:False
+#jinja2: trim_blocks: False
 <!--
   Wazuh - Manager - Default configuration
   More info at: https://documentation.wazuh.com
@@ -21,6 +21,10 @@
     <smtp_server>{{ wazuh_manager_config.mail_smtp_server }}</smtp_server>
     <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
   </global>
+
+  <logging>
+    <log_format>{{ wazuh_manager_config.log_format }}</log_format>
+  </logging>
 
 {% if wazuh_manager_config.authd.enable == true %}
   <auth>
@@ -95,11 +99,11 @@
   </alerts>
 
   <remote>
-{% for connection in wazuh_manager_config.connection %}
+  {% for connection in wazuh_manager_config.connection %}
     <connection>{{ connection.type }}</connection>
     <port>{{ connection.port }}</port>
     <protocol>{{ connection.protocol }}</protocol>
-{% endfor %}
+  {% endfor %}
   </remote>
 
   <rootcheck>
@@ -128,6 +132,8 @@
   </rootcheck>
 
   <syscheck>
+    <auto_ignore>{{ wazuh_manager_config.syscheck.auto_ignore }}</auto_ignore>
+    <alert_new_files>{{ wazuh_manager_config.syscheck.alert_new_files }}</alert_new_files>
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ wazuh_manager_config.syscheck.frequency }}</frequency>
     <scan_on_start>{{ wazuh_manager_config.syscheck.scan_on_start }}</scan_on_start>

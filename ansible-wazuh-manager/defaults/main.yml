@@ -5,6 +5,7 @@ wazuh_manager_config:
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
+  log_format: 'plain'
   connection:
     - type: 'secure'
       port: '1514'
@@ -52,6 +53,8 @@ wazuh_manager_config:
   syscheck:
     frequency: 43200
     scan_on_start: 'yes'
+    auto_ignore: 'no'
+    alert_new_files: 'yes'
     ignore:
       - /etc/mtab
       - /etc/mnttab
@@ -124,6 +127,9 @@ wazuh_manager_config:
       expect: 'srcip'
       timeout_allowed: 'yes'
   active_responses:
+    - command: 'restart-ossec'
+      location: 'local'
+      rules_id: 710001
     - command: 'host-deny'
       location: 'local'
       level: 6
@@ -135,10 +141,12 @@ wazuh_manager_config:
 
 wazuh_agent_configs:
   - type: os
-    type_value: linux
+    type_value: Linux
     syscheck:
       frequency: 43200
       scan_on_start: 'yes'
+      auto_ignore: 'no'
+      alert_new_files: 'yes'
       ignore:
       - /etc/mtab
       - /etc/mnttab

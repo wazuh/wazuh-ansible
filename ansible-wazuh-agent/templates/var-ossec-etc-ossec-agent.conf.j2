@@ -25,6 +25,10 @@
     {% endif %}
   </client>
 
+  <logging>
+    <log_format>{{ wazuh_agent_config.log_format }}</log_format>
+  </logging>
+
   <rootcheck>
     <disabled>no</disabled>
     <check_unixaudit>yes</check_unixaudit>
@@ -51,6 +55,8 @@
   </rootcheck>
 
   <syscheck>
+    <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
+    <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files>
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>

@@ -7,9 +7,12 @@ wazuh_register_client: false
 wazuh_notify_time: null
 wazuh_time_reconnect: null
 wazuh_agent_config:
+  log_format: 'plain'
   syscheck:
     frequency: 43200
     scan_on_start: 'yes'
+    auto_ignore: 'no'
+    alert_new_files: 'yes'
     ignore:
       - /etc/mtab
       - /etc/mnttab
