@@ -6,6 +6,11 @@ wazuh_manager_proto: tcp
 wazuh_register_client: false
 wazuh_notify_time: null
 wazuh_time_reconnect: null
+wazuh_winagent_config:
+  install_dir: 'C:\wazuh-agent\'
+  version: '2.1.0'
+  url: https://packages.wazuh.com/windows/wazuh-winagent-v2.1.0-1.exe
+  md5: 715fbd55f670c2cecc607f2cbd0b2310
 wazuh_agent_config:
   log_format: 'plain'
   syscheck:

@@ -1,0 +1,70 @@
+---
+- name: Windows | Get current installed version
+  win_shell: "{{ wazuh_winagent_config.install_dir }}ossec-agent.exe -h"
+  args:
+    removes: "{{ wazuh_winagent_config.install_dir }}ossec-agent.exe"
+  register: agent_version
+  failed_when: False
+  changed_when: False
+
+- name: Windows | Check Wazuh agent version installed
+  set_fact: correct_version=true
+  when:
+    - agent_version.stdout is defined
+    - wazuh_winagent_config.version in agent_version.stdout
+
+- name: Windows | Downloading windows Wazuh agent installer
+  win_get_url:
+    dest: C:\wazuh-agent-installer.exe
+    url: "{{ wazuh_winagent_config.url }}"
+  when:
+    - correct_version is not defined
+
+- name: Windows | Verify the downloaded Wazuh agent installer
+  win_stat:
+    path: C:\wazuh-agent-installer.exe
+    get_checksum: yes
+    checksum_algorithm: md5
+  register: installer_md5
+  when:
+    - correct_version is not defined
+  failed_when:
+    - installer_md5.stat.checksum != wazuh_winagent_config.md5
+
+- name: Windows | Install Wazuh agent
+  win_shell: C:\wazuh-agent-installer.exe /S /D={{ wazuh_winagent_config.install_dir }}
+  when:
+    - correct_version is not defined
+
+- name: Windows | Check if client.keys exists
+  win_stat: path="{{ wazuh_winagent_config.install_dir }}client.keys"
+  register: check_windows_key
+  notify: restart wazuh-agent windows
+  tags:
+    - config
+
+- name: Windows | Register agent
+  win_shell: "{{ wazuh_winagent_config.install_dir }}agent-auth.exe -m {{ wazuh_manager_ip }} -p {{ wazuh_authd_port }}"
+  args:
+    chdir: "{{ wazuh_winagent_config.install_dir }}"
+  register: agent_auth_output
+  notify: restart wazuh-agent windows
+  when:
+    - wazuh_register_client == true
+    - check_windows_key.stat.exists == false
+    - wazuh_manager_ip is not none
+  tags:
+    - config
+
+- name: Windows | Installing agent configuration (ossec.conf)
+  win_template:
+    src: var-ossec-etc-ossec-agent.conf.j2
+    dest: "{{ wazuh_winagent_config.install_dir }}ossec.conf"
+  notify: restart wazuh-agent windows
+  tags:
+    - config
+
+- name: Windows | Delete downloaded Wazuh agent installer file
+  win_file:
+    path: C:\wazuh-agent-installer.exe
+    state: absent
