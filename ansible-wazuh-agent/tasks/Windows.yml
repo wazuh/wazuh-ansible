@@ -16,7 +16,7 @@
 - name: Windows | Downloading windows Wazuh agent installer
   win_get_url:
     dest: C:\wazuh-agent-installer.exe
-    url: "{{ wazuh_winagent_config.url }}"
+    url: "{{ wazuh_winagent_config.repo }}wazuh-winagent-v{{ wazuh_winagent_config.version }}-{{ wazuh_winagent_config.revision }}.exe"
   when:
     - correct_version is not defined
 
