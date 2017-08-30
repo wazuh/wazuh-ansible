@@ -36,6 +36,33 @@
     - config
   when: wazuh_manager_config.authd.ssl_agent_ca is defined
 
+- name: Verifying for old init authd service
+  stat: path=/etc/init.d/ossec-authd
+  register: old_authd_service
+  tags:
+    - config
+
+- name: Verifying for old systemd authd service
+  stat: path=/lib/systemd/system/ossec-authd.service
+  register: old_authd_service
+  tags:
+    - config
+
+- name: Ensure ossec-authd service is disabled
+  service: name=ossec-authd enabled=no state=stopped
+  when: old_authd_service.stat.exists == True
+  tags:
+    - config
+
+- name: Removing old init authd services
+  file: path="{{ item }}" state=absent
+  with_items:
+    - "/etc/init.d/ossec-authd"
+    - "/lib/systemd/system/ossec-authd.service"
+  when: old_authd_service.stat.exists == True
+  tags:
+    - config
+
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest=/var/ossec/etc/rules/local_rules.xml
