@@ -241,7 +241,11 @@
     <decoder_dir>ruleset/decoders</decoder_dir>
     <rule_dir>ruleset/rules</rule_dir>
     <rule_exclude>0215-policy_rules.xml</rule_exclude>
-    <list>etc/lists/audit-keys</list>
+    {% if cdb_lists is defined %}
+    {% for list in cdb_lists %}
+    <list>etc/lists/{{ list.name }}</list>
+    {% endfor %}
+    {% endif %}
 
     <!-- User-defined ruleset -->
     <decoder_dir>etc/decoders</decoder_dir>

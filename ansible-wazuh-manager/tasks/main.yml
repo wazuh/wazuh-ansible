@@ -86,6 +86,11 @@
   tags:
     - config
 
+- name: Retrieving CDB lists
+  include_vars: cdb_lists.yml
+  tags:
+    - config
+
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
   when: item.server is not none
@@ -211,6 +216,23 @@
 - name: Encode the secret
   shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
   when: agentless_creeds is defined
+  tags:
+    - config
+
+- name: CDB Lists
+  template:
+    src: cdb_lists.j2
+    dest: "/var/ossec/etc/lists/{{ item.name }}"
+    owner: root
+    group: ossec
+    mode: 0640
+  no_log: true
+  notify:
+    - rebuild cdb_lists
+    - restart wazuh-manager
+  with_items:
+    - "{{ cdb_lists }}"
+  when: cdb_lists is defined
   tags:
     - config
 
