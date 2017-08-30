@@ -110,6 +110,10 @@ wazuh_manager_config:
       executable: 'restart-ossec.sh'
       expect: ''
       timeout_allowed: 'no'
+    - name: 'win_restart-ossec'
+      executable: 'restart-ossec.cmd'
+      expect: ''
+      timeout_allowed: 'no'
     - name: 'firewall-drop'
       executable: 'firewall-drop.sh'
       expect: 'srcip'
@@ -129,7 +133,10 @@ wazuh_manager_config:
   active_responses:
     - command: 'restart-ossec'
       location: 'local'
-      rules_id: 710001
+      rules_id: '100002'
+    - command: 'win_restart-ossec'
+      location: 'local'
+      rules_id: '100003'
     - command: 'host-deny'
       location: 'local'
       level: 6
@@ -176,3 +183,19 @@ wazuh_agent_configs:
         location: '/var/log/httpd/access_log'
       - format: 'apache'
         location: '/var/ossec/logs/active-responses.log'
+  - type: os
+    type_value: Windows
+    syscheck:
+      frequency: 43200
+      scan_on_start: 'yes'
+      auto_ignore: 'no'
+      alert_new_files: 'yes'
+      windows_registry:
+        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
+          arch: 'both'
+        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
+    localfiles:
+      - format: 'Security'
+        location: 'eventchannel'
+      - format: 'System'
+        location: 'eventlog'

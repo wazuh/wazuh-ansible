@@ -29,6 +29,16 @@
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
     {% endif %}
+
+    {% if agent_config.syscheck.windows_registry is defined %}
+    {% for registry_key in agent_config.syscheck.windows_registry %}
+    {% if registry_key.arch is defined %}
+    <windows_registry arch="{{ registry_key.arch }}">{{ registry_key.key }}</windows_registry>
+    {% else %}
+    <windows_registry>{{ registry_key.key }}</windows_registry>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
   </syscheck>
 
   {% for localfile in agent_config.localfiles %}
@@ -43,6 +53,7 @@
     </localfile>
   {% endfor %}
 
+  {% if agent_config.rootcheck is defined %}
   <rootcheck>
     <disabled>no</disabled>
     <check_unixaudit>yes</check_unixaudit>
@@ -57,15 +68,12 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ agent_config.rootcheck.frequency }}</frequency>
 
-    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
-    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
-    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
     {% if agent_config.rootcheck.cis_distribution_filename is not none %}
     <system_audit>/var/ossec/etc/shared/{{ agent_config.rootcheck.cis_distribution_filename }}</system_audit>
     {% endif %}
     <skip_nfs>yes</skip_nfs>
   </rootcheck>
+  {% endif %}
 </agent_config>
 {% endfor %}
 {% endif %}

@@ -40,6 +40,10 @@ wazuh_agent_config:
         checks: 'check_all="yes"'
       - dirs: /bin,/sbin
         checks: 'check_all="yes"'
+    windows_registry:
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
+        arch: 'both'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
   rootcheck:
     frequency: 43200
   openscap:

@@ -1,17 +1,5 @@
 <!-- Local rules -->
 
-<!--
-Used with active-response to restart an agent when agent.conf file
-is successfully retrieved.
--->
-<group name="local,ossec,">
-  <rule id="710001" level="1">
-    <if_group>syscheck</if_group>
-    <match>/var/ossec/etc/shared/agent.conf</match>
-    <description>agent.conf was modified</description>
-  </rule>
-</group>
-
 <!-- Modify it at your will. -->
 
 <!-- Example -->
@@ -27,4 +15,21 @@ is successfully retrieved.
     <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
   </rule>
 
+</group>
+
+<!--
+Used with active-response to restart an agent when agent.conf file
+is successfully retrieved.
+-->
+<group name="local,ossec,">
+  <rule id="100002" level="1">
+    <if_group>syscheck</if_group>
+    <match>/var/ossec/etc/shared/agent.conf</match>
+    <description>Linux | agent.conf was modified</description>
+  </rule>
+  <rule id="100003" level="1">
+    <if_group>syscheck</if_group>
+    <match>C:\wazuh-agent/shared/agent.conf</match>
+    <description>Windows | agent.conf was modified</description>
+  </rule>
 </group>

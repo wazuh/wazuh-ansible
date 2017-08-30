@@ -1,4 +1,4 @@
-#jinja2: lstrip_blocks: True
+#jinja2: trim_blocks: False
 <!--
   Wazuh - Agent
   More info at: https://documentation.wazuh.com
@@ -29,6 +29,10 @@
     <log_format>{{ wazuh_agent_config.log_format }}</log_format>
   </logging>
 
+  <active-response>
+    <disabled>no</disabled>
+  </active-response> 
+
   <rootcheck>
     <disabled>no</disabled>
     <check_unixaudit>yes</check_unixaudit>
@@ -43,6 +47,13 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ wazuh_agent_config.rootcheck.frequency }}</frequency>
 
+    {% if ansible_os_family == "Windows" %}
+    <windows_audit>./shared/win_audit_rcl.txt</windows_audit>
+    <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
+    <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
+    {% endif %}
+
+    {% if ansible_system == "Linux" %}
     <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
     <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
@@ -50,11 +61,21 @@
     {% if cis_distribution_filename is defined %}
     <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
     {% endif %}
+    {% endif %}
 
     <skip_nfs>yes</skip_nfs>
   </rootcheck>
 
   <syscheck>
+    <disabled>no</disabled>
+    {% if ansible_os_family == "Windows" %}
+    <directories check_all="yes" realtime="yes" restrict="^C:\wazuh-agent/shared/agent.conf$">C:\wazuh-agent</directories>
+    {% endif %}
+
+    {% if ansible_system == "Linux" %}
+    <directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories>
+    {% endif %}
+
     <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
     <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files>
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
@@ -79,9 +100,19 @@
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
+
+    {% if ansible_os_family == "Windows" %}
+    {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
+    {% if registry_key.arch is defined %}
+    <windows_registry arch="{{ registry_key.arch }}">{{ registry_key.key }}</windows_registry>
+    {% else %}
+    <windows_registry>{{ registry_key.key }}</windows_registry>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
   </syscheck>
 
-  {% if wazuh_agent_config.openscap.disable  == 'no' %}
+  {% if wazuh_agent_config.openscap.disable  == 'no' and ansible_system == "Linux"%}
   <wodle name="open-scap">
     <disabled>no</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
