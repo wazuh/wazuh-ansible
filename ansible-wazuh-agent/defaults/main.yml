@@ -1,9 +1,14 @@
 ---
 wazuh_manager_ip: null
-wazuh_authd_port: 1515
 wazuh_profile: null
 wazuh_manager_proto: tcp
-wazuh_register_client: false
+wazuh_agent_authd:
+  enable: false
+  port: 1515
+  ssl_agent_ca: null
+  ssl_agent_cert: null
+  ssl_agent_key: null
+  ssl_auto_negotiate: 'no'
 wazuh_notify_time: null
 wazuh_time_reconnect: null
 wazuh_winagent_config:

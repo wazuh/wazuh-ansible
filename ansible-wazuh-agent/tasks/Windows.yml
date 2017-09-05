@@ -43,14 +43,23 @@
   tags:
     - config
 
+- name: Retrieving authd Credentials
+  include_vars: authd_pass.yml
+  tags:
+    - config
+
 - name: Windows | Register agent
-  win_shell: "{{ wazuh_winagent_config.install_dir }}agent-auth.exe -m {{ wazuh_manager_ip }} -p {{ wazuh_authd_port }}"
+  win_shell: >
+    {{ wazuh_winagent_config.install_dir }}agent-auth.exe
+    -m {{ wazuh_manager_ip }}
+    -p {{ wazuh_agent_authd.port }}
+    {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
   args:
     chdir: "{{ wazuh_winagent_config.install_dir }}"
   register: agent_auth_output
   notify: restart wazuh-agent windows
   when:
-    - wazuh_register_client == true
+    - wazuh_agent_authd.enable == true
     - check_windows_key.stat.exists == false
     - wazuh_manager_ip is not none
   tags:
