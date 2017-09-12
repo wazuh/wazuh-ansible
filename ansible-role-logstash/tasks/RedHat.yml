@@ -28,6 +28,7 @@
 - name: RedHat/CentOS/Fedora | Checking if wazuh-manager is installed
   command: rpm -q wazuh-manager
   register: wazuh_manager_check_rpm
+  when: logstash_input_beats == false
   args:
     warn: no
 

@@ -5,16 +5,56 @@ wazuh_manager_config:
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
+  log_format: 'plain'
+  connection:
+    - type: 'secure'
+      port: '1514'
+      protocol: 'tcp'
   authd:
     enable: false
-  email_notification: no
+    port: 1515
+    use_source_ip: 'no'
+    force_insert: 'no'
+    force_time: 0
+    purge: 'no'
+    use_password: 'no'
+    ssl_agent_ca: null
+    ssl_verify_host: 'no'
+    ssl_manager_cert: null
+    ssl_manager_key: null
+    ssl_auto_negotiate: 'no'
+  email_notification: 'no'
   mail_to:
-    - admin@example.net
+    - 'admin@example.net'
   mail_smtp_server: localhost
   mail_from: wazuh-server@example.com
+  extra_emails:
+    - enable: false
+      mail_to: 'admin@example.net'
+      format: full
+      level: 7
+      event_location: null
+      group: null
+      do_not_delay: false
+      do_not_group: false
+      rule_id: null
+  reports:
+    - enable: false
+      category: 'syscheck'
+      title: 'Daily report: File changes'
+      email_to: 'admin@example.net'
+      location: null
+      group: null
+      rule: null
+      level: null
+      srcip: null
+      user: null
+      showlogs: null
   syscheck:
     frequency: 43200
     scan_on_start: 'yes'
+    auto_ignore: 'no'
+    alert_new_files: 'yes'
     ignore:
       - /etc/mtab
       - /etc/mnttab
@@ -61,10 +101,6 @@ wazuh_manager_config:
   globals:
     - '127.0.0.1'
     - '192.168.2.1'
-  connection:
-    - type: 'secure'
-      port: '1514'
-      protocol: 'tcp'
   commands:
     - name: 'disable-account'
       executable: 'disable-account.sh'
@@ -72,6 +108,10 @@ wazuh_manager_config:
       timeout_allowed: 'yes'
     - name: 'restart-ossec'
       executable: 'restart-ossec.sh'
+      expect: ''
+      timeout_allowed: 'no'
+    - name: 'win_restart-ossec'
+      executable: 'restart-ossec.cmd'
       expect: ''
       timeout_allowed: 'no'
     - name: 'firewall-drop'
@@ -91,26 +131,45 @@ wazuh_manager_config:
       expect: 'srcip'
       timeout_allowed: 'yes'
   active_responses:
+    - command: 'restart-ossec'
+      location: 'local'
+      rules_id: '100002'
+    - command: 'win_restart-ossec'
+      location: 'local'
+      rules_id: '100003'
     - command: 'host-deny'
       location: 'local'
       level: 6
       timeout: 600
+  syslog_outputs:
+    - server: null
+      port: null
+      format: null
 
 wazuh_agent_configs:
   - type: os
-    type_value: linux
-    frequency_check: 79200
-    ignore_files:
+    type_value: Linux
+    syscheck:
+      frequency: 43200
+      scan_on_start: 'yes'
+      auto_ignore: 'no'
+      alert_new_files: 'yes'
+      ignore:
       - /etc/mtab
       - /etc/mnttab
       - /etc/hosts.deny
       - /etc/mail/statistics
       - /etc/svc/volatile
-    directories:
-      - check_all: yes
-        dirs: /etc,/usr/bin,/usr/sbin
-      - check_all: yes
-        dirs: /bin,/sbin
+      no_diff:
+        - /etc/ssl/private.key
+      directories:
+        - dirs: /etc,/usr/bin,/usr/sbin
+          checks: 'check_all="yes"'
+        - dirs: /bin,/sbin
+          checks: 'check_all="yes"'
+    rootcheck:
+      frequency: 43200
+      cis_distribution_filename: null
     localfiles:
       - format: 'syslog'
         location: '/var/log/messages'
@@ -124,3 +183,19 @@ wazuh_agent_configs:
         location: '/var/log/httpd/access_log'
       - format: 'apache'
         location: '/var/ossec/logs/active-responses.log'
+  - type: os
+    type_value: Windows
+    syscheck:
+      frequency: 43200
+      scan_on_start: 'yes'
+      auto_ignore: 'no'
+      alert_new_files: 'yes'
+      windows_registry:
+        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
+          arch: 'both'
+        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
+    localfiles:
+      - format: 'Security'
+        location: 'eventchannel'
+      - format: 'System'
+        location: 'eventlog'

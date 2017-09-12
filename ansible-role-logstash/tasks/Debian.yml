@@ -42,6 +42,7 @@
 - name: Debian/Ubuntu | Checking if wazuh-manager is installed
   command: dpkg -l wazuh-manager
   register: wazuh_manager_check_deb
+  when: logstash_input_beats == false
   args:
     warn: no
 

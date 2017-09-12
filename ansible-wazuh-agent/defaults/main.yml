@@ -1,12 +1,29 @@
 ---
-wazuh_manager_ip: 127.0.0.1
-wazuh_manager_proto: udp
-wazuh_authd_port: 1515
-wazuh_register_client: false
+wazuh_manager_ip: null
+wazuh_profile: null
+wazuh_manager_proto: tcp
+wazuh_agent_authd:
+  enable: false
+  port: 1515
+  ssl_agent_ca: null
+  ssl_agent_cert: null
+  ssl_agent_key: null
+  ssl_auto_negotiate: 'no'
+wazuh_notify_time: null
+wazuh_time_reconnect: null
+wazuh_winagent_config:
+  install_dir: 'C:\wazuh-agent\'
+  version: '2.1.0'
+  revision: '1'
+  repo: https://packages.wazuh.com/windows/
+  md5: 715fbd55f670c2cecc607f2cbd0b2310
 wazuh_agent_config:
+  log_format: 'plain'
   syscheck:
     frequency: 43200
     scan_on_start: 'yes'
+    auto_ignore: 'no'
+    alert_new_files: 'yes'
     ignore:
       - /etc/mtab
       - /etc/mnttab
@@ -28,6 +45,10 @@ wazuh_agent_config:
         checks: 'check_all="yes"'
       - dirs: /bin,/sbin
         checks: 'check_all="yes"'
+    windows_registry:
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
+        arch: 'both'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
   rootcheck:
     frequency: 43200
   openscap:

@@ -1,0 +1,9 @@
+---
+cdb_lists:
+  - name: 'audit-keys'
+    content: |
+      audit-wazuh-w:write
+      audit-wazuh-r:read
+      audit-wazuh-a:attribute
+      audit-wazuh-x:execute
+      audit-wazuh-c:command

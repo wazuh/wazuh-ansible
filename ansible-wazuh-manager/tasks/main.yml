@@ -6,7 +6,7 @@
   when: ansible_os_family == "Debian"
 
 - name: Install wazuh-manager, wazuh-api and expect
-  package: pkg={{ item }} state=present
+  package: pkg={{ item }} state=latest
   with_items:
     - wazuh-manager
     - wazuh-api
@@ -21,7 +21,7 @@
     chdir: /var/ossec/etc/
   tags:
       - config
-  when: wazuh_manager_config.authd.ssl_agent_ca is not defined
+  when: not wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
   copy:
@@ -34,7 +34,7 @@
     - "{{ wazuh_manager_config.authd.ssl_manager_key }}"
   tags:
     - config
-  when: wazuh_manager_config.authd.ssl_agent_ca is defined
+  when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Verifying for old init authd service
   stat: path=/etc/init.d/ossec-authd
@@ -90,7 +90,7 @@
 - name: Configure the shared-agent.conf
   template: src=var-ossec-etc-shared-agent.conf.j2
             dest=/var/ossec/etc/shared/agent.conf
-            owner=root
+            owner=ossec
             group=ossec
             mode=0640
   notify: restart wazuh-manager
@@ -98,61 +98,85 @@
     - init
     - config
 
-- name: Check if client-syslog is enabled
-  shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-csyslogd is running' | xargs echo"
-  register: csyslog_running
-  changed_when: False
-
-- name: Enable client-syslog
-  command: /var/ossec/bin/ossec-control enable client-syslog
-  when: csyslog_running.stdout == '0' and wazuh_manager_config.syslog_outputs is defined
-
-- name: Start client-syslog
-  command: /var/ossec/bin/ossec-control start client-syslog
-  when: csyslog_running.stdout == '0' and wazuh_manager_config.syslog_outputs is defined
-
-- name: Check if ossec-agentlessd is enabled
-  shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-agentlessd is running' | xargs echo"
-  register: agentless_running
-  changed_when: False
-
-- name: Enable ossec-agentlessd
-  command: /var/ossec/bin/ossec-control enable agentless
-  when: agentless_running.stdout == '0' and agentless_creeds is defined
-
-- name: Start ossec-agentlessd
-  command: /var/ossec/bin/ossec-control start agentless
-  when: agentless_running.stdout == '0' and agentless_creeds is defined
-
-- name: Check if ossec-authd is enabled
-  shell: "/var/ossec/bin/ossec-control status | grep -c 'ossec-authd is running' | xargs echo"
-  register: authd_running
-  changed_when: False
-
-- name: Enable ossec-authd
-  command: /var/ossec/bin/ossec-control enable auth
-  when:
-    - authd_running.stdout == '0'
-    - wazuh_manager_config.authd.enable == true
-
-- name: Start ossec-authd
-  command: /var/ossec/bin/ossec-control start auth
-  when:
-    - authd_running.stdout == '0'
-    - wazuh_manager_config.authd.enable == true
+- name: Retrieving Agentless Credentials
+  include_vars: agentless_creeds.yml
+  tags:
+    - config
 
 - name: Retrieving authd Credentials
   include_vars: authd_pass.yml
   tags:
     - config
 
-- name: Retrieving Agentless Credentials
-  include_vars: agentless_creeds.yml
+- name: Retrieving Wazuh-api User Credentials
+  include_vars: wazuh_api_creds.yml
   tags:
     - config
 
-- name: Retrieving Wazuh-api User Credentials
-  include_vars: wazuh_api_creds.yml
+- name: Retrieving CDB lists
+  include_vars: cdb_lists.yml
+  tags:
+    - config
+
+- name: Check if syslog output is enabled
+  set_fact: syslog_output=true
+  when: item.server is not none
+  with_items:
+    - "{{ wazuh_manager_config.syslog_outputs }}"
+  tags:
+    - config
+
+- name: Check if client-syslog is enabled
+  shell: "grep -c 'ossec-csyslogd' /var/ossec/bin/.process_list | xargs echo"
+  args:
+    removes: /var/ossec/bin/.process_list
+  changed_when: False
+  register: csyslog_enabled
+  tags:
+    - config
+
+- name: Enable client-syslog
+  command: /var/ossec/bin/ossec-control enable client-syslog
+  notify: restart wazuh-manager
+  when:
+    - csyslog_enabled.stdout == '0' or "skipped" in csyslog_enabled.stdout
+    - syslog_output is defined and syslog_output == true
+  tags:
+    - config
+
+- name: Check if ossec-agentlessd is enabled
+  shell: "grep -c 'ossec-agentlessd' /var/ossec/bin/.process_list | xargs echo"
+  args:
+    removes: /var/ossec/bin/.process_list
+  changed_when: False
+  register: agentlessd_enabled
+  tags:
+    - config
+
+- name: Enable ossec-agentlessd
+  command: /var/ossec/bin/ossec-control enable agentless
+  notify: restart wazuh-manager
+  when:
+    - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
+    - agentless_creeds is defined
+  tags:
+    - config
+
+- name: Check if ossec-authd is enabled
+  shell: "grep -c 'ossec-authd' /var/ossec/bin/.process_list | xargs echo"
+  args:
+    removes: /var/ossec/bin/.process_list
+  changed_when: False
+  register: authd_enabled
+  tags:
+    - config
+
+- name: Enable ossec-authd
+  command: /var/ossec/bin/ossec-control enable auth
+  notify: restart wazuh-manager
+  when:
+    - authd_enabled.stdout == '0' or "skipped" in authd_enabled.stdout
+    - wazuh_manager_config.authd.enable == true
   tags:
     - config
 
@@ -187,7 +211,7 @@
   notify: restart wazuh-manager
   when:
     - wazuh_manager_config.authd.use_password is defined
-    - wazuh_manager_config.authd.use_password == true
+    - wazuh_manager_config.authd.use_password == 'yes'
   tags:
     - config
 
@@ -201,6 +225,8 @@
   no_log: true
   notify: restart wazuh-api
   when: wazuh_api_user is defined
+  tags:
+    - config
 
 - name: Agentless Hosts & Passwd
   template:
@@ -211,10 +237,31 @@
     mode: 0644
   no_log: true
   when: agentless_creeds is defined
+  tags:
+    - config
 
 - name: Encode the secret
   shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
   when: agentless_creeds is defined
+  tags:
+    - config
+
+- name: CDB Lists
+  template:
+    src: cdb_lists.j2
+    dest: "/var/ossec/etc/lists/{{ item.name }}"
+    owner: root
+    group: ossec
+    mode: 0640
+  no_log: true
+  notify:
+    - rebuild cdb_lists
+    - restart wazuh-manager
+  with_items:
+    - "{{ cdb_lists }}"
+  when: cdb_lists is defined
+  tags:
+    - config
 
 - name: Ensure Wazuh Manager, wazuh api service is started and enabled
   service:
