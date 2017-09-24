@@ -3,7 +3,7 @@
   yum_repository:
     name: NodeJS
     description: NodeJS-$releasever
-    baseurl: https://rpm.nodesource.com/pub_6.x/el/$releasever/x86_64
+    baseurl: https://rpm.nodesource.com/pub_6.x/el/{{ansible_distribution_major_version}}/x86_64
     gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
     gpgcheck: yes
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
