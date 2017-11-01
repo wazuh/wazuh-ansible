@@ -15,14 +15,14 @@
 
 - name: Windows | Downloading windows Wazuh agent installer
   win_get_url:
-    dest: C:\wazuh-agent-installer.exe
-    url: "{{ wazuh_winagent_config.repo }}wazuh-winagent-v{{ wazuh_winagent_config.version }}-{{ wazuh_winagent_config.revision }}.exe"
+    dest: C:\wazuh-agent-installer.msi
+    url: "{{ wazuh_winagent_config.repo }}wazuh-agent-{{ wazuh_winagent_config.version }}-{{ wazuh_winagent_config.revision }}.msi"
   when:
     - correct_version is not defined
 
 - name: Windows | Verify the downloaded Wazuh agent installer
   win_stat:
-    path: C:\wazuh-agent-installer.exe
+    path: C:\wazuh-agent-installer.msi
     get_checksum: yes
     checksum_algorithm: md5
   register: installer_md5
@@ -32,7 +32,7 @@
     - installer_md5.stat.checksum != wazuh_winagent_config.md5
 
 - name: Windows | Install Wazuh agent
-  win_shell: C:\wazuh-agent-installer.exe /S /D={{ wazuh_winagent_config.install_dir }}
+  win_shell: C:\wazuh-agent-installer.exe /q APPLICATIONFOLDER={{ wazuh_winagent_config.install_dir }}
   when:
     - correct_version is not defined
 
@@ -75,5 +75,5 @@
 
 - name: Windows | Delete downloaded Wazuh agent installer file
   win_file:
-    path: C:\wazuh-agent-installer.exe
+    path: C:\wazuh-agent-installer.msi
     state: absent

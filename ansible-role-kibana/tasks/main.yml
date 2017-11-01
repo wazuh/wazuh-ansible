@@ -35,7 +35,7 @@
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.1.0_{{ elastic_stack_version }}.zip"
+  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.1.1_{{ elastic_stack_version }}.zip"
   args:
     creates: /usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana
