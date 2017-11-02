@@ -5,7 +5,7 @@ This playbooks installs and configure Wazuh agent, manager and Elastic Stack.
 ## Documentation
 
 * [Full documentation](http://documentation.wazuh.com)
-* [Wazuh Puppet module documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
+* [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
 
 ### Based on previous work from dj-wasabi
 
