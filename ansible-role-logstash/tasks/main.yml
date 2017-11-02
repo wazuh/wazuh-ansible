@@ -1,11 +1,11 @@
 ---
-- include: RedHat.yml
+- import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- include: Debian.yml
+- import_tasks: Debian.yml
   when: ansible_os_family == "Debian"
 
-- include: config.yml
+- import_tasks: config.yml
   when: logstash_create_config
 
 - name: Ensure Logstash started and enabled
@@ -14,8 +14,8 @@
     enabled: yes
     state: started
 
-- include: "RMRedHat.yml"
+- import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- include: "RMDebian.yml"
+- import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"

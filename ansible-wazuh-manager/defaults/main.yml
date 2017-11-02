@@ -11,7 +11,7 @@ wazuh_manager_config:
       port: '1514'
       protocol: 'tcp'
   authd:
-    enable: false
+    enable: enable
     port: 1515
     use_source_ip: 'no'
     force_insert: 'no'

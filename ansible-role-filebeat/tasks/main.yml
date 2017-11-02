@@ -1,8 +1,8 @@
 ---
-- include: RedHat.yml
+- import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- include: Debian.yml
+- import_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
 - name: Install Filebeat.
@@ -10,7 +10,7 @@
   tags:
     - install
 
-- include: config.yml
+- import_tasks: config.yml
   when: filebeat_create_config
 
 - name: Ensure Filebeat is started and enabled at boot.
@@ -19,8 +19,8 @@
     state: started
     enabled: yes
 
-- include: "RMRedHat.yml"
+- import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- include: "RMDebian.yml"
+- import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
