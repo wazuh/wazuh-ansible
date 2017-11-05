@@ -32,7 +32,9 @@
     - installer_md5.stat.checksum != wazuh_winagent_config.md5
 
 - name: Windows | Install Wazuh agent
-  win_shell: C:\wazuh-agent-installer.exe /q APPLICATIONFOLDER={{ wazuh_winagent_config.install_dir }}
+  win_package:
+    path: C:\wazuh-agent-installer.msi
+    arguments: APPLICATIONFOLDER={{ wazuh_winagent_config.install_dir }}
   when:
     - correct_version is not defined
 
