@@ -63,6 +63,19 @@
   tags:
     - config
 
+- name: Ensure file access for ossec-remoted
+  file:
+      path: "{{ item }}"
+      state: touch
+      owner: ossecr
+      group: ossec
+      mode: 0644
+  with_items:
+    - "/var/ossec/etc/shared/merged.mg"
+    - "/var/ossec/queue/rids/sender_counter"
+   tags:
+    - config
+    
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest=/var/ossec/etc/rules/local_rules.xml
