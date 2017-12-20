@@ -7,22 +7,27 @@
 
 <ossec_config>
   <client>
-    {% if wazuh_manager_ip is not none %}
-    <server-ip>{{ wazuh_manager_ip }}</server-ip>
-    {% else %}
-    <server-ip>SERVER-IP</server-ip>
-    {% endif %}
+
+  {% for manager in wazuh_managers  %}
+     <server>
+       <address>{{ manager.address }}</address>
+       {% if manager.port is defined %}
+       <port>{{ manager.port }}</port>
+       {% endif %}
+       {% if manager.protocol is defined %}
+       <protocol>{{ manager.protocol }}</protocol>
+       {% endif %}
+     </server>
+  {% endfor %}
+
     {% if wazuh_profile is not none %}
     <config-profile>{{ wazuh_profile }}</config-profile>
-    {% endif %}
-    <protocol>{{ wazuh_manager_proto }}</protocol>
-    {% if wazuh_manager_port is defined %}
-    <port>{{ wazuh_manager_port }}</port>
     {% endif %}
     {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
     {% endif %}
+    <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
   </client>
 
   <logging>

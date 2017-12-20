@@ -25,10 +25,21 @@ input {
    }
 }
 {% endif %}
-
+filter {
+    if [data][srcip] {
+        mutate {
+            add_field => [ "@src_ip", "%{[data][srcip]}" ]
+        }
+    }
+    if [data][aws][sourceIPAddress] {
+        mutate {
+            add_field => [ "@src_ip", "%{[data][aws][sourceIPAddress]}" ]
+        }
+    }
+}
 filter {
     geoip {
-        source => "srcip"
+        source => "@src_ip"
         target => "GeoLocation"
         fields => ["city_name", "continent_code", "country_code2", "country_name", "region_name", "location"]
     }
@@ -37,7 +48,7 @@ filter {
         target => "@timestamp"
     }
     mutate {
-        remove_field => [ "timestamp", "beat", "fields", "input_type", "tags", "count", "@version", "log", "offset", "type"]
+        remove_field => [ "timestamp", "beat", "input_type", "tags", "count", "@version", "log", "offset", "type","@src_ip"]
     }
 }
 output {
@@ -46,8 +57,5 @@ output {
         hosts => ["{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"]
         index => "wazuh-alerts-%{+YYYY.MM.dd}"
         document_type => "wazuh"
-        template => "/etc/logstash/wazuh-elastic5-template.json"
-        template_name => "wazuh"
-        template_overwrite => true
     }
 }

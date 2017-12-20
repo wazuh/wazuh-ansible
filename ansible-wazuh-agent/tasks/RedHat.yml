@@ -1,30 +1,23 @@
 ---
-- name: CentOS | Install Wazuh repository
+- name: RedHat/CentOS/Fedora | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
-    description: CentOS-$releasever - Wazuh
-    baseurl: https://packages.wazuh.com/yum/el/$releasever/$basearch
+    description: Wazuh repository
+    baseurl: https://packages.wazuh.com/3.x/yum/
     gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
-  when: ansible_distribution == 'CentOS'
+  when:
+    - ansible_distribution_major_version|int > 5
 
-- name: Fedora | Install Wazuh repository
+- name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
-    description: Fedora-$releasever - Wazuh
-    baseurl: https://packages.wazuh.com/yum/fc/$releasever/$basearch
+    description: Wazuh repository
+    baseurl: https://packages.wazuh.com/3.x/yum/5/
     gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
-  when: ansible_distribution == 'Fedora'
-
-- name: RedHat | Install Wazuh repository
-  yum_repository:
-    name: wazuh_repo
-    description: CentOS-$releasever - Wazuh
-    baseurl: https://packages.wazuh.com/yum/rhel/$releasever/$basearch
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    gpgcheck: yes
-  when: ansible_distribution == 'RedHat'
+  when:
+    - ansible_distribution_major_version|int < 5
 
 - name: Set Distribution CIS filename for RHEL5
   set_fact:

@@ -22,6 +22,23 @@
     <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
   </global>
 
+  <cluster>
+    <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
+    <name>{{ wazuh_manager_config.cluster.name }}</name>
+    <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
+    <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
+    <key>{{ wazuh_manager_config.cluster.key }}</key>
+    <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
+    <port>{{ wazuh_manager_config.cluster.port }}</port>
+    <bind_addr>{{ wazuh_manager_config.cluster.bind_addr }}</bind_addr>
+    <nodes>
+    {% for node in wazuh_manager_config.cluster.nodes %}
+      <node>{{ node }}</node>
+    {% endfor %}
+    </nodes>
+    <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
+  </cluster>
+
   <logging>
     <log_format>{{ wazuh_manager_config.log_format }}</log_format>
   </logging>
@@ -120,12 +137,12 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ wazuh_manager_config.rootcheck.frequency }}</frequency>
 
-    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
-    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
-    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
+    <rootkit_files>/var/ossec/etc/shared/default/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>/var/ossec/etc/shared/default/rootkit_trojans.txt</rootkit_trojans>
+    <system_audit>/var/ossec/etc/shared/default/system_audit_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/default/system_audit_ssh.txt</system_audit>
     {% if cis_distribution_filename is defined %}
-    <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
+    <system_audit>/var/ossec/etc/shared/default/{{ cis_distribution_filename }}</system_audit>
     {% endif %}
 
     <skip_nfs>yes</skip_nfs>

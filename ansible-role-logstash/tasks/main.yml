@@ -8,6 +8,10 @@
 - import_tasks: config.yml
   when: logstash_create_config
 
+- name: Reload systemd
+  systemd: daemon_reload=yes
+  ignore_errors: yes
+
 - name: Ensure Logstash started and enabled
   service:
     name: logstash

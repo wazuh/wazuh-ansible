@@ -1,0 +1,34 @@
+{
+  "order": 0,
+  "template": "wazuh-monitoring*",
+  "settings": {
+    "index.refresh_interval": "5s",
+    "number_of_shards": {{ elasticsearch_shards }},
+    "number_of_replicas": {{ elasticsearch_replicas }}
+  },
+  "mappings": {
+    "wazuh-agent": {
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "dateOptionalTime"
+        },
+        "status": {
+          "type": "keyword"
+        },
+        "ip": {
+          "type": "keyword"
+        },
+        "host": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "id": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}

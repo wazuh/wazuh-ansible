@@ -6,6 +6,20 @@ wazuh_manager_config:
   alerts_log: 'yes'
   logall: 'no'
   log_format: 'plain'
+  cluster:
+    disable: 'no'
+    name: 'wazuh'
+    node_name: 'manager_01'
+    node_type: 'master'
+    key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
+    interval: '2m'
+    port: '1516'
+    bind_addr: '0.0.0.0'
+    nodes:
+      - '172.17.0.2'
+      - '172.17.0.3'
+      - '172.17.0.4'
+    hidden: 'no'
   connection:
     - type: 'secure'
       port: '1514'

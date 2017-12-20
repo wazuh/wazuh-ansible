@@ -1,7 +1,10 @@
 ---
-wazuh_manager_ip: null
+wazuh_managers:
+  - address: 127.0.0.1
+    port: 1514
+    protocol: tcp
 wazuh_profile: null
-wazuh_manager_proto: tcp
+wazuh_auto_restart: 'yes'
 wazuh_agent_authd:
   enable: false
   port: 1515
@@ -13,10 +16,10 @@ wazuh_notify_time: null
 wazuh_time_reconnect: null
 wazuh_winagent_config:
   install_dir: 'C:\wazuh-agent\'
-  version: '2.1.1'
+  version: '3.0.0'
   revision: '1'
-  repo: https://packages.wazuh.com/windows/
-  md5: fd9a3ce30cd6f9f553a1bc71e74a6c9f
+  repo: https://packages.wazuh.com/3.x/windows/
+  md5: 896dcc5b786fda30db9649dd7a6043c0
 wazuh_agent_config:
   log_format: 'plain'
   syscheck:
