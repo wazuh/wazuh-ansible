@@ -39,7 +39,7 @@
 - name: Linux | Register agent
   shell: >
     /var/ossec/bin/agent-auth
-    -m {{ wazuh_manager_ip }}
+    -m {{ wazuh_managers.0.address }}
     -p {{ wazuh_agent_authd.port }}
     {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
     {% if wazuh_agent_authd.ssl_agent_ca is not none %}
@@ -52,7 +52,7 @@
   when:
     - wazuh_agent_authd.enable == true
     - check_keys.stat.size == 0
-    - wazuh_manager_ip is not none
+    - wazuh_managers.0.address is not none
   tags:
     - config
 
@@ -61,9 +61,21 @@
   when:
     - wazuh_agent_authd.enable == true
     - check_keys.stat.size == 0
-    - wazuh_manager_ip is not none
+    - wazuh_managers.0.address is not none
   tags:
     - config
+
+- name: Linux | Vuls integration deploy (runs in background, can take a while)
+  command: /var/ossec/wodles/vuls/deploy_vuls.sh {{ ansible_distribution|lower }} {{ ansible_distribution_major_version|int }}
+  args:
+    creates: /var/ossec/wodles/vuls/config.toml
+  async: 3600
+  poll: 0
+  when:
+    - wazuh_agent_config.vuls.disable != 'yes'
+    - ansible_distribution == 'Redhat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' or ansible_distribution == 'Oracle'
+  tags:
+    - init
 
 - name: Linux | Installing agent configuration (ossec.conf)
   template: src=var-ossec-etc-ossec-agent.conf.j2

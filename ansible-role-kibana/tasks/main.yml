@@ -46,7 +46,6 @@
     NODE_OPTIONS: "--max-old-space-size=3072"
   args:
     creates: /usr/share/kibana/plugins/wazuh/package.json
-  when: wazuh_app_verify.stdout == "0"
   notify: restart kibana
   tags: install
 

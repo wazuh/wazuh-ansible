@@ -93,9 +93,32 @@ wazuh_manager_config:
   rootcheck:
     frequency: 43200
   openscap:
+    disable: 'no'
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
+  cis_cat:
+    disable: 'yes'
+    install_java: 'yes'
+    timeout: 1800
+    interval: '1d'
+    scan_on_start: 'yes'
+    java_path: '/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin'
+    ciscat_path: '/var/ossec/wodles/ciscat'
+    content:
+      - type: 'xccdf'
+        path: 'benchmarks/CIS_Ubuntu_Linux_16.04_LTS_Benchmark_v1.0.0-xccdf.xml'
+        profile: 'xccdf_org.cisecurity.benchmarks_profile_Level_1_-_Server'
+  vuls:
+    disable: 'yes'
+    interval: '1d'
+    run_on_start: 'yes'
+    args:
+      - 'mincvss 5'
+      - 'antiquity-limit 20'
+      - 'updatenvd'
+      - 'nvd-year 2016'
+      - 'autoupdate'
   log_level: 1
   email_level: 12
   localfiles:
