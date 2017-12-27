@@ -1,6 +1,6 @@
 ---
 logstash_create_config: true
-logstash_input_beats: false
+logstash_input_beats: true
 
 elasticsearch_network_host: "127.0.0.1"
 elasticsearch_http_port: "9200"
