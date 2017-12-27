@@ -55,7 +55,7 @@ output {
     #stdout { codec => rubydebug }
     elasticsearch {
         hosts => ["{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"]
-        index => "wazuh-alerts-%{+YYYY.MM.dd}"
+        index => "wazuh-alerts-3.x-%{+YYYY.MM.dd}"
         document_type => "wazuh"
     }
 }
