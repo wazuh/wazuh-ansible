@@ -1,7 +1,7 @@
 ---
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
-    url: http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jre-8u151-linux-x64.rpm
+    url: http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jre-8u161-linux-x64.rpm
     dest: /tmp/jdk-8-linux-x64.rpm
     headers: 'Cookie:oraclelicense=accept-securebackup-cookie'
   register: oracle_java_task_rpm_download
