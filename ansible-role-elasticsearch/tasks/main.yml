@@ -5,6 +5,49 @@
 - import_tasks: Debian.yml
   when: ansible_os_family == "Debian"
 
+- name: Create elasticsearch.service.d folder.
+  file: path=/etc/systemd/system/elasticsearch.service.d/ state=directory
+  when:
+    - ansible_service_mgr == "systemd"
+
+- name: Configure Elasticsearch System Resources.
+  template:
+    src: elasticsearch_systemd.conf.j2
+    dest: /etc/systemd/system/elasticsearch.service.d/elasticsearch.conf
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+  tags: configure
+  when:
+    - ansible_service_mgr == "systemd"
+
+- name: Debian/Ubuntu | Configure Elasticsearch System Resources.
+  template:
+    src: elasticsearch_nonsystemd.j2
+    dest: /etc/default/elasticsearch
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+  tags: configure
+  when:
+    - ansible_service_mgr != "systemd"
+    - ansible_os_family == "Debian"
+
+- name: RedHat/CentOS/Fedora | Configure Elasticsearch System Resources.
+  template:
+    src: elasticsearch_nonsystemd.j2
+    dest: /etc/sysconfig/elasticsearch
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+  tags: configure
+  when:
+    - ansible_service_mgr != "systemd"
+    - ansible_os_family == "RedHat"
+
 - name: Configure Elasticsearch.
   template:
     src: elasticsearch.yml.j2
@@ -25,6 +68,10 @@
   notify: restart elasticsearch
   tags: configure
 
+- name: Reload systemd
+  systemd: daemon_reload=yes
+  ignore_errors: yes
+
 - name: Ensure Elasticsearch started and enabled
   service:
     name: elasticsearch
@@ -37,31 +84,50 @@
     - configure
     - init
 
-- name: Check for Wazuh template
+- name: Check for Wazuh Alerts template
   uri:
     url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
     method: GET
     status_code: 200, 404
-  register: wazuh_template_exits
+  register: wazuh_alerts_template_exits
   tags: init
 
-- name: Installing Wazuh template
+- name: Installing Wazuh Alerts template
   uri:
     url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
     method: PUT
     status_code: 200
     body_format: json
-    body: "{{ lookup('template','wazuh-elastic5-template.json.j2') }}"
-  when: wazuh_template_exits.status != 200
+    body: "{{ lookup('template','wazuh-elastic6-template-alerts.json.j2') }}"
+  when: wazuh_alerts_template_exits.status != 200
   tags: init
 
 - name: Injecting sample alert
   uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/wazuh-alerts-{{ ansible_date_time.date | regex_replace('-', '.') }}/wazuh/sample"
+    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/wazuh-alerts-3.x-{{ ansible_date_time.date | regex_replace('-', '.') }}/wazuh/sample"
     method: PUT
     status_code: 200, 201
     body_format: json
     body: "{{ lookup('template','alert_sample.json.j2') }}"
+  when: wazuh_alerts_template_exits.status != 200
+  tags: init
+
+- name: Check for Wazuh Monitoring template
+  uri:
+    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh-agent"
+    method: GET
+    status_code: 200, 404
+  register: wazuh_monitoring_template_exits
+  tags: init
+
+- name: Installing Wazuh Monitoring template
+  uri:
+    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh-agent"
+    method: PUT
+    status_code: 200
+    body_format: json
+    body: "{{ lookup('template','wazuh-elastic6-template-monitoring.json.j2') }}"
+  when: wazuh_monitoring_template_exits.status != 200
   tags: init
 
 - import_tasks: "RMRedHat.yml"

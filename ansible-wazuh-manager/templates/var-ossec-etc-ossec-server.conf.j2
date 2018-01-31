@@ -22,6 +22,23 @@
     <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
   </global>
 
+  <cluster>
+    <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
+    <name>{{ wazuh_manager_config.cluster.name }}</name>
+    <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
+    <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
+    <key>{{ wazuh_manager_config.cluster.key }}</key>
+    <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
+    <port>{{ wazuh_manager_config.cluster.port }}</port>
+    <bind_addr>{{ wazuh_manager_config.cluster.bind_addr }}</bind_addr>
+    <nodes>
+    {% for node in wazuh_manager_config.cluster.nodes %}
+      <node>{{ node }}</node>
+    {% endfor %}
+    </nodes>
+    <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
+  </cluster>
+
   <logging>
     <log_format>{{ wazuh_manager_config.log_format }}</log_format>
   </logging>
@@ -120,12 +137,12 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ wazuh_manager_config.rootcheck.frequency }}</frequency>
 
-    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
-    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
-    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
+    <rootkit_files>/var/ossec/etc/shared/default/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>/var/ossec/etc/shared/default/rootkit_trojans.txt</rootkit_trojans>
+    <system_audit>/var/ossec/etc/shared/default/system_audit_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/default/system_audit_ssh.txt</system_audit>
     {% if cis_distribution_filename is defined %}
-    <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
+    <system_audit>/var/ossec/etc/shared/default/{{ cis_distribution_filename }}</system_audit>
     {% endif %}
 
     <skip_nfs>yes</skip_nfs>
@@ -158,6 +175,7 @@
     {% endfor %}
   </syscheck>
 
+  {% if ansible_system == "Linux" and wazuh_manager_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
     <disabled>no</disabled>
     <timeout>{{ wazuh_manager_config.openscap.timeout }}</timeout>
@@ -167,13 +185,17 @@
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
-    {% elif ansible_distribution == 'Debian' and ansible_distribution_release == 'jessie' %}
+    {% elif ansible_distribution == 'Debian' %}
+    {% if ansible_distribution_release == 'jessie' %}
     {% if openscap_version_valid.stdout == "0" %}
     <content type="xccdf" path="ssg-debian-8-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
+    <content type="oval" path="cve-debian-8-oval.xml"/>
     {% endif %}
-    <content type="oval" path="cve-debian-oval.xml"/>
+    {% elif ansible_distribution_release == 'stretch' %}
+    <content type="oval" path="cve-debian-9-oval.xml"/>
+    {% endif %}
     {% elif ansible_distribution == 'CentOS' %}
       {% if ansible_distribution_major_version == '7' %}
       <content type="xccdf" path="ssg-centos-7-ds.xml">
@@ -204,6 +226,38 @@
       </content>
     {% endif %}
   </wodle>
+  {% endif %}
+
+  {% if wazuh_manager_config.cis_cat.disable == 'no' %}
+  <wodle name="cis-cat">
+    <disabled>no</disabled>
+    <timeout>{{ wazuh_manager_config.cis_cat.timeout }}</timeout>
+    <interval>{{ wazuh_manager_config.cis_cat.interval }}</interval>
+    <scan-on-start>{{ wazuh_manager_config.cis_cat.scan_on_start }}</scan-on-start>
+    {% if wazuh_manager_config.cis_cat.install_java == 'yes' %}
+    <java_path>/usr/bin</java_path>
+    {% else %}
+    <java_path>{{ wazuh_manager_config.cis_cat.java_path }}</java_path>
+    {% endif %}
+    <ciscat_path>{{ wazuh_manager_config.cis_cat.ciscat_path }}</ciscat_path>
+    {% for benchmark in wazuh_manager_config.cis_cat.content %}
+    <content type="{{ benchmark.type }}" path="{{ benchmark.path }}">
+      <profile>{{ benchmark.profile }}</profile>
+    </content>
+    {% endfor %}
+  </wodle>
+  {% endif %}
+
+  {% if ansible_system == "Linux" and wazuh_manager_config.vuls.disable == 'no' %}
+  <wodle name="command">
+    <disabled>no</disabled>
+    <tag>Wazuh-VULS</tag>
+    <command>/usr/bin/python /var/ossec/wodles/vuls/vuls.py{% for arg in wazuh_manager_config.vuls.args %} --{{ arg }}{% endfor %}</command>
+    <interval>{{ wazuh_manager_config.vuls.interval }}</interval>
+    <ignore_output>yes</ignore_output>
+    <run_on_start>{{ wazuh_manager_config.vuls.run_on_start }}</run_on_start>
+  </wodle>
+  {% endif %}
 
 {% if agentless_creeds is defined %}
 {% for agentless in agentless_creeds %}

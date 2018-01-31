@@ -1,12 +1,4 @@
 ---
-- name: Logstash template
-  template:
-    src: wazuh-elastic5-template.json.j2
-    dest: /etc/logstash/wazuh-elastic5-template.json
-    owner: root
-    group: root
-  tags: configure
-
 - name: Ensure Logstash SSL key pair directory exists.
   file:
     path: "{{ logstash_ssl_dir }}"

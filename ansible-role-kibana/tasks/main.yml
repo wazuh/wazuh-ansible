@@ -9,6 +9,10 @@
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
   tags: configure
 
+- name: Reload systemd
+  systemd: daemon_reload=yes
+  ignore_errors: yes
+
 - name: Kibana configuration
   template:
     src: kibana.yml.j2
@@ -26,16 +30,20 @@
   register: wazuh_app_verify
   tags: install
 
-- name: Upgrading Wazuh-APP
-  shell: "{{ item }}"
+- name: Removing old Wazuh-APP
+  command: /usr/share/kibana/bin/kibana-plugin remove wazuh
   when: wazuh_app_verify.stdout == "0"
-  with_items:
-    - /usr/share/kibana/bin/kibana-plugin remove wazuh
-    - rm -rf /usr/share/kibana/optimize/bundles
+  tags: install
+
+- name: Removing bundles
+  file: path=/usr/share/kibana/optimize/bundles state=absent
+  when: wazuh_app_verify.stdout == "0"
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-2.1.1_{{ elastic_stack_version }}.zip"
+  shell: "/usr/share/kibana/bin/kibana-plugin install  https://packages.wazuh.com/wazuhapp/wazuhapp-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
+  environment:
+    NODE_OPTIONS: "--max-old-space-size=3072"
   args:
     creates: /usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana

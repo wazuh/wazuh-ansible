@@ -53,7 +53,7 @@
 - name: Windows | Register agent
   win_shell: >
     {{ wazuh_winagent_config.install_dir }}agent-auth.exe
-    -m {{ wazuh_manager_ip }}
+    -m {{ wazuh_managers.0.address }}
     -p {{ wazuh_agent_authd.port }}
     {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
   args:
@@ -63,7 +63,7 @@
   when:
     - wazuh_agent_authd.enable == true
     - check_windows_key.stat.exists == false
-    - wazuh_manager_ip is not none
+    - wazuh_managers.0.address is not none
   tags:
     - config
 

@@ -7,22 +7,27 @@
 
 <ossec_config>
   <client>
-    {% if wazuh_manager_ip is not none %}
-    <server-ip>{{ wazuh_manager_ip }}</server-ip>
-    {% else %}
-    <server-ip>SERVER-IP</server-ip>
-    {% endif %}
+
+    {% for manager in wazuh_managers  %}
+    <server>
+      <address>{{ manager.address }}</address>
+      {% if manager.port is defined %}
+      <port>{{ manager.port }}</port>
+      {% endif %}
+      {% if manager.protocol is defined %}
+      <protocol>{{ manager.protocol }}</protocol>
+      {% endif %}
+    </server>
+    {% endfor %}
+
     {% if wazuh_profile is not none %}
     <config-profile>{{ wazuh_profile }}</config-profile>
-    {% endif %}
-    <protocol>{{ wazuh_manager_proto }}</protocol>
-    {% if wazuh_manager_port is defined %}
-    <port>{{ wazuh_manager_port }}</port>
     {% endif %}
     {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
     {% endif %}
+    <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
   </client>
 
   <logging>
@@ -31,7 +36,7 @@
 
   <active-response>
     <disabled>no</disabled>
-  </active-response> 
+  </active-response>
 
   <rootcheck>
     <disabled>no</disabled>
@@ -112,7 +117,7 @@
     {% endif %}
   </syscheck>
 
-  {% if wazuh_agent_config.openscap.disable  == 'no' and ansible_system == "Linux"%}
+  {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
     <disabled>no</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
@@ -122,13 +127,17 @@
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
-    {% elif ansible_distribution == 'Debian' and ansible_distribution_release == 'jessie' %}
+    {% elif ansible_distribution == 'Debian' %}
+    {% if ansible_distribution_release == 'jessie' %}
     {% if openscap_version_valid.stdout == "0" %}
     <content type="xccdf" path="ssg-debian-8-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
+    <content type="oval" path="cve-debian-8-oval.xml"/>
     {% endif %}
-    <content type="oval" path="cve-debian-oval.xml"/>
+    {% elif ansible_distribution_release == 'stretch' %}
+    <content type="oval" path="cve-debian-9-oval.xml"/>
+    {% endif %}
     {% elif ansible_distribution == 'CentOS' %}
       {% if ansible_distribution_major_version == '7' %}
       <content type="xccdf" path="ssg-centos-7-ds.xml">
@@ -158,6 +167,37 @@
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
     {% endif %}
+  </wodle>
+  {% endif %}
+
+  {% if ansible_system == "Linux" and wazuh_agent_config.cis_cat.disable == 'no' %}
+  <wodle name="cis-cat">
+    <disabled>no</disabled>
+    <timeout>{{ wazuh_agent_config.cis_cat.timeout }}</timeout>
+    <interval>{{ wazuh_agent_config.cis_cat.interval }}</interval>
+    <scan-on-start>{{ wazuh_agent_config.cis_cat.scan_on_start }}</scan-on-start>
+    {% if wazuh_agent_config.cis_cat.install_java == 'yes' and ansible_system == "Linux" %}
+    <java_path>/usr/bin</java_path>
+    {% else %}
+    <java_path>{{ wazuh_agent_config.cis_cat.java_path }}</java_path>
+    {% endif %}
+    <ciscat_path>{{ wazuh_agent_config.cis_cat.ciscat_path }}</ciscat_path>
+    {% for benchmark in wazuh_agent_config.cis_cat.content %}
+    <content type="{{ benchmark.type }}" path="{{ benchmark.path }}">
+      <profile>{{ benchmark.profile }}</profile>
+    </content>
+    {% endfor %}
+  </wodle>
+  {% endif %}
+
+  {% if ansible_system == "Linux" and wazuh_agent_config.vuls.disable == 'no' %}
+  <wodle name="command">
+    <disabled>no</disabled>
+    <tag>Wazuh-VULS</tag>
+    <command>/usr/bin/python /var/ossec/wodles/vuls/vuls.py{% for arg in wazuh_agent_config.vuls.args %} --{{ arg }}{% endfor %}</command>
+    <interval>{{ wazuh_agent_config.vuls.interval }}</interval>
+    <ignore_output>yes</ignore_output>
+    <run_on_start>{{ wazuh_agent_config.vuls.run_on_start }}</run_on_start>
   </wodle>
   {% endif %}
 
