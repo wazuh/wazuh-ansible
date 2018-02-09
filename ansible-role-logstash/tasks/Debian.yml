@@ -10,19 +10,21 @@
     repo: 'ppa:webupd8team/java'
     codename: 'xenial'
 
-- name: Debian/Ubuntu | Accept Oracle Java 8 license
-  debconf:
-    name: oracle-java8-installer
-    question: shared/accepted-oracle-license-v1-1
-    value: true
-    vtype: boolean
+- when: logstash_install_java
+  block:
+    - name: Debian/Ubuntu | Accept Oracle Java 8 license
+      debconf:
+        name: oracle-java8-installer
+        question: shared/accepted-oracle-license-v1-1
+        value: true
+        vtype: boolean
 
-- name: Debian/Ubuntu | Oracle Java 8 installer
-  apt:
-    name: oracle-java8-installer
-    update_cache: yes
-    state: present
-  tags: install
+    - name: Debian/Ubuntu | Oracle Java 8 installer
+      apt:
+        name: oracle-java8-installer
+        update_cache: yes
+        state: present
+      tags: install
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key
   apt_key:
