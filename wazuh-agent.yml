@@ -1,4 +1,13 @@
 - hosts: all:!wazuh-manager
   roles:
-     - { role: ansible-wazuh-agent, wazuh_manager_ip: 127.0.0.1 }
-
+    - ansible-wazuh-agent
+  vars:
+    wazuh_managers:
+      - address: 127.0.0.1
+        port: 1514
+        protocol: udp
+    wazuh_agent_authd:
+      enable: true
+      port: 1515
+      ssl_agent_ca: null
+      ssl_auto_negotiate: 'no'

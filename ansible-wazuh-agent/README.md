@@ -17,11 +17,8 @@ This role is compatible with:
 Role Variables
 --------------
 
-* `wazuh_manager_ip`: Wazuh Manager IP Address.
-* `wazuh_authd_port`: Registration service port (Default: 1515).
-* `wazuh_register_client`: If true, agent will request a new key from registration service (Default: True).
-* `wazuh_agent_config`: Includes several parameters for configuring agent components as syscheck, rootcheck, open-scap and localfiles.
-
+* `wazuh_managers`: Collection of Wazuh Managers' IP address, port, and protocol used by the agent
+* `wazuh_agent_authd`: Collection with the settings to register an agent using authd.
 
 Playbook example
 ----------------
@@ -30,7 +27,17 @@ The following is an example how this role can be used:
 
     - hosts: all:!wazuh-manager
       roles:
-         - { role: ansible-wazuh-agent, wazuh_manager_ip: 192.168.1.1, wazuh_register_client: true, wazuh_authd_port: 1515 }
+        - ansible-wazuh-agent
+      vars:
+        wazuh_managers:
+          - address: 127.0.0.1
+            port: 1514
+            protocol: udp
+        wazuh_agent_authd:
+          enable: true
+          port: 1515
+          ssl_agent_ca: null
+          ssl_auto_negotiate: 'no'
 
 License and copyright
 ---------------------
