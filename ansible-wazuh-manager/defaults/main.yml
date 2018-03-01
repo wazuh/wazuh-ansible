@@ -232,7 +232,7 @@ wazuh_agent_configs:
           arch: 'both'
         - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
     localfiles:
-      - format: 'Security'
-        location: 'eventchannel'
-      - format: 'System'
-        location: 'eventlog'
+      - location: 'Security'
+        format: 'eventchannel'
+      - location: 'System'
+        format: 'eventlog'
