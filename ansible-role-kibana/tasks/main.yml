@@ -28,6 +28,7 @@
   args:
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
+  changed_when: False
   tags: install
 
 - name: Removing old Wazuh-APP
