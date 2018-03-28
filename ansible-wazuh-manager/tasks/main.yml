@@ -154,6 +154,7 @@
   args:
     removes: /var/ossec/bin/.process_list
   changed_when: False
+  check_mode: no
   register: csyslog_enabled
   tags:
     - config
@@ -172,6 +173,7 @@
   args:
     removes: /var/ossec/bin/.process_list
   changed_when: False
+  check_mode: no
   register: agentlessd_enabled
   tags:
     - config
@@ -190,6 +192,7 @@
   args:
     removes: /var/ossec/bin/.process_list
   changed_when: False
+  check_mode: no
   register: authd_enabled
   tags:
     - config
