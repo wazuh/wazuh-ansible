@@ -74,8 +74,8 @@
 - name: Linux | Agent registration via rest-API
   block:
 
-    - name: Retrieving authd Credentials
-      include_vars: authd_pass.yml
+    - name: Retrieving rest-API Credentials
+      include_vars: api_pass.yml
       tags:
         - config
         - api
