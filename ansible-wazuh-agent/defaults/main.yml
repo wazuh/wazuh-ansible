@@ -4,9 +4,8 @@ wazuh_managers:
     port: 1514
     protocol: tcp
     api_port: 55000
-    api_proto: 'https'
+    api_proto: 'http'
     api_user: null
-    api_password: null
 wazuh_profile: null
 wazuh_auto_restart: 'yes'
 wazuh_agent_authd:

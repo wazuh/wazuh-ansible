@@ -7,9 +7,8 @@
         port: 1514
         protocol: udp
         api_port: 55000
-        api_proto: 'https'
+        api_proto: 'http'
         api_user: ansible
-        api_password: changeme
     wazuh_agent_authd:
       enable: true
       port: 1515

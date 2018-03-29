@@ -23,6 +23,7 @@
       include_vars: authd_pass.yml
       tags:
         - config
+        - authd
 
     - name: Copy CA, SSL key and cert for authd
       copy:
@@ -35,6 +36,7 @@
         - "{{ wazuh_agent_authd.ssl_agent_key }}"
       tags:
         - config
+        - authd
       when:
         - wazuh_agent_authd.ssl_agent_ca is not none
 
@@ -56,6 +58,7 @@
         - wazuh_managers.0.address is not none
       tags:
         - config
+        - authd
 
     - name: Linux | Verify agent registration
       shell: echo {{ agent_auth_output }} | grep "Valid key created"
@@ -64,11 +67,18 @@
         - wazuh_managers.0.address is not none
       tags:
         - config
+        - authd
 
   when: wazuh_agent_authd.enable == true
 
 - name: Linux | Agent registration via rest-API
   block:
+
+    - name: Retrieving authd Credentials
+      include_vars: authd_pass.yml
+      tags:
+        - config
+        - api
 
     - name: Linux | Create the agent key via rest-API
       uri:
@@ -81,7 +91,7 @@
         headers:
           Content-Type: "application/json"
         user: "{{ wazuh_managers.0.api_user }}"
-        password: "{{ wazuh_managers.0.api_password }}"
+        password: "{{ api_pass }}"
       register: newagent_api
       changed_when: newagent_api.json.error == 0
       when:
@@ -100,7 +110,7 @@
         method: GET
         return_content: yes
         user: "{{ wazuh_managers.0.api_user }}"
-        password: "{{ wazuh_managers.0.api_password }}"
+        password: "{{ api_pass }}"
       when:
         - check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
@@ -128,9 +138,10 @@
         - newagent_api.changed
       tags:
         - config
+        - api
       notify: restart wazuh-agent
 
-  when: wazuh_agent_authd.enable == false
+  when: wazuh_agent_authd.enable == false and ( wazuh_managers.0.api_user is defined and api_pass is defined )
 
 - name: Linux | Vuls integration deploy (runs in background, can take a while)
   command: /var/ossec/wodles/vuls/deploy_vuls.sh {{ ansible_distribution|lower }} {{ ansible_distribution_major_version|int }}
