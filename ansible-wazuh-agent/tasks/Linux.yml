@@ -97,6 +97,8 @@
       when:
         - check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
+        - wazuh_managers.0.api_user is not none
+        - api_pass is not none
       delegate_to: localhost
       become: no
       tags:
@@ -114,6 +116,8 @@
       when:
         - check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
+        - wazuh_managers.0.api_user is not none
+        - api_pass is not none
         - newagent_api.json.error == 0
       register: newagentkey_api
       delegate_to: localhost
@@ -141,7 +145,7 @@
         - api
       notify: restart wazuh-agent
 
-  when: wazuh_agent_authd.enable == false and ( wazuh_managers.0.api_user is defined and api_pass is defined )
+  when: wazuh_agent_authd.enable == false
 
 - name: Linux | Vuls integration deploy (runs in background, can take a while)
   command: /var/ossec/wodles/vuls/deploy_vuls.sh {{ ansible_distribution|lower }} {{ ansible_distribution_major_version|int }}

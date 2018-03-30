@@ -25,19 +25,23 @@ Playbook example
 
 The following is an example how this role can be used:
 
-    - hosts: all:!wazuh-manager
-      roles:
-        - ansible-wazuh-agent
-      vars:
-        wazuh_managers:
-          - address: 127.0.0.1
-            port: 1514
-            protocol: udp
-        wazuh_agent_authd:
-          enable: true
-          port: 1515
-          ssl_agent_ca: null
-          ssl_auto_negotiate: 'no'
+     - hosts: all:!wazuh-manager
+       roles:
+         - ansible-wazuh-agent
+       vars:
+         wazuh_managers:
+           - address: 127.0.0.1
+             port: 1514
+             protocol: udp
+             api_port: 55000
+             api_proto: 'http'
+             api_user: 'ansible'
+         wazuh_agent_authd:
+           enable: true
+           port: 1515
+           ssl_agent_ca: null
+           ssl_auto_negotiate: 'no'
+     
 
 License and copyright
 ---------------------
