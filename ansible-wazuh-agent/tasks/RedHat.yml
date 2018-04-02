@@ -14,10 +14,10 @@
     name: wazuh_repo
     description: Wazuh repository
     baseurl: https://packages.wazuh.com/3.x/yum/5/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH-5
     gpgcheck: yes
   when:
-    - ansible_distribution_major_version|int < 5
+    - ansible_distribution_major_version|int = 5
 
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
