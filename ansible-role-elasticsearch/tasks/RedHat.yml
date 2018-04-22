@@ -3,13 +3,13 @@
   block:
     - name: RedHat/CentOS/Fedora | download Oracle Java RPM
       get_url:
-        url: http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jre-8u161-linux-x64.rpm
-        dest: /tmp/jdk-8-linux-x64.rpm
+        url: http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jre-8u171-linux-x64.rpm
+        dest: /tmp/jre-8-linux-x64.rpm
         headers: 'Cookie:oraclelicense=accept-securebackup-cookie'
       register: oracle_java_task_rpm_download
 
     - name: RedHat/CentOS/Fedora | Install Oracle Java RPM
-      package: name=/tmp/jdk-8-linux-x64.rpm state=present
+      package: name=/tmp/jre-8-linux-x64.rpm state=present
       when: oracle_java_task_rpm_download is defined
       register: oracle_java_task_rpm_installed
       tags: install

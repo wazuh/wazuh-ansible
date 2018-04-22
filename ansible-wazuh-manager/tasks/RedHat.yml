@@ -81,8 +81,8 @@
 
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
-    url: http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jre-8u151-linux-x64.rpm
-    dest: /tmp/jdk-8-linux-x64.rpm
+    url: http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jre-8u171-linux-x64.rpm
+    dest: /tmp/jre-8-linux-x64.rpm
     headers: 'Cookie:oraclelicense=accept-securebackup-cookie'
   register: oracle_java_task_rpm_download
   when:
@@ -92,7 +92,7 @@
     - init
 
 - name: RedHat/CentOS/Fedora | Install Oracle Java RPM
-  package: name=/tmp/jdk-8-linux-x64.rpm state=present
+  package: name=/tmp/jre-8-linux-x64.rpm state=present
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
