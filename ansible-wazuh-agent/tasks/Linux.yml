@@ -85,7 +85,7 @@
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
         validate_certs: no
         method: POST
-        body: {"name":"{{ inventory_hostname }}","ip":"{{ ansible_default_ipv4.address }}"}
+        body: {"name":"{{ inventory_hostname }}"}
         body_format: json
         status_code: 200
         headers:
@@ -97,17 +97,14 @@
       when:
         - check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
-        - wazuh_managers.0.api_user is not none
-        - api_pass is not none
-      delegate_to: localhost
       become: no
       tags:
         - config
         - api
 
-    - name: Linux | Retieve the client key via rest-API
+    - name: Linux | Retieve new agent data via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}/key"
+        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
         validate_certs: no
         method: GET
         return_content: yes
@@ -116,10 +113,8 @@
       when:
         - check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
-        - wazuh_managers.0.api_user is not none
-        - api_pass is not none
         - newagent_api.json.error == 0
-      register: newagentkey_api
+      register: newagentdata_api
       delegate_to: localhost
       become: no
       tags:
@@ -130,10 +125,10 @@
       command: /var/ossec/bin/manage_agents
       environment:
         OSSEC_ACTION: i
-        OSSEC_AGENT_NAME: '{{ inventory_hostname }}'
-        OSSEC_AGENT_IP: '{{ ansible_default_ipv4.address }}'
+        OSSEC_AGENT_NAME: '{{ newagentdata_api.json.data.name }}'
+        OSSEC_AGENT_IP: '{{ newagentdata_api.json.data.ip }}'
         OSSEC_AGENT_ID: '{{ newagent_api.json.data.id }}'
-        OSSEC_AGENT_KEY: '{{ newagentkey_api.json.data }}'
+        OSSEC_AGENT_KEY: '{{ newagent_api.json.data.key }}'
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
       when:
