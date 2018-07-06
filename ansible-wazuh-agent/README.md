@@ -1,7 +1,7 @@
 Ansible Playbook - Wazuh agent
 ==============================
 
-This role will install and configure an Wazuh Agent.
+This role will install and configure a Wazuh Agent.
 
 OS Requirements
 ----------------
@@ -23,7 +23,7 @@ Role Variables
 Playbook example
 ----------------
 
-The following is an example how this role can be used:
+The following is an example of how this role can be used:
 
      - hosts: all:!wazuh-manager
        roles:
@@ -46,7 +46,7 @@ The following is an example how this role can be used:
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2017 Wazuh Inc. (License GPLv3)
+WAZUH Copyright (C) 2018 Wazuh Inc. (License GPLv3)
 
 ### Based on previous work from dj-wasabi
 
