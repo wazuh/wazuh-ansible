@@ -23,7 +23,7 @@ wazuh_manager_config:
   connection:
     - type: 'secure'
       port: '1514'
-      protocol: 'tcp'
+      protocol: 'udp'
   authd:
     enable: true
     port: 1515
