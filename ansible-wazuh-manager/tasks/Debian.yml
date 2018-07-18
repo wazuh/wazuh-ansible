@@ -34,6 +34,7 @@
   apt_repository:
     repo: 'ppa:webupd8team/java'
     codename: 'xenial'
+    update_cache: yes
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'

@@ -26,6 +26,7 @@
   apt_repository:
     repo: 'ppa:webupd8team/java'
     codename: 'xenial'
+    update_cache: yes
   when:
     - wazuh_agent_config.cis_cat.disable == 'no'
     - wazuh_agent_config.cis_cat.install_java == 'yes'
@@ -56,7 +57,10 @@
     - init
 
 - name: Debian/Ubuntu | Install OpenScap
-  package: name={{ item }} state=present update_cache=yes
+  apt:
+    name: {{ item }}
+    state: present
+    cache_valid_time: 3600
   when: wazuh_agent_config.openscap.disable == 'no'
   with_items:
     - libopenscap8
