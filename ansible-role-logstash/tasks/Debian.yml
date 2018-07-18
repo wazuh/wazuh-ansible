@@ -42,7 +42,7 @@
 
 - name: Debian/Ubuntu | Install Logstash
   apt:
-    name: logstash=1:{{ elastic_stack_version }}-1
+    name: "logstash=1:{{ elastic_stack_version }}-1"
     state: present
     update_cache: yes
   tags: install

@@ -58,7 +58,7 @@
 
 - name: Debian/Ubuntu | Install OpenScap
   apt:
-    name: {{ item }}
+    name: "{{ item }}"
     state: present
     cache_valid_time: 3600
   when: wazuh_agent_config.openscap.disable == 'no'
