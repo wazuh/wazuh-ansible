@@ -1,6 +1,9 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
-  apt: name="{{ item }}" state=present update_cache=yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    cache_valid_time: 3600
   with_items:
     - apt-transport-https
     - ca-certificates

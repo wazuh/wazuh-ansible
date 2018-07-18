@@ -1,6 +1,9 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
-  apt: name="{{ item }}" state=present update_cache=yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    cache_valid_time: 3600
   with_items:
     - apt-transport-https
     - ca-certificates
@@ -42,7 +45,10 @@
     - init
 
 - name: Debian/Ubuntu | Oracle Java 8 installer
-  apt: name=oracle-java8-installer state=present update_cache=yes
+  apt:
+    name: oracle-java8-installer
+    state: present
+    cache_valid_time: 3600
   when:
     - wazuh_agent_config.cis_cat.disable == 'no'
     - wazuh_agent_config.cis_cat.install_java == 'yes'
