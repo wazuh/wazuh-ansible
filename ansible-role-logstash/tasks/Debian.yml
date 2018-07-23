@@ -1,6 +1,9 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
-  apt: name="{{ item }}" state=present update_cache=yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    cache_valid_time: 3600
   with_items:
     - apt-transport-https
     - ca-certificates
@@ -22,8 +25,8 @@
     - name: Debian/Ubuntu | Oracle Java 8 installer
       apt:
         name: oracle-java8-installer
-        update_cache: yes
         state: present
+        cache_valid_time: 3600
       tags: install
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key
@@ -38,7 +41,10 @@
     filename: 'elastic_repo'
 
 - name: Debian/Ubuntu | Install Logstash
-  apt: name=logstash=1:{{ elastic_stack_version }}-1 state=present update_cache=yes
+  apt:
+    name: "logstash=1:{{ elastic_stack_version }}-1"
+    state: present
+    update_cache: yes
   tags: install
 
 - name: Debian/Ubuntu | Checking if wazuh-manager is installed

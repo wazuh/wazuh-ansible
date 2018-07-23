@@ -1,6 +1,9 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
-  apt: name="{{ item }}" state=present update_cache=yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    cache_valid_time: 3600
   with_items:
     - apt-transport-https
     - ca-certificates
@@ -19,7 +22,7 @@
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
-    repo: deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main
+    repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
     state: present
     update_cache: yes
 
@@ -31,6 +34,7 @@
   apt_repository:
     repo: 'ppa:webupd8team/java'
     codename: 'xenial'
+    update_cache: yes
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
@@ -50,7 +54,10 @@
     - init
 
 - name: Debian/Ubuntu | Oracle Java 8 installer
-  apt: name=oracle-java8-installer state=present update_cache=yes
+  apt:
+    name: oracle-java8-installer
+    state: present
+    cache_valid_time: 3600
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
@@ -58,7 +65,10 @@
     - init
 
 - name: Debian/Ubuntu | Install OpenScap
-  package: name={{ item }} state=present update_cache=yes
+  package:
+    name: "{{ item }}"
+    state: present
+    cache_valid_time: 3600
   when: wazuh_manager_config.openscap.disable == 'no'
   with_items:
     - libopenscap8
