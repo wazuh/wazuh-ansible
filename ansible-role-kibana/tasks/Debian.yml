@@ -25,4 +25,4 @@
     name: "kibana={{ elastic_stack_version }}"
     state: present
     cache_valid_time: 3600
-    tags: install
+  tags: install
