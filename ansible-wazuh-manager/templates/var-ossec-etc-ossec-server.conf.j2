@@ -118,8 +118,21 @@
   <remote>
   {% for connection in wazuh_manager_config.connection %}
     <connection>{{ connection.type }}</connection>
-    <port>{{ connection.port }}</port>
-    <protocol>{{ connection.protocol }}</protocol>
+    {% if connection.port is defined %}<port>{{ connection.port }}</port>{% endif %}
+    {% if connection.protocol is defined %}<protocol>{{ connection.protocol }}</protocol>{% endif %}
+    {% if connection.allowed_ips is defined %}
+    {% for allowed_ip in connection.allowed_ips %}
+    <allowed-ips>{{ allowed_ip }}</allowed-ips>
+    {% endfor %}
+    {% endif %}
+    {% if connection.denied_ips is defined %}
+    {% for denied_ip in connection.denied_ips %}
+    <denied-ips>{{ denied_ip }}</denied-ips>
+    {% endfor %}
+    {% endif %}
+    {% if connection.local_ip is defined %}<local_ip>{{ connection.local_ip }}</local_ip>{% endif %}
+    {% if connection.ipv6 is defined %}<ipv6>{{ connection.ipv6 }}</ipv6>{% endif %}
+    {% if connection.queue_size is defined %}<queue_size>{{ connection.queue_size }}</queue_size>{% endif %}
   {% endfor %}
   </remote>
 
