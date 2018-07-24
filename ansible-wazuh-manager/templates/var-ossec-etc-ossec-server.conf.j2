@@ -309,8 +309,8 @@
   <!-- Active Response Config -->
 {% for response in wazuh_manager_config.active_responses %}
   <active-response>
-    <disabled>no</disabled>
-    <command>{{ response.command }}</command>
+    <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
+    {%if response.command is defined %}<command>{{ response.command }}</command>{% endif %}
     {%if response.location is defined %}<location>{{ response.location }}</location>{% endif %}
     {%if response.agent_id is defined %}<agent_id>{{ response.agent_id }}</agent_id>{% endif %}
     {%if response.level is defined %}<level>{{ response.level }}</level>{% endif %}
