@@ -340,9 +340,33 @@
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
      <command>{{ localfile.command }}</command>
+     {% if localfile.alias is defined %}
+     <alias>{{ localfile.alias }}</alias>
+     {% endif %}
+     {% if localfile.frequency is defined %}
      <frequency>{{ localfile.frequency }}</frequency>
+     {% endif %}
      {% else %}
      <location>{{ localfile.location }}</location>
+     {% if localfile.format == 'eventchannel' %}
+     {% if localfile.only_future_events is defined %}
+     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     {% endif %}
+     {% if localfile.query is defined %}
+     <query>{{ localfile.query }}</query>
+     {% endif %}
+     {% endif %}
+     {% endif %}
+     {% if localfile.log_format == 'json' and localfile.labels is defined %}
+     {% for key, value in localfile.labels.iteritems() %}
+     <label key="{{ key }}">{{ value }}</label>
+     {% endfor %}
+     {% endif %}
+     {% if localfile.target is defined %}
+     <target>{{ localfile.target }}</target>
+     {% endif %}
+     {% if localfile.out_format is defined %}
+     <out_format>{{ localfile.out_format }}</out_format>
      {% endif %}
   </localfile>
 {% endfor %}
