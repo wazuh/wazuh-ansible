@@ -361,7 +361,7 @@
      {% endif %}
      {% endif %}
      {% endif %}
-     {% if localfile.log_format == 'json' and localfile.labels is defined %}
+     {% if localfile.format == 'json' and localfile.labels is defined %}
      {% for key, value in localfile.labels.iteritems() %}
      <label key="{{ key }}">{{ value }}</label>
      {% endfor %}
