@@ -45,6 +45,7 @@
     - name: Linux | Register agent (via authd)
       shell: >
         /var/ossec/bin/agent-auth
+        -A {{ stack_name }}
         -m {{ wazuh_managers.0.address }}
         -p {{ wazuh_agent_authd.port }}
         {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
@@ -87,7 +88,8 @@
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
         validate_certs: no
         method: POST
-        body: {"name":"{{ inventory_hostname }}"}
+        body: {"name":"{{ stack_name }}"}
+        #body: {"name":"{{ inventory_hostname }}"}
         body_format: json
         status_code: 200
         headers:
