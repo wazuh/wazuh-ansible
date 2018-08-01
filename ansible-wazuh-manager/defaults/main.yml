@@ -167,6 +167,8 @@ wazuh_manager_config:
       executable: 'route-null.cmd'
       expect: 'srcip'
       timeout_allowed: 'yes'
+  rule_exclude:
+    - '0215-policy_rules.xml'
   active_responses:
     - command: 'restart-ossec'
       location: 'local'
