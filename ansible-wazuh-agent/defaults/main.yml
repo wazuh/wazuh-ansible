@@ -19,10 +19,10 @@ wazuh_notify_time: null
 wazuh_time_reconnect: null
 wazuh_winagent_config:
   install_dir: 'C:\wazuh-agent\'
-  version: '3.1.0'
+  version: '3.3.1'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
-  md5: 484900d5006a50304bbf284917d7fa14
+  md5: 935d1993029021f3951b9511e2171207
 wazuh_agent_config:
   log_format: 'plain'
   syscheck:
