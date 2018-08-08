@@ -23,12 +23,12 @@
         value: true
         vtype: boolean
 
-    - name: Debian/Ubuntu | Oracle Java 8 installer
-      apt:
-        name: oracle-java8-installer
-        state: present
-        cache_valid_time: 3600
-      tags: install
+   - name: Debian/Ubuntu | Oracle Java 8 installer
+     apt:
+       name: oracle-java8-installer
+       state: present
+       cache_valid_time: 3600
+     tags: install
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
