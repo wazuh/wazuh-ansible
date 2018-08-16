@@ -35,6 +35,27 @@
   tags:
     - init
 
+- name: Check whether client.keys exists.
+  stat:
+    get_attributes: False
+    get_checksum: False
+    get_mime: False
+    path: /var/ossec/etc/client.keys
+  register: check_keys
+  tags:
+  - config
+
+- name: Ensure client.keys exists and is group-writable.
+  file:
+    group: ossec
+    mode: 0660
+    owner: root
+    path: /var/ossec/etc/client.keys
+    state: '{{ "file" if check_keys.stat.exists else "touch" }}'
+  notify: restart wazuh-manager
+  tags:
+  - config
+
 - name: Generate SSL files for authd
   command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{wazuh_manager_fqdn}}/"
   args:
