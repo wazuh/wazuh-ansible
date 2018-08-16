@@ -75,7 +75,7 @@
   <syscheck>
     <disabled>no</disabled>
     {% if ansible_os_family == "Windows" %}
-    <directories check_all="yes" realtime="yes" restrict="^C:\wazuh-agent/shared/agent.conf$">C:\wazuh-agent</directories>
+    <directories check_all="yes" realtime="yes" restrict="^C:/wazuh-agent/shared/agent.conf$">C:/wazuh-agent/shared</directories>
     {% endif %}
 
     {% if ansible_system == "Linux" %}
