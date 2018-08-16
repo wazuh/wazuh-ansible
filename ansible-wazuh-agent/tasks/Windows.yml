@@ -62,7 +62,7 @@
   notify: restart wazuh-agent windows
   when:
     - wazuh_agent_authd.enable == true
-    - check_windows_key.stat.exists == false
+    - check_windows_key.stat.exists == false or check_windows_key.stat.size == 0
     - wazuh_managers.0.address is not none
   tags:
     - config
