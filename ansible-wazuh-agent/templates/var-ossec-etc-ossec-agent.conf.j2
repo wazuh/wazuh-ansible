@@ -39,6 +39,7 @@
     <disabled>no</disabled>
   </active-response>
 
+  {% if wazuh_agent_config.rootcheck is defined %}
   <rootcheck>
     <disabled>no</disabled>
     <check_unixaudit>yes</check_unixaudit>
@@ -71,7 +72,9 @@
 
     <skip_nfs>yes</skip_nfs>
   </rootcheck>
+  {% endif %}
 
+  {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
     {% if ansible_os_family == "Windows" %}
@@ -117,6 +120,7 @@
     {% endfor %}
     {% endif %}
   </syscheck>
+  {% endif %}
 
   {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
