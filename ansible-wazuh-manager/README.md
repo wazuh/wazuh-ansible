@@ -21,6 +21,7 @@ This role has some variables which you can or need to override.
 wazuh_manager_fqdn: []
 wazuh_manager_config: []
 wazuh_agent_configs: []
+wazuh_local_rules: "..."
 ```
 
 Vault variables
@@ -199,6 +200,34 @@ wazuh_manager_config:
   mail_to:
     - myadmin@mydomain.com
   mail_smtp_server: mysmtp.mydomain.com
+```
+
+#### Defining local rules:
+If defined the contents of `wazuh_local_variables` will be included in /var/ossec/etc/rules/local_rules.xml.
+
+The variable should contain valid rule xml, eg:
+
+One way to set `wazuh_local_variables` is to load the context from a file:
+```
+vars:
+  wazuh_local_rules: "{{ lookup('file', '../templates/wazuh/local-rules.xml') }}"
+```
+
+Another is to set the value directly:
+```
+vars:
+  wazuh_local_rules: |-
+    <group name="syslog,errors,">
+
+      <!-- Docker event. These are in the stack trace for Docker OOMs in /var/log/messages -->
+      <rule id="1090" level="0">
+        <if_sid>1002</if_sid>
+        <match>mm_fault_error</match>
+        <hostname>nomad-client</hostname>
+        <description>Ignoring: mm_fault_error on rule 1002..</description>
+      </rule>
+
+    </group>
 ```
 
 Dependencies

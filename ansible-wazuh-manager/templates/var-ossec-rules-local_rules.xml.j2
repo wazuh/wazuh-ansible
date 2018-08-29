@@ -1,7 +1,6 @@
 <!-- Local rules -->
 
-<!-- Modify it at your will. -->
-
+{% if false %}
 <!-- Example -->
 <group name="local,syslog,sshd,">
 
@@ -16,6 +15,13 @@
   </rule>
 
 </group>
+{% endif %}
+
+<!-- Include local rules if defined -->
+{% if wazuh_local_rules is defined %}
+{{ wazuh_local_rules }}
+{% endif %}
+
 
 <!--
 Used with active-response to restart an agent when agent.conf file
