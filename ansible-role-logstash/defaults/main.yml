@@ -6,7 +6,7 @@ elasticsearch_network_host: "127.0.0.1"
 elasticsearch_http_port: "9200"
 elasticsearch_shards: 5
 elasticsearch_replicas: 1
-elastic_stack_version: 6.3.2
+elastic_stack_version: 6.4.0
 
 logstash_ssl: false
 logstash_ssl_dir: /etc/pki/logstash
