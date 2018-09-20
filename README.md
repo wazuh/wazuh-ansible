@@ -1,4 +1,4 @@
-# Wazuh Ansible playbooks
+# Wazuh-Ansible 
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://goo.gl/forms/M2AoZC4b2R9A9Zy12)
 [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
@@ -7,21 +7,77 @@
 
 These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
-## Documentation
+## Installation
 
-* [Full documentation](http://documentation.wazuh.com)
+To deploy Wazuh servers (manager, API, Filebeat), to deploy Elastic Stack servers (Elasticsearch, Logstash, Kibana) and to deploy agents, we can find an installation guide in the Wazuh documentation. 
+
 * [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
 
-### Based on previous work from dj-wasabi
 
-https://github.com/dj-wasabi/ansible-ossec-server
+## Directory structure
+
+    ├── wazuh-ansible
+    │ ├── roles
+    │ │ ├── elk-roles 
+    │ │ │ ├── ansible-role-elasticsearch        
+    │ │ │ ├── ansible-role-logstash
+    │ │ │ ├── ansible-role-kibana
+    │ │
+    │ │ ├── wazuh-roles                
+   	│ │ │ ├── ansible-role-filebeat
+    │ │ │ ├── ansible-role-wazuh-manager
+    │ │ │ ├── ansible-role-wazuh-agent
+    │ │
+    │ │ ├── ansible-galaxy
+    │ │ │ ├── meta
+    │
+    │ ├── playbooks
+    │ │ ├── wazuh-agent.yml
+    │ │ ├── wazuh-elastic.yml
+    │ │ ├── wazuh-elastic_stack-distributed.yml
+    │ │ ├── wazuh-elastic_stack-single.yml
+    │ │ ├── wazuh-kibana.yml
+    │ │ ├── wazuh-logstash.yml
+    │ │ ├── wazuh-manager.yml
+    │
+    │ ├── README.md
+    │ ├── VERSION
+    │ ├── CHANGELOG.md
+
+## Full documentation 
+
+* [Full documentation](http://documentation.wazuh.com)
+
+## Branches
+
+* `stable` branch on correspond to the last Wazuh-Ansible stable version.
+* `master` branch contains the latest code, be aware of possible bugs on this branch.
+
+## Contribute
+
+If you want to contribute to our repository, please fork our Github repository and submit a pull request.
+
+If you are not familiar with Github, you can also share them through [our users mailing list](https://groups.google.com/d/forum/wazuh), to which you can subscribe by sending an email to `wazuh+subscribe@googlegroups.com`. 
 
 ### Modified by Wazuh
 
 The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
 
+## Credits and Thank you
 
-## References
+Based on previous work from dj-wasabi.
+
+https://github.com/dj-wasabi/ansible-ossec-server
+
+## License and copyright
+
+WAZUH
+Copyright (C) 2016-2018 Wazuh Inc.  (License GPLv2)
+
+Based on OSSEC
+Copyright (C) 2015 Trend Micro Inc.
+
+## Web references
 
 * [Wazuh website](http://wazuh.com)
 * [OSSEC project website](http://ossec.github.io)
