@@ -18,15 +18,15 @@ To deploy Wazuh servers (manager, API, Filebeat), to deploy Elastic Stack server
 
     ├── wazuh-ansible
     │ ├── roles
-    │ │ ├── elk-roles 
-    │ │ │ ├── ansible-role-elasticsearch        
-    │ │ │ ├── ansible-role-logstash
-    │ │ │ ├── ansible-role-kibana
+    │ │ ├── elastic-stack 
+    │ │ │ ├── ansible-elasticsearch        
+    │ │ │ ├── ansible-logstash
+    │ │ │ ├── ansible-kibana
     │ │
-    │ │ ├── wazuh-roles                
-   	│ │ │ ├── ansible-role-filebeat
-    │ │ │ ├── ansible-role-wazuh-manager
-    │ │ │ ├── ansible-role-wazuh-agent
+    │ │ ├── wazuh                
+    │ │ │ ├── ansible-filebeat
+    │ │ │ ├── ansible-wazuh-manager
+    │ │ │ ├── ansible-wazuh-agent
     │ │
     │ │ ├── ansible-galaxy
     │ │ │ ├── meta
