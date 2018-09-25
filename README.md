@@ -74,10 +74,6 @@ https://github.com/dj-wasabi/ansible-ossec-server
 WAZUH
 Copyright (C) 2016-2018 Wazuh Inc.  (License GPLv2)
 
-Based on OSSEC
-Copyright (C) 2015 Trend Micro Inc.
-
 ## Web references
 
 * [Wazuh website](http://wazuh.com)
-* [OSSEC project website](http://ossec.github.io)
