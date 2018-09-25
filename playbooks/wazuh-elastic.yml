@@ -1,3 +1,3 @@
-- hosts: elasticsearch
+- hosts: <your elastic stack server host>
   roles:
-    - { role: ansible-role-elasticsearch, elasticsearch_network_host: '192.168.33.182' }
+    - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'your elastic stack server IP' }
