@@ -1,6 +1,6 @@
 - hosts: <your wazuh agents hosts>
   roles:
-    - /etc/ansible/roles/wazuh-ansible/ansible-wazuh-agent
+    - /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-agent
   vars:
     wazuh_managers:
       - address: <your manager IP>
