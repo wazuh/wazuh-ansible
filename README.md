@@ -7,12 +7,10 @@
 
 These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
-## Installation
-
-To deploy Wazuh servers (manager, API, Filebeat), to deploy Elastic Stack servers (Elasticsearch, Logstash, Kibana) and to deploy agents, we can find an installation guide in the Wazuh documentation. 
+## Documentation
 
 * [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
-
+* [Full documentation](http://documentation.wazuh.com)
 
 ## Directory structure
 
@@ -44,9 +42,6 @@ To deploy Wazuh servers (manager, API, Filebeat), to deploy Elastic Stack server
     │ ├── VERSION
     │ ├── CHANGELOG.md
 
-## Full documentation 
-
-* [Full documentation](http://documentation.wazuh.com)
 
 ## Branches
 
