@@ -1,0 +1,3 @@
+- hosts: <your logstash host>
+  roles:
+    - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-logstash, elasticsearch_network_host: 'localhost' }

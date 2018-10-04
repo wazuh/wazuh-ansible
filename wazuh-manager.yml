@@ -1,4 +1,0 @@
-- hosts: wazuh-manager
-  roles:
-    - role: ansible-wazuh-manager
-    - { role: ansible-role-filebeat, filebeat_output_logstash_hosts: '192.168.33.169:5000' }
