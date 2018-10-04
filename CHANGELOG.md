@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.7.0]
+
+### Changed
+
+- Repository restructure.
+
 ## [v3.6.0]
 
 Ansible starting point.
@@ -15,8 +21,3 @@ Roles:
    - ansible-wazuh-manager: With this role we will install Wazuh manager and Wazuh API on the host that runs it.
    - ansible-wazuh-agent: Using this role we will install Wazuh agent on the host that runs it and is able to register it. 
 
-## [v3.7.0]
-
-### Fixed
-
-### Added
