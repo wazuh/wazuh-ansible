@@ -71,6 +71,7 @@
 - name: Reload systemd
   systemd: daemon_reload=yes
   ignore_errors: yes
+  when: not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
 
 - name: Ensure Elasticsearch started and enabled
   service:
