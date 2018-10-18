@@ -6,6 +6,22 @@ wazuh_manager_config:
   alerts_log: 'yes'
   logall: 'no'
   log_format: 'plain'
+  api:
+    bind_addr: '0.0.0.0'
+    port: 55000
+    https: 'no'
+    basic_auth: 'yes'
+    behind_proxy_server: 'no'
+    https_cert: '/var/ossec/etc/sslmanager.cert'
+    https_key: '/var/ossec/etc/sslmanager.key'
+    https_use_ca: 'no'
+    https_ca: ''
+    use_only_authd: 'false'
+    drop_privilages: 'true'
+    experimental_features: 'false'
+    secure_protocol: 'TLSv1_2_method'
+    honor_cipher_order: 'true'
+    ciphers: ''
   cluster:
     disable: 'yes'
     name: 'wazuh'
