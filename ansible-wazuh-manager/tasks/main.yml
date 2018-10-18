@@ -119,6 +119,17 @@
     - init
     - config
 
+- name: Installing the config.js (api configuration)
+  template: src=var-ossec-api-configuration-config.js.j2
+            dest=/var/ossec/api/configuration/config.js
+            owner=root
+            group=ossec
+            mode=0740
+  notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+
 - name: Retrieving Agentless Credentials
   include_vars: agentless_creeds.yml
   tags:
