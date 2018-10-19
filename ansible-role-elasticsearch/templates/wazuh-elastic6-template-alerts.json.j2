@@ -2,9 +2,7 @@
   "order": 0,
   "template": "wazuh-alerts-3.x-*",
   "settings": {
-    "index.refresh_interval": "5s",
-    "number_of_shards": {{ elasticsearch_shards }},
-    "number_of_replicas": {{ elasticsearch_replicas }}
+    "index.refresh_interval": "5s"
   },
   "mappings": {
     "wazuh": {
@@ -277,6 +275,14 @@
               "doc_values": "true"
             },
             "pci_dss": {
+              "type": "keyword",
+              "doc_values": "true"
+            },
+            "gdpr": {
+              "type": "keyword",
+              "doc_values": "true"
+            },
+            "gpg13": {
               "type": "keyword",
               "doc_values": "true"
             }

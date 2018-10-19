@@ -28,7 +28,9 @@
     <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
     <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
     <key>{{ wazuh_manager_config.cluster.key }}</key>
+    {% if wazuh_manager_config.cluster.interval is defined %}
     <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
+    {% endif %}
     <port>{{ wazuh_manager_config.cluster.port }}</port>
     <bind_addr>{{ wazuh_manager_config.cluster.bind_addr }}</bind_addr>
     <nodes>
@@ -118,8 +120,21 @@
   <remote>
   {% for connection in wazuh_manager_config.connection %}
     <connection>{{ connection.type }}</connection>
-    <port>{{ connection.port }}</port>
-    <protocol>{{ connection.protocol }}</protocol>
+    {% if connection.port is defined %}<port>{{ connection.port }}</port>{% endif %}
+    {% if connection.protocol is defined %}<protocol>{{ connection.protocol }}</protocol>{% endif %}
+    {% if connection.allowed_ips is defined %}
+    {% for allowed_ip in connection.allowed_ips %}
+    <allowed-ips>{{ allowed_ip }}</allowed-ips>
+    {% endfor %}
+    {% endif %}
+    {% if connection.denied_ips is defined %}
+    {% for denied_ip in connection.denied_ips %}
+    <denied-ips>{{ denied_ip }}</denied-ips>
+    {% endfor %}
+    {% endif %}
+    {% if connection.local_ip is defined %}<local_ip>{{ connection.local_ip }}</local_ip>{% endif %}
+    {% if connection.ipv6 is defined %}<ipv6>{{ connection.ipv6 }}</ipv6>{% endif %}
+    {% if connection.queue_size is defined %}<queue_size>{{ connection.queue_size }}</queue_size>{% endif %}
   {% endfor %}
   </remote>
 
@@ -294,7 +309,11 @@
     <!-- Default ruleset -->
     <decoder_dir>ruleset/decoders</decoder_dir>
     <rule_dir>ruleset/rules</rule_dir>
-    <rule_exclude>0215-policy_rules.xml</rule_exclude>
+    {% if wazuh_manager_config.rule_exclude is defined %}
+    {% for rule in wazuh_manager_config.rule_exclude %}
+    <rule_exclude>{{ rule }}</rule_exclude>
+    {% endfor %}
+    {% endif %}
     {% if cdb_lists is defined %}
     {% for list in cdb_lists %}
     <list>etc/lists/{{ list.name }}</list>
@@ -309,8 +328,8 @@
   <!-- Active Response Config -->
 {% for response in wazuh_manager_config.active_responses %}
   <active-response>
-    <disabled>no</disabled>
-    <command>{{ response.command }}</command>
+    <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
+    {%if response.command is defined %}<command>{{ response.command }}</command>{% endif %}
     {%if response.location is defined %}<location>{{ response.location }}</location>{% endif %}
     {%if response.agent_id is defined %}<agent_id>{{ response.agent_id }}</agent_id>{% endif %}
     {%if response.level is defined %}<level>{{ response.level }}</level>{% endif %}
@@ -327,9 +346,33 @@
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
      <command>{{ localfile.command }}</command>
+     {% if localfile.alias is defined %}
+     <alias>{{ localfile.alias }}</alias>
+     {% endif %}
+     {% if localfile.frequency is defined %}
      <frequency>{{ localfile.frequency }}</frequency>
+     {% endif %}
      {% else %}
      <location>{{ localfile.location }}</location>
+     {% if localfile.format == 'eventchannel' %}
+     {% if localfile.only_future_events is defined %}
+     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     {% endif %}
+     {% if localfile.query is defined %}
+     <query>{{ localfile.query }}</query>
+     {% endif %}
+     {% endif %}
+     {% endif %}
+     {% if localfile.format == 'json' and localfile.labels is defined %}
+     {% for key, value in localfile.labels.iteritems() %}
+     <label key="{{ key }}">{{ value }}</label>
+     {% endfor %}
+     {% endif %}
+     {% if localfile.target is defined %}
+     <target>{{ localfile.target }}</target>
+     {% endif %}
+     {% if localfile.out_format is defined %}
+     <out_format>{{ localfile.out_format }}</out_format>
      {% endif %}
   </localfile>
 {% endfor %}

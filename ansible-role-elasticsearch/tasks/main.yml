@@ -102,34 +102,6 @@
   when: wazuh_alerts_template_exits.status != 200
   tags: init
 
-- name: Injecting sample alert
-  uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/wazuh-alerts-3.x-{{ ansible_date_time.date | regex_replace('-', '.') }}/wazuh/sample"
-    method: PUT
-    status_code: 200, 201
-    body_format: json
-    body: "{{ lookup('template','alert_sample.json.j2') }}"
-  when: wazuh_alerts_template_exits.status != 200
-  tags: init
-
-- name: Check for Wazuh Monitoring template
-  uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh-agent"
-    method: GET
-    status_code: 200, 404
-  register: wazuh_monitoring_template_exits
-  tags: init
-
-- name: Installing Wazuh Monitoring template
-  uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh-agent"
-    method: PUT
-    status_code: 200
-    body_format: json
-    body: "{{ lookup('template','wazuh-elastic6-template-monitoring.json.j2') }}"
-  when: wazuh_monitoring_template_exits.status != 200
-  tags: init
-
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 

@@ -23,7 +23,7 @@ wazuh_manager_config:
   connection:
     - type: 'secure'
       port: '1514'
-      protocol: 'tcp'
+      protocol: 'udp'
   authd:
     enable: true
     port: 1515
@@ -167,6 +167,8 @@ wazuh_manager_config:
       executable: 'route-null.cmd'
       expect: 'srcip'
       timeout_allowed: 'yes'
+  rule_exclude:
+    - '0215-policy_rules.xml'
   active_responses:
     - command: 'restart-ossec'
       location: 'local'
