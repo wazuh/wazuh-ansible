@@ -17,7 +17,7 @@ wazuh_manager_config:
     https_use_ca: 'no'
     https_ca: ''
     use_only_authd: 'false'
-    drop_privilages: 'true'
+    drop_privileges: 'true'
     experimental_features: 'false'
     secure_protocol: 'TLSv1_2_method'
     honor_cipher_order: 'true'

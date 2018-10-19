@@ -125,7 +125,7 @@
             owner=root
             group=ossec
             mode=0740
-  notify: restart wazuh-manager
+  notify: restart wazuh-api
   tags:
     - init
     - config
