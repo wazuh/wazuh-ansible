@@ -13,11 +13,22 @@
   ignore_errors: yes
   when: not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
 
+- name: Amazon Linux create service
+  shell: /usr/share/logstash/bin/system-install /etc/logstash/startup.options
+  when: ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+
 - name: Ensure Logstash started and enabled
   service:
     name: logstash
     enabled: yes
     state: started
+
+- name: Amazon Linux restart Logstash
+  service:
+    name: logstash
+    enabled: yes
+    state: started
+  when: ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
