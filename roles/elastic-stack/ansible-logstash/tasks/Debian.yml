@@ -8,13 +8,13 @@
     - apt-transport-https
     - ca-certificates
 
-- name: Debian/Ubuntu | Setting webupd8 repository
-  apt_repository:
-    repo: 'ppa:webupd8team/java'
-    codename: 'xenial'
-
 - when: logstash_install_java
   block:
+    - name: Debian/Ubuntu | Setting webupd8 repository
+      apt_repository:
+        repo: 'ppa:webupd8team/java'
+        codename: 'xenial'
+
     - name: Debian/Ubuntu | Accept Oracle Java 8 license
       debconf:
         name: oracle-java8-installer
