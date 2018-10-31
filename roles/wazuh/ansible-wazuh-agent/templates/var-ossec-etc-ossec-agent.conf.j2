@@ -36,7 +36,7 @@
   </logging>
 
   <active-response>
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.active_response_disabled|default('no') }}</disabled>
   </active-response>
 
   {% if wazuh_agent_config.rootcheck is defined %}
