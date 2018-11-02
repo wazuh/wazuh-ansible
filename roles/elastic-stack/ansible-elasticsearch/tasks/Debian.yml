@@ -1,4 +1,3 @@
-
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
@@ -9,14 +8,14 @@
     - apt-transport-https
     - ca-certificates
 
-- name: Debian/Ubuntu | Setting webupd8 repository
-  apt_repository:
-    repo: 'ppa:webupd8team/java'
-    codename: 'xenial'
-    update_cache: yes
-
 - when: elasticsearch_install_java
   block:
+    - name: Debian/Ubuntu | Setting webupd8 repository
+      apt_repository:
+        repo: 'ppa:webupd8team/java'
+        codename: 'xenial'
+        update_cache: yes
+
     - name: Debian/Ubuntu | Accept Oracle Java 8 license
       debconf:
         name: oracle-java8-installer
