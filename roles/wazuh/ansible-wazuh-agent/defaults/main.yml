@@ -24,6 +24,7 @@ wazuh_winagent_config:
   repo: https://packages.wazuh.com/3.x/windows/
   md5: 935d1993029021f3951b9511e2171207
 wazuh_agent_config:
+  active_response_disabled: 'no'
   log_format: 'plain'
   syscheck:
     frequency: 43200
