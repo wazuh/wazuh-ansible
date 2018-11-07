@@ -109,7 +109,7 @@
     - rules
 
 - name: Configure the shared-agent.conf
-  template: 
+  template:
     src: var-ossec-etc-shared-agent.conf.j2
     dest: /var/ossec/etc/shared/default/agent.conf
     owner: ossec

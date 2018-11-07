@@ -184,7 +184,7 @@ wazuh_manager_config:
       expect: 'srcip'
       timeout_allowed: 'yes'
   rule_exclude:
-      '0215-policy_rules.xml'
+    - '0215-policy_rules.xml'
   active_responses:
     - command: 'restart-ossec'
       location: 'local'
