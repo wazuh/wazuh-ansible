@@ -109,14 +109,23 @@
     - rules
 
 - name: Configure the shared-agent.conf
-  template:
-    src: var-ossec-etc-shared-agent.conf.j2
-    dest: /var/ossec/etc/shared/default/agent.conf
-    owner: ossec
-    group: ossec
-    mode: 0640
-    validate: '/var/ossec/bin/verify-agent-conf -f %s'
+  template: src=var-ossec-etc-shared-agent.conf.j2
+            dest=/var/ossec/etc/shared/default/agent.conf
+            owner=ossec
+            group=ossec
+            mode=0640
   notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+
+- name: Installing the config.js (api configuration)
+  template: src=var-ossec-api-configuration-config.js.j2
+            dest=/var/ossec/api/configuration/config.js
+            owner=root
+            group=ossec
+            mode=0740
+  notify: restart wazuh-api
   tags:
     - init
     - config
