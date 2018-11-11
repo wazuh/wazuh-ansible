@@ -45,7 +45,7 @@
     - name: Linux | Register agent (via authd)
       shell: >
         /var/ossec/bin/agent-auth
-        -A {{ wazuh_agent_config.name | inventory_hostname }}
+        {% if wazuh_agent_config.name is defined %}-A {{ wazuh_agent_config.name }}{% endif %}
         -m {{ wazuh_managers.0.address }}
         -p {{ wazuh_agent_authd.port }}
         {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
