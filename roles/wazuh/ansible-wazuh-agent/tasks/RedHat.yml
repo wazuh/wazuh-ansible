@@ -19,6 +19,16 @@
   when:
     - ansible_distribution_major_version|int == 5
 
+- name: AmazonLinux | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: Wazuh repository
+    baseurl: https://packages.wazuh.com/3.x/yum/
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    gpgcheck: yes
+  when:
+    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
     url: http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jre-8u171-linux-x64.rpm
@@ -53,7 +63,7 @@
 - name: Set Distribution CIS filename for RHEL7
   set_fact:
     cis_distribution_filename: cis_rhel7_linux_rcl.txt
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "7"
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "7") or (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
 
 - name: RedHat/CentOS/RedHat | Install openscap
   package: name=openscap-scanner state=present
