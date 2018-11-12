@@ -3,7 +3,7 @@
   block:
     - name: RedHat/CentOS/Fedora | download Oracle Java RPM
       get_url:
-        url: https://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-linux-x64.rpm
+        url: https://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-linux-x64.rpm
         dest: /tmp/jre-8-linux-x64.rpm
         headers: 'Cookie:oraclelicense=accept-securebackup-cookie'
       register: oracle_java_task_rpm_download
@@ -42,3 +42,10 @@
   when:
     - logstash_input_beats == false
     - wazuh_manager_check_rpm.rc == 0
+
+- name: Amazon Linux change startup group
+  shell: sed -i 's/.*LS_GROUP=logstash.*/LS_GROUP=ossec/' /etc/logstash/startup.options
+  when:
+    - logstash_input_beats == false
+    - wazuh_manager_check_rpm.rc == 0
+    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
