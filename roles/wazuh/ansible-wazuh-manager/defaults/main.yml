@@ -5,6 +5,7 @@ wazuh_manager_config:
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
+  logall_json: 'no'
   log_format: 'plain'
   api:
     bind_addr: '0.0.0.0'
