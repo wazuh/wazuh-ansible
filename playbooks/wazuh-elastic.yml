@@ -1,0 +1,3 @@
+- hosts: <your elasticsearch host>
+  roles:
+    - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'your elasticsearch IP' }

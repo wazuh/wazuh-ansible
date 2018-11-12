@@ -1,0 +1,4 @@
+- hosts: <your wazuh server host>
+  roles:
+    - role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager
+    - { role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-filebeat, filebeat_output_logstash_hosts: 'your logstash IP' }
