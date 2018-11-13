@@ -3,9 +3,20 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.7.0]
 
+### Added
+
+- Amazon Linux deployments are now supported ([#71](https://github.com/wazuh/wazuh-ansible/pull/71)) and for the old repository structure ([#67](https://github.com/wazuh/wazuh-ansible/pull/67))
+
 ### Changed
 
 - Repository restructure.
+
+### Fixed
+
+- Fix oracle java cookie ([#71](https://github.com/wazuh/wazuh-ansible/pull/71)).
+
+### Removed
+
 
 ## [v3.6.0]
 
