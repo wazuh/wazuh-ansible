@@ -6,14 +6,22 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Amazon Linux deployments are now supported ([#71](https://github.com/wazuh/wazuh-ansible/pull/71)) and for the old repository structure ([#67](https://github.com/wazuh/wazuh-ansible/pull/67))
+- Added the option to add rule files and decoders directly over the local rule and decoder directories in /var/ossec/etc ([#81](https://github.com/wazuh/wazuh-ansible/pull/81)).
+- Added the necessary variables to configure a new configuration template for the Wazuh API ([#80](https://github.com/wazuh/wazuh-ansible/pull/80)).
+- Added the option to verify the shared configuration for agents set in the manager ([#76](https://github.com/wazuh/wazuh-ansible/pull/76)). 
+- Added the option to configure the active response ([#75](https://github.com/wazuh/wazuh-ansible/pull/75)). 
 
 ### Changed
 
 - Repository restructure.
+- Extended conditions to register a Wazuh agent. Now will register the agent in cases where there is no client.keys or the file exists but this empty ([#79](https://github.com/wazuh/wazuh-ansible/pull/79)). 
+- Grouping of tasks in a block under the same condition to improve the efficiency of the code ([#74](https://github.com/wazuh/wazuh-ansible/pull/74)). 
+- Improved efficiency of the Java repository ([#73](https://github.com/wazuh/wazuh-ansible/pull/73)). 
 
 ### Fixed
 
 - Fix oracle java cookie ([#71](https://github.com/wazuh/wazuh-ansible/pull/71)).
+- include the logall_json label in ossec.conf template. This was causing an error when recreating the cdb_lists ([#84](https://github.com/wazuh/wazuh-ansible/pull/84)).
 
 ### Removed
 
