@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [v3.7.0]
+## v3.7.0-3701
 
 ### Added
 
@@ -23,10 +23,7 @@ All notable changes to this project will be documented in this file.
 - Fix oracle java cookie ([#71](https://github.com/wazuh/wazuh-ansible/pull/71)).
 - include the logall_json label in ossec.conf template. This was causing an error when recreating the cdb_lists ([#84](https://github.com/wazuh/wazuh-ansible/pull/84)).
 
-### Removed
-
-
-## [v3.6.0]
+## v3.6.0
 
 Ansible starting point.
 
