@@ -221,11 +221,10 @@ wazuh_agent_configs:
       - /etc/svc/volatile
       no_diff:
         - /etc/ssl/private.key
-      directories:
-        - dirs: /etc,/usr/bin,/usr/sbin
-          checks: 'check_all="yes"'
-        - dirs: /bin,/sbin
-          checks: 'check_all="yes"'
+      # Example
+      #directories:
+        #- dirs: /etc,/usr/bin,/usr/sbin
+        #  checks: 'check_all="yes"'
     rootcheck:
       frequency: 43200
       cis_distribution_filename: null
