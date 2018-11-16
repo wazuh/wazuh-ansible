@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## v3.7.0-37xx
 
+### Added
 
+- include template local_internal_options.conf ([#87](https://github.com/wazuh/wazuh-ansible/pull/87))
 
 ## v3.7.0-3701
 
