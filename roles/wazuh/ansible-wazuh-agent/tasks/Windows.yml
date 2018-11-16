@@ -75,6 +75,14 @@
   tags:
     - config
 
+- name: Windows | Installing local_internal_options.conf
+  win_template:
+    src: var-ossec-etc-local-internal-options.conf.j2
+    dest: "{{ wazuh_winagent_config.install_dir }}local_internal_options.conf"
+  notify: restart wazuh-agent windows
+  tags:
+    - config
+
 - name: Windows | Delete downloaded Wazuh agent installer file
   win_file:
     path: C:\wazuh-agent-installer.msi
