@@ -15,7 +15,6 @@ All notable changes to this project will be documented in this file.
 
 - clean old code for windows agent ([#86](https://github.com/wazuh/wazuh-ansible/pull/86))
 
-- include template local_internal_options.conf ([#87](https://github.com/wazuh/wazuh-ansible/pull/87))
 
 ## v3.7.0-3701
 
