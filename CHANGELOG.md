@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## v3.7.0-37xx
 
+### Changed
 
+- Solve the conflict betwwen tha agent configuration and the shared master configuration. Also include monitoring for `/var/log/auth.log` ([#90](https://github.com/wazuh/wazuh-ansible/pull/90))
 
 ## v3.7.0-3701
 
