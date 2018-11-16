@@ -77,10 +77,6 @@
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
-    {% if ansible_os_family == "Windows" %}
-    <directories check_all="yes" realtime="yes" restrict="^C:/wazuh-agent/shared/agent.conf$">C:/wazuh-agent/shared</directories>
-    {% endif %}
-
     {% if ansible_system == "Linux" %}
     <directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories>
     {% endif %}
