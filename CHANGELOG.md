@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## v3.7.0-37xx
 
+### Changed
+
+ - Changed windows agent version ([#89](https://github.com/wazuh/wazuh-ansible/pull/89))
 
 ### Removed
 
