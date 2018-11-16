@@ -156,6 +156,17 @@
     - init
     - config
 
+- name: Installing the local_internal_options.conf
+  template: src=var-ossec-etc-local-internal-options.conf.j2
+            dest=/var/ossec/etc/local_internal_options.conf
+            owner=root
+            group=ossec
+            mode=0640
+  notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+
 - name: Retrieving Agentless Credentials
   include_vars: agentless_creeds.yml
   tags:

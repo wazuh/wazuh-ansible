@@ -167,6 +167,17 @@
     - init
     - config
 
+- name: Linux | Installing local_internal_options.conf
+  template: src=var-ossec-etc-local-internal-options.conf.j2
+            dest=/var/ossec/etc/local_internal_options.conf
+            owner=root
+            group=ossec
+            mode=0640
+  notify: restart wazuh-agent
+  tags:
+    - init
+    - config
+
 - name: Linux | Ensure Wazuh Agent service is started and enabled
   service:
     name: wazuh-agent
