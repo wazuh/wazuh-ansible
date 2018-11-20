@@ -2,7 +2,10 @@
 logstash_create_config: true
 logstash_input_beats: false
 
-elasticsearch_network_host: "127.0.0.1"
+#You can introduce Multiples IPs
+# elasticseacrh_network_host: ["Localhost1", "Localhost2", "Localhost3", ...]
+elasticsearch_network_host: ["Localhost"]
+
 elasticsearch_http_port: "9200"
 elasticsearch_shards: 5
 elasticsearch_replicas: 1

@@ -66,7 +66,7 @@ filter {
 output {
     #stdout { codec => rubydebug }
     elasticsearch {
-        hosts => ["{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"]
+        hosts => {{ elasticsearch_network_host | to_json}}
         index => "wazuh-alerts-3.x-%{+YYYY.MM.dd}"
         document_type => "wazuh"
     }
