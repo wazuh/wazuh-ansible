@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
  - include template local_internal_options.conf ([#87](https://github.com/wazuh/wazuh-ansible/pull/87))
+ - Add multiple Elasticsearch IPs for Logstash reports.([#92](https://github.com/wazuh/wazuh-ansible/pull/92))
 
 ### Changed
 
