@@ -185,8 +185,8 @@ wazuh_manager_config:
       expect: 'srcip'
       timeout_allowed: 'yes'
   ruleset:
-      rules_path: '/etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager/custom_ruleset/rules/'
-      decoders_path: '/etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager/custom_ruleset/decoders/'
+      rules_path: '/custom_ruleset/rules/'
+      decoders_path: '/custom_ruleset/decoders/'
   rule_exclude:
     - '0215-policy_rules.xml'
   active_responses:
