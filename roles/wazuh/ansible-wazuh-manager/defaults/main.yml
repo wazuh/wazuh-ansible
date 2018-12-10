@@ -140,6 +140,8 @@ wazuh_manager_config:
   email_level: 12
   localfiles:
     - format: 'syslog'
+      location: '/var/log/auth.log'
+    - format: 'syslog'
       location: '/var/log/messages'
     - format: 'syslog'
       location: '/var/log/secure'
