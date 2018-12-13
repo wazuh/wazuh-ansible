@@ -7,3 +7,17 @@ cdb_lists:
       audit-wazuh-a:attribute
       audit-wazuh-x:execute
       audit-wazuh-c:command
+  - name: 'aws-source'
+    content: |
+      aws-source-w:write
+      aws-source-r:read
+      aws-source-a:attribute
+      aws-source-x:execute
+      aws-source-c:command
+  - name: 'aws-eventnames'
+    content: |
+      aws-eventnames-w:write
+      aws-eventnames-r:read
+      aws-eventnames-a:attribute
+      aws-eventnames-x:execute
+      aws-eventnames-c:command
