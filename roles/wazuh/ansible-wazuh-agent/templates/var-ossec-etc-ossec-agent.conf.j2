@@ -87,13 +87,13 @@
   <syscheck>
     <disabled>no</disabled>
     {% if ansible_system == "Linux" %}
-    #<directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories>
+<!--    #<directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
     <directories check_all="yes">/etc,/usr/bin,/usr/sbin</directories>
     <directories check_all="yes">/bin,/sbin,/boot</directories>
     {% endif %}
 
     <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
-    #<alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files>
+<!--    #<alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
@@ -245,7 +245,7 @@
   {% endif %}
 
   <!-- Files to monitor (localfiles) -->
-    {% for localfile in wazuh_agent_config.localfiles %}
+    {% for localfile in wazuh_agent_config.localfiles.common %}
     <localfile>
         <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -257,4 +257,31 @@
     </localfile>
   {% endfor %}
 
+    {% if ansible_os_family == "Debian" %}
+    {% for localfile in wazuh_agent_config.localfiles.debian %}
+    <localfile>
+        <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+        <command>{{ localfile.command }}</command>
+        <frequency>{{ localfile.frequency }}</frequency>
+    {% else %}
+        <location>{{ localfile.location }}</location>
+    {% endif %}
+    </localfile>
+  {% endfor %}
+  {% endif %}
+
+    {% if ansible_os_family == "RedHat" %}
+    {% for localfile in wazuh_agent_config.localfiles.centos %}
+    <localfile>
+        <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+        <command>{{ localfile.command }}</command>
+        <frequency>{{ localfile.frequency }}</frequency>
+    {% else %}
+        <location>{{ localfile.location }}</location>
+    {% endif %}
+    </localfile>
+  {% endfor %}
+  {% endif %}
 </ossec_config>

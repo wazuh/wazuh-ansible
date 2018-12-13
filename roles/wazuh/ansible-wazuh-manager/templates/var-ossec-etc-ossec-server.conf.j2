@@ -398,7 +398,7 @@
 {% endif %}
 
 
-  <!-- Active Response Config -->
+  <!-- Active Response Config 
 {% for response in wazuh_manager_config.active_responses %}
   <active-response>
     <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
@@ -412,9 +412,10 @@
     {%if response.repeated_offenders is defined %}<repeated_offenders>{{ response.repeated_offenders }}</repeated_offenders>{% endif %}
   </active-response>
 {% endfor %}
+-->
 
   <!-- Files to monitor (localfiles) -->
-{% for localfile in wazuh_manager_config.localfiles %}
+{% for localfile in wazuh_manager_config.localfiles.common %}
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -449,6 +450,82 @@
      {% endif %}
   </localfile>
 {% endfor %}
+
+{% if ansible_os_family == "Debian" %}
+{% for localfile in wazuh_manager_config.localfiles.debian %}
+  <localfile>
+     <log_format>{{ localfile.format }}</log_format>
+     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+     <command>{{ localfile.command }}</command>
+     {% if localfile.alias is defined %}
+     <alias>{{ localfile.alias }}</alias>
+     {% endif %}
+     {% if localfile.frequency is defined %}
+     <frequency>{{ localfile.frequency }}</frequency>
+     {% endif %}
+     {% else %}
+     <location>{{ localfile.location }}</location>
+     {% if localfile.format == 'eventchannel' %}
+     {% if localfile.only_future_events is defined %}
+     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     {% endif %}
+     {% if localfile.query is defined %}
+     <query>{{ localfile.query }}</query>
+     {% endif %}
+     {% endif %}
+     {% endif %}
+     {% if localfile.format == 'json' and localfile.labels is defined %}
+     {% for key, value in localfile.labels.iteritems() %}
+     <label key="{{ key }}">{{ value }}</label>
+     {% endfor %}
+     {% endif %}
+     {% if localfile.target is defined %}
+     <target>{{ localfile.target }}</target>
+     {% endif %}
+     {% if localfile.out_format is defined %}
+     <out_format>{{ localfile.out_format }}</out_format>
+     {% endif %}
+  </localfile>
+{% endfor %}
+{% endif %}
+
+{% if ansible_os_family == "RedHat" %}  
+{% for localfile in wazuh_manager_config.localfiles.centos %}
+  <localfile>
+     <log_format>{{ localfile.format }}</log_format>
+     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+     <command>{{ localfile.command }}</command>
+     {% if localfile.alias is defined %}
+     <alias>{{ localfile.alias }}</alias>
+     {% endif %}
+     {% if localfile.frequency is defined %}
+     <frequency>{{ localfile.frequency }}</frequency>
+     {% endif %}
+     {% else %}
+     <location>{{ localfile.location }}</location>
+     {% if localfile.format == 'eventchannel' %}
+     {% if localfile.only_future_events is defined %}
+     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     {% endif %}
+     {% if localfile.query is defined %}
+     <query>{{ localfile.query }}</query>
+     {% endif %}
+     {% endif %}
+     {% endif %}
+     {% if localfile.format == 'json' and localfile.labels is defined %}
+     {% for key, value in localfile.labels.iteritems() %}
+     <label key="{{ key }}">{{ value }}</label>
+     {% endfor %}
+     {% endif %}
+     {% if localfile.target is defined %}
+     <target>{{ localfile.target }}</target>
+     {% endif %}
+     {% if localfile.out_format is defined %}
+     <out_format>{{ localfile.out_format }}</out_format>
+     {% endif %}
+  </localfile>
+{% endfor %}
+{% endif %}
 
 {% if wazuh_manager_config.syslog_outputs is defined %}
 {% for syslog_output in wazuh_manager_config.syslog_outputs %}
