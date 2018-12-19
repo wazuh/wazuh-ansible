@@ -1,0 +1,54 @@
+---
+wazuh_agent_configs:
+  - localfiles:
+      - format: syslog
+        location: /var/log/messages
+      - format: syslog
+        location: /var/log/secure
+      - format: syslog
+        location: /var/log/maillog
+      - format: apache
+        location: /var/log/httpd/error_log
+      - format: apache
+        location: /var/log/httpd/access_log
+      - format: apache
+        location: /var/ossec/logs/active-responses.log
+    rootcheck:
+      cis_distribution_filename: null
+      frequency: 43200
+    syscheck:
+      alert_new_files: 'yes'
+      auto_ignore: 'no'
+      directories:
+        - checks: check_all="yes"
+          dirs: '/etc,/usr/bin,/usr/sbin'
+        - checks: check_all="yes"
+          dirs: '/bin,/sbin'
+      frequency: 43200
+      ignore:
+        - /etc/mtab
+        - /etc/mnttab
+        - /etc/hosts.deny
+        - /etc/mail/statistics
+        - /etc/svc/volatile
+      no_diff:
+        - /etc/ssl/private.key
+      scan_on_start: 'yes'
+    type: os
+    type_value: Linux
+  - localfiles:
+      - format: eventchannel
+        location: Security
+      - format: eventlog
+        location: System
+    syscheck:
+      alert_new_files: 'yes'
+      auto_ignore: 'no'
+      frequency: 43200
+      scan_on_start: 'yes'
+      windows_registry:
+        - arch: both
+          key: HKEY_LOCAL_MACHINE\Software\Classes\batfile
+        - key: HKEY_LOCAL_MACHINE\Software\Classes\Folder
+    type: os
+    type_value: Windows

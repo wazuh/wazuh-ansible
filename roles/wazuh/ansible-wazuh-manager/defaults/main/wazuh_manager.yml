@@ -1,0 +1,206 @@
+---
+wazuh_manager_config:
+  active_responses:
+    - command: restart-ossec
+      location: local
+      rules_id: '100002'
+    - command: win_restart-ossec
+      location: local
+      rules_id: '100003'
+    - command: host-deny
+      level: 6
+      location: local
+      timeout: 600
+  alerts_log: 'yes'
+  api:
+    basic_auth: 'yes'
+    behind_proxy_server: 'no'
+    bind_addr: 0.0.0.0
+    ciphers: ''
+    drop_privileges: 'true'
+    experimental_features: 'false'
+    honor_cipher_order: 'true'
+    https: 'no'
+    https_ca: ''
+    https_cert: /var/ossec/etc/sslmanager.cert
+    https_key: /var/ossec/etc/sslmanager.key
+    https_use_ca: 'no'
+    port: 55000
+    secure_protocol: TLSv1_2_method
+    use_only_authd: 'false'
+  authd:
+    enable: true
+    force_insert: 'yes'
+    force_time: 0
+    port: 1515
+    purge: 'no'
+    ssl_agent_ca: null
+    ssl_auto_negotiate: 'no'
+    ssl_manager_cert: /var/ossec/etc/sslmanager.cert
+    ssl_manager_key: /var/ossec/etc/sslmanager.key
+    ssl_verify_host: 'no'
+    use_password: 'no'
+    use_source_ip: 'yes'
+  cis_cat:
+    ciscat_path: /var/ossec/wodles/ciscat
+    content:
+      - path: benchmarks/CIS_Ubuntu_Linux_16.04_LTS_Benchmark_v1.0.0-xccdf.xml
+        profile: xccdf_org.cisecurity.benchmarks_profile_Level_1_-_Server
+        type: xccdf
+    disable: 'yes'
+    install_java: 'yes'
+    interval: 1d
+    java_path: /usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin
+    scan_on_start: 'yes'
+    timeout: 1800
+  cluster:
+    bind_addr: 0.0.0.0
+    disable: 'yes'
+    hidden: 'no'
+    interval: 2m
+    key: ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa
+    name: wazuh
+    node_name: "{{ ansible_hostname }}"
+    node_type: master
+    nodes:
+      - 172.17.0.2
+      - 172.17.0.3
+      - 172.17.0.4
+    port: '1516'
+  commands:
+    - executable: disable-account.sh
+      expect: user
+      name: disable-account
+      timeout_allowed: 'yes'
+    - executable: restart-ossec.sh
+      expect: ''
+      name: restart-ossec
+      timeout_allowed: 'no'
+    - executable: restart-ossec.cmd
+      expect: ''
+      name: win_restart-ossec
+      timeout_allowed: 'no'
+    - executable: firewall-drop.sh
+      expect: srcip
+      name: firewall-drop
+      timeout_allowed: 'yes'
+    - executable: host-deny.sh
+      expect: srcip
+      name: host-deny
+      timeout_allowed: 'yes'
+    - executable: route-null.sh
+      expect: srcip
+      name: route-null
+      timeout_allowed: 'yes'
+    - executable: route-null.cmd
+      expect: srcip
+      name: win_route-null
+      timeout_allowed: 'yes'
+  connection:
+    - port: '1514'
+      protocol: udp
+      type: secure
+  email_level: 12
+  email_notification: 'no'
+  extra_emails:
+    - do_not_delay: false
+      do_not_group: false
+      enable: false
+      event_location: null
+      format: full
+      group: null
+      level: 7
+      mail_to: admin@example.net
+      rule_id: null
+  globals:
+    - 127.0.0.1
+    - 192.168.2.1
+  json_output: 'yes'
+  localfiles:
+    - format: syslog
+      location: /var/log/auth.log
+    - format: syslog
+      location: /var/log/messages
+    - format: syslog
+      location: /var/log/secure
+    - command: df -P
+      format: command
+      frequency: '360'
+    - command: netstat -tln | grep -v 127.0.0.1 | sort
+      format: full_command
+      frequency: '360'
+    - command: last -n 20
+      format: full_command
+      frequency: '360'
+  log_format: plain
+  log_level: 1
+  logall: 'no'
+  logall_json: 'no'
+  mail_from: wazuh-server@example.com
+  mail_smtp_server: localhost
+  mail_to:
+    - admin@example.net
+  openscap:
+    disable: 'no'
+    interval: 1d
+    scan_on_start: 'yes'
+    timeout: 1800
+  reports:
+    - category: syscheck
+      email_to: admin@example.net
+      enable: false
+      group: null
+      level: null
+      location: null
+      rule: null
+      showlogs: null
+      srcip: null
+      title: 'Daily report: File changes'
+      user: null
+  rootcheck:
+    frequency: 43200
+  rule_exclude:
+    - 0215-policy_rules.xml
+  ruleset:
+    decoders_path: custom_ruleset/decoders/
+    rules_path: custom_ruleset/rules/
+  syscheck:
+    alert_new_files: 'yes'
+    auto_ignore: 'no'
+    # Example
+    #directories:
+      #- dirs: /etc,/usr/bin,/usr/sbin
+      #  checks: 'check_all="yes"'
+    frequency: 43200
+    ignore:
+      - /etc/mtab
+      - /etc/mnttab
+      - /etc/hosts.deny
+      - /etc/mail/statistics
+      - /etc/random-seed
+      - /etc/random.seed
+      - /etc/adjtime
+      - /etc/httpd/logs
+      - /etc/utmpx
+      - /etc/wtmpx
+      - /etc/cups/certs
+      - /etc/dumpdates
+      - /etc/svc/volatile
+    no_diff:
+      - /etc/ssl/private.key
+    scan_on_start: 'yes'
+  syslog_outputs:
+    - format: null
+      port: null
+      server: null
+  vuls:
+    args:
+      - mincvss 5
+      - antiquity-limit 20
+      - updatenvd
+      - nvd-year 2016
+      - autoupdate
+    disable: 'yes'
+    interval: 1d
+    run_on_start: 'yes'
+wazuh_manager_fqdn: "{{ ansible_hostname }}"
