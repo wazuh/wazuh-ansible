@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
  - Changed windows agent version ([#89](https://github.com/wazuh/wazuh-ansible/pull/89))
+ - Updating to Elastic Stack to 6.5.3 and Wazuh 3.7.1 ([#108](https://github.com/wazuh/wazuh-ansible/pull/108))
  
 ### Fixed
 
