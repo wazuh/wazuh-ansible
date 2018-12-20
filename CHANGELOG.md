@@ -1,7 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## v3.7.0-37xx
+## [v3.7.2]
+
+## [v3.7.1]
 
 ### Added
 
@@ -16,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 - Solve the conflict betwwen tha agent configuration and the shared master configuration. Also include monitoring for `/var/log/auth.log` ([#90](https://github.com/wazuh/wazuh-ansible/pull/90))
 - Moved custom_ruleset files ([#98](https://github.com/wazuh/wazuh-ansible/pull/98))
+- Add authlog fix to localfile ([#99](https://github.com/wazuh/wazuh-ansible/pull/99))
 
 ### Removed
 
