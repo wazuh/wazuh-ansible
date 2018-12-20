@@ -29,14 +29,22 @@
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
     {% endif %}
     <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
+    <crypto_method>{{ wazuh_crypto_method }}</crypto_method>
   </client>
-
+  <client_buffer>
+    <!-- Agent buffer options -->
+    <disabled>{{ wazuh_agent_config.client_buffer.disable }}</disabled>
+    <queue_size>{{ wazuh_agent_config.client_buffer.queue_size }}</queue_size>
+    <events_per_second>{{ wazuh_agent_config.client_buffer.events_per_sec }}</events_per_second>
+  </client_buffer>
   <logging>
     <log_format>{{ wazuh_agent_config.log_format }}</log_format>
   </logging>
 
   <active-response>
-    <disabled>{{ wazuh_agent_config.active_response_disabled|default('no') }}</disabled>
+    <disabled>{{ wazuh_agent_config.active_response.ar|default('no') }}</disabled>
+    <ca_store>{{ wazuh_agent_config.active_response.ca_store }}</ca_store>
+    <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
   </active-response>
 
   {% if wazuh_agent_config.rootcheck is defined %}
@@ -74,15 +82,18 @@
   </rootcheck>
   {% endif %}
 
+  <!-- Directories to check  (perform all possible verifications) -->
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
     {% if ansible_system == "Linux" %}
-    <directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories>
+<!--    #<directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
+    <directories check_all="yes">/etc,/usr/bin,/usr/sbin</directories>
+    <directories check_all="yes">/bin,/sbin,/boot</directories>
     {% endif %}
 
     <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
-    <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files>
+<!--    #<alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
@@ -105,7 +116,14 @@
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
+    
+    <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
+    <!-- Remove not monitored files -->
+    <remove_old_diff>{{ wazuh_agent_config.syscheck.remove_old_diff }}</remove_old_diff>
 
+    <!-- Allow the system to restart Auditd after installing the plugin -->
+    <restart_audit>{{ wazuh_agent_config.syscheck.restart_audit }}</restart_audit>
+ 
     {% if ansible_os_family == "Windows" %}
     {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
     {% if registry_key.arch is defined %}
@@ -191,6 +209,30 @@
   </wodle>
   {% endif %}
 
+  <!-- Osquery integration -->
+  <wodle name="osquery">
+    <disabled>{{ wazuh_agent_config.osquery.disable }}</disabled>
+    <run_daemon>{{ wazuh_agent_config.osquery.run_daemon }}</run_daemon>
+    <log_path>{{ wazuh_agent_config.osquery.log_path }}</log_path>
+    <config_path>{{ wazuh_agent_config.osquery.config_path }}</config_path>
+    <add_labels>{{ wazuh_agent_config.osquery.ad_labels }}</add_labels>
+  </wodle>
+
+  <!-- System inventory -->
+  <wodle name="syscollector">
+    <disabled>{{ wazuh_agent_config.syscollector.disable }}</disabled>
+    <interval>{{ wazuh_agent_config.syscollector.interval }}</interval>
+    <scan_on_start>{{ wazuh_agent_config.syscollector.scan_on_start }}</scan_on_start>
+    <hardware>{{ wazuh_agent_config.syscollector.hardware }}</hardware>
+    <os>{{ wazuh_agent_config.syscollector.os }}</os>
+    <network>{{ wazuh_agent_config.syscollector.network }}</network>
+    <packages>{{ wazuh_agent_config.syscollector.packages }}</packages>
+    <ports all="no">{{ wazuh_agent_config.syscollector.ports_no }}</ports>
+    <processes>{{ wazuh_agent_config.syscollector.processes }}</processes>
+  </wodle>
+
+
+
   {% if ansible_system == "Linux" and wazuh_agent_config.vuls.disable == 'no' %}
   <wodle name="command">
     <disabled>no</disabled>
@@ -203,7 +245,7 @@
   {% endif %}
 
   <!-- Files to monitor (localfiles) -->
-    {% for localfile in wazuh_agent_config.localfiles %}
+    {% for localfile in wazuh_agent_config.localfiles.common %}
     <localfile>
         <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -215,4 +257,31 @@
     </localfile>
   {% endfor %}
 
+    {% if ansible_os_family == "Debian" %}
+    {% for localfile in wazuh_agent_config.localfiles.debian %}
+    <localfile>
+        <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+        <command>{{ localfile.command }}</command>
+        <frequency>{{ localfile.frequency }}</frequency>
+    {% else %}
+        <location>{{ localfile.location }}</location>
+    {% endif %}
+    </localfile>
+  {% endfor %}
+  {% endif %}
+
+    {% if ansible_os_family == "RedHat" %}
+    {% for localfile in wazuh_agent_config.localfiles.centos %}
+    <localfile>
+        <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+        <command>{{ localfile.command }}</command>
+        <frequency>{{ localfile.frequency }}</frequency>
+    {% else %}
+        <location>{{ localfile.location }}</location>
+    {% endif %}
+    </localfile>
+  {% endfor %}
+  {% endif %}
 </ossec_config>
