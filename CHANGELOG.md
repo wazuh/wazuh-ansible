@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.7.2]
 
+### Changed
 
+- Adapt configuration to current release ([#106](https://github.com/wazuh/wazuh-ansible/pull/106))
 
 ## [v3.7.1]
 
