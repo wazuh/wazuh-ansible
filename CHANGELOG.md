@@ -1,25 +1,32 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## v3.7.0-37xx
+## [v3.7.2]
+
+
+
+## [v3.7.1]
 
 ### Added
 
- - include template local_internal_options.conf ([#87](https://github.com/wazuh/wazuh-ansible/pull/87))
- - Add multiple Elasticsearch IPs for Logstash reports.([#92](https://github.com/wazuh/wazuh-ansible/pull/92))
+ - include template local_internal_options.conf. ([#87](https://github.com/wazuh/wazuh-ansible/pull/87))
+ - Add multiple Elasticsearch IPs for Logstash reports. ([#92](https://github.com/wazuh/wazuh-ansible/pull/92))
 
 ### Changed
 
- - Changed windows agent version ([#89](https://github.com/wazuh/wazuh-ansible/pull/89))
+ - Changed windows agent version. ([#89](https://github.com/wazuh/wazuh-ansible/pull/89))
+ - Updating to Elastic Stack to 6.5.3 and Wazuh 3.7.1. ([#108](https://github.com/wazuh/wazuh-ansible/pull/108))
  
 ### Fixed
 
-- Solve the conflict betwwen tha agent configuration and the shared master configuration. Also include monitoring for `/var/log/auth.log` ([#90](https://github.com/wazuh/wazuh-ansible/pull/90))
-- Moved custom_ruleset files ([#98](https://github.com/wazuh/wazuh-ansible/pull/98))
+- Solve the conflict betwwen tha agent configuration and the shared master configuration. Also include monitoring for `/var/log/auth.log`. ([#90](https://github.com/wazuh/wazuh-ansible/pull/90))
+- Moved custom_ruleset files. ([#98](https://github.com/wazuh/wazuh-ansible/pull/98))
+- Add authlog fix to localfile. ([#99](https://github.com/wazuh/wazuh-ansible/pull/99))
+- Exceptions reload systemd. ([#114](https://github.com/wazuh/wazuh-ansible/pull/114))
 
 ### Removed
 
-- clean old code for windows agent ([#86](https://github.com/wazuh/wazuh-ansible/pull/86))
+- clean old code for windows agent. ([#86](https://github.com/wazuh/wazuh-ansible/pull/86))
 
 ## v3.7.0-3701
 
