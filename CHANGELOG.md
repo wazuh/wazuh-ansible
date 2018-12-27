@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.7.x]
+
+### Changed 
+
+- Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
+
 ## [v3.7.2]
 
 ### Changed
