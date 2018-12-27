@@ -19,7 +19,10 @@ wazuh_notify_time: '10'
 wazuh_time_reconnect: '60'
 wazuh_crypto_method: 'aes'
 wazuh_winagent_config:
-  install_dir: 'C:\wazuh-agent\'
+  install_dir: 'C:\Program Files\ossec-agent\'
+  install_dir_x86: 'C:\Program Files (x86)\ossec-agent\'
+  auth_path: C:\'Program Files'\ossec-agent\agent-auth.exe
+  auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   version: '3.7.0'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
