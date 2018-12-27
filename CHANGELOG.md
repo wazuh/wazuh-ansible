@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 
 - Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
 
+### Fixed
+
+- Fixed a couple linting issues with yamllint and ansible-review ([#111](https://github.com/wazuh/wazuh-ansible/pull/111))
+
 ## [v3.7.2]
 
 ### Changed
