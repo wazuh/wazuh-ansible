@@ -1,5 +1,5 @@
 ---
-# agentless_creeds:
+# agentless_creds:
 # - type: ssh_integrity_check_linux
 #   frequency: 3600
 #   host: root@example.net

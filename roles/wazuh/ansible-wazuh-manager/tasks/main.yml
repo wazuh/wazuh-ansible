@@ -168,7 +168,7 @@
     - config
 
 - name: Retrieving Agentless Credentials
-  include_vars: agentless_creeds.yml
+  include_vars: agentless_creds.yml
   tags:
     - config
 
@@ -231,7 +231,7 @@
   notify: restart wazuh-manager
   when:
     - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
-    - agentless_creeds is defined
+    - agentless_creds is defined
   tags:
     - config
 
@@ -324,13 +324,13 @@
     group: root
     mode: 0644
   no_log: true
-  when: agentless_creeds is defined
+  when: agentless_creds is defined
   tags:
     - config
 
 - name: Encode the secret
   shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
-  when: agentless_creeds is defined
+  when: agentless_creds is defined
   tags:
     - config
 
