@@ -187,20 +187,6 @@ wazuh_agent_configs:
         location: '/var/ossec/logs/active-responses.log'
 ```
 
-#### Custom variables:
-You can create a YAML file and change the default variables for this role, to later using it with `-e` option in `ansible-playbooks`, for example:
-
-```
----
-wazuh_manager_fqdn: "wazuh-server"
-
-wazuh_manager_config:
-  email_notification: yes
-  mail_to:
-    - myadmin@mydomain.com
-  mail_smtp_server: mysmtp.mydomain.com
-```
-
 Dependencies
 ------------
 
@@ -208,12 +194,22 @@ No dependencies.
 
 Example Playbook
 ----------------
-
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
     - hosts: wazuh-server.example.com
       roles:
-         - { role: ansible-wazuh-server }
+         - role: ansible-wazuh-server
+
+           # Override the role's default variable values using role paramters.
+           vars:
+             wazuh_manager_fqdn: "wazuh-server"
+
+             wazuh_manager_config:
+               email_notification: yes
+               mail_to:
+                 - myadmin@mydomain.com
+               mail_smtp_server: mysmtp.mydomain.com
+
 
 License and copyright
 ---------------------
