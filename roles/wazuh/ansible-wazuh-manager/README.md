@@ -200,7 +200,7 @@ Including an example of how to use your role (for instance, with variables passe
       roles:
          - role: ansible-wazuh-server
 
-           # Override the role's default variable values using role paramters.
+           # Override the role's default variable values using role parameters.
            vars:
              wazuh_manager_fqdn: "wazuh-server"
 
