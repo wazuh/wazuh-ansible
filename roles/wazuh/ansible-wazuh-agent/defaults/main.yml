@@ -6,6 +6,7 @@ wazuh_managers:
     api_port: 55000
     api_proto: 'http'
     api_user: null
+wazuh_api_reachable_from_agent: false
 wazuh_profile: null
 wazuh_auto_restart: 'yes'
 wazuh_agent_authd:

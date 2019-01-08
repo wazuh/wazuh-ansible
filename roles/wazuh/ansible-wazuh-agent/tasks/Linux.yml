@@ -95,11 +95,12 @@
         user: "{{ wazuh_managers.0.api_user }}"
         password: "{{ api_pass }}"
       register: newagent_api
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      become: no
       changed_when: newagent_api.json.error == 0
       when:
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
-      become: no
       tags:
         - config
         - api
@@ -117,7 +118,7 @@
         - wazuh_managers.0.address is not none
         - newagent_api.json.error == 0
       register: newagentdata_api
-      delegate_to: localhost
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
       become: no
       tags:
         - config
