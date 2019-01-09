@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Fixed a couple linting issues with yamllint and ansible-review ([#111](https://github.com/wazuh/wazuh-ansible/pull/111))
+- Fixes typos: The word credentials doesn't have two consecutive e's ([#130](https://github.com/wazuh/wazuh-ansible/pull/130))
 
 ## [v3.7.2]
 
