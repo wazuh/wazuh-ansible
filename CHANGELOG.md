@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Adapt ossec.conf file for windows agents ([#118]https://github.com/wazuh/wazuh-ansible/pull/118) 
+- Adapt ossec.conf file for windows agents ([#118](https://github.com/wazuh/wazuh-ansible/pull/118)) 
 
 ### Changed 
 
