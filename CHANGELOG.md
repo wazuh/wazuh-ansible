@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 - Fixed a couple linting issues with yamllint and ansible-review ([#111](https://github.com/wazuh/wazuh-ansible/pull/111))
 
 ## [v3.7.2]
+### Added
+
+- Adapt ossec.conf file for windows agents ([#118]https://github.com/wazuh/wazuh-ansible/pull/118) 
 
 ### Changed
 
