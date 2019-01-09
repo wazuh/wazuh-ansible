@@ -19,6 +19,7 @@ Role Variables
 
 * `wazuh_managers`: Collection of Wazuh Managers' IP address, port, and protocol used by the agent
 * `wazuh_agent_authd`: Collection with the settings to register an agent using authd.
+* `wazuh_agent_labels`: Collection of labels applied to an agent.
 
 Playbook example
 ----------------
@@ -41,7 +42,12 @@ The following is an example of how this role can be used:
            port: 1515
            ssl_agent_ca: null
            ssl_auto_negotiate: 'no'
-     
+         wazuh_agent_labels:
+           - key: Env
+             value: Production
+           - key: installation
+             value: 04/01/2019
+             hidden: "yes"
 
 License and copyright
 ---------------------
