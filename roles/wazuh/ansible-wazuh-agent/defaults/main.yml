@@ -300,3 +300,8 @@ wazuh_agent_config:
         location: 'System'
       - format: 'syslog'
         location: 'active-response\active-responses.log'
+  labels:
+    enable: false
+    list:
+      - key: Env
+        value: Production

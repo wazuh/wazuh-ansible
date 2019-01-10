@@ -271,6 +271,11 @@ wazuh_manager_config:
     - server: null
       port: null
       format: null
+  labels:
+    enable: false
+    list:
+      - key: Env
+        value: Production
 
 wazuh_agent_configs:
   - type: os
