@@ -539,4 +539,12 @@
 {% endfor %}
 {% endif %}
 
+{% if wazuh_manager_config.labels.enable == true %}
+  <labels>
+  {% for label in wazuh_manager_config.labels.list %}
+    <label key="{{ label.key }}"{% if label.hidden is defined %} hidden="{{ label.hidden }}"{% endif %}>{{ label.value }}</label>
+  {% endfor %}
+  </labels>
+{% endif %}
+
 </ossec_config>

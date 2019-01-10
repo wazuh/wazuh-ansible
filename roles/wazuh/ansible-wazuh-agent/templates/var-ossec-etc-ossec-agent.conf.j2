@@ -284,4 +284,13 @@
     </localfile>
   {% endfor %}
   {% endif %}
+
+{% if wazuh_agent_config.labels.enable == true %}
+  <labels>
+  {% for label in wazuh_agent_config.labels.list %}
+    <label key="{{ label.key }}"{% if label.hidden is defined %} hidden="{{ label.hidden }}"{% endif %}>{{ label.value }}</label>
+  {% endfor %}
+  </labels>
+{% endif %}
+
 </ossec_config>
