@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.7.2]
 
+### Added
+
+- Added custom name for single agent registration ([#117](https://github.com/wazuh/wazuh-ansible/pull/117))
+
 ### Changed
 
 - Adapt configuration to current release ([#106](https://github.com/wazuh/wazuh-ansible/pull/106))
