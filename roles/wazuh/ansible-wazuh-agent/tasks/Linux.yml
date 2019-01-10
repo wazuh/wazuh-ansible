@@ -45,6 +45,7 @@
     - name: Linux | Register agent (via authd)
       shell: >
         /var/ossec/bin/agent-auth
+        -A {{ agent_name }}
         -m {{ wazuh_managers.0.address }}
         -p {{ wazuh_agent_authd.port }}
         {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
@@ -55,6 +56,8 @@
         {% endif %}
         {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %}-a{% endif %}
       register: agent_auth_output
+      vars:
+        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
@@ -87,7 +90,7 @@
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
         validate_certs: no
         method: POST
-        body: {"name":"{{ inventory_hostname }}"}
+        body: {"name":"{{ agent_name }}"}
         body_format: json
         status_code: 200
         headers:
@@ -96,6 +99,8 @@
         password: "{{ api_pass }}"
       register: newagent_api
       changed_when: newagent_api.json.error == 0
+      vars:
+        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"      
       when:
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
