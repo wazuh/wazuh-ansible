@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added custom name for single agent registration ([#117](https://github.com/wazuh/wazuh-ansible/pull/117))
+- Adapt ossec.conf file for windows agents ([#118](https://github.com/wazuh/wazuh-ansible/pull/118)) 
 
 ### Changed 
 
