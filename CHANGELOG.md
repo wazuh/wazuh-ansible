@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Fixed a couple linting issues with yamllint and ansible-review ([#111](https://github.com/wazuh/wazuh-ansible/pull/111))
+- Fixed multiple remote connection ([#120](https://github.com/wazuh/wazuh-ansible/pull/120))
 
 ## [v3.7.2]
 
