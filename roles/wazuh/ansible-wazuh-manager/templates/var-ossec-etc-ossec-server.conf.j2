@@ -66,8 +66,8 @@
     <log_format>{{ wazuh_manager_config.log_format }}</log_format>
   </logging>
 
-   <remote>
   {% for connection in wazuh_manager_config.connection %}
+   <remote>
     <connection>{{ connection.type }}</connection>
     {% if connection.port is defined %}<port>{{ connection.port }}</port>{% endif %}
     {% if connection.protocol is defined %}<protocol>{{ connection.protocol }}</protocol>{% endif %}
@@ -83,9 +83,9 @@
     {% endif %}
     {% if connection.local_ip is defined %}<local_ip>{{ connection.local_ip }}</local_ip>{% endif %}
     {% if connection.ipv6 is defined %}<ipv6>{{ connection.ipv6 }}</ipv6>{% endif %}
-        {% if connection.queue_size is defined %}<queue_size>{{connection.queue_size}}</queue_size>{% endif %}
-  {% endfor %}
+    {% if connection.queue_size is defined %}<queue_size>{{connection.queue_size}}</queue_size>{% endif %}
   </remote>
+  {% endfor %}
 
 {% if wazuh_manager_config.reports is defined %}
 {% for report in wazuh_manager_config.reports %}
