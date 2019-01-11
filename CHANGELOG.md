@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Changed 
 
 - Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
+- move redundant tags to the outer block ([#133](https://github.com/wazuh/wazuh-ansible/pull/133))
 
 ### Fixed
 
