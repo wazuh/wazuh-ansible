@@ -75,7 +75,7 @@ wazuh_agent_config:
     disable: 'no'
     timeout: 1800
     interval: '1d'
-    scan_on_start: 'yes'
+    scan_on_start: 'no' # see https://github.com/wazuh/wazuh/issues/2331
   osquery:
     disable: 'yes'
     run_daemon: 'yes'
