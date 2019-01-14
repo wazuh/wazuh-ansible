@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Fixes typos: The word credentials doesn't have two consecutive e's ([#130](https://github.com/wazuh/wazuh-ansible/pull/130))
 - Fixed multiple remote connection ([#120](https://github.com/wazuh/wazuh-ansible/pull/120))
 - Fixed null value for wazuh_manager_fqdn ([#132](https://github.com/wazuh/wazuh-ansible/pull/132))
+- Erasing extra spaces in playbooks ([#131](https://github.com/wazuh/wazuh-ansible/pull/131))
 
 ## [v3.7.2]
 
