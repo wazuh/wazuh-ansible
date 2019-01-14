@@ -23,9 +23,6 @@
 
     - name: Retrieving authd Credentials
       include_vars: authd_pass.yml
-      tags:
-        - config
-        - authd
 
     - name: Copy CA, SSL key and cert for authd
       copy:
@@ -36,15 +33,13 @@
         - "{{ wazuh_agent_authd.ssl_agent_ca }}"
         - "{{ wazuh_agent_authd.ssl_agent_cert }}"
         - "{{ wazuh_agent_authd.ssl_agent_key }}"
-      tags:
-        - config
-        - authd
       when:
         - wazuh_agent_authd.ssl_agent_ca is not none
 
     - name: Linux | Register agent (via authd)
       shell: >
         /var/ossec/bin/agent-auth
+        -A {{ agent_name }}
         -m {{ wazuh_managers.0.address }}
         -p {{ wazuh_agent_authd.port }}
         {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
@@ -55,39 +50,35 @@
         {% endif %}
         {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %}-a{% endif %}
       register: agent_auth_output
+      vars:
+        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
-      tags:
-        - config
-        - authd
 
     - name: Linux | Verify agent registration
       shell: echo {{ agent_auth_output }} | grep "Valid key created"
       when:
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
-      tags:
-        - config
-        - authd
 
   when: wazuh_agent_authd.enable == true
+  tags:
+    - config
+    - authd
 
 - name: Linux | Agent registration via rest-API
   block:
 
     - name: Retrieving rest-API Credentials
       include_vars: api_pass.yml
-      tags:
-        - config
-        - api
 
     - name: Linux | Create the agent key via rest-API
       uri:
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
         validate_certs: no
         method: POST
-        body: {"name":"{{ inventory_hostname }}"}
+        body: {"name":"{{ agent_name }}"}
         body_format: json
         status_code: 200
         headers:
@@ -96,13 +87,12 @@
         password: "{{ api_pass }}"
       register: newagent_api
       changed_when: newagent_api.json.error == 0
+      vars:
+        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"      
       when:
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
       become: no
-      tags:
-        - config
-        - api
 
     - name: Linux | Retieve new agent data via rest-API
       uri:
@@ -119,9 +109,6 @@
       register: newagentdata_api
       delegate_to: localhost
       become: no
-      tags:
-        - config
-        - api
 
     - name: Linux | Register agent (via rest-API)
       command: /var/ossec/bin/manage_agents
@@ -137,12 +124,12 @@
         - check_keys.stat.exists == false or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
         - newagent_api.changed
-      tags:
-        - config
-        - api
       notify: restart wazuh-agent
 
   when: wazuh_agent_authd.enable == false
+  tags:
+    - config
+    - api
 
 - name: Linux | Vuls integration deploy (runs in background, can take a while)
   command: /var/ossec/wodles/vuls/deploy_vuls.sh {{ ansible_distribution|lower }} {{ ansible_distribution_major_version|int }}

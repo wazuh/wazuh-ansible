@@ -1,3 +1,0 @@
-- hosts: wazuh-server.example.com
-  roles:
-     - { role: ansible-wazuh-server }

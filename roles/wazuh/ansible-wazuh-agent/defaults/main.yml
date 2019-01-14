@@ -31,6 +31,7 @@ wazuh_agent_config:
   active_response:
      ar_disabled: 'no'
      ca_store: '/var/ossec/etc/wpk_root.pem'
+     ca_store_win: 'wpk_root.pem'
      ca_verification: 'yes'
   log_format: 'plain'
   client_buffer:
@@ -44,6 +45,7 @@ wazuh_agent_config:
     alert_new_files: 'yes'
     remove_old_diff: 'yes'
     restart_audit: 'yes'
+    win_audit_interval: 300
     skip_nfs: 'yes'
     ignore:
       - /etc/mtab
@@ -61,6 +63,8 @@ wazuh_agent_config:
       - /etc/svc/volatile
       - /sys/kernel/security
       - /sys/kernel/debug
+    ignore_win:
+      - '.log$|.htm$|.jpg$|.png$|.chm$|.pnf$|.evtx$'
     no_diff:
       - /etc/ssl/private.key
     directories:
@@ -68,10 +72,142 @@ wazuh_agent_config:
         checks: 'check_all="yes"'
       - dirs: /bin,/sbin
         checks: 'check_all="yes"'
+    win_directories:
+      - dirs: '%WINDIR%\regedit.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\system.ini'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\win.ini'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\at.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\attrib.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\cacls.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\cmd.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\drivers\etc'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\eventcreate.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\ftp.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\lsass.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\net.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\net1.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\netsh.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\reg.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\regedt32.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\regsvr32.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\runas.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\sc.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\schtasks.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\sethc.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\subst.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\wbem\WMIC.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\WindowsPowerShell\v1.0\powershell.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\SysNative\winrm.vbs'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\at.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\attrib.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\cacls.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\cmd.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\drivers\etc'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\eventcreate.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\ftp.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\net.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\net1.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\netsh.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\reg.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\regedit.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\regedt32.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\regsvr32.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\runas.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\sc.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\schtasks.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\sethc.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\subst.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\wbem\WMIC.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe'
+        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%\System32\winrm.vbs'
+        checks: 'check_all="yes"'
+      - dirs: '%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\Startup'
+        checks: 'check_all="yes" realtime="yes"'
     windows_registry:
       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
-        arch: 'both'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\cmdfile'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\comfile'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\exefile'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\piffile'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\AllFilesystemObjects'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Directory'
       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Protocols'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Policies'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Security'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services'
+      - key: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs'
+      - key: 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurePipeServers\winreg'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnceEx'
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\URL'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon'
+        arch: "both"
+      - key: 'HKEY_LOCAL_MACHINE\Software\Microsoft\Active Setup\Installed Components'
+        arch: "both"
+    windows_registry_ignore:
+      - key: 'HKEY_LOCAL_MACHINE\Security\Policy\Secrets'
+      - key: 'HKEY_LOCAL_MACHINE\Security\SAM\Domains\Account\Users'
+      - key: '\Enum$'
+        type: "sregex"
   rootcheck:
     frequency: 43200
   openscap:
@@ -82,8 +218,11 @@ wazuh_agent_config:
   osquery:
     disable: 'yes'
     run_daemon: 'yes'
+    bin_path_win: 'C:\ProgramData\osquery\osqueryd'
     log_path: '/var/log/osquery/osqueryd.results.log'
+    log_path_win: 'C:\ProgramData\osquery\log\osqueryd.results.log'
     config_path: '/etc/osquery/osquery.conf'
+    config_path_win: 'C:\ProgramData\osquery\osquery.conf'
     ad_labels: 'yes'
   syscollector:
     disable: 'no'
@@ -102,7 +241,9 @@ wazuh_agent_config:
     interval: '1d'
     scan_on_start: 'yes'
     java_path: '/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin'
+    java_path_win: '\\server\jre\bin\java.exe'
     ciscat_path: '/var/ossec/wodles/ciscat'
+    ciscat_path_win: 'C:\cis-cat'
     content:
       - type: 'xccdf'
         path: 'benchmarks/CIS_Ubuntu_Linux_16.04_LTS_Benchmark_v1.0.0-xccdf.xml'
@@ -136,7 +277,7 @@ wazuh_agent_config:
         location: '/var/log/maillog'
       - format: 'audit'
         location: '/var/log/audit/audit.log'
-    common:
+    linux:
       - format: 'syslog'
         location: '/var/ossec/logs/active-responses.log'
       - format: 'command'
@@ -149,3 +290,18 @@ wazuh_agent_config:
       - format: 'full_command'
         command: 'last -n 20'
         frequency: '360'
+    windows:
+      - format: 'eventlog' 
+        location: 'Application'
+      - format: 'eventchannel'
+        location: 'Security'
+        query: 'Event/System[EventID != 5145 and EventID != 5156 and EventID != 5447 and EventID != 4656 and EventID != 4658 and EventID != 4663 and EventID != 4660 and EventID != 4670 and EventID != 4690 and EventID != 4703 and EventID != 4907]'  
+      - format: 'eventlog'
+        location: 'System'
+      - format: 'syslog'
+        location: 'active-response\active-responses.log'
+  labels:
+    enable: false
+    list:
+      - key: Env
+        value: Production

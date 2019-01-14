@@ -18,7 +18,7 @@ Role Variables
 
 This role has some variables which you can or need to override.
 ```
-wazuh_manager_fqdn: []
+wazuh_manager_fqdn: ~
 wazuh_manager_config: []
 wazuh_agent_configs: []
 ```
