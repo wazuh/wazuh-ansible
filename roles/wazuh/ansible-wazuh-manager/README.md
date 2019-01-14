@@ -26,11 +26,11 @@ wazuh_agent_configs: []
 Vault variables
 ----------------
 
-### vars/agentless_creeds.yml
+### vars/agentless_creds.yml
 This file has the agenless credentials.
 ```
 ---
- agentless_creeds:
+ agentless_creds:
  - type: ssh_integrity_check_linux
    frequency: 3600
    host: root@example.net
