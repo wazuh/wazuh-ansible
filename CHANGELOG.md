@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
 - Fixed null value for wazuh_manager_fqdn ([#132](https://github.com/wazuh/wazuh-ansible/pull/132))
 - Erasing extra spaces in playbooks ([#131](https://github.com/wazuh/wazuh-ansible/pull/131))
 
+### Removed
+
+- delete useless files from wazuh-manager role ([#137](https://github.com/wazuh/wazuh-ansible/pull/137))
+
 ## [v3.7.2]
 
 ### Changed
