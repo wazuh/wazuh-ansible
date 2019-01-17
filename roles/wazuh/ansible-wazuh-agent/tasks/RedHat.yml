@@ -3,8 +3,8 @@
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    baseurl: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/
+    gpgkey: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
   when:
     - ansible_distribution_major_version|int > 5
@@ -13,8 +13,8 @@
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/5/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH-5
+    baseurl: http://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/5/
+    gpgkey: http://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
   when:
     - ansible_distribution_major_version|int == 5
@@ -23,8 +23,8 @@
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    baseurl: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/
+    gpgkey: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/key/GPG-KEY-WAZUH
     gpgcheck: yes
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"

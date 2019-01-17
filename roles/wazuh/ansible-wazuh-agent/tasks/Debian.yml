@@ -9,11 +9,11 @@
     - ca-certificates
 
 - name: Debian/Ubuntu | Installing repository key
-  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  apt_key: url=https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/key/GPG-KEY-WAZUH
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
-    repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    repo: 'deb https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/apt/ unstable main'
     state: present
     update_cache: yes
 

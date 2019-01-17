@@ -235,6 +235,25 @@
   tags:
     - config
 
+#- name: Check if ossec-authd is enabled
+#  shell: "grep -c 'ossec-authd' /var/ossec/bin/.process_list | xargs echo"
+  args:
+ @#   removes: /var/ossec/bin/.process_list
+  changed_when: False
+  check_mode: no
+  register: authd_enabled
+  tags:
+    - config
+
+#- name: Enable ossec-authd
+#  command: /var/ossec/bin/ossec-control enable auth
+#  notify: restart wazuh-manager
+#  when:
+#    - authd_enabled.stdout == '0' or "skipped" in authd_enabled.stdout
+#    - wazuh_manager_config.authd.enable == true
+#  tags:
+#    - config
+
 - name: Checking alert log output settings
   fail: msg="Please enable json_output or alerts_log options."
   when:
