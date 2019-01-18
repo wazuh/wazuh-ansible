@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
 - move redundant tags to the outer block ([#133](https://github.com/wazuh/wazuh-ansible/pull/133))
+- Adapt new version (3.8.0-6.5.4) ([#144](https://github.com/wazuh/wazuh-ansible/pull/144))
 
 ### Fixed
 
