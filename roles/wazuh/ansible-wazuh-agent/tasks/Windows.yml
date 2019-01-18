@@ -23,8 +23,7 @@
 - name: Windows | Downloading windows Wazuh agent installer
   win_get_url:
     dest: C:\wazuh-agent-installer.msi
-    #url: "{{ wazuh_winagent_config.repo }}wazuh-agent-{{ wazuh_winagent_config.version }}-{{ wazuh_winagent_config.revision }}.msi"
-    url: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.8/windows/wazuh-agent-3.8.0-0.3802.20190114T114149.branch38.commit04f4687.msi
+    url: "{{ wazuh_winagent_config.repo }}wazuh-agent-{{ wazuh_winagent_config.version }}-{{ wazuh_winagent_config.revision }}.msi"
   when:
     - correct_version is not defined
 
