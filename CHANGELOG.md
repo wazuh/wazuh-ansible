@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Fixed multiple remote connection ([#120](https://github.com/wazuh/wazuh-ansible/pull/120))
 - Fixed null value for wazuh_manager_fqdn ([#132](https://github.com/wazuh/wazuh-ansible/pull/132))
 - Erasing extra spaces in playbooks ([#131](https://github.com/wazuh/wazuh-ansible/pull/131))
+- Fixed oracle java cookies ([#143](https://github.com/wazuh/wazuh-ansible/pull/143))
 
 ### Removed
 
