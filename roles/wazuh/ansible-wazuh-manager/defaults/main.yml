@@ -29,7 +29,6 @@ wazuh_manager_config:
     node_name: 'manager_01'
     node_type: 'master'
     key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
-    interval: '2m'
     port: '1516'
     bind_addr: '0.0.0.0'
     nodes:
