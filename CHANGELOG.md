@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.8.1]
 
+### Changed 
+- Update to Wazuh version v3.8.1. ([#148](https://github.com/wazuh/wazuh-ansible/pull/148))
+
 ## [v3.8.0]
 
 ### Added
