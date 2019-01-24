@@ -1,17 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [v3.7.x]
+## [v3.8.1]
+
+### Changed 
+- Update to Wazuh version v3.8.1. ([#148](https://github.com/wazuh/wazuh-ansible/pull/148))
+
+## [v3.8.0]
 
 ### Added
 
 - Added custom name for single agent registration ([#117](https://github.com/wazuh/wazuh-ansible/pull/117))
-- Adapt ossec.conf file for windows agents ([#118](https://github.com/wazuh/wazuh-ansible/pull/118)) 
+- Adapt ossec.conf file for windows agents ([#118](https://github.com/wazuh/wazuh-ansible/pull/118))
+- Added labels to ossec.conf ([#135](https://github.com/wazuh/wazuh-ansible/pull/135))
 
 ### Changed 
 
 - Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
 - move redundant tags to the outer block ([#133](https://github.com/wazuh/wazuh-ansible/pull/133))
+- Adapt new version (3.8.0-6.5.4) ([#144](https://github.com/wazuh/wazuh-ansible/pull/144))
 
 ### Fixed
 
@@ -19,6 +26,12 @@ All notable changes to this project will be documented in this file.
 - Fixes typos: The word credentials doesn't have two consecutive e's ([#130](https://github.com/wazuh/wazuh-ansible/pull/130))
 - Fixed multiple remote connection ([#120](https://github.com/wazuh/wazuh-ansible/pull/120))
 - Fixed null value for wazuh_manager_fqdn ([#132](https://github.com/wazuh/wazuh-ansible/pull/132))
+- Erasing extra spaces in playbooks ([#131](https://github.com/wazuh/wazuh-ansible/pull/131))
+- Fixed oracle java cookies ([#143](https://github.com/wazuh/wazuh-ansible/pull/143))
+
+### Removed
+
+- delete useless files from wazuh-manager role ([#137](https://github.com/wazuh/wazuh-ansible/pull/137))
 
 ## [v3.7.2]
 
