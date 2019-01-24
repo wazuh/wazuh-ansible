@@ -1,7 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
 ## [v3.9.0]
+
+
+
+## [v3.8.1]
+
+### Changed
+- Update to Wazuh version v3.8.1. ([#148](https://github.com/wazuh/wazuh-ansible/pull/148))
+
 
 ## [v3.8.0]
 
@@ -11,7 +20,7 @@ All notable changes to this project will be documented in this file.
 - Adapt ossec.conf file for windows agents ([#118](https://github.com/wazuh/wazuh-ansible/pull/118))
 - Added labels to ossec.conf ([#135](https://github.com/wazuh/wazuh-ansible/pull/135))
 
-### Changed 
+### Changed
 
 - Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
 - move redundant tags to the outer block ([#133](https://github.com/wazuh/wazuh-ansible/pull/133))
@@ -47,7 +56,7 @@ All notable changes to this project will be documented in this file.
 
  - Changed windows agent version. ([#89](https://github.com/wazuh/wazuh-ansible/pull/89))
  - Updating to Elastic Stack to 6.5.3 and Wazuh 3.7.1. ([#108](https://github.com/wazuh/wazuh-ansible/pull/108))
- 
+
 ### Fixed
 
 - Solve the conflict betwwen tha agent configuration and the shared master configuration. Also include monitoring for `/var/log/auth.log`. ([#90](https://github.com/wazuh/wazuh-ansible/pull/90))
