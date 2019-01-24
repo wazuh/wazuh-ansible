@@ -307,3 +307,4 @@ wazuh_agent_config:
         value: Production
 
 wauzhrepo_gpg_keyserver: pgp.mit.edu
+wazuhrepo_server: https://packages.wazuh.com/3.x/apt/

@@ -15,7 +15,7 @@
 
 - name: Debian/Ubuntu | Install Elastic repo
   apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
+    repo: "deb {{ elasticrepo_server }} stable main"
     state: present
     filename: 'elastic_repo'
     update_cache: yes

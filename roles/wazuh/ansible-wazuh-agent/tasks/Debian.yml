@@ -15,7 +15,7 @@
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
-    repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    repo: "deb {{ wazuhrepo_server }} stable main"
     state: present
     update_cache: yes
 

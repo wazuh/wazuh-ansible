@@ -332,3 +332,5 @@ wazuh_agent_configs:
 
 wauzhrepo_gpg_keyserver: pgp.mit.edu
 nodejsrepo_gpg_keyserver: pgp.mit.edu
+wazuhrepo_server: https://packages.wazuh.com/3.x/apt/
+nodejsrepo_server: https://deb.nodesource.com/node_6.x

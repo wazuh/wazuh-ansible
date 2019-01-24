@@ -19,3 +19,4 @@ logstash_ssl_key_file: ""
 logstash_install_java: yes
 
 elasticrepo_gpg_keyserver: pgp.mit.edu
+elasticrepo_server: https://artifacts.elastic.co/packages/6.x/apt

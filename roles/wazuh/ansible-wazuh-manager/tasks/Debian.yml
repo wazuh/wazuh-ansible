@@ -15,7 +15,7 @@
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
-    repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    repo: "deb {{ wazuhrepo_server }} stable main"
     state: present
     update_cache: yes
 
@@ -26,7 +26,7 @@
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
-    repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    repo: "deb {{ nodejsrepo_server }} {{ ansible_distribution_release }} main"
     state: present
     update_cache: yes
 

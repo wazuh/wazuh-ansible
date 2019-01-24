@@ -6,3 +6,4 @@ kibana_server_port: "5601"
 elastic_stack_version: 6.5.4
 wazuh_version: 3.8.0
 elasticrepo_gpg_keyserver: pgp.mit.edu
+elasticrepo_server: https://artifacts.elastic.co/packages/6.x/apt

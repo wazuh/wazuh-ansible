@@ -15,6 +15,6 @@
 
 - name: Debian/Ubuntu | Add Filebeat repository.
   apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
+    repo: "deb {{ elasticrepo_server }} stable main"
     state: present
     update_cache: yes
