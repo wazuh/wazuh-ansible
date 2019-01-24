@@ -28,5 +28,5 @@ filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
 
-elasticrepo_gpg_keyserver: pgp.mit.edu
+elasticrepo_gpg_keyserver: pool.sks-keyservers.net
 elasticrepo_server: https://artifacts.elastic.co/packages/6.x/apt

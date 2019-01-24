@@ -306,5 +306,5 @@ wazuh_agent_config:
       - key: Env
         value: Production
 
-wauzhrepo_gpg_keyserver: pgp.mit.edu
+wauzhrepo_gpg_keyserver: pool.sks-keyservers.net
 wazuhrepo_server: https://packages.wazuh.com/3.x/apt/
