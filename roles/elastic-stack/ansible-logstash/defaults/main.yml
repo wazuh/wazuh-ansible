@@ -18,9 +18,5 @@ logstash_ssl_key_file: ""
 
 logstash_install_java: yes
 
-<<<<<<< HEAD
 elasticrepo_gpg_keyserver: pool.sks-keyservers.net
 elasticrepo_server: https://artifacts.elastic.co/packages/6.x/apt
-=======
-elasticrepo_gpg_keyserver: pgp.mit.edu
->>>>>>> debian repo keys with pgp keyserver

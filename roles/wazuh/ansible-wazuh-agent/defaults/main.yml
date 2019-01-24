@@ -306,9 +306,5 @@ wazuh_agent_config:
       - key: Env
         value: Production
 
-<<<<<<< HEAD
 wauzhrepo_gpg_keyserver: pool.sks-keyservers.net
 wazuhrepo_server: https://packages.wazuh.com/3.x/apt/
-=======
-wauzhrepo_gpg_keyserver: pgp.mit.edu
->>>>>>> debian repo keys with pgp keyserver
