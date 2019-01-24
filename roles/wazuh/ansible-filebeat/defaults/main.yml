@@ -27,3 +27,5 @@ filebeat_ssl_dir: /etc/pki/logstash
 filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
+
+elasticrepo_gpg_keyserver: pgp.mit.edu

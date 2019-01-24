@@ -305,3 +305,5 @@ wazuh_agent_config:
     list:
       - key: Env
         value: Production
+
+wauzhrepo_gpg_keyserver: pgp.mit.edu

@@ -329,3 +329,6 @@ wazuh_agent_configs:
         format: 'eventchannel'
       - location: 'System'
         format: 'eventlog'
+
+wauzhrepo_gpg_keyserver: pgp.mit.edu
+nodejsrepo_gpg_keyserver: pgp.mit.edu

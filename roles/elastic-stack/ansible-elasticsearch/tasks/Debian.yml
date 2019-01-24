@@ -32,8 +32,8 @@
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
-    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-    state: present
+    keyserver: "{{ elasticrepo_gpg_keyserver }}"
+    id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
 
 - name: Debian/Ubuntu | Install Elastic repo
   apt_repository:

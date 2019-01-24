@@ -17,3 +17,5 @@ logstash_ssl_certificate_file: ""
 logstash_ssl_key_file: ""
 
 logstash_install_java: yes
+
+elasticrepo_gpg_keyserver: pgp.mit.edu

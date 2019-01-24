@@ -9,7 +9,9 @@
     - ca-certificates
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
-  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  apt_key:
+    keyserver: "{{ wauzhrepo_gpg_keyserver }}"
+    id: 0DCFCA5547B19D2A6099506096B3EE5F29111145
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -18,7 +20,9 @@
     update_cache: yes
 
 - name: Debian/Ubuntu | Installing NodeJS repository key
-  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+  apt_key:
+    keyserver: "{{ nodejsrepo_gpg_keyserver }}"
+    id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
