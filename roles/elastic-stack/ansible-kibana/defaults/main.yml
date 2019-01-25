@@ -8,4 +8,3 @@ wazuh_version: 3.8.2
 elasticrepo_gpg_keyserver: pool.sks-keyservers.net
 elasticrepo_server: https://artifacts.elastic.co/packages/6.x/apt
 wazuhapp_location: https://packages.wazuh.com/wazuhapp
-
