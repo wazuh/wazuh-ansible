@@ -46,7 +46,7 @@
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install  https://packages.wazuh.com/wazuhapp/wazuhapp-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
+  shell: "/usr/share/kibana/bin/kibana-plugin install {{wazuhapp_location}}/wazuhapp-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
   environment:
     NODE_OPTIONS: "--max-old-space-size=3072"
   args:
