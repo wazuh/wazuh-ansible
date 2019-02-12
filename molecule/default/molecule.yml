@@ -5,7 +5,7 @@ driver:
   name: docker
 lint:
   name: yamllint
-  enabled: false # fix in seperate PR
+  enabled: true # fix in seperate PR
 platforms:
   - name: bionic
     image: ubuntu:bionic
@@ -23,7 +23,7 @@ provisioner:
     ANSIBLE_ROLES_PATH: $HOME/wazuh-ansible/roles
   lint:
     name: ansible-lint
-    enabled: false # fix in seperate PR
+    enabled: true # fix in seperate PR
 scenario:
   name: default
 verifier:
