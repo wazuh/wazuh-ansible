@@ -5,7 +5,7 @@ driver:
   name: docker
 lint:
   name: yamllint
-  enabled: true # fix in seperate PR
+  enabled: false # fix in seperate PR
 platforms:
   - name: bionic
     image: ubuntu:bionic
