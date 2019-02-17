@@ -308,12 +308,6 @@
     </command>
   {% endfor %}
 
-  <!--
-  <active-response>
-    active-response options here
-  </active-response>
-  -->
-
    <ruleset>
     <!-- Default ruleset -->
     <decoder_dir>ruleset/decoders</decoder_dir>
@@ -398,7 +392,6 @@
 {% endif %}
 
 
-  <!-- Active Response Config 
 {% for response in wazuh_manager_config.active_responses %}
   <active-response>
     <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
@@ -412,7 +405,6 @@
     {%if response.repeated_offenders is defined %}<repeated_offenders>{{ response.repeated_offenders }}</repeated_offenders>{% endif %}
   </active-response>
 {% endfor %}
--->
 
   <!-- Files to monitor (localfiles) -->
 {% for localfile in wazuh_manager_config.localfiles.common %}
