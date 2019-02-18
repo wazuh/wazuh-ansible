@@ -186,7 +186,7 @@ wazuh_manager_config:
          command: 'df -P'
          frequency: '360'
        - format: 'full_command'
-         command: netstat -tulpn | sed 's/\([[:alnum:]]\+\)\ \+[[:digit:]]\+\ \+[[:digit:]]\+\ \+\(.*\):\([[:digit:]]*\)\ \+\([0-9\.\:\*]\+\).\+\ \([[:digit:]]*\/[[:alnum:]\-]*\).*/\1 \2 == \3 == \4 \5/' | sort -k 4 -g | sed 's/ == \(.*\) ==/:\1/' | sed 1,2d
+         command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
          alias: 'netstat listening ports'
          frequency: '360'
        - format: 'full_command'
