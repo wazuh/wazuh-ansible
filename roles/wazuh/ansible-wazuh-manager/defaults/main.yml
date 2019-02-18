@@ -183,7 +183,7 @@ wazuh_manager_config:
   localfiles:
     common:
        - format: 'command'
-         command: 'df -P'
+         command: df -P -x squashfs -x tmpfs -x devtmpfs
          frequency: '360'
        - format: 'full_command'
          command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t

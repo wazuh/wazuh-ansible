@@ -281,7 +281,7 @@ wazuh_agent_config:
       - format: 'syslog'
         location: '/var/ossec/logs/active-responses.log'
       - format: 'command'
-        command: 'df -P'
+        command: df -P -x squashfs -x tmpfs -x devtmpfs
         frequency: '360'
       - format: 'full_command'
         command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
