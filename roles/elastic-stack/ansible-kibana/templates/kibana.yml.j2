@@ -46,7 +46,7 @@ elasticsearch.url: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_htt
 #server.ssl.key: /path/to/your/server.key
 {% if kibana_ssl_certificate and kibana_ssl_key is defined %}
 server.ssl.enabled: true
-server.ssl.cert: {{ kibana_ssl_certificate }}
+server.ssl.certificate: {{ kibana_ssl_certificate }}
 server.ssl.key: {{ kibana_ssl_key }}
 {% endif %}
 
