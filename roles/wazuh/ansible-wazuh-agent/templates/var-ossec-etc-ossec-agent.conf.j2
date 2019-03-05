@@ -87,19 +87,17 @@
   <syscheck>
     <disabled>no</disabled>
 <!--    #<alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
+
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
-    {% if ansible_system == "Linux" %}
-<!--    #<directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
-    <directories check_all="yes">/etc,/usr/bin,/usr/sbin</directories>
-    <directories check_all="yes">/bin,/sbin,/boot</directories>
 
+    {% if ansible_system == "Linux" %}
     <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.directories is defined and ansible_os_family == "Linux" %}
+    {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
     {% for directory in wazuh_agent_config.syscheck.directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
@@ -119,9 +117,9 @@
     {% endfor %}
     {% endif %}
 
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
+    {% if wazuh_agent_config.syscheck.ignore_win is defined and ansible_system == "Windows" %}
     {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
-    <ignore type="sregex">{{ ignore }}</ignore>
+    <ignore type="sregex">{{ ignore_win }}</ignore>
     {% endfor %}
     {% endif %}
 
@@ -139,7 +137,7 @@
     {% if ansible_system == "Linux"%}
     <!-- Allow the system to restart Auditd after installing the plugin -->
     <restart_audit>{{ wazuh_agent_config.syscheck.restart_audit }}</restart_audit>
-    {% endif %} 
+    {% endif %}
 
     {% if ansible_os_family == "Windows" %}
     {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
