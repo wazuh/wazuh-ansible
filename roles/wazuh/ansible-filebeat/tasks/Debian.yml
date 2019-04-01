@@ -1,9 +1,7 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    pkg:
-        - apt-transport-https
-        - ca-certificates
+    name: ['apt-transport-https', 'ca-certificates']
     state: present
 
 

@@ -1,9 +1,7 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    pkg:
-        - apt-transport-https
-        - ca-certificates
+    name: ['apt-transport-https', 'ca-certificates']
     state: present
 
 - name: Debian/Ubuntu | Installing repository key
@@ -47,11 +45,9 @@
 
 - name: Debian/Ubuntu | Install OpenScap
   apt:
+    name: ['libopenscap8', 'xsltproc']
     state: present
     when: wazuh_agent_config.openscap.disable == 'no'
-    pkg:
-        - libopenscap8
-        - xsltproc
     tags:
         - init
 
