@@ -291,6 +291,9 @@
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
         <command>{{ localfile.command }}</command>
         <frequency>{{ localfile.frequency }}</frequency>
+        {% if localfile.alias is defined %}
+          <alias>{{ localfile.alias }}</alias>
+        {% endif %}
     {% else %}
         <location>{{ localfile.location }}</location>
     {% endif %}
@@ -305,6 +308,9 @@
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
         <command>{{ localfile.command }}</command>
         <frequency>{{ localfile.frequency }}</frequency>
+        {% if localfile.alias is defined %}
+          <alias>{{ localfile.alias }}</alias>
+        {% endif %}
     {% else %}
         <location>{{ localfile.location }}</location>
     {% endif %}
@@ -319,6 +325,9 @@
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
         <command>{{ localfile.command }}</command>
         <frequency>{{ localfile.frequency }}</frequency>
+        {% if localfile.alias is defined %}
+          <alias>{{ localfile.alias }}</alias>
+        {% endif %}
     {% else %}
         <location>{{ localfile.location }}</location>
     {% endif %}
