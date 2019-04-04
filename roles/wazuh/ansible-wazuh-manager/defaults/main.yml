@@ -255,17 +255,6 @@ wazuh_manager_config:
       decoders_path: 'custom_ruleset/decoders/'
   rule_exclude:
     - '0215-policy_rules.xml'
-  active_responses:
-    - command: 'restart-ossec'
-      location: 'local'
-      rules_id: '100002'
-    - command: 'win_restart-ossec'
-      location: 'local'
-      rules_id: '100003'
-    - command: 'host-deny'
-      location: 'local'
-      level: 6
-      timeout: 600
   syslog_outputs:
     - server: null
       port: null
