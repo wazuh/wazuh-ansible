@@ -223,7 +223,7 @@ wazuh_agent_config:
     log_path_win: 'C:\ProgramData\osquery\log\osqueryd.results.log'
     config_path: '/etc/osquery/osquery.conf'
     config_path_win: 'C:\ProgramData\osquery\osquery.conf'
-    ad_labels: 'yes'
+    add_labels: 'yes'
   syscollector:
     disable: 'no'
     interval: '1h'
