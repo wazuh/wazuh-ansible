@@ -23,7 +23,7 @@ wazuh_winagent_config:
   install_dir_x86: 'C:\Program Files (x86)\ossec-agent\'
   auth_path: C:\'Program Files'\ossec-agent\agent-auth.exe
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
-  version: '3.8.1'
+  version: '3.8.2'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
   md5: 43936e7bc7eb51bd186f47dac4a6f477
@@ -281,10 +281,10 @@ wazuh_agent_config:
       - format: 'syslog'
         location: '/var/ossec/logs/active-responses.log'
       - format: 'command'
-        command: 'df -P'
+        command: df -P -x squashfs -x tmpfs -x devtmpfs
         frequency: '360'
       - format: 'full_command'
-        command: netstat -tulpn | sed 's/\([[:alnum:]]\+\)\ \+[[:digit:]]\+\ \+[[:digit:]]\+\ \+\(.*\):\([[:digit:]]*\)\ \+\([0-9\.\:\*]\+\).\+\ \([[:digit:]]*\/[[:alnum:]\-]*\).*/\1 \2 == \3 == \4 \5/' | sort -k 4 -g | sed 's/ == \(.*\) ==/:\1/' | sed 1,2d         
+        command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
         alias: 'netstat listening ports'      
         frequency: '360'
       - format: 'full_command'

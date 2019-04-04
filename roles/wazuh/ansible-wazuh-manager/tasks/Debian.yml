@@ -1,12 +1,8 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    name: "{{ item }}"
+    name: ['apt-transport-https', 'ca-certificates']
     state: present
-    cache_valid_time: 3600
-  with_items:
-    - apt-transport-https
-    - ca-certificates
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH

@@ -11,11 +11,7 @@
     <alerts_log>{{ wazuh_manager_config.alerts_log }}</alerts_log>
     <logall>{{ wazuh_manager_config.logall }}</logall>
     <logall_json>{{ wazuh_manager_config.logall_json }}</logall_json>
-    {% if wazuh_manager_config.email_notification | lower == "yes" %}
-    <email_notification>yes</email_notification>
-    {% else %}
-    <email_notification>no</email_notification>
-    {% endif %}
+    <email_notification>{{ wazuh_manager_config.email_notification }}</email_notification>
     {% for to in wazuh_manager_config.mail_to %}
     <email_to>{{ to }}</email_to>
     {% endfor %}
@@ -235,7 +231,7 @@
       <disabled>{{ wazuh_manager_config.vul_detector.ubuntu.disable }}</disabled>
       <update_interval>{{ wazuh_manager_config.vul_detector.ubuntu.update_interval }}</update_interval>
     </feed>
-    <feed name="redhat-7">
+    <feed name="redhat">
       <disabled>{{ wazuh_manager_config.vul_detector.redhat.disable }}</disabled>
       <update_interval>{{ wazuh_manager_config.vul_detector.redhat.update_interval }}</update_interval>
     </feed>
@@ -392,19 +388,22 @@
 {% endif %}
 
 
-{% for response in wazuh_manager_config.active_responses %}
-  <active-response>
-    <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
-    {%if response.command is defined %}<command>{{ response.command }}</command>{% endif %}
-    {%if response.location is defined %}<location>{{ response.location }}</location>{% endif %}
-    {%if response.agent_id is defined %}<agent_id>{{ response.agent_id }}</agent_id>{% endif %}
-    {%if response.level is defined %}<level>{{ response.level }}</level>{% endif %}
-    {%if response.rules_group is defined %}<rules_group>{{ response.rules_group }}</rules_group>{% endif %}
-    {%if response.rules_id is defined %}<rules_id>{{ response.rules_id }}</rules_id>{% endif %}
-    {%if response.timeout is defined %}<timeout>{{ response.timeout }}</timeout>{% endif %}
-    {%if response.repeated_offenders is defined %}<repeated_offenders>{{ response.repeated_offenders }}</repeated_offenders>{% endif %}
-  </active-response>
-{% endfor %}
+
+{% if wazuh_manager_config.active_responses is defined %}
+  {% for response in wazuh_manager_config.active_responses %}
+    <active-response>
+      <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
+      {%if response.command is defined %}<command>{{ response.command }}</command>{% endif %}
+      {%if response.location is defined %}<location>{{ response.location }}</location>{% endif %}
+      {%if response.agent_id is defined %}<agent_id>{{ response.agent_id }}</agent_id>{% endif %}
+      {%if response.level is defined %}<level>{{ response.level }}</level>{% endif %}
+      {%if response.rules_group is defined %}<rules_group>{{ response.rules_group }}</rules_group>{% endif %}
+      {%if response.rules_id is defined %}<rules_id>{{ response.rules_id }}</rules_id>{% endif %}
+      {%if response.timeout is defined %}<timeout>{{ response.timeout }}</timeout>{% endif %}
+      {%if response.repeated_offenders is defined %}<repeated_offenders>{{ response.repeated_offenders }}</repeated_offenders>{% endif %}
+    </active-response>
+  {% endfor %}
+{% endif %}
 
   <!-- Files to monitor (localfiles) -->
 {% for localfile in wazuh_manager_config.localfiles.common %}
