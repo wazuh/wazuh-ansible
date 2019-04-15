@@ -48,6 +48,13 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 * `stable` branch on correspond to the last Wazuh-Ansible stable version.
 * `master` branch contains the latest code, be aware of possible bugs on this branch.
 
+## Testing
+```
+pip install pipenv
+sudo pipenv install
+pipenv run test
+```
+
 ## Contribute
 
 If you want to contribute to our repository, please fork our Github repository and submit a pull request.

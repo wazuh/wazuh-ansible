@@ -8,6 +8,8 @@
 - name: Make sure Elasticsearch is running before proceeding.
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
   tags: configure
+  ignore_errors: yes # fix
+  wait_for: 50
 
 - name: Reload systemd
   systemd: daemon_reload=yes
