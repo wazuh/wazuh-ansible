@@ -29,7 +29,6 @@ wazuh_manager_config:
     node_name: 'manager_01'
     node_type: 'master'
     key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
-    interval: '2m'
     port: '1516'
     bind_addr: '0.0.0.0'
     nodes:
@@ -183,10 +182,10 @@ wazuh_manager_config:
   localfiles:
     common:
        - format: 'command'
-         command: 'df -P'
+         command: df -P -x squashfs -x tmpfs -x devtmpfs
          frequency: '360'
        - format: 'full_command'
-         command: netstat -tulpn | sed 's/\([[:alnum:]]\+\)\ \+[[:digit:]]\+\ \+[[:digit:]]\+\ \+\(.*\):\([[:digit:]]*\)\ \+\([0-9\.\:\*]\+\).\+\ \([[:digit:]]*\/[[:alnum:]\-]*\).*/\1 \2 == \3 == \4 \5/' | sort -k 4 -g | sed 's/ == \(.*\) ==/:\1/' | sed 1,2d
+         command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
          alias: 'netstat listening ports'
          frequency: '360'
        - format: 'full_command'
@@ -256,17 +255,6 @@ wazuh_manager_config:
       decoders_path: 'custom_ruleset/decoders/'
   rule_exclude:
     - '0215-policy_rules.xml'
-  active_responses:
-    - command: 'restart-ossec'
-      location: 'local'
-      rules_id: '100002'
-    - command: 'win_restart-ossec'
-      location: 'local'
-      rules_id: '100003'
-    - command: 'host-deny'
-      location: 'local'
-      level: 6
-      timeout: 600
   syslog_outputs:
     - server: null
       port: null

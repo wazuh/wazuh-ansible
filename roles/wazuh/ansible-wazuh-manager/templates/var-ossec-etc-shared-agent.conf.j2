@@ -2,6 +2,7 @@
 {% if wazuh_agent_configs is defined %}
 {% for agent_config in wazuh_agent_configs %}
 <agent_config {{ agent_config.type }}="{{ agent_config.type_value }}">
+  {% if agent_config.syscheck is defined %}
   <syscheck>
     <auto_ignore>{{ agent_config.syscheck.auto_ignore }}</auto_ignore>
     <alert_new_files>{{ agent_config.syscheck.alert_new_files }}</alert_new_files>
@@ -40,6 +41,7 @@
     {% endfor %}
     {% endif %}
   </syscheck>
+  {% endif %}
 
   {% for localfile in agent_config.localfiles %}
     <localfile>
