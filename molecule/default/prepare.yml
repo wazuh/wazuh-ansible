@@ -1,5 +1,21 @@
 ---
 - name: Prepare
   hosts: all
-  gather_facts: false
-  tasks: []
+  gather_facts: True
+  tasks:
+
+    - name: "Install Python packages for Trusty to solve trust issues"
+      package:
+        name:
+          - python-setuptools
+          - python-pip
+        state: latest
+      when:
+        - ansible_distribution == "Ubuntu"
+        - ansible_distribution_major_version | int == 14
+
+    - name: "Install dependencies"
+      package:
+        name:
+          - curl
+        state: latest

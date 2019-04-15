@@ -7,20 +7,31 @@ lint:
   name: yamllint
   enabled: false # fix in seperate PR
 platforms:
-  - name: bionic
+  - name: wazuh_manager_bionic
     image: ubuntu:bionic
-  - name: xenial
+    groups:
+      - wazuh_manager
+  - name: wazuh_manager_xenial
     image: ubuntu:xenial
-  - name: trusty
+    groups:
+      - wazuh_manager
+  - name: wazuh_manager_trusty
     image: ubuntu:trusty
-  - name: centos6
+    groups:
+      - wazuh_manager
+  - name: wazuh_manager_centos6
     image: centos:6
-  - name: centos7
-    image: centos:7      
+    groups:
+      - wazuh_manager
+  - name: wazuh_manager_centos7
+    image: milcom/centos7-systemd
+    privileged: True
+    groups:
+      - wazuh_manager
 provisioner:
   name: ansible
   env:
-    ANSIBLE_ROLES_PATH: $HOME/wazuh-ansible/roles
+    ANSIBLE_ROLES_PATH: ../../roles
   lint:
     name: ansible-lint
     enabled: true # fix in seperate PR

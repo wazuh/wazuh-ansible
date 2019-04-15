@@ -1,17 +1,30 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    name: ['apt-transport-https', 'ca-certificates']
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
     state: present
     cache_valid_time: 3600
-  with_items:
-    - apt-transport-https
-    - ca-certificates
-    - urllib3
 
+- name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
+  become: yes
+  shell: |
+    set -o pipefail
+    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+  args:
+    warn: False
+    executable: /bin/bash
+  changed_when: False
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -19,8 +32,23 @@
     state: present
     update_cache: yes
 
+- name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
+  become: yes
+  shell: |
+    set -o pipefail
+    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+  args:
+    warn: False
+    executable: /bin/bash
+  changed_when: False
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+
 - name: Debian/Ubuntu | Installing NodeJS repository key
   apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
