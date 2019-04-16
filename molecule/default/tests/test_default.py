@@ -1,4 +1,5 @@
 import os
+import pytest
 
 import testinfra.utils.ansible_runner
 
@@ -6,25 +7,62 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
 
-def test_hosts_file(host):
-    f = host.file('/etc/hosts')
-
-    assert f.exists
-    assert f.user == 'root'
-    assert f.group == 'root'
+def get_wazuh_version():
+    """This return the version of Wazuh."""
+    return "3.8"
 
 
-def test_filebeat_is_installed(host):
-    package = host.package("filebeat")
-    assert package.is_installed
-    assert package.version.startswith("6")
+def test_wazuh_packages_are_installed(host):
+    """Test if the main packages are installed."""
+    manager = host.package("wazuh-manager")
+    api = host.package("wazuh-api")
+
+    distribution = host.system_info.distribution.lower()
+    if distribution == 'centos':
+        if host.system_info.release == "7":
+            assert manager.is_installed
+            assert manager.version.startswith(get_wazuh_version())
+            assert api.is_installed
+            assert api.version.startswith(get_wazuh_version())
+        elif host.system_info.release.startswith("6"):
+            assert manager.is_installed
+            assert manager.version.startswith(get_wazuh_version())
+    elif distribution == 'ubuntu':
+        assert manager.is_installed
+        assert manager.version.startswith(get_wazuh_version())
 
 
-def test_filebeat_service_enabled(host):
-    service = host.service('filebeat')
-    assert service.is_enabled
+def test_wazuh_services_are_running(host):
+    """Test if the services are enabled and running.
 
+    When assert commands are commented, this means that the service command has a
+    wrong exit code: https://github.com/wazuh/wazuh-ansible/issues/107
+    """
+    manager = host.service("wazuh-manager")
+    api = host.service("wazuh-api")
 
-def test_filebeat_config_file_present(host):
-    config_file = host.file('/etc/filebeat/filebeat.yml')
-    assert config_file.is_file
+    distribution = host.system_info.distribution.lower()
+    if distribution == 'centos':
+        # assert manager.is_running
+        assert manager.is_enabled
+        # assert not api.is_running
+        assert not api.is_enabled
+    elif distribution == 'ubuntu':
+        # assert manager.is_running
+        assert manager.is_enabled
+        # assert api.is_running
+        assert api.is_enabled
+
+@pytest.mark.parametrize("wazuh_file, wazuh_owner, wazuh_group, wazuh_mode", [
+    ("/var/ossec/etc/sslmanager.cert", "root", "root", 0o640),
+    ("/var/ossec/etc/sslmanager.key", "root", "root", 0o640),
+    ("/var/ossec/etc/rules/local_rules.xml", "root", "ossec", 0o640),
+    ("/var/ossec/etc/lists/audit-keys", "root", "ossec", 0o640),
+])
+def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
+    """Test if Wazuh related files exist and have proper owners and mode."""
+    wazuh_file_host = host.file(wazuh_file)
+
+    assert wazuh_file_host.user == wazuh_owner
+    assert wazuh_file_host.group == wazuh_group
+    assert wazuh_file_host.mode == wazuh_mode

@@ -9,25 +9,17 @@ lint:
 platforms:
   - name: wazuh_manager_bionic
     image: ubuntu:bionic
-    groups:
-      - wazuh_manager
   - name: wazuh_manager_xenial
-    image: ubuntu:xenial
-    groups:
-      - wazuh_manager
+    image: solita/ubuntu-systemd:xenial
+    privileged: True
+    command: /sbin/init
   - name: wazuh_manager_trusty
     image: ubuntu:trusty
-    groups:
-      - wazuh_manager
   - name: wazuh_manager_centos6
     image: centos:6
-    groups:
-      - wazuh_manager
   - name: wazuh_manager_centos7
     image: milcom/centos7-systemd
     privileged: True
-    groups:
-      - wazuh_manager
 provisioner:
   name: ansible
   env:

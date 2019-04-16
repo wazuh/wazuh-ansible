@@ -1,6 +1,6 @@
 ---
 - name: Converge
-  hosts: wazuh_manager
+  hosts: all
   roles:
     - role: wazuh/ansible-wazuh-manager
 

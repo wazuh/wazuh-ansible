@@ -6,9 +6,9 @@
       - ca-certificates
       - gnupg
     state: present
-    register: wazuh_manager_https_packages_installed
-    until: wazuh_manager_https_packages_installed is succeeded
     cache_valid_time: 3600
+  register: wazuh_manager_https_packages_installed
+  until: wazuh_manager_https_packages_installed is succeeded
 
 - name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
   become: yes
