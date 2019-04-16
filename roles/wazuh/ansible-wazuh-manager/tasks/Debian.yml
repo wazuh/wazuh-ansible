@@ -31,6 +31,7 @@
     repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
     state: present
     update_cache: yes
+  changed_when: False
 
 - name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
   become: yes
@@ -55,6 +56,7 @@
     repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
     state: present
     update_cache: yes
+  changed_when: False
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
@@ -101,7 +103,7 @@
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version
-  changed_when: true
+  changed_when: False
   tags:
     - config
 
@@ -109,6 +111,6 @@
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version_valid
-  changed_when: true
+  changed_when: False
   tags:
     - config

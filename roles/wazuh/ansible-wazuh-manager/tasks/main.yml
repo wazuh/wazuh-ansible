@@ -329,12 +329,16 @@
     group: ossec
     mode: 0640
   no_log: true
+  register: wazuh_manager_cdb_lists
+  until: wazuh_manager_cdb_lists is succeeded
   notify:
     - rebuild cdb_lists
     - restart wazuh-manager
   with_items:
     - "{{ cdb_lists }}"
-  when: cdb_lists is defined
+  when:
+    - cdb_lists is defined
+    - cdb_lists is iterable
   tags:
     - config
 
