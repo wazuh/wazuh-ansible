@@ -6,6 +6,8 @@
       - ca-certificates
       - gnupg
     state: present
+    register: wazuh_manager_https_packages_installed
+    until: wazuh_manager_https_packages_installed is succeeded
     cache_valid_time: 3600
 
 - name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
@@ -84,6 +86,8 @@
       name: oracle-java8-installer
       state: present
       cache_valid_time: 3600
+    register: wazuh_manager_oracle_java_8_installed
+    until: wazuh_manager_oracle_java_8_installed is succeeded
   tags:
     - init
 
@@ -92,6 +96,8 @@
     name: "{{ item }}"
     state: present
     cache_valid_time: 3600
+  register: wazuh_manager_openscap_installed
+  until: wazuh_manager_openscap_installed is succeeded
   when: wazuh_manager_config.openscap.disable == 'no'
   with_items:
     - libopenscap8

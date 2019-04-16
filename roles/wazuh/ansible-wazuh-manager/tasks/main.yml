@@ -11,6 +11,8 @@
     - wazuh-manager
     - wazuh-api
     - expect
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
   when:
     - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
   tags:
@@ -30,6 +32,8 @@
   with_items:
     - wazuh-manager
     - expect
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
   when:
     - ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6
   tags:
