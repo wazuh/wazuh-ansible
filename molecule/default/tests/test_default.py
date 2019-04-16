@@ -35,8 +35,8 @@ def test_wazuh_packages_are_installed(host):
 def test_wazuh_services_are_running(host):
     """Test if the services are enabled and running.
 
-    When assert commands are commented, this means that the service command has a
-    wrong exit code: https://github.com/wazuh/wazuh-ansible/issues/107
+    When assert commands are commented, this means that the service command has
+    a wrong exit code: https://github.com/wazuh/wazuh-ansible/issues/107
     """
     manager = host.service("wazuh-manager")
     api = host.service("wazuh-api")
@@ -52,6 +52,7 @@ def test_wazuh_services_are_running(host):
         assert manager.is_enabled
         # assert api.is_running
         assert api.is_enabled
+
 
 @pytest.mark.parametrize("wazuh_file, wazuh_owner, wazuh_group, wazuh_mode", [
     ("/var/ossec/etc/sslmanager.cert", "root", "root", 0o640),
