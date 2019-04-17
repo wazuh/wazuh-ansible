@@ -67,3 +67,14 @@ def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
     assert wazuh_file_host.user == wazuh_owner
     assert wazuh_file_host.group == wazuh_group
     assert wazuh_file_host.mode == wazuh_mode
+
+
+def test_open_ports(host):
+    """Test if the main port is open and the agent-auth is not open."""
+    distribution = host.system_info.distribution.lower()
+    if distribution == 'ubuntu':
+        assert host.socket("tcp://0.0.0.0:1515").is_listening
+        assert not host.socket("tcp://0.0.0.0:1514").is_listening
+    elif distribution == 'centos':
+        assert host.socket("tcp://:::1515").is_listening
+        assert not host.socket("tcp://:::1514").is_listening
