@@ -37,7 +37,7 @@
    - wazuh_manager_config.cis_cat.install_java == 'yes'
   block:
     - name: Debian/Ubuntu | Install OpenJDK 1.8
-      apt: name: openjdk-8-jre state: present cache_valid_time: 3600       
+      apt: name= openjdk-8-jre state= present cache_valid_time= 3600       
   tags:
     - init
 
