@@ -22,24 +22,8 @@
   - wazuh_agent_config.cis_cat.disable == 'no'
   - wazuh_agent_config.cis_cat.install_java == 'yes'
   block:
-  - name: Debian/Ubuntu | Setting webupd8 repository
-    apt_repository:
-      repo: 'ppa:webupd8team/java'
-      codename: 'xenial'
-      update_cache: yes
-
-  - name: Debian/Ubuntu | Accept Oracle Java 8 license
-    debconf:
-      name: oracle-java8-installer
-      question: shared/accepted-oracle-license-v1-1
-      value: true
-      vtype: boolean
-
-  - name: Debian/Ubuntu | Oracle Java 8 installer
-    apt:
-      name: oracle-java8-installer
-      state: present
-      cache_valid_time: 3600
+  - name: Debian/Ubuntu | Install OpenJDK 1.8
+    apt: name: openjdk-8-jre state: present cache_valid_time: 3600       
   tags:
     - init
 
