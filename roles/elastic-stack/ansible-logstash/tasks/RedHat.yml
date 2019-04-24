@@ -1,16 +1,8 @@
 ---
 - when: logstash_install_java
   block:
-    - name: RedHat/CentOS/Fedora | download Oracle Java RPM
-      get_url:
-        url: https://download.oracle.com/otn-pub/java/jdk/8u202-b08/1961070e4c9b4e26a04e7f5a083f551e/jre-8u202-linux-x64.rpm
-        dest: /tmp/jre-8-linux-x64.rpm
-        headers: 'Cookie:oraclelicense=accept-securebackup-cookie'
-      register: oracle_java_task_rpm_download
-
-    - name: RedHat/CentOS/Fedora | Install Oracle Java RPM
-      package: name=/tmp/jre-8-linux-x64.rpm state=present
-      when: oracle_java_task_rpm_download is defined
+    - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
+      yum: name=java-1.8.0-openjdk state=present    
       register: oracle_java_task_rpm_installed
       tags: install
 
