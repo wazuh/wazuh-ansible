@@ -1,32 +1,64 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    name: ['apt-transport-https', 'ca-certificates']
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
     state: present
     cache_valid_time: 3600
-  with_items:
-    - apt-transport-https
-    - ca-certificates
-    - urllib3
+  register: wazuh_manager_https_packages_installed
+  until: wazuh_manager_https_packages_installed is succeeded
 
+- name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
+  become: yes
+  shell: |
+    set -o pipefail
+    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+  args:
+    warn: False
+    executable: /bin/bash
+  changed_when: False
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
     repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
     state: present
     update_cache: yes
+  changed_when: False
+
+- name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
+  become: yes
+  shell: |
+    set -o pipefail
+    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+  args:
+    warn: False
+    executable: /bin/bash
+  changed_when: False
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
 
 - name: Debian/Ubuntu | Installing NodeJS repository key
   apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
     repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
     state: present
     update_cache: yes
+  changed_when: False
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
@@ -54,6 +86,8 @@
       name: oracle-java8-installer
       state: present
       cache_valid_time: 3600
+    register: wazuh_manager_oracle_java_8_installed
+    until: wazuh_manager_oracle_java_8_installed is succeeded
   tags:
     - init
 
@@ -62,6 +96,8 @@
     name: "{{ item }}"
     state: present
     cache_valid_time: 3600
+  register: wazuh_manager_openscap_installed
+  until: wazuh_manager_openscap_installed is succeeded
   when: wazuh_manager_config.openscap.disable == 'no'
   with_items:
     - libopenscap8
@@ -73,7 +109,7 @@
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version
-  changed_when: true
+  changed_when: False
   tags:
     - config
 
@@ -81,6 +117,6 @@
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version_valid
-  changed_when: true
+  changed_when: False
   tags:
     - config
