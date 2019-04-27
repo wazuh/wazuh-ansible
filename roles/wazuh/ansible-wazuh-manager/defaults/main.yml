@@ -182,35 +182,35 @@ wazuh_manager_config:
   email_level: 12
   localfiles:
     common:
-       - format: 'command'
-         command: df -P -x squashfs -x tmpfs -x devtmpfs
-         frequency: '360'
-       - format: 'full_command'
-         command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
-         alias: 'netstat listening ports'
-         frequency: '360'
-       - format: 'full_command'
-         command: 'last -n 20'
-       - format: 'syslog'
-         location: '/var/ossec/logs/active-responses.log'
+      - format: 'command'
+        command: df -P -x squashfs -x tmpfs -x devtmpfs
+        frequency: '360'
+      - format: 'full_command'
+        command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
+        alias: 'netstat listening ports'
+        frequency: '360'
+      - format: 'full_command'
+        command: 'last -n 20'
+      - format: 'syslog'
+        location: '/var/ossec/logs/active-responses.log'
     debian:
-       - format: 'syslog'
-         location: '/var/log/auth.log'
-       - format: 'syslog'
-         location: '/var/log/syslog'
-       - format: 'syslog'
-         location: '/var/log/dpkg.log'
-       - format: 'syslog'
-         location: '/var/log/kern.log'
+      - format: 'syslog'
+        location: '/var/log/auth.log'
+      - format: 'syslog'
+        location: '/var/log/syslog'
+      - format: 'syslog'
+        location: '/var/log/dpkg.log'
+      - format: 'syslog'
+        location: '/var/log/kern.log'
     centos:
-       - format: 'syslog'
-         location: '/var/log/messages'
-       - format: 'syslog'
-         location: '/var/log/secure'
-       - format: 'syslog'
-         location: '/var/log/maillog'
-       - format: 'audit'
-         location: '/var/log/audit/audit.log'
+      - format: 'syslog'
+        location: '/var/log/messages'
+      - format: 'syslog'
+        location: '/var/log/secure'
+      - format: 'syslog'
+        location: '/var/log/maillog'
+      - format: 'audit'
+        location: '/var/log/audit/audit.log'
   globals:
     - '127.0.0.1'
     - '192.168.2.1'
@@ -219,10 +219,10 @@ wazuh_manager_config:
       executable: 'disable-account.sh'
       expect: 'user'
       timeout_allowed: 'yes'
-    #- name: 'restart-ossec'
-    #  executable: 'restart-ossec.sh'
-    #  expect: ''
-    #  timeout_allowed: 'no'
+    # - name: 'restart-ossec'
+    #   executable: 'restart-ossec.sh'
+    #   expect: ''
+    #   timeout_allowed: 'no'
     - name: 'win_restart-ossec'
       executable: 'restart-ossec.cmd'
       expect: ''
@@ -252,8 +252,8 @@ wazuh_manager_config:
       expect: 'srcip'
       timeout_allowed: 'yes'
   ruleset:
-      rules_path: 'custom_ruleset/rules/'
-      decoders_path: 'custom_ruleset/decoders/'
+    rules_path: 'custom_ruleset/rules/'
+    decoders_path: 'custom_ruleset/decoders/'
   rule_exclude:
     - '0215-policy_rules.xml'
   syslog_outputs:
@@ -275,17 +275,13 @@ wazuh_agent_configs:
       auto_ignore: 'no'
       alert_new_files: 'yes'
       ignore:
-      - /etc/mtab
-      - /etc/mnttab
-      - /etc/hosts.deny
-      - /etc/mail/statistics
-      - /etc/svc/volatile
+        - /etc/mtab
+        - /etc/mnttab
+        - /etc/hosts.deny
+        - /etc/mail/statistics
+        - /etc/svc/volatile
       no_diff:
         - /etc/ssl/private.key
-      # Example
-      #directories:
-        #- dirs: /etc,/usr/bin,/usr/sbin
-        #  checks: 'check_all="yes"'
     rootcheck:
       frequency: 43200
       cis_distribution_filename: null

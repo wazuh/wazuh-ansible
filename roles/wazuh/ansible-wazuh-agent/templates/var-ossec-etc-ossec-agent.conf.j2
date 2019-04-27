@@ -254,7 +254,7 @@
     {% endif %}
     <log_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.osquery.log_path_win }}{% else %}{{ wazuh_agent_config.osquery.log_path }}{% endif %}</log_path>
     <config_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.osquery.config_path_win }}{% else %}{{ wazuh_agent_config.osquery.config_path }}{% endif %}</config_path>
-    <add_labels>{{ wazuh_agent_config.osquery.ad_labels }}</add_labels>
+    <add_labels>{{ wazuh_agent_config.osquery.add_labels }}</add_labels>
   </wodle>
 
   <!-- System inventory -->

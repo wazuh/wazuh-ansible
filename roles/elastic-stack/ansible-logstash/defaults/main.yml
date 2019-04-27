@@ -2,7 +2,7 @@
 logstash_create_config: true
 logstash_input_beats: false
 
-#You can introduce Multiples IPs
+# You can introduce Multiples IPs
 # elasticseacrh_network_host: ["Localhost1", "Localhost2", "Localhost3", ...]
 elasticsearch_network_host: ["Localhost"]
 
@@ -16,4 +16,4 @@ logstash_ssl_dir: /etc/pki/logstash
 logstash_ssl_certificate_file: ""
 logstash_ssl_key_file: ""
 
-logstash_install_java: yes
+logstash_install_java: true

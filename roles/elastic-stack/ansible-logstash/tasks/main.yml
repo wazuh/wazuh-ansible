@@ -10,7 +10,7 @@
 
 - name: Reload systemd
   systemd: daemon_reload=yes
-  ignore_errors: yes
+  ignore_errors: true
   when:
     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
@@ -23,13 +23,13 @@
 - name: Ensure Logstash started and enabled
   service:
     name: logstash
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Amazon Linux start Logstash
   service:
     name: logstash
-    enabled: yes
+    enabled: true
     state: started
   when: ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
 
