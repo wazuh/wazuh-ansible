@@ -5,3 +5,4 @@ before_script:
   - pipenv install --dev --system
 script:
   - pipenv run test
+  - pipenv run agent

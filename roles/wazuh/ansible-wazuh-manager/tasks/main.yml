@@ -6,13 +6,15 @@
   when: ansible_os_family == "Debian"
 
 - name: Install wazuh-manager, wazuh-api and expect
-  package: pkg={{ item }} state=latest
+  package: pkg={{ item }} state={{ wazuh_manager_package_state }}
   with_items:
     - wazuh-manager
     - wazuh-api
     - expect
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - not (( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version|int < 6 )
+    - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
   tags:
     - init
 
@@ -22,26 +24,28 @@
     regexp: 'echo -n "Starting Wazuh-manager: "'
     replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
   when:
-    - ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version == '6'
+    - ansible_distribution in ['CentOS', 'RedHat'] and ansible_distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: Install wazuh-manager and expect (EL5)
-  package: pkg={{ item }} state=latest
+  package: pkg={{ item }} state={{ wazuh_manager_package_state }}
   with_items:
     - wazuh-manager
     - expect
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and  ansible_distribution_major_version|int < 6
+    - ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6
   tags:
     - init
 
 - name: Generate SSL files for authd
-  command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{wazuh_manager_fqdn}}/"
+  command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{ wazuh_manager_fqdn }}/"
   args:
     creates: sslmanager.cert
     chdir: /var/ossec/etc/
   tags:
-      - config
+    - config
   when: not wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
@@ -71,7 +75,7 @@
 
 - name: Ensure ossec-authd service is disabled
   service: name=ossec-authd enabled=no state=stopped
-  when: old_authd_service.stat.exists == True
+  when: old_authd_service.stat.exists
   tags:
     - config
 
@@ -80,7 +84,7 @@
   with_items:
     - "/etc/init.d/ossec-authd"
     - "/lib/systemd/system/ossec-authd.service"
-  when: old_authd_service.stat.exists == True
+  when: old_authd_service.stat.exists
   tags:
     - config
 
@@ -180,7 +184,7 @@
 - name: Retrieving Wazuh-API User Credentials
   include_vars: wazuh_api_creds.yml
   when:
-    - not (( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version|int < 6 )
+    - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
   tags:
     - config
 
@@ -198,11 +202,14 @@
     - config
 
 - name: Check if client-syslog is enabled
-  shell: "grep -c 'ossec-csyslogd' /var/ossec/bin/.process_list | xargs echo"
+  shell: |
+    set -o pipefail
+    "grep -c 'ossec-csyslogd' /var/ossec/bin/.process_list | xargs echo"
   args:
     removes: /var/ossec/bin/.process_list
-  changed_when: False
-  check_mode: no
+    executable: /bin/bash
+  changed_when: false
+  check_mode: false
   register: csyslog_enabled
   tags:
     - config
@@ -212,16 +219,19 @@
   notify: restart wazuh-manager
   when:
     - csyslog_enabled.stdout == '0' or "skipped" in csyslog_enabled.stdout
-    - syslog_output is defined and syslog_output == true
+    - syslog_output is defined and syslog_output
   tags:
     - config
 
 - name: Check if ossec-agentlessd is enabled
-  shell: "grep -c 'ossec-agentlessd' /var/ossec/bin/.process_list | xargs echo"
+  shell: |
+    set -o pipefail
+    "grep -c 'ossec-agentlessd' /var/ossec/bin/.process_list | xargs echo"
   args:
     removes: /var/ossec/bin/.process_list
-  changed_when: False
-  check_mode: no
+    executable: /bin/bash
+  changed_when: false
+  check_mode: false
   register: agentlessd_enabled
   tags:
     - config
@@ -252,7 +262,7 @@
   poll: 0
   when:
     - wazuh_manager_config.vuls.disable != 'yes'
-    - ansible_distribution == 'Redhat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' or ansible_distribution == 'Oracle'
+    - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle']
   tags:
     - init
 
@@ -293,7 +303,7 @@
   notify: restart wazuh-api
   when:
     - wazuh_api_user is defined
-    - not (( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version|int < 6 )
+    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 6)
   tags:
     - config
 
@@ -323,19 +333,23 @@
     group: ossec
     mode: 0640
   no_log: true
+  register: wazuh_manager_cdb_lists
+  until: wazuh_manager_cdb_lists is succeeded
   notify:
     - rebuild cdb_lists
     - restart wazuh-manager
   with_items:
     - "{{ cdb_lists }}"
-  when: cdb_lists is defined
+  when:
+    - cdb_lists is defined
+    - cdb_lists is iterable
   tags:
     - config
 
 - name: Ensure Wazuh Manager, wazuh API service is started and enabled
   service:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: started
   with_items:
     - wazuh-manager
@@ -345,17 +359,17 @@
   environment:
     LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:/var/ossec/framework/lib"
   when:
-    - not (( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version|int < 6 )
+    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 6)
 
 - name: Ensure Wazuh Manager is started and enabled (EL5)
   service:
     name: wazuh-manager
-    enabled: yes
+    enabled: true
     state: started
   tags:
     - config
   when:
-    - ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version|int < 6
+    - ansible_distribution in ['CentOS', 'RedHat'] and ansible_distribution_major_version|int < 6
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"

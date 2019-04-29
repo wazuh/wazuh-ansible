@@ -1,3 +1,4 @@
+---
 - hosts: <your wazuh agents hosts>
   roles:
     - /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-agent

@@ -5,4 +5,4 @@
     description: Elastic repository for 6.x packages
     baseurl: https://artifacts.elastic.co/packages/6.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    gpgcheck: yes
+    gpgcheck: true

@@ -8,12 +8,11 @@
 - name: Make sure Elasticsearch is running before proceeding.
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
   tags: configure
-  ignore_errors: yes # fix
-  wait_for: 50
+  ignore_errors: true
 
 - name: Reload systemd
-  systemd: daemon_reload=yes
-  ignore_errors: yes
+  systemd: daemon_reload=true
+  ignore_errors: true
   when:
     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
@@ -34,7 +33,7 @@
   args:
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
-  changed_when: False
+  changed_when: false
   tags: install
 
 - name: Removing old Wazuh-APP
@@ -59,7 +58,7 @@
 - name: Ensure Kibana started and enabled
   service:
     name: kibana
-    enabled: yes
+    enabled: true
     state: started
 
 - import_tasks: RMRedHat.yml

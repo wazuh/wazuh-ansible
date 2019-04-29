@@ -53,6 +53,7 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 pip install pipenv
 sudo pipenv install
 pipenv run test
+pipenv run agent
 ```
 
 ## Contribute
