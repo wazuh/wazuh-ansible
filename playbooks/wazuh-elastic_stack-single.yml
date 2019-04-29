@@ -1,3 +1,4 @@
+---
 - hosts: <your single server host>
   roles:
       - {role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager}

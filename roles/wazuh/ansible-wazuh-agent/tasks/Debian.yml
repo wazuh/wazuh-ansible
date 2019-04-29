@@ -1,60 +1,83 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    name: ['apt-transport-https', 'ca-certificates']
+    name:
+      - apt-transport-https
+      - ca-certificates
     state: present
+  register: wazuh_agent_ca_package_install
+  until: wazuh_agent_ca_package_install is succeeded
 
-- name: Debian/Ubuntu | Installing repository key
+- name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
+  become: true
+  shell: |
+    set -o pipefail
+    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+  args:
+    warn: false
+    executable: /bin/bash
+  changed_when: false
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+
+- name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
     repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
   when: ansible_os_family == "Debian"
 
-- when:
-  - wazuh_agent_config.cis_cat.disable == 'no'
-  - wazuh_agent_config.cis_cat.install_java == 'yes'
-  block:
-  - name: Debian/Ubuntu | Setting webupd8 repository
-    apt_repository:
-      repo: 'ppa:webupd8team/java'
-      codename: 'xenial'
-      update_cache: yes
+- block:
+    - name: Debian/Ubuntu | Setting webupd8 repository
+      apt_repository:
+        repo: 'ppa:webupd8team/java'
+        codename: 'xenial'
+        update_cache: true
 
-  - name: Debian/Ubuntu | Accept Oracle Java 8 license
-    debconf:
-      name: oracle-java8-installer
-      question: shared/accepted-oracle-license-v1-1
-      value: true
-      vtype: boolean
+    - name: Debian/Ubuntu | Accept Oracle Java 8 license
+      debconf:
+        name: oracle-java8-installer
+        question: shared/accepted-oracle-license-v1-1
+        value: true
+        vtype: boolean
 
-  - name: Debian/Ubuntu | Oracle Java 8 installer
-    apt:
-      name: oracle-java8-installer
-      state: present
-      cache_valid_time: 3600
+    - name: Debian/Ubuntu | Oracle Java 8 installer
+      apt:
+        name: oracle-java8-installer
+        state: present
+        cache_valid_time: 3600
+  when:
+    - wazuh_agent_config.cis_cat.disable == 'no'
+    - wazuh_agent_config.cis_cat.install_java == 'yes'
   tags:
     - init
 
 - name: Debian/Ubuntu | Install OpenScap
   apt:
-    name: ['libopenscap8', 'xsltproc']
+    name:
+      - libopenscap8
+      - xsltproc
     state: present
-    when: wazuh_agent_config.openscap.disable == 'no'
-    tags:
-        - init
+  when: wazuh_agent_config.openscap.disable == 'no'
+  tags:
+    - init
+  register: wazuh_agent_OpenScap_package_install
+  until: wazuh_agent_OpenScap_package_install is succeeded
 
 - name: Debian/Ubuntu | Get OpenScap installed version
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   register: openscap_version
-  changed_when: true
+  changed_when: false
   when: wazuh_agent_config.openscap.disable == 'no'
   tags:
     - config
@@ -62,7 +85,7 @@
 - name: Debian/Ubuntu | Check OpenScap version
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   register: openscap_version_valid
-  changed_when: true
+  changed_when: false
   when: wazuh_agent_config.openscap.disable == 'no'
   tags:
     - config

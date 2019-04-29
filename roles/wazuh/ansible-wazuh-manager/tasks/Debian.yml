@@ -11,14 +11,14 @@
   until: wazuh_manager_https_packages_installed is succeeded
 
 - name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
-  become: yes
+  become: true
   shell: |
     set -o pipefail
     curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
   args:
-    warn: False
+    warn: false
     executable: /bin/bash
-  changed_when: False
+  changed_when: false
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
@@ -32,18 +32,18 @@
   apt_repository:
     repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
     state: present
-    update_cache: yes
-  changed_when: False
+    update_cache: true
+  changed_when: false
 
 - name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
-  become: yes
+  become: true
   shell: |
     set -o pipefail
     curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
   args:
-    warn: False
+    warn: false
     executable: /bin/bash
-  changed_when: False
+  changed_when: false
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
@@ -57,37 +57,37 @@
   apt_repository:
     repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
     state: present
-    update_cache: yes
-  changed_when: False
+    update_cache: true
+  changed_when: false
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
 
-- when:
-   - wazuh_manager_config.cis_cat.disable == 'no'
-   - wazuh_manager_config.cis_cat.install_java == 'yes'
-  block:
-  - name: Debian/Ubuntu | Setting webupd8 repository
-    apt_repository:
-      repo: 'ppa:webupd8team/java'
-      codename: 'xenial'
-      update_cache: yes
+- block:
+    - name: Debian/Ubuntu | Setting webupd8 repository
+      apt_repository:
+        repo: 'ppa:webupd8team/java'
+        codename: 'xenial'
+        update_cache: true
 
-  - name: Debian/Ubuntu | Accept Oracle Java 8 license
-    debconf:
-      name: oracle-java8-installer
-      question: shared/accepted-oracle-license-v1-1
-      value: true
-      vtype: boolean
+    - name: Debian/Ubuntu | Accept Oracle Java 8 license
+      debconf:
+        name: oracle-java8-installer
+        question: shared/accepted-oracle-license-v1-1
+        value: true
+        vtype: boolean
 
-  - name: Debian/Ubuntu | Oracle Java 8 installer
-    apt:
-      name: oracle-java8-installer
-      state: present
-      cache_valid_time: 3600
-    register: wazuh_manager_oracle_java_8_installed
-    until: wazuh_manager_oracle_java_8_installed is succeeded
+    - name: Debian/Ubuntu | Oracle Java 8 installer
+      apt:
+        name: oracle-java8-installer
+        state: present
+        cache_valid_time: 3600
+      register: wazuh_manager_oracle_java_8_installed
+      until: wazuh_manager_oracle_java_8_installed is succeeded
+  when:
+    - wazuh_manager_config.cis_cat.disable == 'no'
+    - wazuh_manager_config.cis_cat.install_java == 'yes'
   tags:
     - init
 
@@ -109,7 +109,7 @@
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version
-  changed_when: False
+  changed_when: false
   tags:
     - config
 
@@ -117,6 +117,6 @@
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version_valid
-  changed_when: False
+  changed_when: false
   tags:
     - config

@@ -1,18 +1,22 @@
 ---
 - name: Windows | Check if Program Files (x86) exists
-  win_stat: 
+  win_stat:
     path: C:\Program Files (x86)
   register: check_path
 
+- name: "Set Win Path"
+  set_fact:
+    wazuh_agent_win_path: "{% wazuh_winagent_config.install_dir_x86 if check_path.stat.exists else wazuh_winagent_config.install_dir %}"
+
 - name: Windows | Get current installed version
-  win_shell: "{% if check_path.stat.exists == true %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}
+  win_shell: "{% if check_path.stat.exists %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}
   {{ wazuh_winagent_config.install_dir }}{% endif %}ossec-agent.exe -h"
   args:
-    removes: "{% if check_path.stat.exists == true %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}
+    removes: "{% if check_path.stat.exists %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}
     {{ wazuh_winagent_config.install_dir }}{% endif %}ossec-agent.exe"
   register: agent_version
-  failed_when: False
-  changed_when: False
+  failed_when: false
+  changed_when: false
 
 - name: Windows | Check Wazuh agent version installed
   set_fact: correct_version=true
@@ -30,7 +34,7 @@
 - name: Windows | Verify the downloaded Wazuh agent installer
   win_stat:
     path: C:\wazuh-agent-installer.msi
-    get_checksum: yes
+    get_checksum: true
     checksum_algorithm: md5
   register: installer_md5
   when:
@@ -45,7 +49,7 @@
     - correct_version is not defined
 
 - name: Windows | Check if client.keys exists
-  win_stat: path="{% if check_path.stat.exists == true %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}{{ wazuh_winagent_config.install_dir }}{% endif %}client.keys"
+  win_stat: path="{{ wazuh_agent_win_path }}"
   register: check_windows_key
   notify: restart wazuh-agent windows
   tags:
@@ -58,18 +62,18 @@
 
 - name: Windows | Register agent
   win_shell: >
-    {% if check_path.stat.exists == true %}{{ wazuh_winagent_config.auth_path_x86 }}{% else %}
+    {% if check_path.stat.exists %}{{ wazuh_winagent_config.auth_path_x86 }}{% else %}
     {{ wazuh_winagent_config.auth_path }}{% endif %}
     -m {{ wazuh_managers.0.address }}
     -p {{ wazuh_agent_authd.port }}
     {% if authd_pass is defined %} -P {{ authd_pass }}{% endif %}
   args:
-    chdir: "{% if check_path.stat.exists == true %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}{{ wazuh_winagent_config.install_dir }}{% endif %}"
+    chdir: "{{ wazuh_agent_win_path }}"
   register: agent_auth_output
   notify: restart wazuh-agent windows
   when:
-    - wazuh_agent_authd.enable == true
-    - check_windows_key.stat.exists == false or check_windows_key.stat.size == 0
+    - wazuh_agent_authd.enable
+    - not check_windows_key.stat.exists or check_windows_key.stat.size == 0
     - wazuh_managers.0.address is not none
   tags:
     - config
@@ -77,7 +81,7 @@
 - name: Windows | Installing agent configuration (ossec.conf)
   win_template:
     src: var-ossec-etc-ossec-agent.conf.j2
-    dest: "{% if check_path.stat.exists == true %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}{{ wazuh_winagent_config.install_dir }}{% endif %}ossec.conf"
+    dest: "{{ wazuh_agent_win_path }}ossec.conf"
   notify: restart wazuh-agent windows
   tags:
     - config
@@ -85,7 +89,7 @@
 - name: Windows | Installing local_internal_options.conf
   win_template:
     src: var-ossec-etc-local-internal-options.conf.j2
-    dest: "{% if check_path.stat.exists == true %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}{{ wazuh_winagent_config.install_dir }}{% endif %}local_internal_options.conf"
+    dest: "{{ wazuh_agent_win_path }}local_internal_options.conf"
   notify: restart wazuh-agent windows
   tags:
     - config

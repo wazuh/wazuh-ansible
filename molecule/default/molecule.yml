@@ -5,13 +5,13 @@ driver:
   name: docker
 lint:
   name: yamllint
-  enabled: false # fix in seperate PR
+  enabled: false
 platforms:
   - name: bionic
     image: ubuntu:bionic
   - name: xenial
     image: solita/ubuntu-systemd:xenial
-    privileged: True
+    privileged: true
     command: /sbin/init
   - name: trusty
     image: ubuntu:trusty
@@ -19,14 +19,14 @@ platforms:
     image: centos:6
   - name: centos7
     image: milcom/centos7-systemd
-    privileged: True
+    privileged: true
 provisioner:
   name: ansible
   env:
     ANSIBLE_ROLES_PATH: ../../roles
   lint:
     name: ansible-lint
-    enabled: true # fix in seperate PR
+    enabled: true
 scenario:
   name: default
   test_sequence:

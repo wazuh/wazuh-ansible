@@ -53,16 +53,16 @@
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
-        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
 
     - name: Linux | Verify agent registration
       shell: echo {{ agent_auth_output }} | grep "Valid key created"
       when:
-        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
 
-  when: wazuh_agent_authd.enable == true
+  when: wazuh_agent_authd.enable
   tags:
     - config
     - authd
@@ -76,9 +76,9 @@
     - name: Linux | Create the agent key via rest-API
       uri:
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
-        validate_certs: no
+        validate_certs: false
         method: POST
-        body: {"name":"{{ agent_name }}"}
+        body: '{"name":"{{ agent_name }}"}'
         body_format: json
         status_code: 200
         headers:
@@ -86,29 +86,30 @@
         user: "{{ wazuh_managers.0.api_user }}"
         password: "{{ api_pass }}"
       register: newagent_api
-      changed_when: newagent_api.json.error == 0
+      # changed_when: newagent_api.json.error == 0
       vars:
-        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"      
+        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"
       when:
-        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
-      become: no
+      become: false
+      ignore_errors: true
 
     - name: Linux | Retieve new agent data via rest-API
       uri:
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
-        validate_certs: no
+        validate_certs: false
         method: GET
-        return_content: yes
+        return_content: true
         user: "{{ wazuh_managers.0.api_user }}"
         password: "{{ api_pass }}"
       when:
-        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
         - newagent_api.json.error == 0
       register: newagentdata_api
       delegate_to: localhost
-      become: no
+      become: false
 
     - name: Linux | Register agent (via rest-API)
       command: /var/ossec/bin/manage_agents
@@ -121,12 +122,13 @@
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
       when:
-        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
         - newagent_api.changed
       notify: restart wazuh-agent
 
-  when: wazuh_agent_authd.enable == false
+  when:
+    - not wazuh_agent_authd.enable
   tags:
     - config
     - api
@@ -139,7 +141,7 @@
   poll: 0
   when:
     - wazuh_agent_config.vuls.disable != 'yes'
-    - ansible_distribution == 'Redhat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' or ansible_distribution == 'Oracle'
+    - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle']
   tags:
     - init
 
@@ -168,7 +170,7 @@
 - name: Linux | Ensure Wazuh Agent service is started and enabled
   service:
     name: wazuh-agent
-    enabled: yes
+    enabled: true
     state: started
 
 - import_tasks: "RMRedHat.yml"

@@ -1,6 +1,23 @@
 ---
 - name: Prepare
-  hosts: all
+  hosts: manager
+  gather_facts: true
+  tasks:
+
+    - name: "Install dependencies"
+      package:
+        name:
+          - curl
+          - net-tools
+        state: latest
+      register: wazuh_manager_dependencies_packages_installed
+      until: wazuh_manager_dependencies_packages_installed is succeeded
+
+  roles:
+    - role: wazuh/ansible-wazuh-manager
+
+- name: Prepare
+  hosts: agent
   gather_facts: true
   tasks:
 
@@ -22,5 +39,5 @@
           - curl
           - net-tools
         state: latest
-      register: wazuh_manager_dependencies_packages_installed
-      until: wazuh_manager_dependencies_packages_installed is succeeded
+      register: wazuh_agent_dependencies_packages_installed
+      until: wazuh_agent_dependencies_packages_installed is succeeded

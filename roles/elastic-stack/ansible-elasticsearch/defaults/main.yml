@@ -7,4 +7,4 @@ elasticsearch_jvm_xms: null
 elastic_stack_version: 6.7.1
 elasticsearch_shards: 5
 elasticsearch_replicas: 1
-elasticsearch_install_java: yes
+elasticsearch_install_java: true

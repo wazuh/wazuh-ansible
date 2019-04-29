@@ -45,7 +45,7 @@
     creates: sslmanager.cert
     chdir: /var/ossec/etc/
   tags:
-      - config
+    - config
   when: not wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
@@ -208,8 +208,8 @@
   args:
     removes: /var/ossec/bin/.process_list
     executable: /bin/bash
-  changed_when: False
-  check_mode: no
+  changed_when: false
+  check_mode: false
   register: csyslog_enabled
   tags:
     - config
@@ -230,8 +230,8 @@
   args:
     removes: /var/ossec/bin/.process_list
     executable: /bin/bash
-  changed_when: False
-  check_mode: no
+  changed_when: false
+  check_mode: false
   register: agentlessd_enabled
   tags:
     - config
@@ -349,7 +349,7 @@
 - name: Ensure Wazuh Manager, wazuh API service is started and enabled
   service:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     state: started
   with_items:
     - wazuh-manager
@@ -364,7 +364,7 @@
 - name: Ensure Wazuh Manager is started and enabled (EL5)
   service:
     name: wazuh-manager
-    enabled: yes
+    enabled: true
     state: started
   tags:
     - config

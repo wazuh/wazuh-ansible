@@ -68,19 +68,20 @@
   notify: restart elasticsearch
   tags: configure
 
+# fix in new PR (ignore_errors)
 - name: Reload systemd
-  systemd: daemon_reload=yes
-  ignore_errors: yes #fix in new PR
-  when: 
+  systemd: daemon_reload=true
+  ignore_errors: true
+  when:
     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
 
 - name: Ensure Elasticsearch started and enabled
-  ignore_errors: yes
+  ignore_errors: true
   service:
     name: elasticsearch
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Make sure Elasticsearch is running before proceeding

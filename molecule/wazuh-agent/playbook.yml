@@ -1,0 +1,20 @@
+---
+- name: Converge
+  hosts: agent
+  pre_tasks:
+    - name: "Get ip Wazuh Manager"
+      shell: |
+        set -o pipefail
+        grep $(hostname) /etc/hosts | awk '{print $1}' | sort | head -n 2 | tail -n 1
+      register: wazuh_manager_ip_stdout
+      changed_when: false
+      delegate_to: wazuh_server_centos7
+      args:
+        executable: /bin/bash
+
+    - name: "Set fact for ip address"
+      set_fact:
+        wazuh_manager_ip: "{{ wazuh_manager_ip_stdout.stdout }}"
+
+  roles:
+    - role: wazuh/ansible-wazuh-agent

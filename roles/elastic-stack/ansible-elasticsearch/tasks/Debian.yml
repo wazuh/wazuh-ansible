@@ -10,7 +10,7 @@
       apt_repository:
         repo: 'ppa:webupd8team/java'
         codename: 'xenial'
-        update_cache: yes
+        update_cache: true
 
     - name: Debian/Ubuntu | Accept Oracle Java 8 license
       debconf:
@@ -36,7 +36,7 @@
     repo: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
     state: present
     filename: 'elastic_repo'
-    update_cache: yes
+    update_cache: true
 
 - name: Debian/Ubuntu | Install Elasticsarch
   apt:
