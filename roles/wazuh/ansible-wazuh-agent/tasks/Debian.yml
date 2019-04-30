@@ -37,12 +37,20 @@
     cis_distribution_filename: cis_debian_linux_rcl.txt
   when: ansible_os_family == "Debian"
 
+- name: Debian/Ubuntu | Install OpenJDK-8 repo
+  apt_repository:
+    repo: 'ppa:openjdk-r/ppa'
+    state: present
+    update_cache: true
+  when:
+    - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+
 - when:
-  - wazuh_agent_config.cis_cat.disable == 'no'
-  - wazuh_agent_config.cis_cat.install_java == 'yes'
+    - wazuh_agent_config.cis_cat.disable == 'no'
+    - wazuh_agent_config.cis_cat.install_java == 'yes'
   block:
-  - name: Debian/Ubuntu | Install OpenJDK 1.8
-    apt: name=openjdk-8-jre state=present cache_valid_time=3600       
+    - name: Debian/Ubuntu | Install OpenJDK 1.8
+      apt: name=openjdk-8-jre state=present cache_valid_time=3600
   tags:
     - init
 
