@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.9.0]
 
+### Added
+
+- Update to Wazuh Wazuh v3.9.0 ([manuasir](https://github.com/manuasir) [#177](https://github.com/wazuh/wazuh-ansible/pull/177)).
+- Support for Elasticsearch v6.7.1 ([LuisGi91](https://github.com/LuisGi91) [#168](https://github.com/wazuh/wazuh-ansible/pull/168)).
+- Added Molecule testing suit ([JJediny](https://github.com/JJediny) [#151](https://github.com/wazuh/wazuh-ansible/pull/151)).
+- Added Molecule tests for Wazuh Manager ([dj-wasabi](https://github.com/dj-wasabi) [#169](https://github.com/wazuh/wazuh-ansible/pull/169)).
+- Added Molecule tests for Wazuh Agent ([dj-wasabi](https://github.com/dj-wasabi) [#174](https://github.com/wazuh/wazuh-ansible/pull/174)).
+
+### Changed
+
+- Updated network commands ([kravietz](https://github.com/kravietz) [#159](https://github.com/wazuh/wazuh-ansible/pull/159)).
+- Enable active response section ([kravietz](https://github.com/kravietz) [#155](https://github.com/wazuh/wazuh-ansible/pull/155)).
+
+### Fixed
+
+- Fix default active response ([LuisGi93](https://github.com/LuisGi93) [#164](https://github.com/wazuh/wazuh-ansible/pull/164)).
+- Changing from Oracle Java to OpenJDK ([LuisGi93](https://github.com/LuisGi93) [#173](https://github.com/wazuh/wazuh-ansible/pull/173)).
+- Adding alias to agent config file template ([LuisGi93](https://github.com/LuisGi93) [#163](https://github.com/wazuh/wazuh-ansible/pull/163)).
 
 ## [v3.8.2]
 
