@@ -64,30 +64,20 @@
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
 
-- block:
-    - name: Debian/Ubuntu | Setting webupd8 repository
-      apt_repository:
-        repo: 'ppa:webupd8team/java'
-        codename: 'xenial'
-        update_cache: true
-
-    - name: Debian/Ubuntu | Accept Oracle Java 8 license
-      debconf:
-        name: oracle-java8-installer
-        question: shared/accepted-oracle-license-v1-1
-        value: true
-        vtype: boolean
-
-    - name: Debian/Ubuntu | Oracle Java 8 installer
-      apt:
-        name: oracle-java8-installer
-        state: present
-        cache_valid_time: 3600
-      register: wazuh_manager_oracle_java_8_installed
-      until: wazuh_manager_oracle_java_8_installed is succeeded
+- name: Debian/Ubuntu | Install OpenJDK-8 repo
+  apt_repository:
+    repo: 'ppa:openjdk-r/ppa'
+    state: present
+    update_cache: true
   when:
+    - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+
+- when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
+  block:
+    - name: Debian/Ubuntu | Install OpenJDK 1.8
+      apt: name=openjdk-8-jre state=present cache_valid_time=3600
   tags:
     - init
 
