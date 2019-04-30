@@ -24,3 +24,13 @@
         state: latest
       register: wazuh_manager_dependencies_packages_installed
       until: wazuh_manager_dependencies_packages_installed is succeeded
+
+    - name: "Install (RedHat) dependencies"
+      package:
+        name:
+          - initscripts
+        state: latest
+      register: wazuh_manager_dependencies_packages_installed
+      until: wazuh_manager_dependencies_packages_installed is succeeded
+      when:
+        - ansible_os_family == 'RedHat'
