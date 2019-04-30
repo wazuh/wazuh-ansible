@@ -2,7 +2,7 @@
 - when: elasticsearch_install_java
   block:
     - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
-      yum: name=java-1.8.0-openjdk state=present    
+      yum: name=java-1.8.0-openjdk state=present
       register: oracle_java_task_rpm_installed
       tags: install
 
