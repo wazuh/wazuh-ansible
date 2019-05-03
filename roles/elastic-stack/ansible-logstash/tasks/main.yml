@@ -15,10 +15,23 @@
     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
+    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
 - name: Amazon Linux create service
   shell: /usr/share/logstash/bin/system-install /etc/logstash/startup.options
   when: ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+  args:
+    creates: /etc/default/logstash
+  tags:
+    - skip_ansible_lint
+
+- name: Amazon Linux create service
+  shell: /usr/share/logstash/bin/system-install /etc/logstash/startup.options
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  args:
+    creates: /etc/default/logstash
+  tags:
+    - skip_ansible_lint
 
 - name: Ensure Logstash started and enabled
   service:

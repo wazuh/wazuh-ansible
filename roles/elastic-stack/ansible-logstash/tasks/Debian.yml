@@ -1,7 +1,9 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    name: ['apt-transport-https', 'ca-certificates']
+    name:
+      - apt-transport-https
+      - ca-certificates
     state: present
 
 - when: logstash_install_java
@@ -20,6 +22,7 @@
     repo: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
     state: present
     filename: 'elastic_repo'
+  changed_when: false
 
 - name: Debian/Ubuntu | Install Logstash
   apt:
@@ -31,7 +34,8 @@
 - name: Debian/Ubuntu | Checking if wazuh-manager is installed
   command: dpkg -l wazuh-manager
   register: wazuh_manager_check_deb
-  when: logstash_input_beats == false
+  when: not logstash_input_beats
+  changed_when: false
   args:
     warn: false
 
@@ -41,5 +45,5 @@
     groups: ossec
     append: true
   when:
-    - logstash_input_beats == false
+    - not logstash_input_beats
     - wazuh_manager_check_deb.rc == 0

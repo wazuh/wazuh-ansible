@@ -13,6 +13,7 @@
     baseurl: https://artifacts.elastic.co/packages/6.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: true
+  changed_when: false
 
 - name: RedHat/CentOS/Fedora | Install Logstash
   package: name=logstash-{{ elastic_stack_version }} state=present
@@ -22,7 +23,8 @@
 - name: RedHat/CentOS/Fedora | Checking if wazuh-manager is installed
   command: rpm -q wazuh-manager
   register: wazuh_manager_check_rpm
-  when: logstash_input_beats == false
+  when: not logstash_input_beats
+  changed_when: false
   args:
     warn: false
 
@@ -32,12 +34,14 @@
     groups: ossec
     append: true
   when:
-    - logstash_input_beats == false
+    - not logstash_input_beats
     - wazuh_manager_check_rpm.rc == 0
 
 - name: Amazon Linux change startup group
   shell: sed -i 's/.*LS_GROUP=logstash.*/LS_GROUP=ossec/' /etc/logstash/startup.options
+  tags:
+    - skip_ansible_lint
   when:
-    - logstash_input_beats == false
+    - not logstash_input_beats
     - wazuh_manager_check_rpm.rc == 0
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
