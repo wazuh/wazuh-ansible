@@ -8,3 +8,4 @@ script:
   - pipenv run test
   - pipenv run agent
   - pipenv run elasticsearch
+  - pipenv run logstash
