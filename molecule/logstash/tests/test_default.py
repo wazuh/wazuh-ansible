@@ -7,6 +7,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 
 def test_logstash_is_installed(host):
+    """Test if logstash is installed with correct version."""
     logstash = host.package("logstash")
     assert logstash.is_installed
 
@@ -25,6 +26,7 @@ def test_logstash_is_running(host):
 
 
 def test_find_correct_logentry(host):
-    logfile = host.file("//var/log/logstash/logstash-plain.log")
+    """See if logstash is started and is connected to Elasticsearch."""
+    logfile = host.file("/var/log/logstash/logstash-plain.log")
     assert logfile.contains("Successfully started Logstash API endpoint")
     assert logfile.contains("Restored connection to ES instance")

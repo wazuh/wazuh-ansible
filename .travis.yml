@@ -9,3 +9,5 @@ script:
   - pipenv run agent
   - pipenv run elasticsearch
   - pipenv run logstash
+  - pipenv run filebeat
+  - pipenv run kibana

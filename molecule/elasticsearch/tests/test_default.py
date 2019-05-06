@@ -7,6 +7,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 
 def test_elasticsearch_is_installed(host):
+    """Test if the elasticsearch package is installed."""
     elasticsearch = host.package("elasticsearch")
     assert elasticsearch.is_installed
     assert elasticsearch.version.startswith('6.7.1')

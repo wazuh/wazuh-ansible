@@ -6,35 +6,25 @@ driver:
 lint:
   name: yamllint
 platforms:
+  - name: trusty
+    image: ubuntu:trusty
   - name: bionic
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
-    ulimits:
-      - nofile:262144:262144
     privileged: true
-    memory_reservation: 1024m
   - name: xenial
     image: solita/ubuntu-systemd:xenial
     privileged: true
-    memory_reservation: 1024m
     command: /sbin/init
-    ulimits:
-      - nofile:262144:262144
   - name: centos6
     image: geerlingguy/docker-centos6-ansible
     privileged: true
-    memory_reservation: 1024m
     command: /sbin/init
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    ulimits:
-      - nofile:262144:262144
   - name: centos7
     image: milcom/centos7-systemd
-    memory_reservation: 1024m
     privileged: true
-    ulimits:
-      - nofile:262144:262144
 provisioner:
   name: ansible
   playbooks:
@@ -46,10 +36,6 @@ provisioner:
   lint:
     name: ansible-lint
     enabled: true
-  inventory:
-    group_vars:
-      all:
-        elasticsearch_jvm_xms: 256
 verifier:
   name: testinfra
   lint:

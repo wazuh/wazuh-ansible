@@ -11,7 +11,7 @@ platforms:
     command: /sbin/init
     ulimits:
       - nofile:262144:262144
-    privileged: True
+    privileged: true
     memory_reservation: 1024m
   - name: xenial
     image: solita/ubuntu-systemd:xenial

@@ -17,6 +17,7 @@
     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
+    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
 - name: Kibana configuration
   template:
@@ -29,8 +30,11 @@
   tags: configure
 
 - name: Checking Wazuh-APP version
-  shell: "grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo"
+  shell: |
+    set -o pipefail
+    grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo
   args:
+    executable: /bin/bash
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
   changed_when: false
@@ -51,9 +55,13 @@
   environment:
     NODE_OPTIONS: "--max-old-space-size=3072"
   args:
+    executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana
-  tags: install
+  ignore_errors: "{{ kibana_plugin_install_ignore_error }}"
+  tags:
+    - install
+    - skip_ansible_lint
 
 - name: Ensure Kibana started and enabled
   service:
