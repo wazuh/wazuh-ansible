@@ -6,3 +6,4 @@
     baseurl: https://artifacts.elastic.co/packages/6.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: true
+  changed_when: false

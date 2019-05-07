@@ -16,3 +16,7 @@ python_version = "2.7"
 [scripts]
 test ="molecule test"
 agent ="molecule test -s wazuh-agent"
+elasticsearch ="molecule test -s elasticsearch"
+logstash ="molecule test -s logstash"
+filebeat ="molecule test -s filebeat"
+kibana ="molecule test -s kibana"

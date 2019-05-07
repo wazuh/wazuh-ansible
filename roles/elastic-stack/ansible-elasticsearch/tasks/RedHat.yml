@@ -4,6 +4,7 @@
     - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
       yum: name=java-1.8.0-openjdk state=present
       register: oracle_java_task_rpm_installed
+      until: oracle_java_task_rpm_installed is succeeded
       tags: install
 
 - name: RedHat/CentOS/Fedora | Install Elastic repo
@@ -13,8 +14,11 @@
     baseurl: https://artifacts.elastic.co/packages/6.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: true
+  changed_when: false
 
 - name: RedHat/CentOS/Fedora | Install Elasticsarch
   package: name=elasticsearch-{{ elastic_stack_version }} state=present
+  register: elasticsearch_main_packages_installed
+  until: elasticsearch_main_packages_installed is succeeded
   when: not elasticsearch_install_java or oracle_java_task_rpm_installed is defined
   tags: install

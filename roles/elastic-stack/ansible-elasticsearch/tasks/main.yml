@@ -76,9 +76,9 @@
     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
+    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
 - name: Ensure Elasticsearch started and enabled
-  ignore_errors: true
   service:
     name: elasticsearch
     enabled: true
@@ -92,19 +92,22 @@
 
 - name: Check for Wazuh Alerts template
   uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
+    url: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}/_template/wazuh"
     method: GET
     status_code: 200, 404
   register: wazuh_alerts_template_exits
+  until: wazuh_alerts_template_exits is succeeded
   tags: init
 
 - name: Installing Wazuh Alerts template
   uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
+    url: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}/_template/wazuh"
     method: PUT
     status_code: 200
     body_format: json
     body: "{{ lookup('template','wazuh-elastic6-template-alerts.json.j2') }}"
+  register: installing_wazuh_template
+  until: installing_wazuh_template is succeeded
   when: wazuh_alerts_template_exits.status != 200
   tags: init
 

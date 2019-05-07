@@ -1,3 +1,4 @@
+---
 language: python
 services: docker
 before_script:
@@ -6,3 +7,7 @@ before_script:
 script:
   - pipenv run test
   - pipenv run agent
+  - pipenv run elasticsearch
+  - pipenv run logstash
+  - pipenv run filebeat
+  - pipenv run kibana
