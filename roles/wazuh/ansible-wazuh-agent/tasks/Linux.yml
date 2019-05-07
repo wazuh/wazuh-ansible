@@ -8,7 +8,7 @@
 - name: Linux | Install wazuh-agent
   package: name=wazuh-agent state=present
   async: 90
-  poll: 15
+  poll: 30
   tags:
     - init
 
