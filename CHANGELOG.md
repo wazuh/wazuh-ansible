@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.9.1]
+
+### Added 
+
+- Update to Wazuh v3.8.1
+- Support for ELK v6.8.0
 
 ## [v3.9.0]
 
