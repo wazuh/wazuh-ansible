@@ -9,8 +9,8 @@
 - name: RedHat/CentOS/Fedora | Install Elastic repo
   yum_repository:
     name: elastic_repo
-    description: Elastic repository for 6.x packages
-    baseurl: https://artifacts.elastic.co/packages/6.x/yum
+    description: Elastic repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: true
 

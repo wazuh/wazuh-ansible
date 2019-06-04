@@ -104,7 +104,7 @@
     method: PUT
     status_code: 200
     body_format: json
-    body: "{{ lookup('template','wazuh-elastic6-template-alerts.json.j2') }}"
+    body: "{{ lookup('template','wazuh-elastic7-template-alerts.json.j2') }}"
   when: wazuh_alerts_template_exits.status != 200
   tags: init
 
