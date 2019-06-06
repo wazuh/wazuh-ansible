@@ -4,6 +4,5 @@ wazuh-elastic_stack-distributed.yml
 wazuh-elastic_stack-single.yml
 wazuh-elastic.yml
 wazuh-kibana.yml
-wazuh-logstash.yml
 wazuh-manager.yml
 *.pyc
