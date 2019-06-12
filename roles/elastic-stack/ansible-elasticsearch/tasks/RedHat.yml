@@ -1,10 +1,4 @@
 ---
-- when: elasticsearch_install_java
-  block:
-    - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
-      yum: name=java-1.8.0-openjdk state=present
-      register: oracle_java_task_rpm_installed
-      tags: install
 
 - name: RedHat/CentOS/Fedora | Install Elastic repo
   yum_repository:
@@ -16,5 +10,4 @@
 
 - name: RedHat/CentOS/Fedora | Install Elasticsarch
   package: name=elasticsearch-{{ elastic_stack_version }} state=present
-  when: not elasticsearch_install_java or oracle_java_task_rpm_installed is defined
   tags: install
