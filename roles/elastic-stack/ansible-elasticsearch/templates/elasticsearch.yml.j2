@@ -10,11 +10,13 @@ network.host: {{ elasticsearch_network_host }}
 {% if single_node %}
 discovery.type: single-node
 {% elif elasticsearch_bootstrap_node %}
+node.master: true
 cluster.initial_master_nodes: 
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
 {% endfor %}
 {% elif elasticsearch_master_candidate %}
+node.master: true
 discovery.seed_hosts:
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
