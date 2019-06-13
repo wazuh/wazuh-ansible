@@ -14,16 +14,12 @@ filebeat_output_elasticsearch_enabled: false
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
 
-filebeat_output_logstash_enabled: true
-filebeat_output_logstash_hosts:
-  - "192.168.212.158:5000"
-
 filebeat_enable_logging: true
 filebeat_log_level: debug
 filebeat_log_dir: /var/log/mybeat
 filebeat_log_filename: mybeat.log
 
-filebeat_ssl_dir: /etc/pki/logstash
+filebeat_ssl_dir: /etc/pki/filebeat
 filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"

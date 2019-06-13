@@ -30,10 +30,27 @@ Defaults variables are listed below, along with its values (see `defaults/main.y
 Example Playbook
 ----------------
 
+- Single-node
 ```
   - hosts: elasticsearch
     roles:
-      - { role: ansible-role-elasticsearch, elasticsearch_network_host: '192.168.33.182' }
+      - { role: ansible-role-elasticsearch, elasticsearch_network_host: '192.168.33.182', single_host: true }
+```
+
+- Three nodes Elasticsearch cluster
+```
+---
+- hosts: 172.16.0.161
+  roles:
+    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.161', elasticsearch_bootstrap_node: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
+
+- hosts: 172.16.0.162
+  roles:
+    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.162', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
+
+- hosts: 172.16.0.163
+  roles:
+    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.163', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
 ```
 
 License and copyright

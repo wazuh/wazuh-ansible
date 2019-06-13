@@ -4,12 +4,6 @@
     name: ['apt-transport-https', 'ca-certificates']
     state: present
 
-- when: elasticsearch_install_java
-  block:
-    - name: Debian/Ubuntu | Install OpenJDK 1.8
-      apt: name=openjdk-8-jre state=present cache_valid_time=3600
-      tags: install
-
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
@@ -17,7 +11,7 @@
 
 - name: Debian/Ubuntu | Install Elastic repo
   apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/6.x/apt stable main'
+    repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
     state: present
     filename: 'elastic_repo'
     update_cache: true
