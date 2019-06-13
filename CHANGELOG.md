@@ -1,6 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.9.2_7.1.1]
+
+### Added 
+
+- Update to Wazuh v3.9.2
+- Support for Elastic 7
+- Ability to deploy an Elasticsearch cluster [#6b95e3](https://github.com/wazuh/wazuh-ansible/commit/6b95e304b6ac4dfec08df5cd0fe29be9cc7dc22c)
+
+## [v3.9.2_6.8.0]
+
+### Added 
+
+- Update to Wazuh v3.9.2
+
+## [v3.9.1]
+
+### Added 
+
+- Update to Wazuh v3.9.1
+- Support for ELK v6.8.0
 
 ## [v3.9.0]
 
@@ -120,7 +140,6 @@ Ansible starting point.
 Roles:
  - Elastic Stack:
    - ansible-elasticsearch: This role is prepared to install elasticsearch on the host that runs it.
-   - ansible-logstash: This role involves the installation of logstash on the host that runs it.
    - ansible-kibana: Using this role we will install Kibana on the host that runs it.
  - Wazuh:
    - ansible-filebeat: This role is prepared to install filebeat on the host that runs it.

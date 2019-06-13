@@ -17,5 +17,4 @@
   roles:
     - geerlingguy.java
     - geerlingguy.elasticsearch
-    - geerlingguy.logstash
     - role_under_test

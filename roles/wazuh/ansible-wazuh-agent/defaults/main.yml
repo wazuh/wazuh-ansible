@@ -23,7 +23,7 @@ wazuh_winagent_config:
   install_dir_x86: 'C:\Program Files (x86)\ossec-agent\'
   auth_path: C:\'Program Files'\ossec-agent\agent-auth.exe
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
-  version: '3.9.0'
+  version: '3.9.1'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
   md5: 43936e7bc7eb51bd186f47dac4a6f477

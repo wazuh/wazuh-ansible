@@ -18,7 +18,6 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
     │ ├── roles
     │ │ ├── elastic-stack 
     │ │ │ ├── ansible-elasticsearch        
-    │ │ │ ├── ansible-logstash
     │ │ │ ├── ansible-kibana
     │ │
     │ │ ├── wazuh                
@@ -35,7 +34,6 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
     │ │ ├── wazuh-elastic_stack-distributed.yml
     │ │ ├── wazuh-elastic_stack-single.yml
     │ │ ├── wazuh-kibana.yml
-    │ │ ├── wazuh-logstash.yml
     │ │ ├── wazuh-manager.yml
     │
     │ ├── README.md
