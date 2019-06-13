@@ -9,7 +9,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 def get_wazuh_version():
     """This return the version of Wazuh."""
-    return "3.9.1"
+    return "3.9.2"
 
 
 def test_wazuh_packages_are_installed(host):
