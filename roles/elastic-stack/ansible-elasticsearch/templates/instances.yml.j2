@@ -1,0 +1,11 @@
+
+# {{ ansible_managed }}
+# TO-DO
+
+{% if node_generate_certs %}
+instances:
+{% for item in elasticsearch_cluster_nodes %}
+    ip: {{ item.ip }}
+    - "{{ item.name }}"
+{% endfor %}
+{% endif %}
