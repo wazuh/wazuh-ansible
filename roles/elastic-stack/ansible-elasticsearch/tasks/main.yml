@@ -119,7 +119,15 @@
   when: 
     - node_generate_certs
     - elasticsearch_xpack_security
-  
+
+- name: Check that the instances.yml file exists
+  stat:
+    path: /usr/share/elasticsearch/instances.yml
+  register: instances_file_exists
+  when: 
+    - node_generate_certs
+    - elasticsearch_xpack_security
+
 - name: Generating certificates for Elasticsearch security
   shell: "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in /usr/share/elasticsearch/instances.yml --out /usr/share/elasticsearch/certs.zip"
   when: 
