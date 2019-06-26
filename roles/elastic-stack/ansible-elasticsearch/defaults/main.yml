@@ -11,3 +11,4 @@ elasticsearch_master_candidate: false
 elasticsearch_cluster_nodes:
   - 127.0.0.1
 elasticsearch_xpack_security: false
+node_generate_certs: false
