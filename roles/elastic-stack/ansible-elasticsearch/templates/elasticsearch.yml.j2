@@ -22,3 +22,9 @@ discovery.seed_hosts:
   - {{ item }}
 {% endfor %}
 {% endif %}
+
+# XPACK Security
+
+{% if elasticsearch_xpack_security %}
+xpack.security.enabled: true
+{% endif %}
