@@ -120,10 +120,12 @@
     - node_generate_certs
     - elasticsearch_xpack_security
 
-- name: Check that the instances.yml file exists
-  stat:
-    path: /usr/share/elasticsearch/instances.yml
-  register: instances_file_exists
+- name: Write the instances.yml file in the selected node
+  instances_file:
+    src: instances.yml.j2
+    dest: "/usr/share/elasticsearch/instances.yml"
+  tags:
+    - config
   when: 
     - node_generate_certs
     - elasticsearch_xpack_security
