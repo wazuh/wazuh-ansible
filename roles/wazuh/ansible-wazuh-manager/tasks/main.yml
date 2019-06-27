@@ -263,6 +263,7 @@
   when:
     - wazuh_manager_config.vuls.disable != 'yes'
     - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle']
+    - not ansible_check_mode
   tags:
     - init
 

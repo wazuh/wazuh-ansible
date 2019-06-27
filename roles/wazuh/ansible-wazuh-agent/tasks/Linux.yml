@@ -11,6 +11,7 @@
   poll: 15
   tags:
     - init
+  when: not ansible_check_mode
 
 - name: Linux | Check if client.keys exists
   stat: path=/var/ossec/etc/client.keys
@@ -142,6 +143,7 @@
   when:
     - wazuh_agent_config.vuls.disable != 'yes'
     - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle']
+    - not ansible_check_mode
   tags:
     - init
 
