@@ -121,7 +121,7 @@
     - elasticsearch_xpack_security
 
 - name: Write the instances.yml file in the selected node
-  instances_file:
+  template:
     src: instances.yml.j2
     dest: "/usr/share/elasticsearch/instances.yml"
   tags:
@@ -133,6 +133,7 @@
 - name: Generating certificates for Elasticsearch security
   shell: "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in /usr/share/elasticsearch/instances.yml --out /usr/share/elasticsearch/certs.zip"
   when: 
+    - node_generate_certs
     - instances_file_exists
     - elasticsearch_xpack_security
   tags: xpack-security
