@@ -15,10 +15,10 @@ cluster.initial_master_nodes:
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
 {% endfor %}
-{% elif elasticsearch_master_candidate %}
-node.master: true
+{% else %}
+node.master: {{ elasticsearch_master_candidate }}
 discovery.seed_hosts:
-{% for item in elasticsearch_cluster_nodes %}
+{% for item in elasticsearch_discovery_nodes %}
   - {{ item }}
 {% endfor %}
 {% endif %}
