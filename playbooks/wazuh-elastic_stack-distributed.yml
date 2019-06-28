@@ -1,9 +1,42 @@
 ---
-- hosts: <your wazuh server host>
+
+- hosts: 172.16.0.161
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager
-    - {role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-filebeat, filebeat_output_logstash_hosts: 'your elastic stack server IP'}
-- hosts: <your elastic stack server host>
+    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: 172.16.0.161
+      elasticsearch_bootstrap_node: true
+      elasticsearch_cluster_nodes:
+      - 172.16.0.161
+      node_generate_certs: true
+      node_name: node-1
+
+  vars:
+    instances:
+      node_1:
+        name: node-1
+        ip: 172.16.0.161
+      node_2:
+        name: node-2
+        ip: 172.16.0.162
+      node_3:
+        name: node-3
+        ip: 172.16.0.163
+
+- hosts: 172.16.0.162
   roles:
-    - {role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'localhost'}
-    - {role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-kibana, elasticsearch_network_host: 'localhost'}
+    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: 172.16.0.162
+      elasticsearch_discovery_nodes:
+        - 172.16.0.161
+        - 172.16.0.162
+        - 172.16.0.163
+  
+- hosts: 172.16.0.163
+  roles:
+    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch 
+      elasticsearch_network_host: 172.16.0.163
+      elasticsearch_discovery_nodes:
+        - 172.16.0.161
+        - 172.16.0.162
+        - 172.16.0.163
+
