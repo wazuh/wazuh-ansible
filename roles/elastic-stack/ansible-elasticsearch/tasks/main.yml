@@ -69,6 +69,70 @@
   tags: configure
 
 # fix in new PR (ignore_errors)
+
+- name: Check that the instances.yml file exists
+  stat:
+    path: "{{node_certs_source}}/instances.yml"
+  register: instances_file_exists
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+
+- name: Write the instances.yml file in the selected node
+  template:
+    src: instances.yml.j2
+    dest: "{{node_certs_source}}/instances.yml"
+  tags:
+    - config
+    - xpack-security
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+
+- name: Check that the certificates ZIP file exists
+  stat:
+    path: "{{node_certs_source}}/certs.zip"
+  register: xpack_certs_zip
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+
+- name: Generating certificates for Elasticsearch security
+  shell: "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in {{node_certs_source}}/instances.yml --out {{node_certs_source}}/certs.zip"
+  when: 
+    - node_certs_generator
+    - instances_file_exists.stat.exists
+    - elasticsearch_xpack_security
+    - not xpack_certs_zip.stat.exists
+  tags: xpack-security
+
+- name: Unzip generated certs.zip
+  unarchive:
+    src: "{{node_certs_source}}/certs.zip"
+    dest: "{{node_certs_source}}"
+    remote_src: yes
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+  tags: xpack-security
+
+- name: Copy local certificate for generator node
+  synchronize:
+    src: "{{node_certs_source}}/{{elasticsearch_node_name}}/"
+    dest: "{{node_certs_destination}}/"
+  delegate_to: "{{ node_certs_generator_ip }}"
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+  tags: xpack-security
+
+- name: Importing certificate generated previously
+  shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/{{elasticsearch_node_name}}/ {{node_certs_destination}}/"
+  when:
+    - not node_certs_generator
+    - elasticsearch_xpack_security
+  tags: xpack-security
+
 - name: Reload systemd
   systemd: daemon_reload=true
   ignore_errors: true
@@ -112,58 +176,9 @@
     - wazuh_alerts_template_exits.status != 200
   tags: init
 
-- name: Check that the instances.yml file exists
-  stat:
-    path: /usr/share/elasticsearch/instances.yml
-  register: instances_file_exists
-  when: 
-    - node_generate_certs
-    - elasticsearch_xpack_security
+# - import_tasks: "RMRedHat.yml"
+#   when: ansible_os_family == "RedHat"
 
-- name: Write the instances.yml file in the selected node
-  template:
-    src: instances.yml.j2
-    dest: "/usr/share/elasticsearch/instances.yml"
-  tags:
-    - config
-    - xpack-security
-  when: 
-    - node_generate_certs
-    - elasticsearch_xpack_security
 
-- name: Check that the certificates ZIP file exists
-  stat:
-    path: /usr/share/elasticsearch/certs.zip
-  register: xpack_certs_zip
-  when: 
-    - node_generate_certs
-    - elasticsearch_xpack_security
-
-- name: Generating certificates for Elasticsearch security
-  shell: "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in /usr/share/elasticsearch/instances.yml --out /usr/share/elasticsearch/certs.zip"
-  when: 
-    - node_generate_certs
-    - instances_file_exists
-    - elasticsearch_xpack_security
-    - not xpack_certs_zip
-  tags: xpack-security
-
-# - name: Importing certificates generated previously
-#   synchronize:
-#     mode: push
-#     src: /usr/share/elasticsearch/certs.zip
-#     dest: /usr/share/elasticsearch/certs.zip
-#     rsync_opts:
-#         - "--rsync-path='sudo rsync'"
-#         - "-v"
-#   delegate_to: "{{groups['elk'][0]}}"
-#   when: 
-#     - not node_generate_certs
-#     - elasticsearch_xpack_security
-#   tags: xpack-security
-
-- import_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
-
-- import_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
+# - import_tasks: "RMDebian.yml"
+#   when: ansible_os_family == "Debian"
