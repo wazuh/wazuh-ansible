@@ -126,6 +126,7 @@
     dest: "/usr/share/elasticsearch/instances.yml"
   tags:
     - config
+    - xpack-security
   when: 
     - node_generate_certs
     - elasticsearch_xpack_security
@@ -135,6 +136,27 @@
   when: 
     - node_generate_certs
     - instances_file_exists
+    - elasticsearch_xpack_security
+  tags: xpack-security
+
+# - name: Importing certificates generated previously
+#   synchronize:
+#     mode: push
+#     src: /usr/share/elasticsearch/certs.zip
+#     dest: /usr/share/elasticsearch/certs.zip
+#     rsync_opts:
+#         - "--rsync-path='sudo rsync'"
+#         - "-v"
+#   delegate_to: "{{groups['elk'][0]}}"
+#   when: 
+#     - not node_generate_certs
+#     - elasticsearch_xpack_security
+#   tags: xpack-security
+
+- name: Importing certificate generated previously
+  shell: "/usr/bin/rsync -avg -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync' vagrant@172.16.0.161:/usr/share/elasticsearch/{{elasticsearch_node_name}}/ /home/es_certificates/"
+  when: 
+    - not node_generate_certs
     - elasticsearch_xpack_security
   tags: xpack-security
 
