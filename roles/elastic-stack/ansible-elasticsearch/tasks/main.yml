@@ -131,12 +131,21 @@
     - node_generate_certs
     - elasticsearch_xpack_security
 
+- name: Check that the certificates ZIP file exists
+  stat:
+    path: /usr/share/elasticsearch/certs.zip
+  register: xpack_certs_zip
+  when: 
+    - node_generate_certs
+    - elasticsearch_xpack_security
+
 - name: Generating certificates for Elasticsearch security
   shell: "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in /usr/share/elasticsearch/instances.yml --out /usr/share/elasticsearch/certs.zip"
   when: 
     - node_generate_certs
     - instances_file_exists
     - elasticsearch_xpack_security
+    - not xpack_certs_zip
   tags: xpack-security
 
 # - name: Importing certificates generated previously
@@ -152,13 +161,6 @@
 #     - not node_generate_certs
 #     - elasticsearch_xpack_security
 #   tags: xpack-security
-
-- name: Importing certificate generated previously
-  shell: "/usr/bin/rsync -avg -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync' vagrant@172.16.0.161:/usr/share/elasticsearch/{{elasticsearch_node_name}}/ /home/es_certificates/"
-  when: 
-    - not node_generate_certs
-    - elasticsearch_xpack_security
-  tags: xpack-security
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
