@@ -12,5 +12,20 @@ elasticsearch_cluster_nodes:
   - 127.0.0.1
 elasticsearch_discovery_nodes:
   - 127.0.0.1
+
+# X-Pack Security 
 elasticsearch_xpack_security: false
-node_generate_certs: false
+node_certs_generator: false
+node_certs_generator_ip: 172.16.0.161
+node_certs_source: /usr/share/elasticsearch
+node_certs_destination: /etc/elasticsearch/certs
+
+# Rsync
+rsync_path: /usr/bin/rsync
+rsync_user: vagrant
+rsync_extra_parameters: -avg -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync'
+
+
+
+
+
