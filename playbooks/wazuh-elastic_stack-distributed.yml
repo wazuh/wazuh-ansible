@@ -13,19 +13,21 @@
 
   vars:
     instances:
-      - name: node1
-        ip: 172.16.0.161
+      - name: node-1       # Important: must be equal to node name.                    
+        ip: 172.16.0.161   # When unzipping, node will search for his node name folder to get the cert.
 
-      - name: node2
+      - name: node-2
         ip: 172.16.0.162
 
-      - name: node3
+      - name: node-3
         ip: 172.16.0.163
 
 - hosts: 172.16.0.162
   roles:
     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.162
+      elasticsearch_xpack_security: true
+      elasticsearch_node_name: node-2
       elasticsearch_discovery_nodes:
         - 172.16.0.161
         - 172.16.0.162
@@ -35,8 +37,9 @@
   roles:
     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch 
       elasticsearch_network_host: 172.16.0.163
+      elasticsearch_xpack_security: true
+      elasticsearch_node_name: node-3
       elasticsearch_discovery_nodes:
         - 172.16.0.161
         - 172.16.0.162
         - 172.16.0.163
-
