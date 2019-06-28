@@ -16,7 +16,7 @@ cluster.initial_master_nodes:
   - {{ item }}
 {% endfor %}
 {% else %}
-node.master: "{{ elasticsearch_master_candidate }}"
+node.master: "{{ elasticsearch_master_candidate|lower }}"
 discovery.seed_hosts:
 {% for item in elasticsearch_discovery_nodes %}
   - {{ item }}
