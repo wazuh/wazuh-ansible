@@ -9,17 +9,17 @@
       - 172.16.0.161
       node_generate_certs: true
       node_name: node-1
+      elasticsearch_xpack_security: true
 
   vars:
     instances:
-      node_1:
-        name: node-1
+      - name: node1
         ip: 172.16.0.161
-      node_2:
-        name: node-2
+
+      - name: node2
         ip: 172.16.0.162
-      node_3:
-        name: node-3
+
+      - name: node3
         ip: 172.16.0.163
 
 - hosts: 172.16.0.162
