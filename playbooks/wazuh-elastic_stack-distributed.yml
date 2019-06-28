@@ -7,7 +7,7 @@
       elasticsearch_bootstrap_node: true
       elasticsearch_cluster_nodes:
       - 172.16.0.161
-      node_generate_certs: true
+      node_certs_generator: true
       node_name: node-1
       elasticsearch_xpack_security: true
   vars:
