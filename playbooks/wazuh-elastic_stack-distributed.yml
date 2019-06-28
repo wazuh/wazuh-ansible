@@ -2,7 +2,7 @@
 
 - hosts: 172.16.0.161
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+    - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.161
       elasticsearch_bootstrap_node: true
       elasticsearch_cluster_nodes:
@@ -10,7 +10,6 @@
       node_generate_certs: true
       node_name: node-1
       elasticsearch_xpack_security: true
-
   vars:
     instances:
       - name: node-1       # Important: must be equal to node name.                    
@@ -24,7 +23,7 @@
 
 - hosts: 172.16.0.162
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+    - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.162
       elasticsearch_xpack_security: true
       elasticsearch_node_name: node-2
@@ -35,7 +34,7 @@
   
 - hosts: 172.16.0.163
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch 
+    - role: ../roles/elastic-stack/ansible-elasticsearch 
       elasticsearch_network_host: 172.16.0.163
       elasticsearch_xpack_security: true
       elasticsearch_node_name: node-3
