@@ -116,7 +116,7 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
-- name: Copy .key & .crt files in generator node
+- name: Copy key & certificate files in generator node (locally)
   synchronize:
     src: "{{node_certs_source}}/{{elasticsearch_node_name}}/"
     dest: "{{node_certs_destination}}/"
@@ -126,7 +126,7 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
-- name: Copy ca .crt file in generator node
+- name: Copy ca certificate file in generator node (locally)
   synchronize:
     src: "{{node_certs_source}}/ca/"
     dest: "{{node_certs_destination}}/"
@@ -136,14 +136,14 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
-- name: Importing node .key & .crt files
+- name: Importing key & certificate files from generator node
   shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/{{elasticsearch_node_name}}/ {{node_certs_destination}}/"
   when:
     - not node_certs_generator
     - elasticsearch_xpack_security
   tags: xpack-security
 
-- name: Importing node ca .crt file
+- name: Importing ca certificate file from generator node 
   shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/ca/ {{node_certs_destination}}/"
   when:
     - not node_certs_generator
