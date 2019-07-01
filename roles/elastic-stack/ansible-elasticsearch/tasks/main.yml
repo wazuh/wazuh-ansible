@@ -136,6 +136,13 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
+- name: Remove generated certs file
+  shell: /bin/rm -f {{node_certs_source}}/certs.zip*
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+  tags: xpack-security
+
 - name: Importing key & certificate files from generator node
   shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/{{elasticsearch_node_name}}/ {{node_certs_destination}}/"
   when:
@@ -153,7 +160,6 @@
 - name: Set elasticsearch bootstrap password
   shell: "echo '{{elasticsearch_xpack_security_password}}' | {{node_certs_source}}/bin/elasticsearch-keystore add -xf 'bootstrap.password'"
   when:
-    - node_certs_generator
     - elasticsearch_xpack_security
 
 - name: Reload systemd
