@@ -2,17 +2,18 @@
 
 - hosts: 172.16.0.161
   roles:
-    - role: ../roles/elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: 172.16.0.161
-      elasticsearch_bootstrap_node: true
-      elasticsearch_cluster_nodes:
-      - 172.16.0.161
-      node_certs_generator: true
-      node_name: node-1
-      elasticsearch_xpack_security: true
+    - ../roles/elastic-stack/ansible-elasticsearch
+  elasticsearch_network_host: 172.16.0.161
+  elasticsearch_bootstrap_node: true
+  elasticsearch_cluster_nodes:
+    - 172.16.0.161
+  node_certs_generator: true
+  node_name: node-1
+  elasticsearch_xpack_security: true
+
   vars:
     instances:
-      - name: node-1       # Important: must be equal to node name.                    
+      - name: node-1       # Important: must be equal to elasticsearch_node_name.                    
         ip: 172.16.0.161   # When unzipping, node will search for his node name folder to get the cert.
 
       - name: node-2
