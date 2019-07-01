@@ -15,6 +15,7 @@ elasticsearch_discovery_nodes:
 
 # X-Pack Security 
 elasticsearch_xpack_security: false
+elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
 
 node_certs_generator: false
