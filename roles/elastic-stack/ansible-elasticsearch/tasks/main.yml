@@ -143,6 +143,14 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
+- name: Importing node ca .crt file
+  shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/ca/ {{node_certs_destination}}/"
+  when:
+    - not node_certs_generator
+    - elasticsearch_xpack_security
+  tags: xpack-security
+
+
 - name: Reload systemd
   systemd: daemon_reload=true
   ignore_errors: true
