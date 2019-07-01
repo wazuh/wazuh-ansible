@@ -150,6 +150,11 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
+- name: Set elasticsearch bootstrap password
+  shell: "echo '{{elasticsearch_xpack_security_password}}' | {{node_certs_source}}/bin/elasticsearch-keystore add -xf 'bootstrap.password'"
+  when:
+    - node_certs_generator
+    - elasticsearch_xpack_security
 
 - name: Reload systemd
   systemd: daemon_reload=true
