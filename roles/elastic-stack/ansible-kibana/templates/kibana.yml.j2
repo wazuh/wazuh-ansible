@@ -19,7 +19,11 @@ server.host: {{ kibana_server_host }}
 #server.name: "your-hostname"
 
 # The URL of the Elasticsearch instance to use for all your queries.
+{% if kibana_xpack_security %}
+elasticsearch.hosts: "https://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
+{% else %}
 elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
+{% endif %}
 
 # When this setting's value is true Kibana uses the hostname specified in the server.host
 # setting. When the value of this setting is false, Kibana uses the hostname of the host
@@ -98,3 +102,13 @@ elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_h
 # Set the interval in milliseconds to sample system and process performance
 # metrics. Minimum is 100ms. Defaults to 5000.
 #ops.interval: 5000
+
+# Xpack Security
+{% if kibana_xpack_security %}
+elasticsearch.username: "{{ kibana_user }}"
+elasticsearch.password: "{{ kibana_password }}"
+server.ssl.enabled: true
+server.ssl.key: "{{node_certs_destination}}/{{ kibana_node_name }}.key"
+server.ssl.certificate: "{{node_certs_destination}}/{{ kibana_node_name }}.crt" 
+elasticsearch.ssl.certificateAuthorities: ["{{ node_certs_destination }}/ca.crt"]
+{% endif %}
