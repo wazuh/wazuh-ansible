@@ -10,8 +10,62 @@
   tags:
     - install
 
+- name: Check if certificate exists locally
+  stat:
+    path: "{{node_certs_destination}}/{{ filebeat_node_name }}.crt"
+  register: certificate_file_exists
+  when:
+    - filebeat_xpack_security
+
+- name: Copy key & certificate files in generator node (locally)
+  synchronize:
+    src: "{{node_certs_source}}/{{filebeat_node_name}}/"
+    dest: "{{node_certs_destination}}/"
+  delegate_to: "{{ node_certs_generator_ip }}"
+  when: 
+    - node_certs_generator
+    - filebeat_xpack_security
+    - not certificate_file_exists.stat.exists
+  tags: xpack-security
+
+- name: Copy ca certificate file in generator node (locally)
+  synchronize:
+    src: "{{node_certs_source}}/ca/"
+    dest: "{{node_certs_destination}}/"
+  delegate_to: "{{ node_certs_generator_ip }}"
+  when: 
+    - node_certs_generator
+    - filebeat_xpack_security
+    - not certificate_file_exists.stat.exists
+  register: check_certs_permissions
+  tags: xpack-security
+  
+- name: Importing key & certificate files from generator node
+  shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/{{filebeat_node_name}}/ {{node_certs_destination}}/"
+  when:
+    - not node_certs_generator
+    - filebeat_xpack_security
+    - not certificate_file_exists.stat.exists
+  tags: xpack-security
+
+- name: Importing ca certificate file from generator node 
+  shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/ca/ {{node_certs_destination}}/"
+  when:
+    - not node_certs_generator
+    - filebeat_xpack_security
+    - not certificate_file_exists.stat.exists
+  register: check_certs_permissions
+  tags: xpack-security
+
+- name: Ensuring certificates folder owner
+  shell: "chmod -R 770 {{node_certs_destination}}/"
+  when:
+    - check_certs_permissions is defined
+  tags: xpack-security
+
 - import_tasks: config.yml
   when: filebeat_create_config
+  notify: restart filebeat
 
 - name: Reload systemd
   systemd: daemon_reload=yes
