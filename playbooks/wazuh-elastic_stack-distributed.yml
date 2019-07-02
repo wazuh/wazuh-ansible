@@ -2,14 +2,20 @@
 
 - hosts: 172.16.0.161
   roles:
-    - ../roles/elastic-stack/ansible-elasticsearch
-  elasticsearch_network_host: 172.16.0.161
-  elasticsearch_bootstrap_node: true
-  elasticsearch_cluster_nodes:
-    - 172.16.0.161
-  node_certs_generator: true
-  node_name: node-1
-  elasticsearch_xpack_security: true
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: 172.16.0.161
+      node_name: node-1
+      elasticsearch_bootstrap_node: true
+      elasticsearch_cluster_nodes: 
+        - 172.16.0.161
+        - 172.16.0.162
+        - 172.16.0.163
+      elasticsearch_discovery_nodes:
+        - 172.16.0.161
+        - 172.16.0.162
+        - 172.16.0.163
+      elasticsearch_xpack_security: true
+      node_certs_generator: true
 
   vars:
     instances:
@@ -26,8 +32,9 @@
   roles:
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.162
-      elasticsearch_xpack_security: true
       elasticsearch_node_name: node-2
+      elasticsearch_xpack_security: true
+      elasticsearch_master_candidate: true
       elasticsearch_discovery_nodes:
         - 172.16.0.161
         - 172.16.0.162
@@ -37,9 +44,44 @@
   roles:
     - role: ../roles/elastic-stack/ansible-elasticsearch 
       elasticsearch_network_host: 172.16.0.163
-      elasticsearch_xpack_security: true
       elasticsearch_node_name: node-3
+      elasticsearch_xpack_security: true
+      elasticsearch_master_candidate: true
       elasticsearch_discovery_nodes:
         - 172.16.0.161
         - 172.16.0.162
         - 172.16.0.163
+
+
+# - hosts: 172.16.0.162
+#   roles:
+#     - role: ../roles/wazuh/ansible-wazuh-manager
+
+#     - role: ../roles/wazuh/ansible-filebeat
+#       filebeat_output_elasticsearch_hosts: 172.16.0.161:9200
+#       filebeat_xpack_security: true
+#       filebeat_node_name: node-2
+#       node_certs_generator: false
+
+#     - role: ../roles/elastic-stack/ansible-elasticsearch
+#       elasticsearch_network_host: 172.16.0.162
+#       node_name: node-2
+#       elasticsearch_bootstrap_node: false
+#       elasticsearch_master_candidate: true
+#       elasticsearch_discovery_nodes: 
+#         - 172.16.0.161
+#         - 172.16.0.162
+#       elasticsearch_xpack_security: true
+#       node_certs_generator: false
+
+
+# - hosts: 172.16.0.163
+#   roles:
+#     - role: ../roles/elastic-stack/ansible-kibana
+#       kibana_xpack_security: true
+#       kibana_user: elastic
+#       kibana_password: elastic_pass
+#       kibana_node_name: node-3
+#       elasticsearch_network_host: 172.16.0.161
+#       node_certs_generator: false
+
