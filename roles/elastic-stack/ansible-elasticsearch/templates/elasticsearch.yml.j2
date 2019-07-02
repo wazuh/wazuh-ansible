@@ -15,6 +15,10 @@ cluster.initial_master_nodes:
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
 {% endfor %}
+discovery.seed_hosts:
+{% for item in elasticsearch_discovery_nodes %}
+  - {{ item }}
+{% endfor %}
 {% else %}
 node.master: {{ elasticsearch_master_candidate|lower }}
 discovery.seed_hosts:
@@ -37,5 +41,5 @@ xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.verification_mode: certificate
 xpack.security.http.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key 
 xpack.security.http.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt 
-xpack.security.http.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/ca.crt" ]
+xpack.security.http.ssl.certificate_authorities: [ "{{ node_certs_destination }}/ca.crt" ]
 {% endif %}
