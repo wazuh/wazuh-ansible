@@ -70,7 +70,19 @@
 
 # fix in new PR (ignore_errors)
 
-- name: Check that the instances.yml file exists
+- name: Write the instances.yml file in the selected node (force = no)
+  template:
+    src: instances.yml.j2
+    dest: "{{node_certs_source}}/instances.yml"
+    force: no
+  tags:
+    - config
+    - xpack-security
+  when:
+    - node_certs_generator
+    - elasticsearch_xpack_security
+
+- name: Update instances.yml status after generation
   stat:
     path: "{{node_certs_source}}/instances.yml"
   register: instances_file_exists
@@ -78,18 +90,7 @@
     - node_certs_generator
     - elasticsearch_xpack_security
 
-- name: Write the instances.yml file in the selected node
-  template:
-    src: instances.yml.j2
-    dest: "{{node_certs_source}}/instances.yml"
-  tags:
-    - config
-    - xpack-security
-  when: 
-    - node_certs_generator
-    - elasticsearch_xpack_security
-
-- name: Check that the certificates ZIP file exists
+- name: Check if the certificates ZIP file exists
   stat:
     path: "{{node_certs_source}}/certs.zip"
   register: xpack_certs_zip
