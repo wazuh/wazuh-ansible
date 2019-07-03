@@ -63,12 +63,14 @@
   shell: "chown -R kibana: {{node_certs_destination}}/"
   when:
     - check_certs_permissions is defined
+    - kibana_xpack_security
   tags: xpack-security
 
 - name: Ensuring certificates folder owner
   shell: "chmod -R 770 {{node_certs_destination}}/"
   when:
     - check_certs_permissions is defined
+    - kibana_xpack_security
   tags: xpack-security
 
 - name: Kibana configuration

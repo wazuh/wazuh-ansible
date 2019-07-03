@@ -61,6 +61,7 @@
   shell: "chmod -R 770 {{node_certs_destination}}/"
   when:
     - check_certs_permissions is defined
+    - filebeat_xpack_security
   tags: xpack-security
 
 - import_tasks: config.yml

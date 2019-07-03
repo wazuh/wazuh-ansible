@@ -104,7 +104,6 @@
   shell: "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in {{node_certs_source}}/instances.yml --out {{node_certs_source}}/certs.zip"
   when: 
     - node_certs_generator
-    - instances_file_exists.stat.exists
     - elasticsearch_xpack_security
     - not xpack_certs_zip.stat.exists
     - not certificate_file_exists.stat.exists
@@ -165,12 +164,14 @@
   shell: "chown -R elasticsearch: {{node_certs_destination}}/"
   when:
     - check_certs_permissions is defined
+    - elasticsearch_xpack_security
   tags: xpack-security
 
 - name: Ensuring certificates folder owner
   shell: "chmod -R 770 {{node_certs_destination}}/"
   when:
     - check_certs_permissions is defined
+    - elasticsearch_xpack_security
   tags: xpack-security
   
 
