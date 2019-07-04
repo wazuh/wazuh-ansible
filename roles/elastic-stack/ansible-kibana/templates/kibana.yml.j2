@@ -105,8 +105,8 @@ elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_h
 
 # Xpack Security
 {% if kibana_xpack_security %}
-elasticsearch.username: "{{ kibana_user }}"
-elasticsearch.password: "{{ kibana_password }}"
+elasticsearch.username: "{{ elasticsearch_xpack_security_user }}"
+elasticsearch.password: "{{ elasticsearch_xpack_security_password }}"
 server.ssl.enabled: true
 server.ssl.key: "{{node_certs_destination}}/{{ kibana_node_name }}.key"
 server.ssl.certificate: "{{node_certs_destination}}/{{ kibana_node_name }}.crt" 

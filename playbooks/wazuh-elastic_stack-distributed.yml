@@ -16,11 +16,12 @@
         - <node-3 IP>
       elasticsearch_xpack_security: true
       node_certs_generator: true
+      elasticsearch_xpack_security_password: elastic_pass
 
   vars:
     instances:
       - name: node-1       # Important: must be equal to elasticsearch_node_name.                    
-        ip: <node-1 IP>   # When unzipping, node will search for his node name folder to get the cert.
+        ip: <node-1 IP>   # When unzipping, the node will search for its node name folder to get the cert.
 
       - name: node-2
         ip: <node-2 IP>
@@ -62,6 +63,7 @@
 #       filebeat_xpack_security: true
 #       filebeat_node_name: node-2
 #       node_certs_generator: false
+#       elasticsearch_xpack_security_password: elastic_pass
 
 #     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
 #       elasticsearch_network_host: 172.16.0.162
@@ -79,9 +81,7 @@
 #   roles:
 #     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-kibana
 #       kibana_xpack_security: true
-#       kibana_user: elastic
-#       kibana_password: elastic_pass
 #       kibana_node_name: node-3
 #       elasticsearch_network_host: 172.16.0.161
 #       node_certs_generator: false
-
+#       elasticsearch_xpack_security_password: elastic_pass

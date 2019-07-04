@@ -11,8 +11,8 @@ wazuh_version: 3.9.2
 # Xpack Security
 kibana_xpack_security: false
 
-kibana_user: kibana
-kibana_password: elastic_pass
+elasticsearch_xpack_security_user: elastic
+elasticsearch_xpack_security_password: elastic_pass
 
 node_certs_generator: false
 node_certs_generator_ip: 172.16.0.161

@@ -54,8 +54,8 @@ output.elasticsearch:
   indices:
     - index: 'wazuh-alerts-3.x-%{+yyyy.MM.dd}'
 {% if filebeat_xpack_security %}
-  username: {{ elasticsearch_user }}
-  password: {{ elasticsearch_password }}
+  username: {{ elasticsearch_xpack_security_user }}
+  password: {{ elasticsearch_xpack_security_password }}
   protocol: https
   ssl.certificate_authorities: 
     - {{node_certs_destination}}/ca.crt
