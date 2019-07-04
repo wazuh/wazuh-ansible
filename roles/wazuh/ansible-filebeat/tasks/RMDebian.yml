@@ -3,3 +3,4 @@
   apt_repository:
     repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
     state: absent
+  changed_when: false

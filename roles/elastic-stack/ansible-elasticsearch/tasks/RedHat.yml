@@ -7,6 +7,7 @@
     baseurl: https://artifacts.elastic.co/packages/7.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: true
+  changed_when: false
 
 - name: RedHat/CentOS/Fedora | Install Elasticsarch
   package: name=elasticsearch-{{ elastic_stack_version }} state=present
