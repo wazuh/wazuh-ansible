@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-molecule = "*"
 docker-py = "*"
-ansible = "*"
+ansible = "==2.7.11"
+molecule = "*"
 
 [dev-packages]
 
