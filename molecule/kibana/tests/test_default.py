@@ -6,13 +6,6 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
 
-def test_logstash_is_running(host):
-    """Test if the services are enabled and running."""
-    kibana = host.service("kibana")
-    assert kibana.is_enabled
-    assert kibana.is_running
-
-
 def test_port_kibana_is_open(host):
     """Test if the port 5601 is open and listening to connections."""
     host.socket("tcp://0.0.0.0:5601").is_listening
