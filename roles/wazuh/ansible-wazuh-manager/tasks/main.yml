@@ -5,18 +5,37 @@
 - import_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- name: Install wazuh-manager, wazuh-api and expect
-  package: pkg={{ item }} state={{ wazuh_manager_package_state }}
+- name: CentOS/RedHat | Install wazuh-manager, wazuh-api and expect
+  package: pkg={{ item }}-{{ wazuh_manager_api_version }}-1 state={{ wazuh_manager_package_state }}
   with_items:
     - wazuh-manager
     - wazuh-api
-    - expect
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
+    - ansible_distribution in ['CentOS','RedHat']
   tags:
     - init
+
+- name: Debian/Ubuntu | Install wazuh-manager, wazuh-api and expect
+  apt:
+    name: "{{ item }}={{ wazuh_manager_api_version }}-1"
+    state: present
+    cache_valid_time: 3600
+  with_items:
+    - wazuh-manager
+    - wazuh-api
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  when:
+  - not (ansible_distribution in ['CentOS','RedHat'])
+  tags: init
+
+- name: Install expect
+  package: pkg=expect state={{ wazuh_manager_package_state }}
+  when:
+    - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
+  tags: init
 
 - name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
   replace:
@@ -30,7 +49,7 @@
 - name: Install wazuh-manager and expect (EL5)
   package: pkg={{ item }} state={{ wazuh_manager_package_state }}
   with_items:
-    - wazuh-manager
+    - wazuh-manager-{{ wazuh_manager_api_version }}
     - expect
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
