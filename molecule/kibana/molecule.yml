@@ -5,6 +5,9 @@ driver:
   name: docker
 lint:
   name: yamllint
+  options:
+    config-data:
+      ignore: .virtualenv
 platforms:
   - name: bionic
     image: solita/ubuntu-systemd:bionic
