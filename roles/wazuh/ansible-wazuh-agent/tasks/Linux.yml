@@ -5,10 +5,22 @@
 - import_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- name: Linux | Install wazuh-agent
-  package: name=wazuh-agent state=present
+- name: Linux CentOS/RedHat | Install wazuh-agent
+  package: name=wazuh-agent-{{ wazuh_agent_version }}-1 state=present
   async: 90
   poll: 30
+  when:
+    - ansible_distribution in ['CentOS','RedHat']
+  tags:
+    - init
+
+- name: Linux Debian | Install wazuh-agent
+  apt:
+    name: "wazuh-agent={{ wazuh_agent_version }}-1"
+    state: present
+    cache_valid_time: 3600
+  when:
+    - not (ansible_distribution in ['CentOS','RedHat'])
   tags:
     - init
 

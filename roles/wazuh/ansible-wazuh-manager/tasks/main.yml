@@ -5,7 +5,7 @@
 - import_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- name: CentOS/RedHat | Install wazuh-manager, wazuh-api and expect
+- name: CentOS/RedHat | Install wazuh-manager, wazuh-api
   package: pkg={{ item }}-{{ wazuh_manager_api_version }}-1 state={{ wazuh_manager_package_state }}
   with_items:
     - wazuh-manager
@@ -17,7 +17,7 @@
   tags:
     - init
 
-- name: Debian/Ubuntu | Install wazuh-manager, wazuh-api and expect
+- name: Debian/Ubuntu | Install wazuh-manager, wazuh-api
   apt:
     name: "{{ item }}={{ wazuh_manager_api_version }}-1"
     state: present
