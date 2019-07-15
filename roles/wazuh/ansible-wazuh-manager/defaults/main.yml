@@ -40,7 +40,7 @@ wazuh_manager_config:
   connection:
     - type: 'secure'
       port: '1514'
-      protocol: 'udp'
+      protocol: 'tcp'
       queue_size: 131072
   authd:
     enable: true
