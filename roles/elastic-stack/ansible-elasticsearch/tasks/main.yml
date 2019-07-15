@@ -206,25 +206,8 @@
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
     - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
-#- name: Get Java version
-#  shell: java -version |& awk -F'"' '{print $2}'
-#  register: java_version
-#  ignore_errors: true
-
-# - debug: msg="{{ java_version.stdout_lines }}"
-
-#- name: "Install Java Repo for Trusty"
-#  yum_repository: repo='ppa:openjdk-r/ppa'
-#  when:
-#    - ansible_distribution in ['CentOS', 'RedHat'] and ansible_distribution_major_version|int < 7
-
 - name: Distribution is centos 6.* | Enable Elasticsearch
   service: name=elasticsearch enabled=yes
-
-
-#- name: Distribution is centos 6.* | Reload Elasticsearch
-#  service: name=elasticsearch state=reloaded
-#  state: "{{ elasticsearch_state | default('reloaded') }}"
 
 - name: Distribution is centos 6.* | Start Elasticsearch
   service: name=elasticsearch state=started
@@ -234,12 +217,6 @@
     name: elasticsearch
     enabled: true
     state: started
-    #  ignore_errors: true
-    #  when:
-    #    - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-    #    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    #    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    #    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
 - name: Make sure Elasticsearch is running before proceeding
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300

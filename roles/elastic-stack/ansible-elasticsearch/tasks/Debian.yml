@@ -14,6 +14,42 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
 
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+
+- name: Install Oracle Java 8
+  become: yes
+  apt: name=openjdk-8-jdk state=latest
+
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+
+- name: Set the default Java version
+  become: yes
+  shell: update-alternatives --config java
+
+- name: Set the default Javac version
+  become: yes
+  shell: update-alternatives --config javac
+
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
