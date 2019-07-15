@@ -41,7 +41,7 @@ platforms:
         #    memory_reservation: 1024m
         #    privileged: true
         #    ulimits:
-      - nofile:262144:262144
+        #      - nofile:262144:262144
 provisioner:
   name: ansible
   playbooks:
