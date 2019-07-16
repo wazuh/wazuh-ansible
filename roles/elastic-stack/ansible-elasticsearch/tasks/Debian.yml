@@ -32,13 +32,19 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
 
-- name: Set the default Java version
-  become: yes
-  shell: update-alternatives --config java
+#- name: Set the default Java version
+#  become: yes
+#  shell: update-alternatives --config java
+#  when:
+#    - ansible_distribution == "Ubuntu"
+#    - ansible_distribution_major_version | int == 14#
 
-- name: Set the default Javac version
-  become: yes
-  shell: update-alternatives --config javac
+#- name: Set the default Javac version
+#  become: yes
+#  shell: update-alternatives --config javac
+#  when:
+#    - ansible_distribution == "Ubuntu"
+#    - ansible_distribution_major_version | int == 14
 
 - name: Update and upgrade apt packages
   become: true
@@ -55,12 +61,14 @@
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
     state: present
 
+
 - name: Debian/Ubuntu | Install Elastic repo
   apt_repository:
     repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
     state: present
     filename: 'elastic_repo'
     update_cache: true
+  changed_when: false
 
 - name: Debian/Ubuntu | Install Elasticsarch
   apt:
