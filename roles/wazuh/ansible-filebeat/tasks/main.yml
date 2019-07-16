@@ -5,26 +5,40 @@
 - import_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Install Filebeat.
-  package: name=filebeat state=present
+- name: CentOS/RedHat |  Install Filebeat.
+  package: name=filebeat-{{ filebeat_version }} state=present
   register: filebeat_installing_package
   until: filebeat_installing_package is succeeded
+  when:
+    - ansible_distribution in ['CentOS','RedHat']
   tags:
     - install
 
+- name: Debian/Ubuntu | Install Filebeat.
+  apt:
+    name: filebeat={{ filebeat_version }}
+    state: present
+    cache_valid_time: 3600
+  register: filebeat_installing_package_debian
+  until: filebeat_installing_package_debian is succeeded
+  when:
+    - not (ansible_distribution in ['CentOS','RedHat'])
+  tags:
+    - init
+
 - name: Check if certificate exists locally
   stat:
-    path: "{{node_certs_destination}}/{{ filebeat_node_name }}.crt"
+    path: "{{ node_certs_destination }}/{{ filebeat_node_name }}.crt"
   register: certificate_file_exists
   when:
     - filebeat_xpack_security
 
 - name: Copy key & certificate files in generator node (locally)
   synchronize:
-    src: "{{node_certs_source}}/{{filebeat_node_name}}/"
-    dest: "{{node_certs_destination}}/"
+    src: "{{ node_certs_source }}/{{ filebeat_node_name }}/"
+    dest: "{{ node_certs_destination }}/"
   delegate_to: "{{ node_certs_generator_ip }}"
-  when: 
+  when:
     - node_certs_generator
     - filebeat_xpack_security
     - not certificate_file_exists.stat.exists
@@ -32,26 +46,30 @@
 
 - name: Copy ca certificate file in generator node (locally)
   synchronize:
-    src: "{{node_certs_source}}/ca/"
-    dest: "{{node_certs_destination}}/"
+    src: "{{ node_certs_source }}/ca/"
+    dest: "{{ node_certs_destination }}/"
   delegate_to: "{{ node_certs_generator_ip }}"
-  when: 
+  when:
     - node_certs_generator
     - filebeat_xpack_security
     - not certificate_file_exists.stat.exists
   register: check_certs_permissions
   tags: xpack-security
-  
+
 - name: Importing key & certificate files from generator node
-  shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/{{filebeat_node_name}}/ {{node_certs_destination}}/"
+  command: >-
+    {{ rsync_path }} {{ rsync_extra_parameters }} {{ rsync_user }}@{{ node_certs_generator_ip }}:
+    {{ node_certs_source }}/{{ filebeat_node_name }}/ {{ node_certs_destination }}/
   when:
     - not node_certs_generator
     - filebeat_xpack_security
     - not certificate_file_exists.stat.exists
   tags: xpack-security
 
-- name: Importing ca certificate file from generator node 
-  shell: "{{rsync_path}} {{rsync_extra_parameters}} {{rsync_user}}@{{node_certs_generator_ip}}:{{node_certs_source}}/ca/ {{node_certs_destination}}/"
+- name: Importing ca certificate file from generator node
+  command: >-
+    {{ rsync_path }} {{ rsync_extra_parameters }} {{ rsync_user }}@{{ node_certs_generator_ip }}:
+    {{ node_certs_source }}/ca/ {{ node_certs_destination }}/
   when:
     - not node_certs_generator
     - filebeat_xpack_security
@@ -60,7 +78,11 @@
   tags: xpack-security
 
 - name: Ensuring certificates folder owner
-  shell: "chmod -R 770 {{node_certs_destination}}/"
+  file:
+    path: "{{ node_certs_destination }}/"
+    mode: '0770'
+    recurse: yes
+
   when:
     - check_certs_permissions is defined
     - filebeat_xpack_security
