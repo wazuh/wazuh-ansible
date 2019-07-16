@@ -197,6 +197,28 @@
   when:
     - elasticsearch_xpack_security
   
+- name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: elasticsearch - memlock unlimited
+    create: yes
+  become: yes
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+  changed_when: false
+
+- name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.d/elasticsearch.conf
+  lineinfile:
+    path: /etc/security/limits.d/elasticsearch.conf
+    line: elasticsearch - memlock unlimited
+    create: yes
+  become: yes
+  changed_when: false
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+
 - name: Distribution != one of [ centos 6.*,  trusty ] | Reload systemd
   systemd: daemon_reload=true
   ignore_errors: true
@@ -211,6 +233,7 @@
 
 - name: Distribution is centos 6.* | Start Elasticsearch
   service: name=elasticsearch state=started
+  ignore_errors: true
 
 - name: Ensure Elasticsearch started and enabled
   service:
