@@ -7,3 +7,4 @@ wazuh-kibana.yml
 wazuh-manager.yml
 *.pyc
 Pipfile.lock
+*.swp
