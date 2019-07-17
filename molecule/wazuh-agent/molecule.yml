@@ -3,8 +3,13 @@ dependency:
   name: galaxy
 driver:
   name: docker
+  #lint:
+  #  name: yamllint
 lint:
   name: yamllint
+  options:
+    config-data:
+      ignore: .virtualenv
 platforms:
   - name: wazuh_server_centos7
     image: milcom/centos7-systemd
@@ -72,7 +77,6 @@ provisioner:
           ssl_agent_cert: null
           ssl_agent_key: null
           ssl_auto_negotiate: 'no'
-
   lint:
     name: ansible-lint
     enabled: true
