@@ -53,6 +53,15 @@ output.elasticsearch:
   #pipeline: geoip
   indices:
     - index: 'wazuh-alerts-3.x-%{+yyyy.MM.dd}'
+{% if filebeat_xpack_security %}
+  username: {{ elasticsearch_xpack_security_user }}
+  password: {{ elasticsearch_xpack_security_password }}
+  protocol: https
+  ssl.certificate_authorities: 
+    - {{node_certs_destination}}/ca.crt
+  ssl.certificate: "{{node_certs_destination}}/{{ filebeat_node_name }}.crt" 
+  ssl.key: "{{node_certs_destination}}/{{ filebeat_node_name }}.key"
+{% endif %}
 
 # Optional. Send events to Logstash instead of Elasticsearch
 #output.logstash.hosts: ["YOUR_LOGSTASH_SERVER_IP:5000"]

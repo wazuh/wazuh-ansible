@@ -7,6 +7,11 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('agent')
 
 
+def get_wazuh_version():
+    """This return the version of Wazuh."""
+    return "3.9.3"
+
+
 def test_ossec_package_installed(Package):
     ossec = Package('wazuh-agent')
     assert ossec.is_installed

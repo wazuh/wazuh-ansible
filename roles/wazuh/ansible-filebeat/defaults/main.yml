@@ -1,4 +1,6 @@
 ---
+filebeat_version: 7.2.0
+
 filebeat_create_config: true
 
 filebeat_prospectors:
@@ -9,6 +11,8 @@ filebeat_prospectors:
     json.message_key: log
     json.keys_under_root: true
     json.overwrite_keys: true
+
+filebeat_node_name: node-1
 
 filebeat_output_elasticsearch_enabled: false
 filebeat_output_elasticsearch_hosts:
@@ -23,3 +27,19 @@ filebeat_ssl_dir: /etc/pki/filebeat
 filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
+
+# Xpack Security
+filebeat_xpack_security: false
+
+elasticsearch_xpack_security_user: elastic
+elasticsearch_xpack_security_password: elastic_pass
+
+node_certs_generator : false
+node_certs_generator_ip: 172.16.0.161
+node_certs_source: /usr/share/elasticsearch
+node_certs_destination: /etc/filebeat/certs
+
+# Rsync
+rsync_path: /usr/bin/rsync
+rsync_user: vagrant
+rsync_extra_parameters: -avg -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync'

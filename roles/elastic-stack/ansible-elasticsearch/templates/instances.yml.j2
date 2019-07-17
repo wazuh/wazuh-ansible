@@ -1,0 +1,13 @@
+
+# {{ ansible_managed }}
+# TO-DO
+
+{% if node_certs_generator %}
+instances:
+{% for node in instances %}
+- name: "{{ node.name }}"
+  ip:
+   - "{{ node.ip }}"
+{% endfor %}
+
+{% endif %}
