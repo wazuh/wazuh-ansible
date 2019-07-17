@@ -52,7 +52,7 @@ provisioner:
     ANSIBLE_ROLES_PATH: ../../roles
   lint:
     name: ansible-lint
-    enabled: false
+    enabled: true
   inventory:
     group_vars:
       all:
