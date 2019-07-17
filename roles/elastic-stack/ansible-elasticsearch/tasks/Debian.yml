@@ -25,7 +25,7 @@
     - ansible_distribution_major_version | int == 14
 
 - name: Install Oracle Java 8
-  become: yes
+  become: true
   apt: name=openjdk-8-jdk state=latest
 
   when:
