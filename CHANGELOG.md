@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.9.3_7.2.0]
+
+### Added 
+- Update to Wazuh v3.9.3 ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+- Added Versioning Control for Wazuh stack's components installation, so now it's possible to specify which package to install for wazuh-manager, wazuh-agent, Filebeat, Elasticsearch and Kibana. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+- Fixes for Molecule testing issues. Issues such as Ansible-Lint and None-Idempotent tasks. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+- Fixes for Wazuh components installations' related issues. Such issues were related to determined OS distributions such as `Ubuntu Trusty` and `CetOS 6`. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+-  Created Ansible playbook and role in order to automate the uninstallation of already installed Wazuh components. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+
+
 ## [v3.9.2_7.1.1]
 
 ### Added 

@@ -10,7 +10,7 @@ def test_elasticsearch_is_installed(host):
     """Test if the elasticsearch package is installed."""
     elasticsearch = host.package("elasticsearch")
     assert elasticsearch.is_installed
-    assert elasticsearch.version.startswith('7.1.1')
+    assert elasticsearch.version.startswith('7.2.0')
 
 
 def test_elasticsearch_is_running(host):

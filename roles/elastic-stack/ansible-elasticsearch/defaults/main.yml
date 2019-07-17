@@ -4,7 +4,7 @@ elasticsearch_node_name: node-1
 elasticsearch_http_port: 9200
 elasticsearch_network_host: 127.0.0.1
 elasticsearch_jvm_xms: null
-elastic_stack_version: 7.1.1
+elastic_stack_version: 7.2.0
 single_node: false
 elasticsearch_bootstrap_node: false
 elasticsearch_master_candidate: false
