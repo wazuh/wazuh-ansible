@@ -3,7 +3,7 @@ elasticsearch_cluster_name: wazuh
 elasticsearch_node_name: node-1
 elasticsearch_http_port: 9200
 elasticsearch_network_host: 0.0.0.0
-elasticsearch_check_connection: 127.0.0.1
+elasticsearch_host: 127.0.0.1
 elasticsearch_jvm_xms: null
 elastic_stack_version: 7.2.0
 single_node: false

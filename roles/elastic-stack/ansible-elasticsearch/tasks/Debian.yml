@@ -26,7 +26,7 @@
 
 - name: Install Oracle Java 8
   become: true
-  apt: name=openjdk-8-jdk state=latest
+  apt: name=openjdk-8-jdk
 
   when:
     - ansible_distribution == "Ubuntu"
