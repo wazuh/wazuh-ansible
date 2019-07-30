@@ -20,14 +20,15 @@
 
   vars:
     instances:
-      - name: node-1       # Important: must be equal to elasticsearch_node_name.                    
-        ip: <node-1 IP>   # When unzipping, the node will search for its node name folder to get the cert.
-
-      - name: node-2
-        ip: <node-2 IP>
-
-      - name: node-3
-        ip: <node-3 IP>
+      node1:
+        name: node-1       # Important: must be equal to elasticsearch_node_name.                    
+        ip: 172.16.0.161   # When unzipping, the node will search for its node name folder to get the cert.
+      node2:
+        name: node-2
+        ip: 172.16.0.162
+      node3:
+        name: node-3
+        ip: 172.16.0.163
 
 - hosts: <node-2 IP>
   roles:
