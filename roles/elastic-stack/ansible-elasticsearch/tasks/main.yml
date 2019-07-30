@@ -10,6 +10,16 @@
   when:
     - ansible_service_mgr == "systemd"
 
+- name: Install unzip dependency.
+  package:
+    name: unzip
+    state: present
+  delegate_to: "127.0.0.1"
+  when:
+    - node_certs_generator
+    - elasticsearch_xpack_security
+    
+
 - name: Configure Elasticsearch System Resources.
   template:
     src: elasticsearch_systemd.conf.j2
