@@ -175,19 +175,6 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
-# - name: Unzip generated certs.zip
-#   unarchive:
-#     src: "/tmp/elastic_certificates/certs.zip"
-#     dest: "/tmp/elastic_certificates"
-#   become: true
-#   when: 
-#     - node_certs_generator
-#     - elasticsearch_xpack_security
-#     - certs_file_generated is defined
-#     - not certificate_file_exists.stat.exists
-#   tags: xpack-security
-  
-
 - name: Ensuring certificates folder owner
   shell: "chown -R elasticsearch: {{node_certs_destination}}/"
   when:
@@ -202,9 +189,6 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
-
-# Importing certificates
-
 - name: Copying node's certificate from master
   copy:
     src: "{{item}}"
@@ -214,14 +198,6 @@
     - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.crt"
     - "{{master_certs_destination}}/ca/ca.crt"
   tags: xpack-security
-
-  
-# - name: Remove generated certs file
-#   shell: /bin/rm -f {{node_certs_source}}/certs.zip*
-#   when: 
-#     - node_certs_generator
-#     - elasticsearch_xpack_security
-#   tags: xpack-security
 
 - name: Configure Elasticsearch.
   template:
@@ -238,49 +214,52 @@
   when:
     - elasticsearch_xpack_security
   
-- name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
-  lineinfile:
-    path: /etc/security/limits.conf
-    line: elasticsearch - memlock unlimited
-    create: yes
-  become: true
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
-  changed_when: false
+# - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
+#   lineinfile:
+#     path: /etc/security/limits.conf
+#     line: elasticsearch - memlock unlimited
+#     create: yes
+#   become: true
+#   when:
+#     - ansible_distribution == "Ubuntu"
+#     - ansible_distribution_major_version | int == 14
+#   changed_when: false
 
-- name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.d/elasticsearch.conf
-  lineinfile:
-    path: /etc/security/limits.d/elasticsearch.conf
-    line: elasticsearch - memlock unlimited
-    create: yes
-  become: true
-  changed_when: false
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
+# - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.d/elasticsearch.conf
+#   lineinfile:
+#     path: /etc/security/limits.d/elasticsearch.conf
+#     line: elasticsearch - memlock unlimited
+#     create: yes
+#   become: true
+#   changed_when: false
+#   when:
+#     - ansible_distribution == "Ubuntu"
+#     - ansible_distribution_major_version | int == 14
 
-- name: Distribution != one of [ centos 6.*,  trusty ] | Reload systemd
-  systemd: daemon_reload=true
-  ignore_errors: true
-  when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
+# - name: Distribution != one of [ centos 6.*,  trusty ] | Reload systemd
+#   systemd: daemon_reload=true
+#   ignore_errors: true
+#   when:
+#     - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
+#     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
+#     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
+#     - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
-- name: Distribution is centos 6.* | Enable Elasticsearch
-  service: name=elasticsearch enabled=yes
+# - name: Distribution is centos 6.* | Enable Elasticsearch
+#   service: name=elasticsearch enabled=yes
 
-- name: Distribution is centos 6.* | Start Elasticsearch
-  service: name=elasticsearch state=started
-  ignore_errors: true
+# - name: Distribution is centos 6.* | Start Elasticsearch
+#   service: name=elasticsearch state=started
+#   ignore_errors: true
 
 - name: Ensure Elasticsearch started and enabled
   service:
     name: elasticsearch
     enabled: true
     state: started
+  tags:
+    - configure
+    - init
 
 - name: Make sure Elasticsearch is running before proceeding
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
