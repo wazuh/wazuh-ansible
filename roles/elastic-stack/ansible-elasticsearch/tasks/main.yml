@@ -118,7 +118,6 @@
     - node_certs_generator
     - elasticsearch_xpack_security
     - not xpack_certs_zip.stat.exists
-    - not certificate_file_exists.stat.exists
   register: certs_file_generated
   tags: xpack-security
 
@@ -170,7 +169,6 @@
     owner: elasticsearch
     group: elasticsearch
   when:
-    - check_certs_permissions is defined
     - elasticsearch_xpack_security
   tags: xpack-security
 
@@ -180,7 +178,6 @@
     mode: '0770'
     recurse: yes
   when:
-    - check_certs_permissions is defined
     - elasticsearch_xpack_security
   tags: xpack-security
 
@@ -192,6 +189,8 @@
     - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.key" 
     - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.crt"
     - "{{master_certs_destination}}/ca/ca.crt"
+  when:
+    - elasticsearch_xpack_security
   tags: xpack-security
 
 - name: Configure Elasticsearch.
@@ -210,7 +209,7 @@
   when:
     - node_certs_generator
     - elasticsearch_xpack_security
-
+    
 - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
   lineinfile:
     path: /etc/security/limits.conf
@@ -232,6 +231,7 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
+
 - name: Ensure Elasticsearch started and enabled
   service:
     name: elasticsearch
