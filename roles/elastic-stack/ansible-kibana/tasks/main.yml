@@ -23,6 +23,8 @@
     - "{{master_certs_destination}}/{{kibana_node_name}}/{{ kibana_node_name }}.crt"
     - "{{master_certs_destination}}/ca/ca.crt"
   tags: xpack-security
+  when:
+    - elasticsearch_xpack_security
 
 - name: Ensuring certificates folder owner
   file:
