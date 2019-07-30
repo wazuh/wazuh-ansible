@@ -41,9 +41,7 @@
     path: "{{ node_certs_destination }}/"
     mode: '0770'
     recurse: yes
-
   when:
-    - check_certs_permissions is defined
     - filebeat_xpack_security
   tags: xpack-security
 

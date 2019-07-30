@@ -32,7 +32,6 @@
     owner: kibana
     group: kibana
   when:
-    - check_certs_permissions is defined
     - kibana_xpack_security
   tags: xpack-security
 
@@ -42,7 +41,6 @@
     mode: '0770'
     recurse: yes
   when:
-    - check_certs_permissions is defined
     - kibana_xpack_security
   tags: xpack-security
 
