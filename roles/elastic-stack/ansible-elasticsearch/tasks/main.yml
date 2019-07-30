@@ -143,6 +143,14 @@
     - elasticsearch_xpack_security
   tags: xpack-security
 
+- name: Delete certs.zip in Generator node
+  file:
+    state: absent
+    path: "{{ node_certs_source }}/certs.zip"
+  when: 
+    - node_certs_generator
+    - elasticsearch_xpack_security
+
 - name: Unzip generated certs.zip
   unarchive:
     src: "{{master_certs_destination}}/certs.zip"
