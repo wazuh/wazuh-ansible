@@ -19,6 +19,9 @@ node_certs_generator_ip: 172.16.0.161
 node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/kibana/certs
 
+master_certs_destination: /es_certs
+
+
 # Rsync
 rsync_path: /usr/bin/rsync
 rsync_user: vagrant
