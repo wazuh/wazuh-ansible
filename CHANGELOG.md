@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.9.4_7.2.0]
+
+### Added 
+
+- Support for registring agents behind NAT [@jheikki100](https://github.com/jheikki100) [#208](https://github.com/wazuh/wazuh-ansible/pull/208)
+
+### Changed
+
+- Default protocol to TCP [@ionphractal](https://github.com/ionphractal) [#204](https://github.com/wazuh/wazuh-ansible/pull/204).
+
 ## [v3.9.3_7.2.0]
 
 ### Added 

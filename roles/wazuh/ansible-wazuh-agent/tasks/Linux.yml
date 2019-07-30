@@ -54,6 +54,7 @@
         -A {{ agent_name }}
         -m {{ wazuh_managers.0.address }}
         -p {{ wazuh_agent_authd.port }}
+        {% if wazuh_agent_nat %}-I "any" {% endif %}
         {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
         {% if wazuh_agent_authd.ssl_agent_ca is not none %}
         -v "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
@@ -128,7 +129,7 @@
       environment:
         OSSEC_ACTION: i
         OSSEC_AGENT_NAME: '{{ newagentdata_api.json.data.name }}'
-        OSSEC_AGENT_IP: '{{ newagentdata_api.json.data.ip }}'
+        OSSEC_AGENT_IP: '{% if wazuh_agent_nat %}any{% else %}{{ newagentdata_api.json.data.ip }}{% endif %}'
         OSSEC_AGENT_ID: '{{ newagent_api.json.data.id }}'
         OSSEC_AGENT_KEY: '{{ newagent_api.json.data.key }}'
         OSSEC_ACTION_CONFIRMED: y

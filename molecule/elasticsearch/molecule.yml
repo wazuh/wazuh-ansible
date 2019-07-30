@@ -23,12 +23,12 @@ platforms:
     command: /sbin/init
     ulimits:
       - nofile:262144:262144
-#  - name: trusty
-#    image: ubuntu:trusty
-#    privileged: true
-#    memory_reservation: 2048m
-#    ulimits:
-#      - nofile:262144:262144
+        #- name: trusty
+        #image: ubuntu:trusty
+        #privileged: true
+        #memory_reservation: 2048m
+        #ulimits:
+        #- nofile:262144:262144
   - name: centos6
     image: centos:6
     privileged: true
