@@ -10,16 +10,6 @@
   when:
     - ansible_service_mgr == "systemd"
 
-- name: Install unzip dependency.
-  package:
-    name: unzip
-    state: present
-  delegate_to: "127.0.0.1"
-  when:
-    - node_certs_generator
-    - elasticsearch_xpack_security
-    
-
 - name: Configure Elasticsearch System Resources.
   template:
     src: elasticsearch_systemd.conf.j2
@@ -73,125 +63,9 @@
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- name: Check if certificate exists locally
-  stat:
-    path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"
-  register: certificate_file_exists
+- import_tasks: "xpack_security.yml"
   when:
     - elasticsearch_xpack_security
-
-- name: Write the instances.yml file in the selected node (force = no)
-  template:
-    src: instances.yml.j2
-    dest: "{{ node_certs_source }}/instances.yml"
-    force: no
-  register: instances_file_exists
-  tags:
-    - config
-    - xpack-security
-  when:
-    - node_certs_generator
-    - elasticsearch_xpack_security
-    - not certificate_file_exists.stat.exists
-
-- name: Update instances.yml status after generation
-  stat:
-    path: "{{ node_certs_source }}/instances.yml"
-  register: instances_file_exists
-  when:
-    - node_certs_generator
-    - elasticsearch_xpack_security
-
-- name: Check if the certificates ZIP file exists
-  stat:
-    path: "{{ node_certs_source }}/certs.zip"
-  register: xpack_certs_zip
-  when:
-    - node_certs_generator
-    - elasticsearch_xpack_security
-
-- name: Generating certificates for Elasticsearch security
-  shell: >-
-    /usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in 
-    {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip
-  when:
-    - node_certs_generator
-    - elasticsearch_xpack_security
-    - not xpack_certs_zip.stat.exists
-  register: certs_file_generated
-  tags: xpack-security
-
-- name: Create the certificates directory
-  file:
-    path: "{{master_certs_destination}}"
-    state: directory
-    mode: '0700'
-  delegate_to: "127.0.0.1"
-  when: 
-    - node_certs_generator
-    - elasticsearch_xpack_security
-
-- name: Copying certificates to Ansible master
-  fetch:
-    src: "{{node_certs_source}}/certs.zip"
-    dest: "{{master_certs_destination}}/"
-    flat: yes
-    mode: 0700
-  when: 
-    - node_certs_generator
-    - elasticsearch_xpack_security
-  tags: xpack-security
-
-- name: Delete certs.zip in Generator node
-  file:
-    state: absent
-    path: "{{ node_certs_source }}/certs.zip"
-  when: 
-    - node_certs_generator
-    - elasticsearch_xpack_security
-
-- name: Unzip generated certs.zip
-  unarchive:
-    src: "{{master_certs_destination}}/certs.zip"
-    dest: "{{master_certs_destination}}/"
-  become: true
-  delegate_to: "127.0.0.1"
-  when: 
-    - node_certs_generator
-    - elasticsearch_xpack_security
-  tags: xpack-security
-
-- name: Ensuring certificates folder owner
-  file:
-    path: "{{ node_certs_destination }}/"
-    state: directory
-    recurse: yes
-    owner: elasticsearch
-    group: elasticsearch
-  when:
-    - elasticsearch_xpack_security
-  tags: xpack-security
-
-- name: Ensuring certificates folder owner
-  file:
-    path: "{{ node_certs_destination }}/"
-    mode: '0770'
-    recurse: yes
-  when:
-    - elasticsearch_xpack_security
-  tags: xpack-security
-
-- name: Copying node's certificate from master
-  copy:
-    src: "{{item}}"
-    dest: "{{node_certs_destination}}/"
-  with_items: 
-    - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.key" 
-    - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.crt"
-    - "{{master_certs_destination}}/ca/ca.crt"
-  when:
-    - elasticsearch_xpack_security
-  tags: xpack-security
 
 - name: Configure Elasticsearch.
   template:
@@ -202,14 +76,7 @@
     mode: 0660
   notify: restart elasticsearch
   tags: configure
-
-- name: Set elasticsearch bootstrap password
-  shell: >-
-     echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
-  when:
-    - node_certs_generator
-    - elasticsearch_xpack_security
-    
+  
 - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
   lineinfile:
     path: /etc/security/limits.conf
