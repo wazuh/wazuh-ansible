@@ -66,7 +66,7 @@
   tags: xpack-security
 
 - name: Generating certificates for Elasticsearch security (using provided CA)
-  shell: /usr/share/elasticsearch/bin/elasticsearch-certutil cert --ca-key /usr/share/elasticsearch/myCA.key --ca-cert /usr/share/elasticsearch/myCA.pem --pem --in {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip
+  shell: /usr/share/elasticsearch/bin/elasticsearch-certutil cert --ca-key {{ node_certs_source }}/{{ ca_key_name }} --ca-cert {{ node_certs_source }}/{{ ca_cert_name }} --pem --in {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip
   when:
     - node_certs_generator
     - not xpack_certs_zip.stat.exists
