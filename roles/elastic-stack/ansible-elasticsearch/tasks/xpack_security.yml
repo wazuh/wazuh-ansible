@@ -73,6 +73,14 @@
     - not generate_CA
   tags: xpack-security 
 
+- name: Verify the Elastic certificates directory
+  file:
+    path: "{{ master_certs_destination }}"
+    state: directory
+    mode: '0700'
+  delegate_to: "127.0.0.1"
+  when: 
+    - node_certs_generator
 - name: Create the certificates directory
   file:
     path: "{{master_certs_destination}}"
