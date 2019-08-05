@@ -25,6 +25,12 @@ node_certs_destination: /etc/elasticsearch/certs
 
 master_certs_destination: /es_certs
 
+# CA generation
+generate_CA: false
+
+ca_key_name: myCA.key
+ca_cert_name: myCA.pem
+
 # Rsync
 rsync_path: /usr/bin/rsync
 rsync_user: vagrant
