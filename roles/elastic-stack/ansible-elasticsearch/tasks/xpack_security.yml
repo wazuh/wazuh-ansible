@@ -81,9 +81,10 @@
   delegate_to: "127.0.0.1"
   when: 
     - node_certs_generator
-- name: Create the certificates directory
+
+- name: Verify the Certificates Authority directory
   file:
-    path: "{{master_certs_destination}}"
+    path: "{{ master_certs_destination }}/ca/"
     state: directory
     mode: '0700'
   delegate_to: "127.0.0.1"
@@ -92,8 +93,8 @@
 
 - name: Copying certificates to Ansible master
   fetch:
-    src: "{{node_certs_source}}/certs.zip"
-    dest: "{{master_certs_destination}}/"
+    src: "{{ node_certs_source }}/certs.zip"
+    dest: "{{ master_certs_destination }}/"
     flat: yes
     mode: 0700
   when: 
