@@ -108,7 +108,6 @@
   when: 
     - node_certs_generator
     
-
 - name: Unzip generated certs.zip
   unarchive:
     src: "{{master_certs_destination}}/certs.zip"
@@ -139,10 +138,24 @@
   copy:
     src: "{{item}}"
     dest: "{{node_certs_destination}}/"
-  with_items: 
+  with_items:
     - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.key" 
     - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.crt"
     - "{{master_certs_destination}}/ca/ca.crt"
+  when:
+    - generate_CA
+  tags: xpack-security
+
+- name: Copying node's certificate from master (Custom CA)
+  copy:
+    src: "{{item}}"
+    dest: "{{node_certs_destination}}/"
+  with_items: 
+    - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.key" 
+    - "{{master_certs_destination}}/{{elasticsearch_node_name}}/{{ elasticsearch_node_name }}.crt"
+    - "{{master_certs_destination}}/ca/{{ca_cert_name}}"
+  when:
+    - not generate_CA
   tags: xpack-security
 
 - name: Set elasticsearch bootstrap password
