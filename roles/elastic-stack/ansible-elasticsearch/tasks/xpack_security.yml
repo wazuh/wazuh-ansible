@@ -128,7 +128,7 @@
     group: elasticsearch
   tags: xpack-security
 
-- name: Ensuring certificates folder owner
+- name: Ensuring certificates folder permissions
   file:
     path: "{{ node_certs_destination }}/"
     mode: '0770'
