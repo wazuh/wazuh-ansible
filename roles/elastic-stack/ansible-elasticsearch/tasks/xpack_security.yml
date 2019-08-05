@@ -62,6 +62,7 @@
   when:
     - node_certs_generator
     - not xpack_certs_zip.stat.exists
+    - generate_CA
   tags: xpack-security
 
 - name: Generating certificates for Elasticsearch security (using provided CA)
@@ -69,6 +70,7 @@
   when:
     - node_certs_generator
     - not xpack_certs_zip.stat.exists
+    - not generate_CA
   tags: xpack-security 
 
 - name: Create the certificates directory
