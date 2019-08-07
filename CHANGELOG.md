@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file.
 
 - Default protocol to TCP [@ionphractal](https://github.com/ionphractal) [#204](https://github.com/wazuh/wazuh-ansible/pull/204).
 
+### Fixed
+
+- Fixed network.host is not localhost [@rshad](https://github.com/rshad) [#204](https://github.com/wazuh/wazuh-ansible/pull/212).
+
 ## [v3.9.3_7.2.0]
 
 ### Added 

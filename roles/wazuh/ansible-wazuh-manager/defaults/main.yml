@@ -1,5 +1,5 @@
 ---
-wazuh_manager_api_version: 3.9.3
+wazuh_manager_api_version: 3.9.4
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: latest
