@@ -109,6 +109,10 @@ elasticsearch.username: "{{ elasticsearch_xpack_security_user }}"
 elasticsearch.password: "{{ elasticsearch_xpack_security_password }}"
 server.ssl.enabled: true
 server.ssl.key: "{{node_certs_destination}}/{{ kibana_node_name }}.key"
-server.ssl.certificate: "{{node_certs_destination}}/{{ kibana_node_name }}.crt" 
+server.ssl.certificate: "{{node_certs_destination}}/{{ kibana_node_name }}.crt"
+{% if generate_CA == true %}
 elasticsearch.ssl.certificateAuthorities: ["{{ node_certs_destination }}/ca.crt"]
+{% elif generate_CA == false %}
+elasticsearch.ssl.certificateAuthorities: ["{{ node_certs_destination }}/{{ca_cert_name}}"]
+{% endif %}
 {% endif %}
