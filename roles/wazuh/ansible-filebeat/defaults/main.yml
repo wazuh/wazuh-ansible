@@ -35,13 +35,11 @@ elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
 
 node_certs_generator : false
-node_certs_generator_ip: 172.16.0.161
 node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/filebeat/certs
 
-master_certs_destination: /es_certs
 
-# Rsync
-rsync_path: /usr/bin/rsync
-rsync_user: vagrant
-rsync_extra_parameters: -avg -e 'ssh -o StrictHostKeyChecking=no' --rsync-path='sudo rsync'
+# CA Generation
+master_certs_path: /es_certs
+generate_CA: true
+ca_cert_name: ""
