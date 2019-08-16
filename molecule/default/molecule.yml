@@ -8,18 +8,37 @@ lint:
   enabled: false
 platforms:
   - name: bionic
-    image: ubuntu:bionic
+    image: solita/ubuntu-systemd:bionic
+    command: /sbin/init
+    ulimits:
+      - nofile:262144:262144
+    privileged: true
+    memory_reservation: 2048m
   - name: xenial
     image: solita/ubuntu-systemd:xenial
     privileged: true
+    memory_reservation: 2048m
     command: /sbin/init
-  - name: trusty
-    image: ubuntu:trusty
+    ulimits:
+      - nofile:262144:262144
+#  - name: trusty
+#    image: ubuntu:trusty
+#    privileged: true
+#    memory_reservation: 2048m
+#    ulimits:
+#      - nofile:262144:262144
   - name: centos6
     image: centos:6
+    privileged: true
+    memory_reservation: 2048m
+    ulimits:
+      - nofile:262144:262144
   - name: centos7
     image: milcom/centos7-systemd
+    memory_reservation: 2048m
     privileged: true
+    ulimits:
+      - nofile:262144:262144
 provisioner:
   name: ansible
   env:
