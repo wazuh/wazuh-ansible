@@ -125,6 +125,7 @@
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
   notify: restart kibana
+  become: yes
   become_user: kibana
   tags:
     - install
