@@ -12,9 +12,9 @@ platforms:
  # - name: trusty
  #   image: ubuntu:trusty
  # - name: bionic
- #   image: solita/ubuntu-systemd:bionic
- #   command: /sbin/init
- #   privileged: true
+    image: solita/ubuntu-systemd:bionic
+    command: /sbin/init
+    privileged: true
  # - name: xenial
  #   image: solita/ubuntu-systemd:xenial
  #   privileged: true
@@ -25,9 +25,9 @@ platforms:
  #  command: /sbin/init
  #  volumes:
  #    - /sys/fs/cgroup:/sys/fs/cgroup:ro
- - name: centos7
-   image: milcom/centos7-systemd
-   privileged: true
+ #- name: centos7
+ #  image: milcom/centos7-systemd
+ #  privileged: true
 provisioner:
   name: ansible
   playbooks:

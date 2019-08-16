@@ -55,7 +55,6 @@ provisioner:
     group_vars:
       all:
         elasticsearch_jvm_xms: 256
-        kibana_plugin_install_ignore_error: true
 verifier:
   name: testinfra
   lint:
