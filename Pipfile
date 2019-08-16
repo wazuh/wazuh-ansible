@@ -14,6 +14,7 @@ molecule = "*"
 python_version = "2.7"
 
 [scripts]
+clean = "molecule destroy"
 test ="molecule test"
 agent ="molecule test -s wazuh-agent"
 elasticsearch ="molecule test -s elasticsearch"

@@ -9,8 +9,8 @@ lint:
     config-data:
       ignore: .virtualenv
 platforms:
-  - name: trusty
-    image: ubuntu:trusty
+ # - name: trusty
+ #   image: ubuntu:trusty
  # - name: bionic
  #   image: solita/ubuntu-systemd:bionic
  #   command: /sbin/init
@@ -25,9 +25,9 @@ platforms:
  #  command: /sbin/init
  #  volumes:
  #    - /sys/fs/cgroup:/sys/fs/cgroup:ro
- #- name: centos7
- #  image: milcom/centos7-systemd
- #  privileged: true
+ - name: centos7
+   image: milcom/centos7-systemd
+   privileged: true
 provisioner:
   name: ansible
   playbooks:
