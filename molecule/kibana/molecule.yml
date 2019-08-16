@@ -9,31 +9,31 @@ lint:
     config-data:
       ignore: .virtualenv
 platforms:
-  - name: bionic
-    image: solita/ubuntu-systemd:bionic
-    command: /sbin/init
-    ulimits:
-      - nofile:262144:262144
-    privileged: true
-    memory_reservation: 1024m
-  - name: xenial
-    image: solita/ubuntu-systemd:xenial
-    privileged: true
-    memory_reservation: 1024m
-    command: /sbin/init
-    ulimits:
-      - nofile:262144:262144
+#  - name: bionic
+#    image: solita/ubuntu-systemd:bionic
+#    command: /sbin/init
+#    ulimits:
+#      - nofile:262144:262144
+#    privileged: true
+#    memory_reservation: 1024m
+#  - name: xenial
+#    image: solita/ubuntu-systemd:xenial
+#    privileged: true
+#    memory_reservation: 1024m
+#    command: /sbin/init
+#    ulimits:
+#      - nofile:262144:262144
 #  - name: trusty
 #    image: ubuntu:trusty
 #    memory_reservation: 1024m
 #    ulimits:
 #      - nofile:262144:262144
-  - name: centos6
-    image: centos:6
-    privileged: true
-    memory_reservation: 1024m
-    ulimits:
-      - nofile:262144:262144
+#  - name: centos6
+#    image: centos:6
+#    privileged: true
+#    memory_reservation: 1024m
+#    ulimits:
+#      - nofile:262144:262144
   - name: centos7
     image: milcom/centos7-systemd
     memory_reservation: 1024m

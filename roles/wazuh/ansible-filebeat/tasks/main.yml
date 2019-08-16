@@ -90,13 +90,14 @@
 
 - name: Download Filebeat module package
   get_url:
-    url: https://packages-dev.wazuh.com/3.x/filebeat/{{ filebeat_module_package_name }}
+    url: https://packages.wazuh.com/3.x/filebeat/{{ filebeat_module_package_name }}
     dest: "{{ filebeat_module_package_path }}"
 
 - name: Unpakcaging Filebeat module package
-    unarchive:
+  unarchive:
     src: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
     dest: "{{ filebeat_module_destination }}"
+    remote_src: yes
 
 - name: Setting 0755 permission for Filebeat module folder
   file: dest={{ filebeat_module_folder }} mode=u=rwX,g=rwX,o=rwX recurse=yes
