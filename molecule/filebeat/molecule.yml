@@ -11,7 +11,7 @@ lint:
 platforms:
  # - name: trusty
  #   image: ubuntu:trusty
- # - name: bionic
+  - name: bionic
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
     privileged: true
