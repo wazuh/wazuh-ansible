@@ -15,7 +15,6 @@ python_version = "2.7"
 
 [scripts]
 test ="molecule test --destroy=never"
-verify_test ="molecule verify"
 agent ="molecule test -s wazuh-agent"
 elasticsearch ="molecule test -s elasticsearch"
 filebeat ="molecule test -s filebeat"
