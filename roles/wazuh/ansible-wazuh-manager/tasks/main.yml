@@ -70,7 +70,7 @@
 - name: Copy CA, SSL key and cert for authd
   copy:
     src: "{{ item }}"
-    dest: "/var/ossec/etc/{{ item | basename }}"
+    dest: "/var/ossec/etc/{{ item }}"
     mode: 0644
   with_items:
     - "{{ wazuh_manager_config.authd.ssl_agent_ca }}"

@@ -54,8 +54,8 @@ wazuh_manager_config:
     use_password: 'no'
     ssl_agent_ca: null
     ssl_verify_host: 'no'
-    ssl_manager_cert: '/var/ossec/etc/sslmanager.cert'
-    ssl_manager_key: '/var/ossec/etc/sslmanager.key'
+    ssl_manager_cert: 'sslmanager.cert'
+    ssl_manager_key: 'sslmanager.key'
     ssl_auto_negotiate: 'no'
   email_notification: 'no'
   mail_to:
