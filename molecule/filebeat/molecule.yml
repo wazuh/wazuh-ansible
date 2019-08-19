@@ -15,19 +15,19 @@ platforms:
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
     privileged: true
- # - name: xenial
- #   image: solita/ubuntu-systemd:xenial
- #   privileged: true
- #   command: /sbin/init
+  - name: xenial
+    image: solita/ubuntu-systemd:xenial
+    privileged: true
+    command: /sbin/init
  #- name: centos6
  #  image: geerlingguy/docker-centos6-ansible
  #  privileged: true
  #  command: /sbin/init
  #  volumes:
  #    - /sys/fs/cgroup:/sys/fs/cgroup:ro
- #- name: centos7
- #  image: milcom/centos7-systemd
- #  privileged: true
+ - name: centos7
+   image: milcom/centos7-systemd
+   privileged: true
 provisioner:
   name: ansible
   playbooks:

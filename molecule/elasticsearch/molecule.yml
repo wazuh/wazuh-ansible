@@ -29,12 +29,12 @@ platforms:
   #memory_reservation: 2048m
   #ulimits:
       #- nofile:262144:262144
-  - name: centos6
-    image: centos:6
-    privileged: true
-    memory_reservation: 2048m
-    ulimits:
-      - nofile:262144:262144
+  #- name: centos6
+  #  image: centos:6
+  #  privileged: true
+  #  memory_reservation: 2048m
+  #  ulimits:
+  #    - nofile:262144:262144
   - name: centos7
     image: milcom/centos7-systemd
     memory_reservation: 2048m

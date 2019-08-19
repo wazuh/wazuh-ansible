@@ -2,7 +2,5 @@
 - name: Converge
   hosts: all
   roles:
-    #- role: wazuh/ansible-wazuh-manager
-    #- {role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'localhost:9200'}
-    #- {role: elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'localhost'}
-    - {role: elastic-stack/ansible-kibana, elasticsearch_network_host: 'localhost'}
+    - role: wazuh/ansible-wazuh-manager
+
