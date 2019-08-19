@@ -245,13 +245,6 @@
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
     - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
-- name: Distribution is centos 6.* | Enable Elasticsearch
-  service: name=elasticsearch enabled=yes
-
-- name: Distribution is centos 6.* | Start Elasticsearch
-  service: name=elasticsearch state=started
-  ignore_errors: true
-
 - name: Ensure Elasticsearch started and enabled
   service:
     name: elasticsearch
@@ -259,7 +252,7 @@
     state: started
 
 - name: Make sure Elasticsearch is running before proceeding
-  wait_for: host={{ elasticsearch_host }} port={{ elasticsearch_http_port }} delay=3 timeout=400
+  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=400
   tags:
     - configure
     - init
