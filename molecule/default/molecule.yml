@@ -13,7 +13,7 @@ platforms:
     ulimits:
       - nofile:262144:262144
     privileged: true
-    memory_reservation: 5120m
+    memory_reservation: 2048m
   - name: xenial
     image: solita/ubuntu-systemd:xenial
     privileged: true
@@ -57,7 +57,7 @@ scenario:
     - create
     - prepare
     - converge
-    - idempotence
+    # - idempotence
     - side_effect
     - verify
     - cleanup
