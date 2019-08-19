@@ -9,13 +9,6 @@
     gpgcheck: true
   changed_when: false
 
-- name: CentOS x.x => x.x < 7.0 | Installing Java
-  yum:
-    name: java-1.8.0-openjdk.x86_64
-    state: present
-  when:
-    - ansible_distribution in ['CentOS', 'RedHat'] and ansible_distribution_major_version|int < 7
-
 - name: RedHat/CentOS/Fedora | Install Elasticsarch
   package: name=elasticsearch-{{ elastic_stack_version }} state=present
   tags: install

@@ -9,7 +9,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 def get_wazuh_version():
     """This return the version of Wazuh."""
-    return "3.9.3"
+    return "3.9.4"
 
 
 def test_wazuh_packages_are_installed(host):
@@ -74,7 +74,7 @@ def test_open_ports(host):
     distribution = host.system_info.distribution.lower()
     if distribution == 'ubuntu':
         assert host.socket("tcp://0.0.0.0:1515").is_listening
-        assert not host.socket("tcp://0.0.0.0:1514").is_listening
+        assert host.socket("tcp://0.0.0.0:1514").is_listening
     elif distribution == 'centos':
-        assert host.socket("tcp://:::1515").is_listening
-        assert not host.socket("tcp://:::1514").is_listening
+        assert host.socket("tcp://127.0.0.1:1515").is_listening
+        assert host.socket("tcp://127.0.0.1:1514").is_listening

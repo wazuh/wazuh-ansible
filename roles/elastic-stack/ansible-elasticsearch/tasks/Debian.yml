@@ -8,26 +8,12 @@
   register: elasticsearch_ca_packages_installed
   until: elasticsearch_ca_packages_installed is succeeded
 
-- name: "Install Java Repo for Trusty"
-  apt_repository: repo='ppa:openjdk-r/ppa'
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
-
 - name: Update and upgrade apt packages
   become: true
   apt:
     upgrade: yes
     update_cache: yes
     cache_valid_time: 86400 #One day
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
-
-- name: Install Oracle Java 8
-  become: true
-  apt: name=openjdk-8-jdk state=latest
-
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14

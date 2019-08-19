@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 3.9.3
+wazuh_agent_version: 3.9.4
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
@@ -24,7 +24,7 @@ wazuh_winagent_config:
   install_dir_x86: 'C:\Program Files (x86)\ossec-agent\'
   auth_path: C:\'Program Files'\ossec-agent\agent-auth.exe
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
-  version: '3.9.3'
+  version: '3.9.4'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
   md5: c3fdbd6c121ca371b8abcd477ed4e8a4
@@ -305,3 +305,4 @@ wazuh_agent_config:
     list:
       - key: Env
         value: Production
+wazuh_agent_nat: false

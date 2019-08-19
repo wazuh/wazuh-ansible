@@ -1,10 +1,6 @@
 ---
-- hosts: 172.16.0.162
+- hosts: <KIBANA_HOST>
   roles:
     - role: ../roles/elastic-stack/ansible-kibana
-      kibana_xpack_security: true
-      kibana_user: elastic
-      kibana_password: elastic_pass
-      kibana_node_name: node-2
-      elasticsearch_network_host: 172.16.0.161
-      node_certs_generator: false
+      elasticsearch_network_host: <YOUR_ELASTICSEARCH_IP>
+

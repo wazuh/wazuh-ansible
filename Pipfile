@@ -5,8 +5,8 @@ name = "pypi"
 
 [packages]
 docker-py = "*"
-ansible = "==2.7.12"
-molecule = "*"
+ansible = "==2.7.13"
+molecule = "2.20"
 
 [dev-packages]
 
@@ -14,6 +14,7 @@ molecule = "*"
 python_version = "2.7"
 
 [scripts]
+destroy ="molecule destroy"
 test ="molecule test"
 agent ="molecule test -s wazuh-agent"
 elasticsearch ="molecule test -s elasticsearch"
