@@ -14,7 +14,6 @@ molecule = "*"
 python_version = "2.7"
 
 [scripts]
-clean = "molecule destroy"
 test ="molecule test --destroy=never"
 verify_test ="molecule verify"
 agent ="molecule test -s wazuh-agent"
