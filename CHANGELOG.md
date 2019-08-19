@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.9.5_7.2.1]
+
+### Added 
+
+- Update to Wazuh v3.9.5
+- Update to Elastic Stack to v7.2.1
+
 ## [v3.9.4_7.2.0]
 
 ### Added 
