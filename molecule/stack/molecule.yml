@@ -1,0 +1,69 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+  enabled: false
+platforms:
+  - name: bionic
+    image: solita/ubuntu-systemd:bionic
+    command: /sbin/init
+    ulimits:
+      - nofile:262144:262144
+    privileged: true
+    memory_reservation: 2048m
+  - name: xenial
+    image: solita/ubuntu-systemd:xenial
+    privileged: true
+    memory_reservation: 2048m
+    command: /sbin/init
+    ulimits:
+      - nofile:262144:262144
+#  - name: trusty
+#    image: ubuntu:trusty
+#    privileged: true
+#    memory_reservation: 2048m
+#    ulimits:
+#      - nofile:262144:262144
+#  - name: centos6
+#    image: centos:6
+#    privileged: true
+#    memory_reservation: 2048m
+#    ulimits:
+#      - nofile:262144:262144
+  - name: centos7
+    image: milcom/centos7-systemd
+    memory_reservation: 2048m
+    privileged: true
+    ulimits:
+      - nofile:262144:262144
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ../../roles
+  lint:
+    name: ansible-lint
+    enabled: true
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
+    enabled: true
