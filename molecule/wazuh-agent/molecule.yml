@@ -32,18 +32,18 @@ platforms:
       - name: wazuh
     groups:
       - agent
-  - name: wazuh_agent_trusty
-    image: ubuntu:trusty
-    networks:
-      - name: wazuh
-    groups:
-      - agent
-  - name: wazuh_agent_centos6
-    image: centos:6
-    networks:
-      - name: wazuh
-    groups:
-      - agent
+  #- name: wazuh_agent_trusty
+  #  image: ubuntu:trusty
+  #  networks:
+  #    - name: wazuh
+  #  groups:
+  #    - agent
+  #- name: wazuh_agent_centos6
+  #  image: centos:6
+  #  networks:
+  #    - name: wazuh
+  #  groups:
+  #    - agent
   - name: wazuh_agent_centos7
     image: milcom/centos7-systemd
     privileged: true
