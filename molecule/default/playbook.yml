@@ -3,4 +3,5 @@
   hosts: all
   roles:
     - role: wazuh/ansible-wazuh-manager
+    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch:9200' }
 

@@ -44,16 +44,15 @@
 
     - name: Create docker network(s)
       docker_network:
-        name: "{{ item }}"
-        docker_host: "{{ item.docker_host | default('unix://var/run/docker.sock') }}"
+        name: "new_network"
         state: present
-      with_items: "{{ molecule_yml.platforms | molecule_get_docker_networks }}"
+      
 
     - name: Create molecule instance(s)
       docker_container:
-        name: "manager"
+        name: "{{ item.name }}"
         docker_host: "{{ item.docker_host | default('unix://var/run/docker.sock') }}"
-        hostname: "manager"
+        hostname: "{{ item.name }}"
         image: "molecule_local/{{ item.image }}"
         state: started
         recreate: false
@@ -65,7 +64,8 @@
         exposed_ports: "{{ item.exposed_ports | default(omit) }}"
         published_ports: "{{ item.published_ports | default(omit) }}"
         ulimits: "{{ item.ulimits | default(omit) }}"
-        networks: "{{ item.networks | default(omit) }}"
+        networks: 
+          - name: "new_network"
         dns_servers: "{{ item.dns_servers | default(omit) }}"
       register: server
       with_items: "{{ molecule_yml.platforms }}"

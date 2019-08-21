@@ -7,7 +7,7 @@ lint:
   name: yamllint
   enabled: false
 platforms:
-  - name: bionic
+  - name: manager
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
     ulimits:

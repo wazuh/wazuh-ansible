@@ -3,4 +3,4 @@
   hosts: all
   roles:
     - role: elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: 'localhost'
+      elasticsearch_network_host: 'elasticsearch'

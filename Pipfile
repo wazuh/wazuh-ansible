@@ -14,19 +14,12 @@ molecule = "==2.20.2"
 python_version = "2.7"
 
 [scripts]
-# Normal Case
-test ="molecule test"
+test ="molecule test --destroy=never"
 agent ="molecule test -s wazuh-agent"
-elasticsearch ="molecule test -s elasticsearch"
+elasticsearch ="molecule test -s elasticsearch  --destroy=never"
 filebeat ="molecule test -s filebeat"
 kibana ="molecule test -s kibana"
 
-# Do Not destroy the created containers afte the test execution ends.  
-test_still ="molecule test --destroy=never"
-agent_still ="molecule test -s wazuh-agent --destroy=never"
-elasticsearch_still ="molecule test -s elasticsearch --destroy=never"
-filebeat_still ="molecule test -s filebeat --destroy=never"
-kibana_still ="molecule test -s kibana --destroy=never"
-
 # Destroy all the existing containers ' Created by Molecule ' 
+destroy_elasticsearch ="molecule destroy -s elasticsearch"
 destroy ="molecule destroy"
