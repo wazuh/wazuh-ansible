@@ -16,13 +16,13 @@ platforms:
       - nofile:262144:262144
     privileged: true
     memory_reservation: 1024m
-  - name: xenial
-    image: solita/ubuntu-systemd:xenial
-    privileged: true
-    memory_reservation: 1024m
-    command: /sbin/init
-    ulimits:
-      - nofile:262144:262144
+#  - name: xenial
+#    image: solita/ubuntu-systemd:xenial
+#    privileged: true
+#    memory_reservation: 1024m
+#    command: /sbin/init
+#    ulimits:
+#      - nofile:262144:262144
 #  - name: trusty
 #    image: ubuntu:trusty
 #    memory_reservation: 1024m
@@ -34,12 +34,12 @@ platforms:
 #    memory_reservation: 1024m
 #    ulimits:
 #      - nofile:262144:262144
-  - name: centos7
-    image: milcom/centos7-systemd
-    memory_reservation: 1024m
-    privileged: true
-    ulimits:
-      - nofile:262144:262144
+#  - name: centos7
+#    image: milcom/centos7-systemd
+#    memory_reservation: 1024m
+#    privileged: true
+#    ulimits:
+#      - nofile:262144:262144
 provisioner:
   name: ansible
   playbooks:

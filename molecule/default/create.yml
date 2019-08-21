@@ -44,7 +44,7 @@
 
     - name: Create docker network(s)
       docker_network:
-        name: "new_network"
+        name: "main"
         state: present
       
 
@@ -65,7 +65,7 @@
         published_ports: "{{ item.published_ports | default(omit) }}"
         ulimits: "{{ item.ulimits | default(omit) }}"
         networks: 
-          - name: "new_network"
+          - name: "main"
         dns_servers: "{{ item.dns_servers | default(omit) }}"
       register: server
       with_items: "{{ molecule_yml.platforms }}"

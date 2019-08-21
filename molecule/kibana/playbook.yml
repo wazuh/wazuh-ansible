@@ -4,4 +4,5 @@
   roles:
   
     - role: elastic-stack/ansible-kibana
+      elasticsearch_network_host: 'elasticsearch'
     

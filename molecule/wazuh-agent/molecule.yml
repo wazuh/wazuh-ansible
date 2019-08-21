@@ -11,27 +11,27 @@ lint:
     config-data:
       ignore: .virtualenv
 platforms:
-  - name: wazuh_server_centos7
-    image: milcom/centos7-systemd
-    networks:
-      - name: wazuh
-    privileged: true
-    groups:
-      - manager
+  #- name: wazuh_server_centos7
+  #  image: milcom/centos7-systemd
+  #  networks:
+  #    - name: wazuh
+  #  privileged: true
+  #  groups:
+  #    - manager
   - name: wazuh_agent_bionic
     image: ubuntu:bionic
     networks:
       - name: wazuh
     groups:
       - agent
-  - name: wazuh_agent_xenial
-    image: solita/ubuntu-systemd:xenial
-    privileged: true
-    command: /sbin/init
-    networks:
-      - name: wazuh
-    groups:
-      - agent
+  #- name: wazuh_agent_xenial
+  #  image: solita/ubuntu-systemd:xenial
+  #  privileged: true
+  #  command: /sbin/init
+  #  networks:
+  #    - name: wazuh
+  #  groups:
+  #    - agent
   #- name: wazuh_agent_trusty
   #  image: ubuntu:trusty
   #  networks:
@@ -44,13 +44,13 @@ platforms:
   #    - name: wazuh
   #  groups:
   #    - agent
-  - name: wazuh_agent_centos7
-    image: milcom/centos7-systemd
-    privileged: true
-    networks:
-      - name: wazuh
-    groups:
-      - agent
+  #- name: wazuh_agent_centos7
+  #  image: milcom/centos7-systemd
+  #  privileged: true
+  #  networks:
+  #    - name: wazuh
+  #  groups:
+  #    - agent
 provisioner:
   name: ansible
   playbooks:
