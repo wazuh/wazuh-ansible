@@ -27,7 +27,6 @@ agent_still ="molecule test -s wazuh-agent --destroy=never"
 elasticsearch_still ="molecule test -s elasticsearch --destroy=never"
 filebeat_still ="molecule test -s filebeat --destroy=never"
 kibana_still ="molecule test -s kibana --destroy=never"
-destroy_still ="molecule destroy --destroy=never"
 
 # Destroy all the existing containers ' Created by Molecule ' 
 destroy ="molecule destroy"

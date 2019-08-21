@@ -11,14 +11,14 @@ lint:
 platforms:
  # - name: trusty
  #   image: ubuntu:trusty
-  - name: bionic
-    image: solita/ubuntu-systemd:bionic
-    command: /sbin/init
-    privileged: true
-  - name: xenial
-    image: solita/ubuntu-systemd:xenial
-    privileged: true
-    command: /sbin/init
+ #- name: bionic
+ #  image: solita/ubuntu-systemd:bionic
+ #  command: /sbin/init
+ #  privileged: true
+ #- name: xenial
+ #  image: solita/ubuntu-systemd:xenial
+ #  privileged: true
+ #  command: /sbin/init
  #- name: centos6
  #  image: geerlingguy/docker-centos6-ansible
  #  privileged: true
