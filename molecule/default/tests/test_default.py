@@ -78,3 +78,9 @@ def test_open_ports(host):
     elif distribution == 'centos':
         assert host.socket("tcp://127.0.0.1:1515").is_listening
         assert host.socket("tcp://127.0.0.1:1514").is_listening
+
+def test_filebeat_is_installed(host):
+    """Test if the elasticsearch package is installed."""
+    filebeat = host.package("filebeat")
+    assert filebeat.is_installed
+    assert filebeat.version.startswith('7.2.1')

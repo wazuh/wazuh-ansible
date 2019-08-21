@@ -47,6 +47,10 @@
         name: "main"
         state: present
       
+    - name: Sleep 5 seconds till the network gets created if it's not
+        # Pause for 5 minutes to build app cache.
+      pause:
+        seconds: 10
 
     - name: Create molecule instance(s)
       docker_container:
