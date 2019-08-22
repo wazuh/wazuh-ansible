@@ -9,7 +9,7 @@ lint:
     config-data:
       ignore: .virtualenv
 platforms:
-  - name: elasticsearch
+  - name: worker
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
     ulimits:
@@ -54,6 +54,22 @@ provisioner:
   lint:
     name: ansible-lint
     enabled: true
+scenario:
+  name: worker
+  test_sequence:
+    - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    #- idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
 verifier:
   name: testinfra
   lint:
