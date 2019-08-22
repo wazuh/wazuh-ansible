@@ -61,6 +61,22 @@ provisioner:
     group_vars:
       all:
         elasticsearch_jvm_xms: 512
+scenario:
+  name: elasticsearch
+  test_sequence:
+    - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    #- idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
 verifier:
   name: testinfra
   lint:
