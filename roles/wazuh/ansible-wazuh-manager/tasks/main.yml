@@ -1,4 +1,11 @@
 ---
+- debug:
+    msg: Cluster is disabled? => {{ wazuh_manager_config.cluster.disable }}
+
+- debug:
+    #msg: Cluster is disabled? => {{ wazuh_manager_config.cluster.disable }}
+    msg: .... => {{ wazuh_manager_config.openscap.disable | default('default_value') }}
+
 - import_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 

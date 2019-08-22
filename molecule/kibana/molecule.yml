@@ -9,7 +9,7 @@ lint:
     config-data:
       ignore: .virtualenv
 platforms:
-  - name: bionic
+  - name: kibana
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
     ulimits:

@@ -14,11 +14,11 @@ molecule = "==2.20.2"
 python_version = "2.7"
 
 [scripts]
-test ="molecule test --destroy=never --platform _PLATFORM_"
-worker ="molecule test -s worker --destroy=never --platform _PLATFORM_"
-agent ="molecule test -s wazuh-agent --destroy=never --platform _PLATFORM_"
-elasticsearch ="molecule test -s elasticsearch  --destroy=never --platform _PLATFORM_"
-kibana ="molecule test -s kibana --destroy=never --platform _PLATFORM_"
+test ="molecule test --destroy=never"
+worker ="molecule test -s worker --destroy=never"
+agent ="molecule test -s wazuh-agent --destroy=never"
+elasticsearch ="molecule test -s elasticsearch  --destroy=never"
+kibana ="molecule test -s kibana --destroy=never"
 
 # Destroy all the existing containers ' Molecule instances '
 destroy_elasticsearch ="molecule destroy -s elasticsearch"

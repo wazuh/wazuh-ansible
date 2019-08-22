@@ -2,8 +2,5 @@
 - name: Converge
   hosts: all
   roles:
-    - { role: wazuh/ansible-wazuh-manager,
-        wazuh_manager_config[cluster][disable]: 'no',
-    }
+    - { role: wazuh/ansible-wazuh-manager, wazuh_manager_config.cluster.disable: 'no' }
     - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch:9200' }
-
