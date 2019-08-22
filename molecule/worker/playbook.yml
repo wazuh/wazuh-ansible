@@ -16,4 +16,6 @@
                 nodes:
                 - 'manager'
                 hidden: 'no'
+    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch:9200' }
+
 

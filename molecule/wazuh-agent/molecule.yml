@@ -53,6 +53,9 @@ platforms:
   #    - agent
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      hash_behaviour: merge
   playbooks:
     docker:
       create: ../default/create.yml
