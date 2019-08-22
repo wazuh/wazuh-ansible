@@ -99,14 +99,14 @@
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.directories is defined and ansible_os_family == "Linux" %}
+    {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
     {% for directory in wazuh_agent_config.syscheck.directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_os_family == "Windows" %}
+    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
     {% for directory in wazuh_agent_config.syscheck.win_directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
