@@ -35,3 +35,9 @@ sudo pipenv run elasticsearch
 sudo pipenv run test
 sudo pipenv run worker
 sudo pipenv run kibana
+
+sudo pipenv run destroy
+sudo pipenv run destroy_worker
+sudo pipenv run destroy_elasticsearch
+sudo pipenv run destroy_kibana
+
