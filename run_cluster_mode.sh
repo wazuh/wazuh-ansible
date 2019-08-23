@@ -4,7 +4,8 @@ paths=( "molecule/default/" "molecule/worker/" "molecule/elasticsearch/" "molecu
 
 if [ -z "$1" ]
 then
-      echo "Platform not selected. Please select a platform. => Aborting"
+      echo "Platform not selected. Please select a platform of [bionuc, xenial or centos7]. => Aborting"
+      echo "Run Instruction: ./run_cluster_mode.sh <platform>"
       exit
 else
       for i in "${paths[@]}"
