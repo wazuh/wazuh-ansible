@@ -16,7 +16,6 @@ platforms:
       - nofile:262144:262144
     privileged: true
     memory_reservation: 2048m
-
 provisioner:
   name: ansible
   config_options:

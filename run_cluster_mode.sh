@@ -17,7 +17,6 @@ index=$(($REPLY - 1))
 if [ -z "$IMAGE" ]
 then
       echo "Platform not selected. Please select a platform of [bionuc, xenial or centos7]. => Aborting"
-      echo "Run Instruction: ./run_cluster_mode.sh <platform>"
       exit
 else
         for i in "${paths[@]}"
