@@ -34,8 +34,3 @@
       until: wazuh_manager_dependencies_packages_installed is succeeded
       when:
         - ansible_os_family == 'RedHat'
-
-  roles:
-    - role: wazuh/ansible-wazuh-manager
-    - role: elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: 'localhost'

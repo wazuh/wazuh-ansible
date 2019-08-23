@@ -3,7 +3,6 @@
     msg: Cluster is disabled? => {{ wazuh_manager_config.cluster.disable }}
 
 - debug:
-    #msg: Cluster is disabled? => {{ wazuh_manager_config.cluster.disable }}
     msg: .... => {{ wazuh_manager_config.openscap.disable | default('default_value') }}
 
 - import_tasks: "RedHat.yml"
