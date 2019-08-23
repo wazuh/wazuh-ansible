@@ -8,14 +8,12 @@
             cluster:
                 disable: 'no'
                 name: 'wazuh'
-                node_name: 'worker-01'
-                node_type: 'worker'
+                node_name: 'manager'
+                node_type: 'master'
                 key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
                 port: '1516'
                 bind_addr: '0.0.0.0'
                 nodes:
-                - 'manager_bionic'
+                - 'manager_platform'
                 hidden: 'no'
-    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch_bionic:9200' }
-
-
+    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch_platform:9200' }
