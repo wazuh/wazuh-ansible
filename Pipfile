@@ -20,9 +20,17 @@ agent ="molecule test -s wazuh-agent --destroy=never"
 elasticsearch ="molecule test -s elasticsearch  --destroy=never"
 kibana ="molecule test -s kibana --destroy=never"
 
+# Verify ..
+verify ="molecule verify"
 verify_worker ="molecule verify -s worker"
+verify_agent ="molecule verify -s agent"
+verify_elasticsearch ="molecule verify -s elasticsearch"
+verify_kibana ="molecule verify -s kibana"
 
-# Destroy all the existing containers ' Molecule instances '
-destroy_elasticsearch ="molecule destroy -s elasticsearch"
-destroy_worker ="molecule destroy -s worker"
+# Destroy ..
 destroy ="molecule destroy"
+destroy_worker ="molecule destroy -s worker"
+destroy_agent ="molecule destroy -s agent"
+destroy_elasticsearch ="molecule destroy -s elasticsearch"
+destroy_kibana ="molecule destroy -s kibana"
+
