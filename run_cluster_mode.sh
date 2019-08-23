@@ -1,24 +1,38 @@
 #!/bin/bash
 
 paths=( "molecule/default/" "molecule/worker/" "molecule/elasticsearch/" "molecule/kibana/" )
+images=( "solita/ubuntu-systemd:bionic" "solita/ubuntu-systemd:xenial" "milcom/centos7-systemd" "ubuntu:trusty" "centos:6" )
+platform=( "bionic" "xenial" "centos7" "trusty" "centos6" )
 
-if [ -z "$1" ]
+echo "Please select an image. "
+
+select IMAGE in "${images[@]}";
+do
+     echo "You picked $IMAGE ($REPLY)"
+     break
+done
+
+index=$(($REPLY - 1))
+
+if [ -z "$IMAGE" ]
 then
       echo "Platform not selected. Please select a platform of [bionuc, xenial or centos7]. => Aborting"
       echo "Run Instruction: ./run_cluster_mode.sh <platform>"
       exit
 else
-      for i in "${paths[@]}"
-      do
+        for i in "${paths[@]}"
+        do
             cp "$i/playbook.yml.template" "$i/playbook.yml"
-            sed -i "s/platform/$1/g" "$i/playbook.yml"
-      done
+            sed -i "s/platform/${platform[$index]}/g" "$i/playbook.yml"
 
-      cp Pipfile.template Pipfile
-      sed -i "s/_PLATFORM_/$1/g" Pipfile
+            cp "$i/molecule.yml.template" "$i/molecule.yml"
+            sed -i "s|imagename|${images[$index]}|g" "$i/molecule.yml"
+            sed -i "s/platform_/${platform[$index]}/g" "$i/molecule.yml"    
+
+        done
 fi
 
 sudo pipenv run elasticsearch
 sudo pipenv run test
-sudo pipenv run agent
+sudo pipenv run worker
 sudo pipenv run kibana

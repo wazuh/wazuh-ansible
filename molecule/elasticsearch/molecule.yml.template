@@ -8,9 +8,9 @@ lint:
   options:
     config-data:
       ignore: .virtualenv
-bionics:
-  - name: elasticsearch_bionic
-    image: solita/ubuntu-systemd:bionic
+platforms:
+  - name: elasticsearch_platform_
+    image: imagename
     command: /sbin/init
     ulimits:
       - nofile:262144:262144

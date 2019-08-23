@@ -33,4 +33,3 @@ destroy_worker ="molecule destroy -s worker"
 destroy_agent ="molecule destroy -s agent"
 destroy_elasticsearch ="molecule destroy -s elasticsearch"
 destroy_kibana ="molecule destroy -s kibana"
-

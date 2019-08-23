@@ -8,14 +8,15 @@ lint:
   options:
     config-data:
       ignore: .virtualenv
-bionics:
-  - name: elasticsearch_bionic
-    image: solita/ubuntu-systemd:bionic
+platforms:
+  - name: worker_platform_
+    image: imagename
     command: /sbin/init
     ulimits:
       - nofile:262144:262144
     privileged: true
     memory_reservation: 2048m
+
 provisioner:
   name: ansible
   config_options:
@@ -31,12 +32,8 @@ provisioner:
   lint:
     name: ansible-lint
     enabled: true
-  inventory:
-    group_vars:
-      all:
-        elasticsearch_jvm_xms: 512
 scenario:
-  name: elasticsearch
+  name: worker
   test_sequence:
     - lint
     - dependency
