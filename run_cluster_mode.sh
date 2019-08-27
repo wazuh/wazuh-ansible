@@ -14,11 +14,11 @@ platform=( "bionic" "xenial" "centos7" "trusty" "centos6" )
 #
 #index=$(($REPLY - 1))
 
-if [ -z "$IMAGE" ]
-then
-      echo "Platform not selected. Please select a platform of [bionuc, xenial or centos7]. => Aborting"
-      exit
-else
+#if [ -z "$IMAGE" ]
+#then
+#      echo "Platform not selected. Please select a platform of [bionuc, xenial or centos7]. => Aborting"
+#      exit
+#else
         for i in "${paths[@]}"
         do
             cp "$i/playbook.yml.template" "$i/playbook.yml"
@@ -29,7 +29,7 @@ else
             sed -i "s/platform_/${platform[0]}/g" "$i/molecule.yml"    
 
         done
-fi
+#fi
 
 sudo pipenv run elasticsearch
 sudo pipenv run test
