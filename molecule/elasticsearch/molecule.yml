@@ -8,7 +8,7 @@ lint:
   options:
     config-data:
       ignore: .virtualenv
-plaforms:
+platforms:
   - name: elasticsearch_bionic
     image: solita/ubuntu-systemd:bionic
     command: /sbin/init
