@@ -227,18 +227,12 @@
     <interval>{{ wazuh_manager_config.vul_detector.interval }}</interval>
     <ignore_time>{{ wazuh_manager_config.vul_detector.ignore_time }}</ignore_time>
     <run_on_start>{{ wazuh_manager_config.vul_detector.run_on_start }}</run_on_start>
-    <feed name="ubuntu-18">
-      <disabled>{{ wazuh_manager_config.vul_detector.ubuntu.disable }}</disabled>
-      <update_interval>{{ wazuh_manager_config.vul_detector.ubuntu.update_interval }}</update_interval>
+    {%- for feed, config in wazuh_manager_config.vul_detector.feeds | dictsort %}
+    <feed name="{{ feed }}">
+      <disabled>{{ config.disable }}</disabled>
+      <update_interval>{{ config.update_interval }}</update_interval>
     </feed>
-    <feed name="redhat">
-      <disabled>{{ wazuh_manager_config.vul_detector.redhat.disable }}</disabled>
-      <update_interval>{{ wazuh_manager_config.vul_detector.redhat.update_interval }}</update_interval>
-    </feed>
-    <feed name="debian-9">
-      <disabled>{{ wazuh_manager_config.vul_detector.debian.disable }}</disabled>
-      <update_interval>{{ wazuh_manager_config.vul_detector.debian.update_interval }}</update_interval>
-    </feed>
+    {%- endfor %}
   </wodle>
 
   <!-- File integrity monitoring -->

@@ -161,15 +161,16 @@ wazuh_manager_config:
     interval: '5m'
     ignore_time: '6h'
     run_on_start: 'yes'
-    ubuntu:
-      disable: 'yes'
-      update_interval: '1h'
-    redhat:
-      disable: 'yes'
-      update_interval: '1h'
-    debian:
-      disable: 'yes'
-      update_interval: '1h'
+    feeds:
+      ubuntu-18:
+        disable: 'yes'
+        update_interval: '1h'
+      redhat:
+        disable: 'yes'
+        update_interval: '1h'
+      debian-9:
+        disable: 'yes'
+        update_interval: '1h'
   vuls:
     disable: 'yes'
     interval: '1d'
