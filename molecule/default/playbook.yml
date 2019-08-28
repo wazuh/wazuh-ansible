@@ -9,11 +9,11 @@
                 disable: 'no'
                 name: 'wazuh'
                 node_name: 'manager'
-                node_type: 'master'
+                node_type: 'xxxx'
                 key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
                 port: '1516'
                 bind_addr: '0.0.0.0'
                 nodes:
-                - 'manager_bionic'
+                - 'manager_centos7'
                 hidden: 'no'
-    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch_bionic:9200' }
+    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'elasticsearch_centos7:9200' }
