@@ -9,7 +9,6 @@
                 disable: 'no'
                 name: 'wazuh'
                 node_name: 'manager'
-                node_type: 'xxxx'
                 key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
                 port: '1516'
                 bind_addr: '0.0.0.0'
