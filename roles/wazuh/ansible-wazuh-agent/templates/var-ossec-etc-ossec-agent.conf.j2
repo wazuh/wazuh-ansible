@@ -42,7 +42,7 @@
   </logging>
 
   <active-response>
-    <disabled>{{ wazuh_agent_config.active_response.ar|default('no') }}</disabled>
+    <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
     <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
     <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
   </active-response>
