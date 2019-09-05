@@ -5,7 +5,7 @@
 - import_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- name: CentOS/RedHat | Install wazuh-manager, wazuh-api
+- name: CentOS/RedHat/Amazon | Install wazuh-manager, wazuh-api
   package: pkg={{ item }}-{{ wazuh_manager_api_version }}-1 state={{ wazuh_manager_package_state }}
   with_items:
     - wazuh-manager
@@ -13,7 +13,7 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ansible_distribution in ['CentOS','RedHat']
+    - ansible_distribution in ['CentOS','RedHat', 'Amazon']
   tags:
     - init
 
@@ -28,13 +28,13 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-  - not (ansible_distribution in ['CentOS','RedHat'])
+  - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'])
   tags: init
 
 - name: Install expect
   package: pkg=expect state={{ wazuh_manager_package_state }}
   when:
-    - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
+    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6)
   tags: init
 
 - name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
@@ -43,7 +43,7 @@
     regexp: 'echo -n "Starting Wazuh-manager: "'
     replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
   when:
-    - ansible_distribution in ['CentOS', 'RedHat'] and ansible_distribution_major_version|int == 6
+    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: Install wazuh-manager and expect (EL5)
@@ -54,7 +54,7 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6
+    - ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
   tags:
     - init
 
@@ -203,7 +203,7 @@
 - name: Retrieving Wazuh-API User Credentials
   include_vars: wazuh_api_creds.yml
   when:
-    - not (ansible_distribution in ['CentOS','RedHat'] and ansible_distribution_major_version|int < 6)
+    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6)
   tags:
     - config
 
@@ -281,7 +281,7 @@
   poll: 0
   when:
     - wazuh_manager_config.vuls.disable != 'yes'
-    - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle']
+    - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle', 'Amazon']
   tags:
     - init
 
@@ -322,7 +322,7 @@
   notify: restart wazuh-api
   when:
     - wazuh_api_user is defined
-    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 6)
+    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' or ansible_distribution == 'Amazon' and ansible_distribution_major_version|int < 6)
   tags:
     - config
 
@@ -378,7 +378,7 @@
   environment:
     LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:/var/ossec/framework/lib"
   when:
-    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 6)
+    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' or ansible_distribution == 'Amazon' and ansible_distribution_major_version|int < 6)
 
 - name: Ensure Wazuh Manager is started and enabled (EL5)
   service:
@@ -388,10 +388,10 @@
   tags:
     - config
   when:
-    - ansible_distribution in ['CentOS', 'RedHat'] and ansible_distribution_major_version|int < 6
+    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
 - import_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
+  when: ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
 
 - import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
