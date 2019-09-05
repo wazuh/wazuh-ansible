@@ -139,7 +139,7 @@
     enabled: true
     state: restarted
 
-- name: Ensure Kibana is started 
+- name: Ensure Kibana is started and enabled
   service:
     name: kibana
     enabled: true
