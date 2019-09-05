@@ -38,6 +38,6 @@ sudo pipenv run kibana
 
 sudo pipenv run destroy
 sudo pipenv run destroy_worker
-sudo pipenv run destroy_elasticsearch
 sudo pipenv run destroy_kibana
+sudo pipenv run destroy_elasticsearch
 
