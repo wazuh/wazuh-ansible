@@ -1,8 +1,8 @@
 #!/bin/bash
 
 paths=( "molecule/default/" "molecule/worker/" "molecule/elasticsearch/" "molecule/kibana/" )
-images=( "solita/ubuntu-systemd:bionic" "solita/ubuntu-systemd:xenial" "milcom/centos7-systemd" "ubuntu:trusty" "centos:6" )
-platform=( "bionic" "xenial" "centos7" "trusty" "centos6" )
+images=( "milcom/centos7-systemd" "solita/ubuntu-systemd:bionic" "solita/ubuntu-systemd:xenial" )
+platform=( "centos7" "bionic" "xenial" )
 
 #echo "Please select an image. "
 #
@@ -21,8 +21,12 @@ platform=( "bionic" "xenial" "centos7" "trusty" "centos6" )
 #else
 for index in "${!images[@]}"
 do
+    echo $index
     for i in "${paths[@]}"
     do
+        #echo $i
+        echo ${platform[$index]}
+        echo ${images[$index]}
         cp "$i/playbook.yml.template" "$i/playbook.yml"
         sed -i "s/platform/${platform[$index]}/g" "$i/playbook.yml"
 
