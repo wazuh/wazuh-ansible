@@ -23,11 +23,11 @@ provisioner:
     ANSIBLE_ROLES_PATH: ../../roles
   lint:
     name: ansible-lint
-    enabled: false
+    enabled: true
 scenario:
   name: default
   test_sequence:
-    #- lint
+    - lint
     - dependency
     - cleanup
     - destroy
