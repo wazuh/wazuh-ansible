@@ -9,7 +9,7 @@
     wazuh_agent_win_path: "{{ wazuh_winagent_config.install_dir_x86 }}"
     wazuh_agent_win_auth_path: "{{ wazuh_winagent_config.auth_path_x86 }}"
   when:
-    - check_path.stat.exists 
+    - check_path.stat.exists
 
 - name: Windows | Set Win Path (x64)
   set_fact:
