@@ -42,7 +42,7 @@
 - name: Windows | Install Agent if not already installed
   win_package:
     path: "{{ wazuh_winagent_config.download_dir }}wazuh-agent-{{ wazuh_winagent_config.version }}-{{ wazuh_winagent_config.revision }}.msi"
-    product_id: '{9903C258-FC1E-4886-B7DB-1535976EC1D5}'
+    product_id: '{{ "{" }}{{ wazuh_winagent_config.register_key }}{{ "}" }}'
     state: present
 
 - name: Windows | Check if client.keys exists
