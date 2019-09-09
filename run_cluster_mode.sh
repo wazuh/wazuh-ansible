@@ -1,9 +1,9 @@
 #!/bin/bash
 
 paths=( "molecule/default/" "molecule/worker/" "molecule/elasticsearch/" "molecule/kibana/" )
-images=( "milcom/centos7-systemd" "solita/ubuntu-systemd:bionic" "solita/ubuntu-systemd:xenial" )
-platform=( "centos7" "bionic" "xenial" )
-
+images=( "solita/ubuntu-systemd:bionic" "solita/ubuntu-systemd:xenial" )
+platform=( "bionic" "xenial" )
+# "centos7"  "milcom/centos7-systemd" 
 #echo "Please select an image. "
 #
 #select IMAGE in "${images[@]}";
