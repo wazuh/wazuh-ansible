@@ -4,25 +4,19 @@
     path: C:\Program Files (x86)
   register: check_path
 
-- name: "Set Win Path"
+- name: Windows | Set Win Path (x86)
   set_fact:
-    wazuh_agent_win_path: "{% wazuh_winagent_config.install_dir_x86 if check_path.stat.exists else wazuh_winagent_config.install_dir %}"
-
-- name: Windows | Get current installed version
-  win_shell: "{% if check_path.stat.exists %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}
-  {{ wazuh_winagent_config.install_dir }}{% endif %}ossec-agent.exe -h"
-  args:
-    removes: "{% if check_path.stat.exists %}{{ wazuh_winagent_config.install_dir_x86 }}{% else %}
-    {{ wazuh_winagent_config.install_dir }}{% endif %}ossec-agent.exe"
-  register: agent_version
-  failed_when: false
-  changed_when: false
-
-- name: Windows | Check Wazuh agent version installed
-  set_fact: correct_version=true
+    wazuh_agent_win_path: "{{ wazuh_winagent_config.install_dir_x86 }}"
+    wazuh_agent_win_auth_path: "{{ wazuh_winagent_config.auth_path_x86 }}"
   when:
-    - agent_version.stdout is defined
-    - wazuh_winagent_config.version in agent_version.stdout
+    - check_path.stat.exists 
+
+- name: Windows | Set Win Path (x64)
+  set_fact:
+    wazuh_agent_win_path: "{{ wazuh_winagent_config.install_dir }}"
+    wazuh_agent_win_auth_path: "{{ wazuh_winagent_config.auth_path_x86 }}"
+  when:
+    - not check_path.stat.exists
 
 - name: Windows | Downloading windows Wazuh agent installer
   win_get_url:
