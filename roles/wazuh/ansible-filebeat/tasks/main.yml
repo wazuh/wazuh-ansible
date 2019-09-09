@@ -10,7 +10,7 @@
   register: filebeat_installing_package
   until: filebeat_installing_package is succeeded
   when:
-    - ansible_distribution in ['CentOS','RedHat']
+    - ansible_distribution in ['CentOS','RedHat', 'Amazon']
   tags:
     - install
 
@@ -22,7 +22,7 @@
   register: filebeat_installing_package_debian
   until: filebeat_installing_package_debian is succeeded
   when:
-    - not (ansible_distribution in ['CentOS','RedHat'])
+    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'])
   tags:
     - init
 
