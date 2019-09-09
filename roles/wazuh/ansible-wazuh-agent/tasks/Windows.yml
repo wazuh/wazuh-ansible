@@ -71,6 +71,11 @@
   tags:
     - config
 
+- name: Windows | Check if ossec folder is accessible
+  win_file:
+    path: "{{ wazuh_agent_win_path }}"
+    state: directory
+
 - name: Windows | Installing agent configuration (ossec.conf)
   win_template:
     src: var-ossec-etc-ossec-agent.conf.j2
