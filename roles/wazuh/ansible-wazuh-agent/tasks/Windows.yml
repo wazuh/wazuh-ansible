@@ -58,15 +58,12 @@
 
 - name: Windows | Register agent
   win_shell: >
-    {% if check_path.stat.exists %}{{ wazuh_winagent_config.auth_path_x86 }}{% else %}
-    {{ wazuh_winagent_config.auth_path }}{% endif %}
+    {{ wazuh_agent_win_auth_path }}
     -m {{ wazuh_managers.0.address }}
     -p {{ wazuh_agent_authd.port }}
     {% if authd_pass is defined %} -P {{ authd_pass }}{% endif %}
-  args:
-    chdir: "{{ wazuh_agent_win_path }}"
   register: agent_auth_output
-  notify: restart wazuh-agent windows
+  notify: Windows | Restart Wazuh Agent
   when:
     - wazuh_agent_authd.enable
     - not check_windows_key.stat.exists or check_windows_key.stat.size == 0
