@@ -1,16 +1,21 @@
-FROM ansible/ansible
+FROM python
 
-ARG source_branch=master
+ARG source_branch=3.10_7.3.0_test_jenkins
 
 # Update aptitude
 RUN apt-get update
 
+RUN apt-get install -y git
+
+RUN apt-get install -y curl
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py
+
+RUN pip install pipenv
+
 # Clone the corresponding branch of wazuh-puppet
 RUN git clone -b $source_branch https://github.com/wazuh/wazuh-ansible.git
 
-RUN cd wazuh-ansible && chmod +x ./run_cluster_mode.sh && pipenv install
+RUN cd wazuh-ansible && chmod +x ./run_cluster_mode.sh && pipenv lock --requirements > requirements.txt && pip install -r requirements.txt
 
 RUN apt-get -y install ssh && apt-get -y update
-
-
-
