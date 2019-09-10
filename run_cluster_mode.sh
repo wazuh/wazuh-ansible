@@ -35,9 +35,9 @@ fi
 
 pipenv run destroy_all
 
-# pipenv run elasticsearch
-# pipenv run test
-# pipenv run worker
+pipenv run elasticsearch
+pipenv run test
+pipenv run worker
 pipenv run kibana
 
 pipenv run destroy_all
