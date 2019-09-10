@@ -1,11 +1,10 @@
-#!/bin/sh
-# exit when any command fails
+#!/bin/bash
+
 set -e
 
 paths=( "molecule/default/" "molecule/worker/" "molecule/elasticsearch/" "molecule/kibana/" )
 images=( "solita/ubuntu-systemd:bionic" "solita/ubuntu-systemd:xenial" "milcom/centos7-systemd" "ubuntu:trusty" "centos:6" )
 platform=( "bionic" "xenial" "centos7" "trusty" "centos6" )
-commands=( "sudo pipenv run elasticsearch" "sudo pipenv run test" "sudo pipenv run worker" "sudo pipenv run kibana" )
 
 echo "Please select an image. "
 
