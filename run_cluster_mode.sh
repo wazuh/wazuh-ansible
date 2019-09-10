@@ -33,12 +33,12 @@ else
         done
 fi
 
-sudo pipenv run destroy_all
+pipenv run destroy_all
 
-#sudo pipenv run elasticsearch
-#sudo pipenv run test
-#sudo pipenv run worker
-sudo pipenv run kibana
+# pipenv run elasticsearch
+# pipenv run test
+# pipenv run worker
+pipenv run kibana
 
-sudo pipenv run destroy_all
+pipenv run destroy_all
 

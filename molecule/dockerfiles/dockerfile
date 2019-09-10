@@ -14,7 +14,11 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py
 RUN pip install pipenv
 
 # Clone the corresponding branch of wazuh-puppet
-RUN git clone -b $source_branch https://github.com/wazuh/wazuh-ansible.git
+RUN cd ~ && git clone -b $source_branch https://github.com/wazuh/wazuh-ansible.git
+
+RUN pwd
+
+RUN ls -l
 
 RUN cd wazuh-ansible && chmod +x ./run_cluster_mode.sh && pipenv lock --requirements > requirements.txt && pip install -r requirements.txt
 
