@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # exit when any command fails
 set -e
 
@@ -34,13 +34,12 @@ else
         done
 fi
 
-sudo pipenv run elasticsearch
-sudo pipenv run test
-sudo pipenv run worker
-sudo pipenv run kibana
+sudo pipenv run destroy_all
 
-sudo pipenv run destroy
-sudo pipenv run destroy_worker
-sudo pipenv run destroy_kibana
-sudo pipenv run destroy_elasticsearch
+sudo pipenv run elasticsearch
+#sudo pipenv run test
+#sudo pipenv run worker
+#sudo pipenv run kibana
+
+sudo pipenv run destroy_all
 
