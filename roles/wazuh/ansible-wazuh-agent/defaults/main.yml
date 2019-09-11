@@ -20,14 +20,17 @@ wazuh_notify_time: '10'
 wazuh_time_reconnect: '60'
 wazuh_crypto_method: 'aes'
 wazuh_winagent_config:
-  install_dir: 'C:\Program Files\ossec-agent\'
-  install_dir_x86: 'C:\Program Files (x86)\ossec-agent\'
-  auth_path: C:\'Program Files'\ossec-agent\agent-auth.exe
+  download_dir: C:\
+  install_dir: C:\Program Files\ossec-agent\
+  install_dir_x86: C:\Program Files (x86)\ossec-agent\
+  auth_path: C:\Program Files\ossec-agent\agent-auth.exe
+  # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   version: '3.9.5'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
-  md5: c3fdbd6c121ca371b8abcd477ed4e8a4
+  md5: ee5b24216db472d291da4e14f0b3bc63
+  register_key: 9903C258-FC1E-4886-B7DB-1535976EC1D5
 wazuh_agent_config:
   active_response:
     ar_disabled: 'no'
