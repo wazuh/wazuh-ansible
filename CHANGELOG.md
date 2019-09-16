@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.10.0_7.3.2]
+
+### Added
+
+
+### Changed
+
+- Updated agent.conf template [@moodymob](https://github.com/moodymob) [#222](https://github.com/wazuh/wazuh-ansible/pull/222)
+- Improved molecule tests [@rshad](https://github.com/rshad) [#223](https://github.com/wazuh/wazuh-ansible/pull/223/files)
+
+### Fixed
+
+- Fixed typo in the `agent.conf` template [@joey1a2b3c](https://github.com/joey1a2b3c) [#227](https://github.com/wazuh/wazuh-ansible/pull/227)
+- Updated conditionals in tasks to fix Amazon Linux installation [@jm404](https://github.com/jm404) [#229](https://github.com/wazuh/wazuh-ansible/pull/229)
+- Fixed Kibana installation in Amazon Linux [@jm404](https://github.com/jm404) [#232](https://github.com/wazuh/wazuh-ansible/pull/232)
+- Fixed Windows Agent installation and configuration [@jm404](https://github.com/jm404) [#234](https://github.com/wazuh/wazuh-ansible/pull/234)
+
 ## [v3.9.5_7.2.1]
 
 ### Added 
