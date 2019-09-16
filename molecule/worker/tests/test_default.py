@@ -9,7 +9,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 def get_wazuh_version():
     """This return the version of Wazuh."""
-    return "3.9.5"
+    return "3.10.0"
 
 
 def test_wazuh_packages_are_installed(host):
@@ -82,4 +82,4 @@ def test_filebeat_is_installed(host):
     """Test if the elasticsearch package is installed."""
     filebeat = host.package("filebeat")
     assert filebeat.is_installed
-    assert filebeat.version.startswith('7.2.1')
+    assert filebeat.version.startswith('7.3.2')

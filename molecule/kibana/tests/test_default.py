@@ -14,7 +14,7 @@ def test_port_kibana_is_open(host):
 def test_find_correct_elasticsearch_version(host):
     """Test if we find the kibana/elasticsearch version in package.json"""
     kibana = host.file("/usr/share/kibana/plugins/wazuh/package.json")
-    assert kibana.contains("7.2.1")
+    assert kibana.contains("7.3.2")
 
 
 def test_wazuh_plugin_installed(host):
