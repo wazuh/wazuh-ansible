@@ -3,9 +3,6 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.10.0_7.3.2]
 
-### Added
-
-
 ### Changed
 
 - Updated agent.conf template [@moodymob](https://github.com/moodymob) [#222](https://github.com/wazuh/wazuh-ansible/pull/222)
