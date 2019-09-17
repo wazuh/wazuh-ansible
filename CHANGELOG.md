@@ -3,8 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.10.0_7.3.2]
 
+### Added
+
+- Update to Wazuh v3.10.0 
+
 ### Changed
 
+- Updated Kibana [@jm404](https://github.com/jm404) [#237](https://github.com/wazuh/wazuh-ansible/pull/237)
 - Updated agent.conf template [@moodymob](https://github.com/moodymob) [#222](https://github.com/wazuh/wazuh-ansible/pull/222)
 - Improved molecule tests [@rshad](https://github.com/rshad) [#223](https://github.com/wazuh/wazuh-ansible/pull/223/files)
 
