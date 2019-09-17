@@ -138,6 +138,7 @@
     name: kibana
     enabled: true
     state: restarted
+  changed_when: false
 
 - name: Ensure Kibana is started and enabled
   service:
