@@ -6,7 +6,7 @@
   when: ansible_os_family == 'Debian'
 
 - name: Reload systemd
-  systemd: 
+  systemd:
     daemon_reload: true
   ignore_errors: true
   when:
