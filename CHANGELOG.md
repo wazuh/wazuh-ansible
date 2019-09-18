@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Updated Kibana [@jm404](https://github.com/jm404) [#237](https://github.com/wazuh/wazuh-ansible/pull/237)
 - Updated agent.conf template [@moodymob](https://github.com/moodymob) [#222](https://github.com/wazuh/wazuh-ansible/pull/222)
 - Improved molecule tests [@rshad](https://github.com/rshad) [#223](https://github.com/wazuh/wazuh-ansible/pull/223/files)
+- Moved "run_cluster_mode.sh" script to molecule folder [@jm404](https://github.com/jm404) [#a9d2c52](https://github.com/wazuh/wazuh-ansible/commit/a9d2c5201047c273c2c4fead5a54e576111da455)
 
 ### Fixed
 
