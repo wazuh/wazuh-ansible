@@ -1,5 +1,5 @@
 ---
-filebeat_version: 7.2.1
+filebeat_version: 7.3.2
 
 filebeat_create_config: true
 

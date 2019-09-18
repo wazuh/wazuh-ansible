@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 3.9.5
+wazuh_agent_version: 3.10.0
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
@@ -26,7 +26,7 @@ wazuh_winagent_config:
   auth_path: C:\Program Files\ossec-agent\agent-auth.exe
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
-  version: '3.9.5'
+  version: '3.10.0'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
   md5: ee5b24216db472d291da4e14f0b3bc63
