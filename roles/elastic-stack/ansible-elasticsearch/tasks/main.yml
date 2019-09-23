@@ -102,8 +102,9 @@
 
 - name: Generating certificates for Elasticsearch security
   command: >-
-     "/usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in
-     {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip"
+    /usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem
+    --in  {{ node_certs_source }}/instances.yml
+    --out {{ node_certs_source }}/certs.zip
   when:
     - node_certs_generator
     - elasticsearch_xpack_security
@@ -210,7 +211,7 @@
 - name: Set elasticsearch bootstrap password
   shell: |
      set -o pipefail
-     "echo '{{ elasticsearch_xpack_security_password }}' | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf 'bootstrap.password'"
+     echo '{{ elasticsearch_xpack_security_password }}' | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf 'bootstrap.password'
   when:
     - elasticsearch_xpack_security
 
