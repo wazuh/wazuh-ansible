@@ -9,36 +9,44 @@ lint:
     config-data:
       ignore: .virtualenv
 platforms:
-  - name: trusty
-    image: ubuntu:trusty
-  - name: bionic
-    image: solita/ubuntu-systemd:bionic
+  - name: worker_platform_
+    image: imagename
     command: /sbin/init
+    ulimits:
+      - nofile:262144:262144
     privileged: true
-  - name: xenial
-    image: solita/ubuntu-systemd:xenial
-    privileged: true
-    command: /sbin/init
-  - name: centos6
-    image: geerlingguy/docker-centos6-ansible
-    privileged: true
-    command: /sbin/init
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  - name: centos7
-    image: milcom/centos7-systemd
-    privileged: true
+    memory_reservation: 2048m
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      hash_behaviour: merge
   playbooks:
     docker:
       create: ../default/create.yml
       destroy: ../default/destroy.yml
+      prepare: ../default/prepare.yml
   env:
     ANSIBLE_ROLES_PATH: ../../roles
   lint:
     name: ansible-lint
     enabled: true
+scenario:
+  name: worker
+  test_sequence:
+    - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
 verifier:
   name: testinfra
   lint:

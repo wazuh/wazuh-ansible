@@ -1,5 +1,5 @@
 ---
-wazuh_manager_api_version: 3.9.3
+wazuh_manager_api_version: 3.10.0
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: latest
@@ -35,9 +35,7 @@ wazuh_manager_config:
     port: '1516'
     bind_addr: '0.0.0.0'
     nodes:
-      - '172.17.0.2'
-      - '172.17.0.3'
-      - '172.17.0.4'
+      - 'manager'
     hidden: 'no'
   connection:
     - type: 'secure'
@@ -54,8 +52,8 @@ wazuh_manager_config:
     use_password: 'no'
     ssl_agent_ca: null
     ssl_verify_host: 'no'
-    ssl_manager_cert: '/var/ossec/etc/sslmanager.cert'
-    ssl_manager_key: '/var/ossec/etc/sslmanager.key'
+    ssl_manager_cert: 'sslmanager.cert'
+    ssl_manager_key: 'sslmanager.key'
     ssl_auto_negotiate: 'no'
   email_notification: 'no'
   mail_to:

@@ -8,14 +8,14 @@ lint:
   options:
     config-data:
       ignore: .virtualenv
-bionics:
-  - name: elasticsearch_bionic
-    image: solita/ubuntu-systemd:bionic
+platforms:
+  - name: kibana_platform_
+    image: imagename
     command: /sbin/init
     ulimits:
       - nofile:262144:262144
     privileged: true
-    memory_reservation: 2048m
+    memory_reservation: 1024m
 provisioner:
   name: ansible
   config_options:
@@ -25,7 +25,6 @@ provisioner:
     docker:
       create: ../default/create.yml
       destroy: ../default/destroy.yml
-      prepare: ../default/prepare.yml
   env:
     ANSIBLE_ROLES_PATH: ../../roles
   lint:
@@ -34,23 +33,7 @@ provisioner:
   inventory:
     group_vars:
       all:
-        elasticsearch_jvm_xms: 512
-scenario:
-  name: elasticsearch
-  test_sequence:
-    - lint
-    - dependency
-    - cleanup
-    - destroy
-    - syntax
-    - create
-    - prepare
-    - converge
-    #- idempotence
-    - side_effect
-    - verify
-    - cleanup
-    - destroy
+        elasticsearch_jvm_xms: 256
 verifier:
   name: testinfra
   lint:

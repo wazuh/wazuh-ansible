@@ -44,10 +44,13 @@
 
     - name: Create docker network(s)
       docker_network:
-        name: "{{ item }}"
-        docker_host: "{{ item.docker_host | default('unix://var/run/docker.sock') }}"
+        name: "main"
         state: present
-      with_items: "{{ molecule_yml.platforms | molecule_get_docker_networks }}"
+      
+    - name: Sleep 5 seconds till the network gets created if it's not
+        # Pause for 5 minutes to build app cache.
+      pause:
+        seconds: 10
 
     - name: Create molecule instance(s)
       docker_container:
@@ -65,7 +68,8 @@
         exposed_ports: "{{ item.exposed_ports | default(omit) }}"
         published_ports: "{{ item.published_ports | default(omit) }}"
         ulimits: "{{ item.ulimits | default(omit) }}"
-        networks: "{{ item.networks | default(omit) }}"
+        networks: 
+          - name: "main"
         dns_servers: "{{ item.dns_servers | default(omit) }}"
       register: server
       with_items: "{{ molecule_yml.platforms }}"

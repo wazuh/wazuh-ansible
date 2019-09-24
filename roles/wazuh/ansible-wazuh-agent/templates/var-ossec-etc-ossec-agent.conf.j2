@@ -42,7 +42,7 @@
   </logging>
 
   <active-response>
-    <disabled>{{ wazuh_agent_config.active_response.ar|default('no') }}</disabled>
+    <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
     <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
     <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
   </active-response>
@@ -99,14 +99,14 @@
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.directories is defined and ansible_os_family == "Linux" %}
+    {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
     {% for directory in wazuh_agent_config.syscheck.directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_os_family == "Windows" %}
+    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
     {% for directory in wazuh_agent_config.syscheck.win_directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}

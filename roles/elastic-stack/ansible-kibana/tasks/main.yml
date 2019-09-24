@@ -6,10 +6,11 @@
   when: ansible_os_family == 'Debian'
 
 - name: Reload systemd
-  systemd: daemon_reload=true
+  systemd:
+    daemon_reload: true
   ignore_errors: true
   when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
+    - not (ansible_distribution == "Amazon" and ansible_distribution_version == "(Karoo)")
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
     - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
@@ -59,6 +60,7 @@
     recurse: yes
   when:
     - kibana_xpack_security
+  notify: restart kibana
   tags: xpack-security
 
 - name: Kibana configuration
@@ -99,13 +101,18 @@
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
-  notify: restart kibana
+  become: yes
   become_user: kibana
+  notify: restart kibana
   tags:
     - install
     - skip_ansible_lint
 
-- name: Ensure Kibana started and enabled
+- name: Reload systemd configuration
+  systemd:
+    daemon_reload: true
+
+- name: Ensure Kibana is started and enabled
   service:
     name: kibana
     enabled: true

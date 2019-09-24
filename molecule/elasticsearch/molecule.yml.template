@@ -5,30 +5,38 @@ driver:
   name: docker
 lint:
   name: yamllint
-  enabled: false
+  options:
+    config-data:
+      ignore: .virtualenv
 platforms:
-  - name: bionic
-    image: ubuntu:bionic
-  - name: xenial
-    image: solita/ubuntu-systemd:xenial
-    privileged: true
+  - name: elasticsearch_platform_
+    image: imagename
     command: /sbin/init
-  - name: trusty
-    image: ubuntu:trusty
-  - name: centos6
-    image: centos:6
-  - name: centos7
-    image: milcom/centos7-systemd
+    ulimits:
+      - nofile:262144:262144
     privileged: true
+    memory_reservation: 2048m
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      hash_behaviour: merge
+  playbooks:
+    docker:
+      create: ../default/create.yml
+      destroy: ../default/destroy.yml
+      prepare: ../default/prepare.yml
   env:
     ANSIBLE_ROLES_PATH: ../../roles
   lint:
     name: ansible-lint
     enabled: true
+  inventory:
+    group_vars:
+      all:
+        elasticsearch_jvm_xms: 512
 scenario:
-  name: default
+  name: elasticsearch
   test_sequence:
     - lint
     - dependency
@@ -38,7 +46,7 @@ scenario:
     - create
     - prepare
     - converge
-    # - idempotence
+    - idempotence
     - side_effect
     - verify
     - cleanup
@@ -47,4 +55,3 @@ verifier:
   name: testinfra
   lint:
     name: flake8
-    enabled: true

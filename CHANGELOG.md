@@ -1,6 +1,33 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.10.0_7.3.2]
+
+### Added
+
+- Update to Wazuh v3.10.0 
+
+### Changed
+
+- Updated Kibana [@jm404](https://github.com/jm404) [#237](https://github.com/wazuh/wazuh-ansible/pull/237)
+- Updated agent.conf template [@moodymob](https://github.com/moodymob) [#222](https://github.com/wazuh/wazuh-ansible/pull/222)
+- Improved molecule tests [@rshad](https://github.com/rshad) [#223](https://github.com/wazuh/wazuh-ansible/pull/223/files)
+- Moved "run_cluster_mode.sh" script to molecule folder [@jm404](https://github.com/jm404) [#a9d2c52](https://github.com/wazuh/wazuh-ansible/commit/a9d2c5201047c273c2c4fead5a54e576111da455)
+
+### Fixed
+
+- Fixed typo in the `agent.conf` template [@joey1a2b3c](https://github.com/joey1a2b3c) [#227](https://github.com/wazuh/wazuh-ansible/pull/227)
+- Updated conditionals in tasks to fix Amazon Linux installation [@jm404](https://github.com/jm404) [#229](https://github.com/wazuh/wazuh-ansible/pull/229)
+- Fixed Kibana installation in Amazon Linux [@jm404](https://github.com/jm404) [#232](https://github.com/wazuh/wazuh-ansible/pull/232)
+- Fixed Windows Agent installation and configuration [@jm404](https://github.com/jm404) [#234](https://github.com/wazuh/wazuh-ansible/pull/234)
+
+## [v3.9.5_7.2.1]
+
+### Added 
+
+- Update to Wazuh v3.9.5
+- Update to Elastic Stack to v7.2.1
+
 ## [v3.9.4_7.2.0]
 
 ### Added 
@@ -10,6 +37,10 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Default protocol to TCP [@ionphractal](https://github.com/ionphractal) [#204](https://github.com/wazuh/wazuh-ansible/pull/204).
+
+### Fixed
+
+- Fixed network.host is not localhost [@rshad](https://github.com/rshad) [#204](https://github.com/wazuh/wazuh-ansible/pull/212).
 
 ## [v3.9.3_7.2.0]
 
