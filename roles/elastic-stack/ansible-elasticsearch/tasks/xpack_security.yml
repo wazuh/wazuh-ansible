@@ -60,9 +60,10 @@
   tags: xpack-security
 
 - name: Generating certificates for Elasticsearch security (generating CA)
-  shell: >-
-    /usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem --in
-    {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip
+  command: >-
+    /usr/share/elasticsearch/bin/elasticsearch-certutil cert ca --pem
+    --in {{ node_certs_source }}/instances.yml
+    --out {{ node_certs_source }}/certs.zip
   when:
     - node_certs_generator
     - not xpack_certs_zip.stat.exists
@@ -70,10 +71,12 @@
   tags: xpack-security
 
 - name: Generating certificates for Elasticsearch security (using provided CA | Without CA Password)
-  shell: >-
+  command: >-
     /usr/share/elasticsearch/bin/elasticsearch-certutil cert
-    --ca-key {{ node_certs_source }}/{{ ca_key_name }} --ca-cert {{ node_certs_source }}/{{ ca_cert_name }}
-    --pem --in {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip
+    --ca-key {{ node_certs_source }}/{{ ca_key_name }}
+    --ca-cert {{ node_certs_source }}/{{ ca_cert_name }}
+    --pem --in {{ node_certs_source }}/instances.yml
+    --out {{ node_certs_source }}/certs.zip
   when:
     - node_certs_generator
     - not xpack_certs_zip.stat.exists
@@ -82,9 +85,10 @@
   tags: xpack-security
 
 - name: Generating certificates for Elasticsearch security (using provided CA | Using CA Password)
-  shell: >-
+  command: >-
     /usr/share/elasticsearch/bin/elasticsearch-certutil cert
-    --ca-key {{ node_certs_source }}/{{ ca_key_name }} --ca-cert {{ node_certs_source }}/{{ ca_cert_name }}
+    --ca-key {{ node_certs_source }}/{{ ca_key_name }}
+    --ca-cert {{ node_certs_source }}/{{ ca_cert_name }}
     --pem --in {{ node_certs_source }}/instances.yml --out {{ node_certs_source }}/certs.zip
     --ca-pass {{ ca_password }}
   when:
@@ -175,7 +179,8 @@
   tags: xpack-security
 
 - name: Set elasticsearch bootstrap password
-  shell: >-
+  command: >-
+     set -o pipefail
      echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
   when:
     - node_certs_generator
