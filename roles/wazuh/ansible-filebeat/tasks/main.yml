@@ -28,25 +28,25 @@
 
 - name: Copying node's certificate from master
   copy:
-    src: "{{item}}"
-    dest: "{{node_certs_destination}}/"
-  with_items: 
-    - "{{master_certs_path}}/{{filebeat_node_name}}/{{ filebeat_node_name }}.key" 
-    - "{{master_certs_path}}/{{filebeat_node_name}}/{{ filebeat_node_name }}.crt"
-    - "{{master_certs_path}}/ca/ca.crt"
+    src: "{{ item }}"
+    dest: "{{ node_certs_destination }}/"
+  with_items:
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/ca.crt"
   when:
     - generate_CA
     - filebeat_xpack_security
   tags: xpack-security
-  
+
 - name: Copying node's certificate from master (Custom CA)
   copy:
-    src: "{{item}}"
-    dest: "{{node_certs_destination}}/"
-  with_items: 
-    - "{{master_certs_path}}/{{filebeat_node_name}}/{{ filebeat_node_name }}.key" 
-    - "{{master_certs_path}}/{{filebeat_node_name}}/{{ filebeat_node_name }}.crt"
-    - "{{master_certs_path}}/ca/{{ca_cert_name}}"
+    src: "{{ item }}"
+    dest: "{{ node_certs_destination }}/"
+  with_items:
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/{{ ca_cert_name }}"
   when:
     - not generate_CA
     - filebeat_xpack_security
