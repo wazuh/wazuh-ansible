@@ -179,8 +179,8 @@
   tags: xpack-security
 
 - name: Set elasticsearch bootstrap password
-  command: >-
-     set -o pipefail
-     echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
+  shell: >-
+    set -o pipefail;
+    echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
   when:
     - node_certs_generator
