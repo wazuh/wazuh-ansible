@@ -76,7 +76,7 @@
     mode: 0660
   notify: restart elasticsearch
   tags: configure
-  
+
 - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
   lineinfile:
     path: /etc/security/limits.conf
