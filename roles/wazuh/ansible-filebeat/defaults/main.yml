@@ -28,6 +28,8 @@ filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
 
+filebeat_module_folder: /usr/share/filebeat/module/wazuh
+
 # Xpack Security
 filebeat_xpack_security: false
 
@@ -43,3 +45,5 @@ node_certs_destination: /etc/filebeat/certs
 master_certs_path: /es_certs
 generate_CA: true
 ca_cert_name: ""
+
+
