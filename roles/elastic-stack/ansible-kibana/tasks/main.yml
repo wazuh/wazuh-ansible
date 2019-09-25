@@ -17,12 +17,12 @@
 
 - name: Copying node's certificate from master
   copy:
-    src: "{{item}}"
-    dest: "{{node_certs_destination}}/"
-  with_items: 
-    - "{{master_certs_path}}/{{kibana_node_name}}/{{ kibana_node_name }}.key" 
-    - "{{master_certs_path}}/{{kibana_node_name}}/{{ kibana_node_name }}.crt"
-    - "{{master_certs_path}}/ca/ca.crt"
+    src: "{{ item }}"
+    dest: "{{ node_certs_destination }}/"
+  with_items:
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/ca.crt"
   tags: xpack-security
   when:
     - kibana_xpack_security
@@ -30,13 +30,13 @@
 
 - name: Copying node's certificate from master (Custom CA)
   copy:
-    src: "{{item}}"
-    dest: "{{node_certs_destination}}/"
-    mode: '0664' 
-  with_items: 
-    - "{{master_certs_path}}/{{kibana_node_name}}/{{ kibana_node_name }}.key" 
-    - "{{master_certs_path}}/{{kibana_node_name}}/{{ kibana_node_name }}.crt"
-    - "{{master_certs_path}}/ca/{{ca_cert_name}}"
+    src: "{{ item }}"
+    dest: "{{ node_certs_destination }}/"
+    mode: '0664'
+  with_items:
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/{{ ca_cert_name }}"
   when:
     - kibana_xpack_security
     - not generate_CA
@@ -69,7 +69,7 @@
     dest: /etc/kibana/kibana.yml
     owner: root
     group: root
-    mode: '0664' 
+    mode: '0664'
   notify: restart kibana
   tags: configure
 
