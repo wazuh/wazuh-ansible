@@ -47,6 +47,21 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 * `master` branch contains the latest code, be aware of possible bugs on this branch.
 
 ## Testing
+
+1. Get the `wazuh-ansible` folder from the `wazuh-qa` [repository](https://github.com/wazuh/wazuh-qa/tree/master/ansible/wazuh-ansible).
+
+```
+git clone https://github.com/wazuh/wazuh-qa
+```
+
+2. Copy the `Pipfile` and the `molecule` folder into the root wazuh-ansible directory:
+
+```
+cp wazuh-qa/ansible/wazuh-ansible/* . -R
+```
+
+3. Follow these steps for launching the tests. Check the Pipfile for running different scenarios:
+
 ```
 pip install pipenv
 sudo pipenv install
