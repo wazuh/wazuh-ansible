@@ -4,10 +4,10 @@
 
 {% if node_certs_generator %}
 instances:
-{% for node in instances %}
-- name: "{{ node.name }}"
+{% for (key,value) in instances.iteritems() %}
+- name: "{{ value.name }}" 
   ip:
-   - "{{ node.ip }}"
+   - "{{ value.ip }}"
 {% endfor %}
 
 {% endif %}

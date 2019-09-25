@@ -34,12 +34,19 @@ xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
 xpack.security.transport.ssl.verification_mode: certificate 
 xpack.security.transport.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key 
-xpack.security.transport.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt 
+xpack.security.transport.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt
+{% if generate_CA == true %}
 xpack.security.transport.ssl.certificate_authorities: [ "{{ node_certs_destination }}/ca.crt" ]
-
+{% elif generate_CA == false %}
+xpack.security.transport.ssl.certificate_authorities: [ "{{ node_certs_destination }}/{{ca_cert_name}}" ]
+{% endif %}
 xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.verification_mode: certificate
 xpack.security.http.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key 
 xpack.security.http.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt 
+{% if generate_CA == true %}
 xpack.security.http.ssl.certificate_authorities: [ "{{ node_certs_destination }}/ca.crt" ]
+{% elif generate_CA == false %}
+xpack.security.http.ssl.certificate_authorities: [ "{{ node_certs_destination }}/{{ca_cert_name}}" ]
+{% endif %}
 {% endif %}
