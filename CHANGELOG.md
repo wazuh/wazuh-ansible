@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.10.2_7.3.2]
+
+### Added
+
+- Update to Wazuh v3.10.2
+
+### Changed
+
+- Moved molecule folder to Wazuh QA Repository [manuasir](https://github.com/manuasir) [#120ed16](https://github.com/wazuh/wazuh-ansible/commit/120ed163b6f131315848938beca65c1f1cad7f1b)
+
+- Refactored XPack Security configuration tasks [@jm404](https://github.com/jm404) [#246](https://github.com/wazuh/wazuh-ansible/pull/246)
+
+### Fixed
+
+- Fixed ES bootstrap password configuration [@jm404](https://github.com/jm404) [#b8803de](https://github.com/wazuh/wazuh-ansible/commit/b8803de85fb71edf090b0c076d4fe3684cd7cb36)
+
 ## [v3.10.0_7.3.2]
 
 ### Added
