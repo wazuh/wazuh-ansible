@@ -74,24 +74,27 @@
   tags: configure
 
 - name: Checking Wazuh-APP version
-  shell: |
-    set -o pipefail
-    grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo
+  shell: >-
+    grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json
   args:
     executable: /bin/bash
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
   changed_when: false
-  tags: install
+  failed_when:
+    -  wazuh_app_verify.rc != 0
+    -  wazuh_app_verify.rc != 1
 
 - name: Removing old Wazuh-APP
-  command: /usr/share/kibana/bin/kibana-plugin remove wazuh
-  when: wazuh_app_verify.stdout == "0"
+  command: /usr/share/kibana/bin/kibana-plugin --allow-root remove wazuh
+  when: wazuh_app_verify.rc == 1
   tags: install
 
 - name: Removing bundles
   file: path=/usr/share/kibana/optimize/bundles state=absent
-  when: wazuh_app_verify.stdout == "0"
+  become: yes
+  become_user: kibana
+  when: wazuh_app_verify.rc == 1
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
