@@ -81,7 +81,9 @@
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
   changed_when: false
-  failed_when: wazuh_app_verify.stderr | length > 0
+  failed_when:
+    -  wazuh_app_verify.rc != 0
+    -  wazuh_app_verify.rc != 1
 
 - name: Removing old Wazuh-APP
   command: /usr/share/kibana/bin/kibana-plugin --allow-root remove wazuh
