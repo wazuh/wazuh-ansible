@@ -88,7 +88,6 @@
 - name: Removing old Wazuh-APP
   command: /usr/share/kibana/bin/kibana-plugin --allow-root remove wazuh
   when: wazuh_app_verify.rc == 1
-  debugger: always
   tags: install
 
 - name: Removing bundles
