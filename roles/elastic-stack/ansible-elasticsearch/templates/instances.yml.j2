@@ -6,10 +6,10 @@
 instances:
 {% for (key,value) in instances.items() %}
 - name: "{{ value.name }}"
-{% if value.ip %}
+{% if value.ip is defined %}
   ip:
    - "{{ value.ip }}"
-{% elif value.dns %}
+{% elif value.dns is defined %}
   dns:
    - "{{ value.dns }}"
 {% endif %}
