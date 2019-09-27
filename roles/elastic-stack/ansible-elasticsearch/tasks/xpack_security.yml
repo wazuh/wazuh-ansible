@@ -12,6 +12,7 @@
   failed_when: "'unzip' not in ansible_facts.packages"
   when:
     - node_certs_generator
+  delegate_to: "127.0.0.1"
 
 - name: Check if certificate exists locally
   stat:
