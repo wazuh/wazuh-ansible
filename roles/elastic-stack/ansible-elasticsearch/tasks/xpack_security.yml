@@ -1,9 +1,15 @@
 
-- name: Install unzip dependency.
-  package:
-    name: unzip
-    state: present
+- name: "Get package list from Ansible master"
+  package_facts:
+    manager: "auto"
   delegate_to: "127.0.0.1"
+  when:
+    - node_certs_generator
+
+- name: "Detect unzip in Ansible master (127.0.0.1)"
+  fail:
+    msg: "Unzip is required in the Ansible master. Please install and re-run the playbook."
+  failed_when: "'unzip' not in ansible_facts.packages"
   when:
     - node_certs_generator
 
