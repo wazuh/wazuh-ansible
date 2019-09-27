@@ -1,12 +1,4 @@
 
-- name: Install unzip dependency.
-  package:
-    name: unzip
-    state: present
-  delegate_to: "127.0.0.1"
-  when:
-    - node_certs_generator
-
 - name: Check if certificate exists locally
   stat:
     path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"
