@@ -3,6 +3,7 @@ elasticsearch_cluster_name: wazuh
 elasticsearch_node_name: node-1
 elasticsearch_http_port: 9200
 elasticsearch_network_host: 127.0.0.1
+elasticsearch_reachable_host: 127.0.0.1
 elasticsearch_jvm_xms: null
 elastic_stack_version: 7.3.2
 single_node: true
@@ -30,7 +31,3 @@ generate_CA: true
 ca_key_name: ""
 ca_cert_name: ""
 ca_password: ""
-
-
-
-
