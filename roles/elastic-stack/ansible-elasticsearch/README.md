@@ -62,7 +62,7 @@ Example Playbook
   roles:
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.111
-      node_name: node-1
+      elasticsearch_node_name: node-1
       single_node: false
       elasticsearch_master_candidate: true
       elasticsearch_bootstrap_node: true
@@ -95,6 +95,7 @@ Example Playbook
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.112
       elasticsearch_node_name: node-2
+      single_node: false
       elasticsearch_xpack_security: true
       elasticsearch_master_candidate: true
       node_certs_generator_ip: 172.16.0.111
@@ -108,6 +109,7 @@ Example Playbook
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: 172.16.0.113
       elasticsearch_node_name: node-3
+      single_node: false
       elasticsearch_xpack_security: true
       elasticsearch_master_candidate: true
       node_certs_generator_ip: 172.16.0.111
