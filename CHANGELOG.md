@@ -21,6 +21,10 @@ All notable changes to this project will be documented in this file.
 - Fixed Kibana installation in Amazon Linux [@jm404](https://github.com/jm404) [#232](https://github.com/wazuh/wazuh-ansible/pull/232)
 - Fixed Windows Agent installation and configuration [@jm404](https://github.com/jm404) [#234](https://github.com/wazuh/wazuh-ansible/pull/234)
 
+### Fixed
+
+- Removed registry key check on Wazuh Agent installation in windows [@jm404](https://github.com/jm404) [#265](https://github.com/wazuh/wazuh-ansible/pull/265)
+
 ## [v3.9.5_7.2.1]
 
 ### Added 
