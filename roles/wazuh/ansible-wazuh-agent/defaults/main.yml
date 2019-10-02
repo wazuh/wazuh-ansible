@@ -29,8 +29,7 @@ wazuh_winagent_config:
   version: '3.10.0'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
-  md5: ee5b24216db472d291da4e14f0b3bc63
-  register_key: 9903C258-FC1E-4886-B7DB-1535976EC1D5
+  md5: 2bceb80901f22b56221658aceb64b914  
 wazuh_agent_config:
   active_response:
     ar_disabled: 'no'
