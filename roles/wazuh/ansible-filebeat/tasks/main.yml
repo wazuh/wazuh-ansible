@@ -26,65 +26,39 @@
   tags:
     - init
 
-- name: Check if certificate exists locally
-  stat:
-    path: "{{ node_certs_destination }}/{{ filebeat_node_name }}.crt"
-  register: certificate_file_exists
-  when:
-    - filebeat_xpack_security
-
-- name: Copy key & certificate files in generator node (locally)
-  synchronize:
-    src: "{{ node_certs_source }}/{{ filebeat_node_name }}/"
+- name: Copying node's certificate from master
+  copy:
+    src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-  delegate_to: "{{ node_certs_generator_ip }}"
+  with_items:
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/ca.crt"
   when:
-    - node_certs_generator
+    - generate_CA
     - filebeat_xpack_security
-    - not certificate_file_exists.stat.exists
   tags: xpack-security
 
-- name: Copy ca certificate file in generator node (locally)
-  synchronize:
-    src: "{{ node_certs_source }}/ca/"
+- name: Copying node's certificate from master (Custom CA)
+  copy:
+    src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-  delegate_to: "{{ node_certs_generator_ip }}"
+  with_items:
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
+    - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/{{ ca_cert_name }}"
   when:
-    - node_certs_generator
+    - not generate_CA
     - filebeat_xpack_security
-    - not certificate_file_exists.stat.exists
-  register: check_certs_permissions
   tags: xpack-security
 
-- name: Importing key & certificate files from generator node
-  command: >-
-    {{ rsync_path }} {{ rsync_extra_parameters }} {{ rsync_user }}@{{ node_certs_generator_ip }}:
-    {{ node_certs_source }}/{{ filebeat_node_name }}/ {{ node_certs_destination }}/
-  when:
-    - not node_certs_generator
-    - filebeat_xpack_security
-    - not certificate_file_exists.stat.exists
-  tags: xpack-security
-
-- name: Importing ca certificate file from generator node
-  command: >-
-    {{ rsync_path }} {{ rsync_extra_parameters }} {{ rsync_user }}@{{ node_certs_generator_ip }}:
-    {{ node_certs_source }}/ca/ {{ node_certs_destination }}/
-  when:
-    - not node_certs_generator
-    - filebeat_xpack_security
-    - not certificate_file_exists.stat.exists
-  register: check_certs_permissions
-  tags: xpack-security
-
-- name: Ensuring certificates folder owner
+- name: Ensuring folder & certs permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: '0770'
+    mode: '0774'
+    state: directory
     recurse: yes
-
   when:
-    - check_certs_permissions is defined
     - filebeat_xpack_security
   tags: xpack-security
 

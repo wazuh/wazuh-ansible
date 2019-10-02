@@ -15,54 +15,31 @@
     - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
     - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
-- name: Check if certificate exists locally
-  stat:
-    path: "{{ node_certs_destination }}/{{ kibana_node_name }}.crt"
-  register: certificate_file_exists
-  when:
-    - kibana_xpack_security
-
-- name: Copy key & certificate files in generator node (locally)
-  synchronize:
-    src: "{{ node_certs_source }}/{{ kibana_node_name }}/"
+- name: Copying node's certificate from master
+  copy:
+    src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-  delegate_to: "{{ node_certs_generator_ip }}"
-  when:
-    - node_certs_generator
-    - kibana_xpack_security
-    - not certificate_file_exists.stat.exists
+  with_items:
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/ca.crt"
   tags: xpack-security
+  when:
+    - kibana_xpack_security
+    - generate_CA
 
-- name: Copy ca certificate file in generator node (locally)
-  synchronize:
-    src: "{{ node_certs_source }}/ca/"
+- name: Copying node's certificate from master (Custom CA)
+  copy:
+    src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-  delegate_to: "{{ node_certs_generator_ip }}"
+    mode: '0664'
+  with_items:
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
+    - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
+    - "{{ master_certs_path }}/ca/{{ ca_cert_name }}"
   when:
-    - node_certs_generator
     - kibana_xpack_security
-    - not certificate_file_exists.stat.exists
-  tags: xpack-security
-
-- name: Importing key & certificate files from generator node
-  command: >-
-    {{ rsync_path }} {{ rsync_extra_parameters }} {{ rsync_user }}@{{ node_certs_generator_ip }}:
-    {{ node_certs_source }}/{{ kibana_node_name }}/ {{ node_certs_destination }}/
-  when:
-    - not node_certs_generator
-    - kibana_xpack_security
-    - not certificate_file_exists.stat.exists
-  tags: xpack-security
-
-- name: Importing ca certificate file from generator node
-  command: >-
-    {{ rsync_path }} {{ rsync_extra_parameters }} {{ rsync_user }}@{{ node_certs_generator_ip }}:
-    {{ node_certs_source }}/ca/ {{ node_certs_destination }}/
-  when:
-    - not node_certs_generator
-    - kibana_xpack_security
-    - not certificate_file_exists.stat.exists
-  register: check_certs_permissions
+    - not generate_CA
   tags: xpack-security
 
 - name: Ensuring certificates folder owner
@@ -73,7 +50,6 @@
     owner: kibana
     group: kibana
   when:
-    - check_certs_permissions is defined
     - kibana_xpack_security
   tags: xpack-security
 
@@ -83,7 +59,6 @@
     mode: '0770'
     recurse: yes
   when:
-    - check_certs_permissions is defined
     - kibana_xpack_security
   notify: restart kibana
   tags: xpack-security
@@ -94,7 +69,7 @@
     dest: /etc/kibana/kibana.yml
     owner: root
     group: root
-    mode: 0664
+    mode: '0664'
   notify: restart kibana
   tags: configure
 
