@@ -12,6 +12,8 @@ This role will work on:
  * Fedora
  * Debian
  * Ubuntu
+ 
+For the elasticsearch role with XPack security the `unzip` command must be available on the Ansible master.
 
 Role Variables
 --------------
@@ -52,6 +54,72 @@ Example Playbook
   roles:
     - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.163', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
 ```
+
+- Three nodes Elasticsearch cluster with XPack security
+```
+---
+- hosts: elastic-1
+  roles:
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: 172.16.0.111
+      elasticsearch_node_name: node-1
+      single_node: false
+      elasticsearch_master_candidate: true
+      elasticsearch_bootstrap_node: true
+      elasticsearch_cluster_nodes:
+        - 172.16.0.111
+        - 172.16.0.112
+        - 172.16.0.113
+      elasticsearch_discovery_nodes:
+        - 172.16.0.111
+        - 172.16.0.112
+        - 172.16.0.113
+      elasticsearch_xpack_security: true
+      node_certs_generator: true
+      node_certs_generator_ip: 172.16.0.111
+
+  vars:
+    instances:
+      node-1:
+        name: node-1
+        ip: 172.16.0.111
+      node-2:
+        name: node-2
+        ip: 172.16.0.112
+      node-3:
+        name: node-3
+        ip: 172.16.0.113
+
+- hosts: elastic-2
+  roles:
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: 172.16.0.112
+      elasticsearch_node_name: node-2
+      single_node: false
+      elasticsearch_xpack_security: true
+      elasticsearch_master_candidate: true
+      node_certs_generator_ip: 172.16.0.111
+      elasticsearch_discovery_nodes:
+        - 172.16.0.111
+        - 172.16.0.112
+        - 172.16.0.113
+
+- hosts: elastic-3
+  roles:
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: 172.16.0.113
+      elasticsearch_node_name: node-3
+      single_node: false
+      elasticsearch_xpack_security: true
+      elasticsearch_master_candidate: true
+      node_certs_generator_ip: 172.16.0.111
+      elasticsearch_discovery_nodes:
+        - 172.16.0.111
+        - 172.16.0.112
+        - 172.16.0.113
+
+```
+
 
 License and copyright
 ---------------------
