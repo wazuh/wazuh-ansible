@@ -79,6 +79,13 @@ Example Playbook
       node_certs_generator_ip: 172.16.0.111
 
   vars:
+    elasticsearch_xpack_users:
+      anne:
+        password: 'PasswordHere'
+        roles: '["kibana_user", "monitoring_user"]'
+      jack:
+        password: 'PasswordHere'
+        roles: '["superuser"]'
     instances:
       node-1:
         name: node-1
