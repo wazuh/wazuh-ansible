@@ -185,6 +185,7 @@
     name: wazuh-agent
     enabled: true
     state: started
+  tags: config
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
