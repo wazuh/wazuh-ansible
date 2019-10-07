@@ -222,7 +222,6 @@
     <processes>{{ wazuh_manager_config.syscollector.processes }}</processes>
   </wodle>
 
-  {% if ansible_system == "Linux" %}
     <sca>
     {% if wazuh_manager_config.sca.enabled | length > 0 %}
       <enabled>{{ wazuh_manager_config.sca.enabled }}</enabled>
@@ -246,7 +245,6 @@
       <time>yes</time>
     {% endif %}
     </sca>
-  {% endif %}
 
   <wodle name="vulnerability-detector">
     <disabled>{{ wazuh_manager_config.vul_detector.disable }}</disabled>
