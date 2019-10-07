@@ -236,6 +236,14 @@ wazuh_agent_config:
     packages: 'yes'
     ports_no: 'yes'
     processes: 'yes'
+  sca:
+    enabled: 'yes'
+    scan_on_start: 'yes'
+    interval: '12h'
+    skip_nfs: 'yes'
+    day: ''
+    wday: ''
+    time: ''
   cis_cat:
     disable: 'yes'
     install_java: 'yes'

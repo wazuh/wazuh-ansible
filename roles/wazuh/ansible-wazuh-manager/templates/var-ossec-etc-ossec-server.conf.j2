@@ -222,6 +222,32 @@
     <processes>{{ wazuh_manager_config.syscollector.processes }}</processes>
   </wodle>
 
+  {% if ansible_system == "Linux" %}
+    <sca>
+    {% if wazuh_manager_config.sca.enabled | length > 0 %}
+      <enabled>{{ wazuh_manager_config.sca.enabled }}</enabled>
+    {% endif %}
+    {% if wazuh_manager_config.sca.scan_on_start | length > 0 %}
+      <scan_on_start>{{ wazuh_manager_config.sca.scan_on_start }}</scan_on_start>
+    {% endif %}
+    {% if wazuh_manager_config.sca.interval | length > 0 %}
+      <interval>{{ wazuh_manager_config.sca.interval }}</interval>
+    {% endif %}
+    {% if wazuh_manager_config.sca.skip_nfs | length > 0 %}  
+      <skip_nfs>yes</skip_nfs>
+    {% endif %}
+    {% if wazuh_manager_config.sca.day | length > 0 %}  
+      <day>yes</day>
+    {% endif %}
+    {% if wazuh_manager_config.sca.wday | length > 0 %}  
+      <wday>yes</wday>
+    {% endif %}
+    {% if wazuh_manager_config.sca.time | length > 0 %}  
+      <time>yes</time>
+    {% endif %}
+    </sca>
+  {% endif %}
+
   <wodle name="vulnerability-detector">
     <disabled>{{ wazuh_manager_config.vul_detector.disable }}</disabled>
     <interval>{{ wazuh_manager_config.vul_detector.interval }}</interval>
