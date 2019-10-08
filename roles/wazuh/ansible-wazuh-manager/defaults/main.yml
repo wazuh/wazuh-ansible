@@ -154,6 +154,14 @@ wazuh_manager_config:
     packages: 'yes'
     ports_no: 'yes'
     processes: 'yes'
+  sca:
+    enabled: 'yes'
+    scan_on_start: 'yes'
+    interval: '12h'
+    skip_nfs: 'yes'
+    day: ''
+    wday: ''
+    time: ''
   vul_detector:
     disable: 'yes'
     interval: '5m'
