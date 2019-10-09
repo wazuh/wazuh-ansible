@@ -120,6 +120,22 @@
 - import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
 
+- name: Wait for Elasticsearch API
+  uri:
+    url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_cluster/health/"
+    user: "{{ elasticsearch_xpack_security_user }}"
+    password: "{{ elasticsearch_xpack_security_password }}"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until: (  _result.json is defined) and (_result.json.status == "green")
+  retries: 24
+  delay: 5
+  when:
+    - elasticsearch_xpack_users is defined
+
 - name: Create elasticsearch users
   uri:
     url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_security/user/{{ item.key }}"
