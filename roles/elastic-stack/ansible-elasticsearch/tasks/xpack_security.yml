@@ -193,19 +193,3 @@
   when:
     - node_certs_generator
   tags: molecule-idempotence-notest
-
-- name: Create elasticsearch users
-  uri:
-    url: "https://{{ elasticsearch_reachable_host }}:9200/_security/user/{{ item.key }}"
-    method: POST
-    body_format: json
-    user: "{{ elasticsearch_xpack_security_user }}"
-    password: "{{ elasticsearch_xpack_security_password }}"
-    body: '{ "password" : "{{ item.value["password"] }}", "roles" : {{ item.value["roles"] }} }'
-    validate_certs: no
-  loop: "{{ elasticsearch_xpack_users|default({})|dict2items }}"
-  register: http_response
-  failed_when: http_response.status != 200
-  when:
-    - elasticsearch_xpack_users is defined
-    - node_certs_generator

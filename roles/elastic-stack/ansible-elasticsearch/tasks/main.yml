@@ -119,3 +119,18 @@
 
 - import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
+
+- name: Create elasticsearch users
+  uri:
+    url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_security/user/{{ item.key }}"
+    method: POST
+    body_format: json
+    user: "{{ elasticsearch_xpack_security_user }}"
+    password: "{{ elasticsearch_xpack_security_password }}"
+    body: '{ "password" : "{{ item.value["password"] }}", "roles" : {{ item.value["roles"] }} }'
+    validate_certs: no
+  loop: "{{ elasticsearch_xpack_users|default({})|dict2items }}"
+  register: http_response
+  failed_when: http_response.status != 200
+  when:
+    - elasticsearch_xpack_users is defined
