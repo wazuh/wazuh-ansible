@@ -55,9 +55,7 @@ Example Playbook
     - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.163', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
 ```
 
-
 - Three nodes Elasticsearch cluster with XPack security
-
 ```
 ---
 - hosts: elastic-1
