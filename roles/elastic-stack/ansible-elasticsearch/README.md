@@ -55,7 +55,9 @@ Example Playbook
     - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.163', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
 ```
 
+
 - Three nodes Elasticsearch cluster with XPack security
+
 ```
 ---
 - hosts: elastic-1
@@ -79,13 +81,6 @@ Example Playbook
       node_certs_generator_ip: 172.16.0.111
 
   vars:
-    elasticsearch_xpack_users:
-      anne:
-        password: 'PasswordHere'
-        roles: '["kibana_user", "monitoring_user"]'
-      jack:
-        password: 'PasswordHere'
-        roles: '["superuser"]'
     instances:
       node-1:
         name: node-1
@@ -124,8 +119,18 @@ Example Playbook
         - 172.16.0.111
         - 172.16.0.112
         - 172.16.0.113
+  vars:
+    elasticsearch_xpack_users:
+      anne:
+        password: 'PasswordHere'
+        roles: '["kibana_user", "monitoring_user"]'
+      jack:
+        password: 'PasswordHere'
+        roles: '["superuser"]'
 
 ```
+
+It is possible to define users directly on the playbook, these must be defined on a variable `elasticsearch_xpack_users` on the last node of the cluster as in the example.
 
 
 License and copyright
