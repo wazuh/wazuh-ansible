@@ -79,13 +79,6 @@ Example Playbook
       node_certs_generator_ip: 172.16.0.111
 
   vars:
-    elasticsearch_xpack_users:
-      anne:
-        password: 'PasswordHere'
-        roles: '["kibana_user", "monitoring_user"]'
-      jack:
-        password: 'PasswordHere'
-        roles: '["superuser"]'
     instances:
       node-1:
         name: node-1
@@ -124,8 +117,18 @@ Example Playbook
         - 172.16.0.111
         - 172.16.0.112
         - 172.16.0.113
+  vars:
+    elasticsearch_xpack_users:
+      anne:
+        password: 'PasswordHere'
+        roles: '["kibana_user", "monitoring_user"]'
+      jack:
+        password: 'PasswordHere'
+        roles: '["superuser"]'
 
 ```
+
+It is possible to define users directly on the playbook, these must be defined on a variable `elasticsearch_xpack_users` on the last node of the cluster as in the example.
 
 
 License and copyright
