@@ -138,7 +138,6 @@
   unarchive:
     src: "{{ master_certs_path }}/certs.zip"
     dest: "{{ master_certs_path }}/"
-  become: true
   delegate_to: "127.0.0.1"
   when:
     - node_certs_generator
