@@ -1,11 +1,11 @@
----
-monitor_aws:
-    disable: 'no'
-    interval: '10m'
-    run_on_start: 'yes'
-    skip_on_error: 'yes'
-    s3:
-      - name: 'S3_bucket'
-        bucket_type: 'guardduty'
-        access_key: ''
-        secret_key: ''
+#---
+#monitor_aws:
+#    disable: 'no'
+#    interval: '10m'
+#    run_on_start: 'yes'
+#    skip_on_error: 'yes'
+#    s3:
+#      - name: 'S3_bucket'
+#        bucket_type: 'guardduty'
+#        access_key: '<access_key>'
+#        secret_key: '<secret_key>'

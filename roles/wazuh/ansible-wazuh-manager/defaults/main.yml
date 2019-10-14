@@ -266,7 +266,7 @@ wazuh_manager_config:
       alert_level: 10
       alert_format: 'json'
     - name: 'pagerduty'
-      api_key: <api_key>
+      api_key: '<api_key>'
       alert_level: 10
   monitor_aws:
     disable: 'no'
@@ -278,8 +278,8 @@ wazuh_manager_config:
         bucket_type: 'guardduty'
         path: 'path'
         only_logs_after: '1970-JAN-01'
-        access_key: <access key>
-        secret_key: <secret key>
+        access_key: '<access key>'
+        secret_key: '<secret key>'
   labels:
     enable: false
     list:
