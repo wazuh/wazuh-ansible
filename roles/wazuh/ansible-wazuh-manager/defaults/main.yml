@@ -262,7 +262,7 @@ wazuh_manager_config:
       format: null
   integrations:
     - name: 'slack'
-      hook_url: <hook_url>
+      hook_url: '<hook_url>'
       alert_level: 10
       alert_format: 'json'
     - name: 'pagerduty'
