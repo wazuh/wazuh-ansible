@@ -260,6 +260,26 @@ wazuh_manager_config:
     - server: null
       port: null
       format: null
+  integrations:
+    - name: 'slack'
+      hook_url: <hook_url>
+      alert_level: 10
+      alert_format: 'json'
+    - name: 'pagerduty'
+      api_key: <api_key>
+      alert_level: 10
+  monitor_aws:
+    disable: 'no'
+    internal: '10m'
+    run_on_start: 'yes'
+    skip_on_error: 'yes'
+    s3:
+      - name: 's3-bucket-example-name'
+        bucket_type: 'guardduty'
+        path: 'path'
+        only_logs_after: '1970-JAN-01'
+        access_key: <access key>
+        secret_key: <secret key>
   labels:
     enable: false
     list:
