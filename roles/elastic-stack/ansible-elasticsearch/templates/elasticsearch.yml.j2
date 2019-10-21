@@ -27,6 +27,13 @@ discovery.seed_hosts:
 {% endfor %}
 {% endif %}
 
+{% if elasticsearch_lower_disk_requirements %}
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.flood_stage: 200mb
+cluster.routing.allocation.disk.watermark.low: 500mb
+cluster.routing.allocation.disk.watermark.high: 300mb
+{% endif %}
+
 # XPACK Security
 
 {% if elasticsearch_xpack_security %}
