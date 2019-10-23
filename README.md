@@ -93,3 +93,5 @@ Copyright (C) 2016-2018 Wazuh Inc.  (License GPLv2)
 ## Web references
 
 * [Wazuh website](http://wazuh.com)
+
+
