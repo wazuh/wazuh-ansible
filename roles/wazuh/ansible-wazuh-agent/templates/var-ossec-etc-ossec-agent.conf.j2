@@ -1,4 +1,4 @@
-#jinja2: trim_blocks: False
+#jinja2: lstrip_blocks: True
 <!-- {{ ansible_managed }} -->
 <!--
   Wazuh - Agent
@@ -8,7 +8,6 @@
 
 <ossec_config>
   <client>
-
     {% for manager in wazuh_managers  %}
     <server>
       <address>{{ manager.address }}</address>
@@ -20,7 +19,6 @@
       {% endif %}
     </server>
     {% endfor %}
-
     {% if wazuh_profile is not none %}
     <config-profile>{{ wazuh_profile }}</config-profile>
     {% endif %}
@@ -31,12 +29,14 @@
     <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
     <crypto_method>{{ wazuh_crypto_method }}</crypto_method>
   </client>
+
   <client_buffer>
     <!-- Agent buffer options -->
     <disabled>{{ wazuh_agent_config.client_buffer.disable }}</disabled>
     <queue_size>{{ wazuh_agent_config.client_buffer.queue_size }}</queue_size>
     <events_per_second>{{ wazuh_agent_config.client_buffer.events_per_sec }}</events_per_second>
   </client_buffer>
+
   <logging>
     <log_format>{{ wazuh_agent_config.log_format }}</log_format>
   </logging>
@@ -72,7 +72,6 @@
     {% endif %}
     <skip_nfs>yes</skip_nfs>
     {% endif %}
-
     {% if ansible_os_family == "Windows" %}
     <windows_audit>./shared/win_audit_rcl.txt</windows_audit>
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
@@ -86,11 +85,11 @@
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
-<!--    #<alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
+  <!-- <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
     <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     {% if ansible_system == "Linux" %}
-<!--    #<directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
+  <!-- <directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
     <directories check_all="yes">/etc,/usr/bin,/usr/sbin</directories>
     <directories check_all="yes">/bin,/sbin,/boot</directories>
 
@@ -130,7 +129,7 @@
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
-
+    
     <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
     {% endif %}
     <!-- Remove not monitored files -->
@@ -270,29 +269,29 @@
     <processes>{{ wazuh_agent_config.syscollector.processes }}</processes>
   </wodle>
 
-    <sca>
-    {% if wazuh_agent_config.sca.enabled | length > 0 %}
-      <enabled>{{ wazuh_agent_config.sca.enabled }}</enabled>
-    {% endif %}
-    {% if wazuh_agent_config.sca.scan_on_start | length > 0 %}
-      <scan_on_start>{{ wazuh_agent_config.sca.scan_on_start }}</scan_on_start>
-    {% endif %}
-    {% if wazuh_agent_config.sca.interval | length > 0 %}
-      <interval>{{ wazuh_agent_config.sca.interval }}</interval>
-    {% endif %}
-    {% if wazuh_agent_config.sca.skip_nfs | length > 0 %}  
-      <skip_nfs>yes</skip_nfs>
-    {% endif %}
-    {% if wazuh_agent_config.sca.day | length > 0 %}  
-      <day>yes</day>
-    {% endif %}
-    {% if wazuh_agent_config.sca.wday | length > 0 %}  
-      <wday>yes</wday>
-    {% endif %}
-    {% if wazuh_agent_config.sca.time | length > 0 %}  
-      <time>yes</time>
-    {% endif %}
-    </sca>
+  <sca>
+  {% if wazuh_agent_config.sca.enabled | length > 0 %}
+    <enabled>{{ wazuh_agent_config.sca.enabled }}</enabled>
+  {% endif %}
+  {% if wazuh_agent_config.sca.scan_on_start | length > 0 %}
+    <scan_on_start>{{ wazuh_agent_config.sca.scan_on_start }}</scan_on_start>
+  {% endif %}
+  {% if wazuh_agent_config.sca.interval | length > 0 %}
+    <interval>{{ wazuh_agent_config.sca.interval }}</interval>
+  {% endif %}
+  {% if wazuh_agent_config.sca.skip_nfs | length > 0 %}
+    <skip_nfs>yes</skip_nfs>
+  {% endif %}
+  {% if wazuh_agent_config.sca.day | length > 0 %}  
+    <day>yes</day>
+  {% endif %}
+  {% if wazuh_agent_config.sca.wday | length > 0 %}  
+    <wday>yes</wday>
+  {% endif %}
+  {% if wazuh_agent_config.sca.time | length > 0 %}  
+    <time>yes</time>
+  {% endif %}
+  </sca>
 
   {% if ansible_system == "Linux" and wazuh_agent_config.vuls.disable == 'no' %}
   <wodle name="command">
@@ -306,68 +305,72 @@
   {% endif %}
 
   <!-- Files to monitor (localfiles) -->
-    {% if ansible_system == "Linux" %}
-    {% for localfile in wazuh_agent_config.localfiles.linux %}
-    <localfile>
-        <log_format>{{ localfile.format }}</log_format>
+  {% if ansible_system == "Linux" %}
+  {% for localfile in wazuh_agent_config.localfiles.linux %}
+  
+  <localfile>
+    <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-        <command>{{ localfile.command }}</command>
-        <frequency>{{ localfile.frequency }}</frequency>
-        {% if localfile.alias is defined %}
-          <alias>{{ localfile.alias }}</alias>
-        {% endif %}
-    {% else %}
-        <location>{{ localfile.location }}</location>
+    <command>{{ localfile.command }}</command>
+    <frequency>{{ localfile.frequency }}</frequency>
+    {% if localfile.alias is defined %}
+    <alias>{{ localfile.alias }}</alias>
     {% endif %}
-    </localfile>
+  {% else %}
+    <location>{{ localfile.location }}</location>
+    {% endif %}
+  </localfile>
   {% endfor %}
   {% endif %}
 
-    {% if ansible_os_family == "Debian" %}
-    {% for localfile in wazuh_agent_config.localfiles.debian %}
-    <localfile>
-        <log_format>{{ localfile.format }}</log_format>
+  {% if ansible_os_family == "Debian" %}
+  {% for localfile in wazuh_agent_config.localfiles.debian %}
+
+  <localfile>
+      <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-        <command>{{ localfile.command }}</command>
-        <frequency>{{ localfile.frequency }}</frequency>
-        {% if localfile.alias is defined %}
-          <alias>{{ localfile.alias }}</alias>
-        {% endif %}
-    {% else %}
-        <location>{{ localfile.location }}</location>
-    {% endif %}
-    </localfile>
+      <command>{{ localfile.command }}</command>
+      <frequency>{{ localfile.frequency }}</frequency>
+    {% if localfile.alias is defined %}
+      <alias>{{ localfile.alias }}</alias>
+      {% endif %}
+  {% else %}
+      <location>{{ localfile.location }}</location>
+  {% endif %}
+  </localfile>
   {% endfor %}
   {% endif %}
 
-    {% if ansible_os_family == "RedHat" %}
-    {% for localfile in wazuh_agent_config.localfiles.centos %}
-    <localfile>
-        <log_format>{{ localfile.format }}</log_format>
+  {% if ansible_os_family == "RedHat" %}
+  {% for localfile in wazuh_agent_config.localfiles.centos %}
+
+  <localfile>
+      <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-        <command>{{ localfile.command }}</command>
-        <frequency>{{ localfile.frequency }}</frequency>
-        {% if localfile.alias is defined %}
-          <alias>{{ localfile.alias }}</alias>
-        {% endif %}
+      <command>{{ localfile.command }}</command>
+      <frequency>{{ localfile.frequency }}</frequency>
+      {% if localfile.alias is defined %}
+      <alias>{{ localfile.alias }}</alias>
+      {% endif %}
     {% else %}
-        <location>{{ localfile.location }}</location>
-    {% endif %}
-    </localfile>
+      <location>{{ localfile.location }}</location>
+  {% endif %}
+  </localfile>
   {% endfor %}
   {% endif %}
 
-   {% if ansible_os_family == "Windows" %}
-   {% for localfile in wazuh_agent_config.localfiles.windows %}
-    <localfile>
-        <log_format>{{ localfile.format }}</log_format>
-    {% if localfile.format == 'eventchannel' %}
-        <location>{{ localfile.location }}</location>
-        <query>{{ localfile.query}}</query>
-    {% else %}
-        <location>{{ localfile.location }}</location>
-    {% endif %}
-    </localfile>
+  {% if ansible_os_family == "Windows" %}
+  {% for localfile in wazuh_agent_config.localfiles.windows %}
+
+  <localfile>
+      <log_format>{{ localfile.format }}</log_format>
+  {% if localfile.format == 'eventchannel' %}
+      <location>{{ localfile.location }}</location>
+      <query>{{ localfile.query}}</query>
+  {% else %}
+      <location>{{ localfile.location }}</location>
+  {% endif %}
+  </localfile>
   {% endfor %}
   {% endif %}
 
