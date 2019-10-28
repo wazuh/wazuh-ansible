@@ -42,8 +42,8 @@
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: "{{ wazuh_agent_config.repo.yum }}5/"
-    gpgkey: "{{ wazuh_agent_config.repo.gpg }}-5"
+    baseurl: "{{ wazuh_manager_config.repo.yum }}5/"
+    gpgkey: "{{ wazuh_manager_config.repo.gpg }}-5"
     gpgcheck: true
   changed_when: false
   when:
@@ -55,8 +55,8 @@
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: "{{ wazuh_agent_config.repo.yum }}"
-    gpgkey: "{{ wazuh_agent_config.repo.gpg }}"
+    baseurl: "{{ wazuh_manager_config.repo.yum }}"
+    gpgkey: "{{ wazuh_manager_config.repo.gpg }}"
     gpgcheck: true
   changed_when: false
   when:
