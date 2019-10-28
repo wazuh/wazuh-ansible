@@ -24,13 +24,14 @@
     - ansible_distribution_major_version | int == 14
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
-  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  apt_key:
+    url: "{{ wazuh_agent_config.repo.gpg }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
-    repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    repo: deb "{{ wazuh_agent_config.repo.apt }}"
     state: present
     update_cache: true
   changed_when: false
@@ -49,7 +50,8 @@
     - ansible_distribution_major_version | int == 14
 
 - name: Debian/Ubuntu | Installing NodeJS repository key
-  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
