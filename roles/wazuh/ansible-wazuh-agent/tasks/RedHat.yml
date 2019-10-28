@@ -21,8 +21,8 @@
     gpgcheck: true
   changed_when: false
   when:
-    - repo_v5_installed is undefined
-
+    - repo_v5_installed.skipped
+    
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
     url: https://download.oracle.com/otn-pub/java/jdk/8u202-b08/1961070e4c9b4e26a04e7f5a083f551e/jre-8u202-linux-x64.rpm
