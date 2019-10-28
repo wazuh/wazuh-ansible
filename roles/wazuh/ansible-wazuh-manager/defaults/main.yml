@@ -5,6 +5,10 @@ wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: latest
 
 wazuh_manager_config:
+  repo:
+    apt: 'https://packages.wazuh.com/3.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/3.x/yum/'
+    gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
