@@ -1,36 +1,27 @@
 ---
-- name: RedHat/CentOS/Fedora | Install Wazuh repo
-  yum_repository:
-    name: wazuh_repo
-    description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    gpgcheck: true
-  changed_when: false
-  when:
-    - ansible_distribution_major_version|int > 5
-
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/5/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH-5
+    baseurl: "{{ wazuh_agent_config.repo.yum }}5/"
+    gpgkey: "{{ wazuh_agent_config.repo.gpg }}-5"
     gpgcheck: true
   changed_when: false
   when:
-    - ansible_distribution_major_version|int == 5
+    - (ansible_facts['os_family']|lower == 'redhat')
+    - (ansible_os_family = ansible_distribution_major_version|int <= 5)
+  register: repo_v5_installed
 
-- name: AmazonLinux | Install Wazuh repo
+- name: RedHat/CentOS/Fedora | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    baseurl: "{{ wazuh_agent_config.repo.yum }}"
+    gpgkey: "{{ wazuh_agent_config.repo.gpg }}"
     gpgcheck: true
   changed_when: false
   when:
-    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+    - repo_v5_installed is undefined
 
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
