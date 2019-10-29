@@ -38,26 +38,29 @@
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
 
-- name: RedHat/CentOS/Fedora | Install Wazuh repo
-  yum_repository:
-    name: wazuh_repo
-    description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    gpgcheck: true
-  changed_when: false
-  when:
-    - (ansible_distribution_major_version|int > 5) or (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/5/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    baseurl: "{{ wazuh_manager_config.repo.yum }}5/"
+    gpgkey: "{{ wazuh_manager_config.repo.gpg }}-5"
     gpgcheck: true
+  changed_when: false
   when:
-    - ansible_distribution_major_version|int == 5
+    - (ansible_facts['os_family']|lower == 'redhat')
+    - (ansible_distribution_major_version|int <= 5)
+  register: repo_v5_manager_installed
+
+- name: RedHat/CentOS/Fedora | Install Wazuh repo
+  yum_repository:
+    name: wazuh_repo
+    description: Wazuh repository
+    baseurl: "{{ wazuh_manager_config.repo.yum }}"
+    gpgkey: "{{ wazuh_manager_config.repo.gpg }}"
+    gpgcheck: true
+  changed_when: false
+  when:
+    - repo_v5_manager_installed.skipped
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
