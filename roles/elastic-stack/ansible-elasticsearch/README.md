@@ -48,11 +48,11 @@ Example Playbook
 
 - hosts: 172.16.0.162
   roles:
-    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.162', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
+    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.162', elasticsearch_node_master: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
 
 - hosts: 172.16.0.163
   roles:
-    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.163', elasticsearch_master_candidate: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
+    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '172.16.0.163', elasticsearch_node_master: true, elasticsearch_cluster_nodes: ['172.16.0.162','172.16.0.163','172.16.0.161']}
 ```
 
 - Three nodes Elasticsearch cluster with XPack security
@@ -64,7 +64,7 @@ Example Playbook
       elasticsearch_network_host: 172.16.0.111
       elasticsearch_node_name: node-1
       single_node: false
-      elasticsearch_master_candidate: true
+      elasticsearch_node_master: true
       elasticsearch_bootstrap_node: true
       elasticsearch_cluster_nodes:
         - 172.16.0.111
@@ -97,7 +97,7 @@ Example Playbook
       elasticsearch_node_name: node-2
       single_node: false
       elasticsearch_xpack_security: true
-      elasticsearch_master_candidate: true
+      elasticsearch_node_master: true
       node_certs_generator_ip: 172.16.0.111
       elasticsearch_discovery_nodes:
         - 172.16.0.111
@@ -111,7 +111,7 @@ Example Playbook
       elasticsearch_node_name: node-3
       single_node: false
       elasticsearch_xpack_security: true
-      elasticsearch_master_candidate: true
+      elasticsearch_node_master: true
       node_certs_generator_ip: 172.16.0.111
       elasticsearch_discovery_nodes:
         - 172.16.0.111
