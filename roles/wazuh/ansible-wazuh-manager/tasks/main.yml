@@ -322,7 +322,6 @@
   notify: restart wazuh-api
   when:
     - wazuh_api_user is defined
-    - not (ansible_facts['os_family']|lower == 'redhat' and ansible_distribution_major_version|int < 6)
   tags:
     - config
 
