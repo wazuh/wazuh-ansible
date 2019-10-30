@@ -1,14 +1,17 @@
 ---
+- name: "Install dependencies"
+  package:
+    name:
+      - unzip
+      - openssl
+      - tar
+    state: present
+
 - import_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
 - import_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
-
-- name: Install Openssl
-  package:
-    name: openssl
-    state: present
 
 - name: CentOS/RedHat/Amazon | Install wazuh-manager, wazuh-api
   package: pkg={{ item }}-{{ wazuh_manager_api_version }}-1 state={{ wazuh_manager_package_state }}
