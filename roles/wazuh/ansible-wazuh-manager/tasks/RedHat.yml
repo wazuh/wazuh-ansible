@@ -26,17 +26,9 @@
   args:
     warn: false
     executable: /bin/bash
+    creates: /etc/yum.repos.d/nodesource-el7.repo
   when:
-    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
-
-- name: AmazonLinux | Install Nodejs repo
-  yum:
-    name: nodejs
-    state: present
-  register: wazuh_manager_amz_node_packages_installed
-  until: wazuh_manager_amz_node_packages_installed is succeeded
-  when:
-    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+    - ansible_distribution|lower == "amazon"
 
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
@@ -47,7 +39,7 @@
     gpgcheck: true
   changed_when: false
   when:
-    - (ansible_facts['os_family']|lower == 'redhat')
+    - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
   register: repo_v5_manager_installed
 
@@ -60,7 +52,7 @@
     gpgcheck: true
   changed_when: false
   when:
-    - repo_v5_manager_installed.skipped
+    - repo_v5_manager_installed|skipped
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
