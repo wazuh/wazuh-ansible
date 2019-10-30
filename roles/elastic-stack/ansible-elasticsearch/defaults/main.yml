@@ -1,20 +1,25 @@
 ---
-elasticsearch_cluster_name: wazuh
-elasticsearch_node_name: node-1
+
 elasticsearch_http_port: 9200
 elasticsearch_network_host: 127.0.0.1
 elasticsearch_reachable_host: 127.0.0.1
 elasticsearch_jvm_xms: null
 elastic_stack_version: 7.3.2
+elasticsearch_lower_disk_requirements: false
+
+# Cluster Settings
 single_node: true
+elasticsearch_cluster_name: wazuh
+elasticsearch_node_name: node-1
 elasticsearch_bootstrap_node: false
-elasticsearch_master_candidate: false
+elasticsearch_node_master: false
 elasticsearch_cluster_nodes:
   - 127.0.0.1
 elasticsearch_discovery_nodes:
   - 127.0.0.1
+elasticsearch_node_data: true
+elasticsearch_node_ingest: true
 
-elasticsearch_lower_disk_requirements: false
 # X-Pack Security 
 elasticsearch_xpack_security: false
 elasticsearch_xpack_security_user: elastic
@@ -23,8 +28,6 @@ elasticsearch_xpack_security_password: elastic_pass
 node_certs_generator: false
 node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/elasticsearch/certs
-
-
 
 # CA generation
 master_certs_path: /es_certs
