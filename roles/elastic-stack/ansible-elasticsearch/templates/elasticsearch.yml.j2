@@ -21,6 +21,12 @@ discovery.seed_hosts:
 {% endfor %}
 {% else %}
 node.master: {{ elasticsearch_node_master|lower }}
+{% if elasticsearch_node_data|lower == 'false' %}
+node.data: false
+{% endif %}
+{% if elasticsearch_node_ingest|lower == 'false' %}
+node.ingest: false
+{% endif %}
 discovery.seed_hosts:
 {% for item in elasticsearch_discovery_nodes %}
   - {{ item }}
@@ -34,9 +40,8 @@ cluster.routing.allocation.disk.watermark.low: 500mb
 cluster.routing.allocation.disk.watermark.high: 300mb
 {% endif %}
 
-# XPACK Security
-
 {% if elasticsearch_xpack_security %}
+# XPACK Security
 xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
 xpack.security.transport.ssl.verification_mode: certificate 
