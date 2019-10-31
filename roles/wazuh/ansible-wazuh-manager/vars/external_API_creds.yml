@@ -1,9 +1,0 @@
-#---
-#integrations:
-#  - name: 'slack'
-#    hook_url: '<hook_url>'
-#    rule_id: '80102'
-#    alert_format: 'json'
-#  - name: 'pagerduty'
-#    api_key: '<api_key>'
-#    alert_level: 10

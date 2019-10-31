@@ -200,16 +200,6 @@
   tags:
     - config
 
-- name: Retrieving external API Credentials
-  include_vars: external_API_creds.yml
-  tags:
-    - config
-
-- name: Retrieving AWS Credentials
-  include_vars: aws_creds.yml
-  tags:
-    - config
-
 - name: Retrieving Wazuh-API User Credentials
   include_vars: wazuh_api_creds.yml
   when:
