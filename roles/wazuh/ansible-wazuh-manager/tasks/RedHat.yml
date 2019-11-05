@@ -52,7 +52,7 @@
     gpgcheck: true
   changed_when: false
   when:
-    - repo_v5_manager_installed|skipped
+    - repo_v5_manager_installed is skipped
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present

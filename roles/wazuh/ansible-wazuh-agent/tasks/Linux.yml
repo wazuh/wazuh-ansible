@@ -10,7 +10,7 @@
   async: 90
   poll: 30
   when:
-    - ansible_distribution in ['CentOS','RedHat']
+    - ansible_os_family|lower == "redhat"
   tags:
     - init
 
@@ -20,7 +20,7 @@
     state: present
     cache_valid_time: 3600
   when:
-    - not (ansible_distribution in ['CentOS','RedHat'])
+    - ansible_os_family|lower != "redhat"
   tags:
     - init
 
