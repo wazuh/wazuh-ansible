@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Wazuh Agent registration using agent name has been fixed [@jm404](https://github.com/jm404) [#298](https://github.com/wazuh/wazuh-ansible/pull/298)
 - Fix Wazuh repository and installation conditionals  [@jm404](https://github.com/jm404) [#299](https://github.com/wazuh/wazuh-ansible/pull/299)
 
 ## [v3.10.2_7.3.2]
