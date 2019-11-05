@@ -63,6 +63,7 @@
         {% endif %}
         {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %}-a{% endif %}
       register: agent_auth_output
+      notify: restart wazuh-agent
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
@@ -99,6 +100,7 @@
         user: "{{ wazuh_managers.0.api_user }}"
         password: "{{ api_pass }}"
       register: newagent_api
+      notify: restart wazuh-agent
       # changed_when: newagent_api.json.error == 0
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"
