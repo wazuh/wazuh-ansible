@@ -3,9 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.xx.x_x.x.x]
 
-## Changed
+### Changed
 
 - Make Wazuh repositories installation flexible [@jm404](https://github.com/jm404) [#288](https://github.com/wazuh/wazuh-ansible/pull/288)
+- Wazuh App URL is now flexible [@jm404](https://github.com/jm404) [#304](https://github.com/wazuh/wazuh-ansible/pull/304)
 
 ## [v3.10.2_7.3.2]
 
