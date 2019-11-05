@@ -21,7 +21,7 @@
     gpgcheck: true
   changed_when: false
   when:
-    - repo_v5_installed.skipped
+    - repo_v5_installed is skipped
     
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
