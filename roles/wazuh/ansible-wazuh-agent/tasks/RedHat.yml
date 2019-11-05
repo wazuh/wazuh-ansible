@@ -8,7 +8,7 @@
     gpgcheck: true
   changed_when: false
   when:
-    - (ansible_facts['os_family']|lower == 'redhat')
+    - (ansible_facts['os_family']|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
   register: repo_v5_installed
 
