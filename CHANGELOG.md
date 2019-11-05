@@ -3,7 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.xx.x_x.x.x]
 
-## Changed
+### Added
+
+- Wazuh Agent registration task now explicitly notify restart [@jm404](https://github.com/jm404) [#302](https://github.com/wazuh/wazuh-ansible/pull/302)
+
+### Changed
 
 - Make Wazuh repositories installation flexible [@jm404](https://github.com/jm404) [#288](https://github.com/wazuh/wazuh-ansible/pull/288)
 
