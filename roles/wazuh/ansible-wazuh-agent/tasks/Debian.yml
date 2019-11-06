@@ -29,7 +29,8 @@
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
-    repo: "deb {{ wazuh_agent_config.repo.apt }}"
+    filename: wazuh_repo
+    repo: "{{ wazuh_agent_config.repo.apt }}"
     state: present
     update_cache: true
 
