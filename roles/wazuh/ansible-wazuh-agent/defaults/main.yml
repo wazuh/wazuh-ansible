@@ -218,7 +218,7 @@ wazuh_agent_config:
   rootcheck:
     frequency: 43200
   openscap:
-    disable: 'no'
+    disable: 'yes'
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
