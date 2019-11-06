@@ -14,20 +14,22 @@
   when: ansible_os_family == "Debian"
 
 - name: CentOS/RedHat/Amazon | Install wazuh-manager, wazuh-api
-  package: pkg={{ item }}-{{ wazuh_manager_api_version }}-1 state={{ wazuh_manager_package_state }}
+  package: 
+    name: "{{ item }}-{{ wazuh_manager_version }}"
+    state: "{{ wazuh_manager_package_state }}"
   with_items:
     - wazuh-manager
     - wazuh-api
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ansible_distribution in ['CentOS','RedHat', 'Amazon']
+    - ansible_os_family|lower == "redhat"
   tags:
     - init
 
 - name: Debian/Ubuntu | Install wazuh-manager, wazuh-api
   apt:
-    name: "{{ item }}={{ wazuh_manager_api_version }}-1"
+    name: "{{ item }}={{ wazuh_manager_version }}"
     state: present
     cache_valid_time: 3600
   with_items:
@@ -36,13 +38,15 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-  - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'])
+  - not (ansible_os_family|lower == "redhat")
   tags: init
 
 - name: Install expect
-  package: pkg=expect state={{ wazuh_manager_package_state }}
+  package:
+    name: expect
+    state: "{{ wazuh_manager_package_state }}"
   when:
-    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6)
+    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6)
   tags: init
 
 - name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
@@ -54,15 +58,17 @@
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'
 
-- name: Install wazuh-manager and expect (EL5)
-  package: pkg={{ item }} state={{ wazuh_manager_package_state }}
+- name: Install expect (EL5)
+  package: 
+    name: "{{ item }}"
+    state: "{{ wazuh_manager_package_state }}"
   with_items:
-    - wazuh-manager-{{ wazuh_manager_api_version }}
     - expect
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
+    - ansible_os_family|lower == "RedHat"
+    - ansible_distribution_major_version|int < 6
   tags:
     - init
 
