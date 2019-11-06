@@ -1,8 +1,8 @@
 ---
-wazuh_manager_api_version: 3.10.2
+wazuh_manager_version: 3.10.2-1
 
 wazuh_manager_fqdn: "wazuh-server"
-wazuh_manager_package_state: latest
+wazuh_manager_package_state: present
 
 wazuh_manager_config:
   repo:
