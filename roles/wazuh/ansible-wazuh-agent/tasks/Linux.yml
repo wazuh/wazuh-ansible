@@ -6,7 +6,9 @@
   when: ansible_os_family == "Debian"
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
-  package: name=wazuh-agent-{{ wazuh_agent_version }}-1 state=present
+  package: 
+    name: wazuh-agent-{{ wazuh_agent_version }}
+    state: present
   async: 90
   poll: 30
   when:
@@ -16,7 +18,7 @@
 
 - name: Linux Debian | Install wazuh-agent
   apt:
-    name: "wazuh-agent={{ wazuh_agent_version }}-1"
+    name: "wazuh-agent={{ wazuh_agent_version }}"
     state: present
     cache_valid_time: 3600
   when:
