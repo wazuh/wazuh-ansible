@@ -14,7 +14,7 @@
   when: ansible_os_family == "Debian"
 
 - name: CentOS/RedHat/Amazon | Install wazuh-manager, wazuh-api
-  package: 
+  package:
     name: "{{ item }}-{{ wazuh_manager_version }}"
     state: "{{ wazuh_manager_package_state }}"
   with_items:
@@ -59,7 +59,7 @@
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: Install expect (EL5)
-  package: 
+  package:
     name: "{{ item }}"
     state: "{{ wazuh_manager_package_state }}"
   with_items:
