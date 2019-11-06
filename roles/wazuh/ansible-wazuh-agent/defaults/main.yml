@@ -12,6 +12,7 @@ wazuh_auto_restart: 'yes'
 wazuh_agent_authd:
   enable: false
   port: 1515
+  agent_name: null
   ssl_agent_ca: null
   ssl_agent_cert: null
   ssl_agent_key: null
