@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 3.10.2
+wazuh_agent_version: 3.10.2-1
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
