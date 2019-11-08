@@ -98,14 +98,14 @@
   tags: install
 
 - name: Install Wazuh-APP (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
+  shell: |
+    /usr/share/kibana/bin/kibana-plugin --allow-root install \
+    https://packages.wazuh.com/wazuhapp/wazuhapp-{{ wazuh_version }}_{{ elastic_stack_version }}.zip
   environment:
     NODE_OPTIONS: "--max-old-space-size=3072"
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
-  become: yes
-  become_user: kibana
   notify: restart kibana
   tags:
     - install
