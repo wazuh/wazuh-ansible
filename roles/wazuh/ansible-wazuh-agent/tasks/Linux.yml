@@ -1,8 +1,8 @@
 ---
-- import_tasks: "RedHat.yml"
+- include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- import_tasks: "Debian.yml"
+- include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
@@ -191,8 +191,8 @@
     state: started
   tags: config
 
-- import_tasks: "RMRedHat.yml"
+- include_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- import_tasks: "RMDebian.yml"
+- include_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
