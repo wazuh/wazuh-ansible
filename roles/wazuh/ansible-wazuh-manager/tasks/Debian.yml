@@ -85,16 +85,15 @@
     - init
 
 - name: Debian/Ubuntu | Install OpenScap
-  package:
-    name: "{{ item }}"
+  apt:
+    name:
+      - libopenscap8
+      - xsltproc
     state: present
     cache_valid_time: 3600
   register: wazuh_manager_openscap_installed
   until: wazuh_manager_openscap_installed is succeeded
   when: wazuh_manager_config.openscap.disable == 'no'
-  with_items:
-    - libopenscap8
-    - xsltproc
   tags:
     - init
 
