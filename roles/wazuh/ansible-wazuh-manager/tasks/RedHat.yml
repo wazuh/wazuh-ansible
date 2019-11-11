@@ -137,3 +137,40 @@
     cis_distribution_filename: cis_rhel7_linux_rcl.txt
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+
+- name: CentOS/RedHat/Amazon | Install wazuh-manager, wazuh-api
+  package:
+    name: "{{ item }}-{{ wazuh_manager_version }}"
+    state: "{{ wazuh_manager_package_state }}"
+  with_items:
+    - wazuh-manager
+    - wazuh-api
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  when:
+    - ansible_os_family|lower == "redhat"
+  tags:
+    - init
+
+- name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
+  replace:
+    path: /etc/init.d/wazuh-manager
+    regexp: 'echo -n "Starting Wazuh-manager: "'
+    replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
+  when:
+    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
+    - wazuh_manager_config.cluster.disable != 'yes'
+
+- name: Install expect (EL5)
+  package:
+    name: "{{ item }}"
+    state: "{{ wazuh_manager_package_state }}"
+  with_items:
+    - expect
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  when:
+    - ansible_os_family|lower == "RedHat"
+    - ansible_distribution_major_version|int < 6
+  tags:
+    - init
