@@ -7,6 +7,7 @@
       - gnupg
     state: present
     cache_valid_time: 3600
+    install_recommends: false
   register: wazuh_manager_https_packages_installed
   until: wazuh_manager_https_packages_installed is succeeded
 
@@ -91,6 +92,7 @@
       - xsltproc
     state: present
     cache_valid_time: 3600
+    install_recommends: false
   register: wazuh_manager_openscap_installed
   until: wazuh_manager_openscap_installed is succeeded
   when: wazuh_manager_config.openscap.disable == 'no'
@@ -118,6 +120,7 @@
     name: "{{ item }}={{ wazuh_manager_version }}"
     state: present
     cache_valid_time: 3600
+    install_recommends: false
   with_items:
     - wazuh-manager
     - wazuh-api
