@@ -7,6 +7,7 @@
       - gnupg
     state: present
     cache_valid_time: 3600
+    install_recommends: false
   register: wazuh_manager_https_packages_installed
   until: wazuh_manager_https_packages_installed is succeeded
 
@@ -85,16 +86,16 @@
     - init
 
 - name: Debian/Ubuntu | Install OpenScap
-  package:
-    name: "{{ item }}"
+  apt:
+    name:
+      - libopenscap8
+      - xsltproc
     state: present
     cache_valid_time: 3600
+    install_recommends: false
   register: wazuh_manager_openscap_installed
   until: wazuh_manager_openscap_installed is succeeded
   when: wazuh_manager_config.openscap.disable == 'no'
-  with_items:
-    - libopenscap8
-    - xsltproc
   tags:
     - init
 
@@ -113,3 +114,15 @@
   changed_when: false
   tags:
     - config
+
+- name: Debian/Ubuntu | Install wazuh-manager, wazuh-api
+  apt:
+    name:
+      - "wazuh-manager={{ wazuh_manager_version }}"
+      - "wazuh-api={{ wazuh_manager_version }}"
+    state: present
+    cache_valid_time: 3600
+    install_recommends: false
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  tags: init
