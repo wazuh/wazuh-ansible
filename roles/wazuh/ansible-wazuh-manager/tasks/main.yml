@@ -7,10 +7,10 @@
       - tar
     state: present
 
-- import_tasks: "RedHat.yml"
+- include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
-- import_tasks: "Debian.yml"
+- include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
 - name: Install expect
@@ -353,8 +353,8 @@
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
-- import_tasks: "RMRedHat.yml"
+- include_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
 
-- import_tasks: "RMDebian.yml"
+- include_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
