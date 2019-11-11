@@ -5,7 +5,7 @@ elasticsearch_http_port: "9200"
 elasticsearch_network_host: "127.0.0.1"
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
-elastic_stack_version: 7.3.2
+elastic_stack_version: 7.4.2
 wazuh_version: 3.10.2
 
 # Xpack Security
