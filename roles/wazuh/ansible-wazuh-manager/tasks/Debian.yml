@@ -117,13 +117,12 @@
 
 - name: Debian/Ubuntu | Install wazuh-manager, wazuh-api
   apt:
-    name: "{{ item }}={{ wazuh_manager_version }}"
+    name:
+      - "wazuh-manager={{ wazuh_manager_version }}"
+      - "wazuh-api={{ wazuh_manager_version }}"
     state: present
     cache_valid_time: 3600
     install_recommends: false
-  with_items:
-    - wazuh-manager
-    - wazuh-api
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   tags: init
