@@ -1,0 +1,59 @@
+---
+  - hosts: all
+    tasks:
+      - include_vars: ../defaults/main.yml
+      - name: Install dependencies to build Wazuh packages
+        package:
+          name:
+            - make
+            - gcc
+            - policycoreutils-python-utils
+            - automake
+            - autoconf
+            - libtool
+          state: present
+
+      - name: Download required packages from github.com/wazuh/wazuh
+        get_url:
+          url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_agent_config.repo.sources_branch }}.tar.gz"
+          dest: "/tmp/{{ wazuh_agent_config.repo.sources_branch }}.tar.gz"
+        delegate_to: "{{ inventory_hostname }}"
+      
+      - name: Extract downloaded Wazuh branch from Github
+        unarchive:
+          src: "/tmp/{{ wazuh_agent_config.repo.sources_branch }}.tar.gz"
+          dest: "/tmp/"
+          remote_src: yes
+
+      - name: Configure "preloaded_vars.conf" file 
+        copy:
+          dest: "/tmp/wazuh-{{ wazuh_agent_config.repo.sources_branch }}/etc/preloaded-vars.conf"
+          content: |
+            USER_LANGUAGE="en"
+            USER_NO_STOP="y"
+            USER_INSTALL_TYPE="agent"
+            USER_DIR="/var/ossec"
+            USER_ENABLE_SYSCHECK="y"
+            USER_ENABLE_ROOTCHECK="y"
+            USER_ENABLE_OPENSCAP="y"
+            USER_ENABLE_ACTIVE_RESPONSE="y"
+            USER_AGENT_SERVER_IP="{{ wazuh_managers.0.address }}" 
+            USER_CA_STORE="/var/ossec/wpk_root.pem" 
+            USER_ENABLE_SCA="y" 
+          force: yes
+
+      - name: Clean remaining files from others builds
+        command: "make -C src {{ item }}"
+        args:
+          chdir: "/tmp/wazuh-{{ wazuh_agent_config.repo.sources_branch }}/src/"
+        with_items:
+          - "clean"
+          - "clean-deps"
+        failed_when: false
+
+      - name: Executing "install.sh" script to build and install the Wazuh Agent
+        shell: ./install.sh
+        args:
+          chdir: "/tmp/wazuh-{{ wazuh_agent_config.repo.sources_branch }}"
+
+    become: yes
