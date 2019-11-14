@@ -33,6 +33,8 @@ wazuh_winagent_config:
   md5: 71650780904cbfc2e45eae4298adb7a3 
 wazuh_agent_config:
   repo:
+    sources: false
+    sources_branch: "3.10"
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
     yum: 'https://packages.wazuh.com/3.x/yum/'
     gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
