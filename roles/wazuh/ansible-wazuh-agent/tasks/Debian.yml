@@ -1,4 +1,9 @@
 ---
+
+- include_tasks: "installation_from_sources"
+  when:
+    - wazuh_agent_config.repo.sources == "true"
+
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
     name:
@@ -33,6 +38,8 @@
     repo: "{{ wazuh_agent_config.repo.apt }}"
     state: present
     update_cache: true
+  when:
+    - wazuh_agent_config.repo.sources == "false"
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
   set_fact:
