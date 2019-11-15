@@ -41,6 +41,7 @@
   when:
     - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
+    - not wazuh_sources_installation.enabled
   register: repo_v5_manager_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
@@ -53,6 +54,7 @@
   changed_when: false
   when:
     - repo_v5_manager_installed is skipped
+    - not wazuh_sources_installation.enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
@@ -149,6 +151,7 @@
   until: wazuh_manager_main_packages_installed is succeeded
   when:
     - ansible_os_family|lower == "redhat"
+    - not wazuh_sources_installation.enabled
   tags:
     - init
 

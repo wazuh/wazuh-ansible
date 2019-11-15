@@ -23,12 +23,14 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
+    - not wazuh_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key:
     url: "{{ wazuh_manager_config.repo.gpg }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_sources_installation.enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -37,6 +39,8 @@
     state: present
     update_cache: true
   changed_when: false
+  when:
+    - not wazuh_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
   become: true
@@ -126,3 +130,5 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   tags: init
+  when:
+    - not wazuh_sources_installation.enabled
