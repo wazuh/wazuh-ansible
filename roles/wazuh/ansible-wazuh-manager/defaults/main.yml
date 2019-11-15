@@ -4,6 +4,30 @@ wazuh_manager_version: 3.10.2-1
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
+wazuh_sources_installation:
+  enabled: false
+  branch: "3.10"
+  user_language: "y"
+  user_no_stop: "y"
+  user_install_type: "manager"
+  user_dir: "/var/ossec"
+  user_delete_dir: "y"
+  user_enable_active_response: "y"
+  user_enable_syscheck: "y"
+  user_enable_rootcheck: "y"
+  user_enable_openscap: "y"
+  user_enable_authd: "y"
+  user_generate_authd_cert: "n"
+  user_update: null
+  user_binaryinstall: null
+  user_enable_email: null
+  user_auto_start: null
+  user_email_address: null
+  user_email_smpt: null
+  user_enable_syslog: null
+  user_white_list: null
+  user_ca_store: null
+
 wazuh_manager_config:
   repo:
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
