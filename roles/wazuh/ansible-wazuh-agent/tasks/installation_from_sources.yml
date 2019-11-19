@@ -33,7 +33,7 @@
           url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_sources_installation.branch }}.tar.gz"
           dest: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
         delegate_to: "{{ inventory_hostname }}"
-      
+
       - name: Extract downloaded Wazuh branch from Github
         unarchive:
           src: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
@@ -47,19 +47,22 @@
         with_items:
           - "clean"
           - "clean-deps"
-        failed_when: false          
+        register: clean_result
+        changed_when: clean_result.rc == 0
+        failed_when: false
 
       - name: Render the "preloaded-vars.conf" file
         template:
-          src: ../templates/preloaded_vars.conf.j2
+          src: /templates/preloaded_vars.conf.j2
           dest: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/etc/preloaded-vars.conf"
           owner: root
           group: root
           mode: '644'
 
-      - name: Executing "install.sh" script to build and install the Wazuh Agent
-        shell: ./install.sh
+      - name: Executing "install.sh" script to build and install the Wazuh Manager
+        shell: ./install.sh > /tmp/build_log.txt
+        register: installation_result
+        changed_when: installation_result == 0
         args:
           chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
-
     become: yes
