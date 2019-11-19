@@ -11,8 +11,8 @@ wazuh_sources_installation:
   user_no_stop: "y"
   user_install_type: "server"
   user_dir: "/var/ossec"
-  user_delete_dir: "y"
-  user_enable_active_response: "y"
+  user_delete_dir: null
+  user_enable_active_response: null
   user_enable_syscheck: "y"
   user_enable_rootcheck: "y"
   user_enable_openscap: "y"
