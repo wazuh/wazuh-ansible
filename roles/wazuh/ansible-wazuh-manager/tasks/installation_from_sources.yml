@@ -1,0 +1,70 @@
+---
+
+# Wazuh Manager
+  - name: Install dependencies to build Wazuh packages
+    package:
+      name:
+        - make
+        - gcc
+        - automake
+        - autoconf
+        - libtool
+      state: present
+
+  - name: Installing policycoreutils-python (RedHat families)
+    package:
+      name:
+        - policycoreutils-python
+    when:
+      - ansible_os_family|lower == "redhat"
+
+  - name: Installing policycoreutils-python-utils (Debian families)
+    package:
+      name:
+        - libc6-dev
+        - curl
+        - policycoreutils
+    when:
+      - ansible_os_family|lower == "debian"
+
+  - name: Download required packages from github.com/wazuh/wazuh
+    get_url:
+      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_sources_installation.branch }}.tar.gz"
+      dest: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
+    delegate_to: "{{ inventory_hostname }}"
+
+  - name: Extract downloaded Wazuh branch from Github
+    unarchive:
+      src: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
+      dest: "/tmp/"
+      remote_src: yes
+
+  - name: Clean remaining files from others builds
+    command: "make -C src {{ item }}"
+    args:
+      chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/src/"
+    with_items:
+      - "clean"
+      - "clean-deps"
+    register: clean_result
+    changed_when: clean_result.rc == 0
+    failed_when: false
+
+  - name: Render the "preloaded-vars.conf" file
+    template:
+      src: "templates/preloaded_vars.conf.j2"
+      dest: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/etc/preloaded-vars.conf"
+      owner: root
+      group: root
+      mode: '644'
+
+  - name: Executing "install.sh" script to build and install the Wazuh Manager
+    shell: ./install.sh > /tmp/build_log.txt
+    register: installation_result
+    changed_when: installation_result == 0
+    args:
+      chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+
+# Wazuh API
+
+  - name: 
