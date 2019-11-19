@@ -194,11 +194,11 @@
   tags: config
 
 - include_tasks: "RMRedHat.yml"
-  when: 
+  when:
     - ansible_os_family == "RedHat"
     - not wazuh_sources_installation.enabled
 
 - include_tasks: "RMDebian.yml"
-  when: 
+  when:
     - ansible_os_family == "Debian"
     - not wazuh_sources_installation.enabled
