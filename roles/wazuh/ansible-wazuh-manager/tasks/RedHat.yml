@@ -1,4 +1,8 @@
 ---
+- include_tasks: "../roles/wazuh/ansible-wazuh-manager/tasks/installation_from_sources.yml"
+  when:
+    - wazuh_sources_installation.enabled
+
 - name: RedHat/CentOS | Install Nodejs repo
   yum_repository:
     name: NodeJS

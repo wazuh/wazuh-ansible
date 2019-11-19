@@ -1,4 +1,8 @@
 ---
+- include_tasks: "installation_from_sources"
+  when:
+    - wazuh_sources_installation.enabled
+
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
     name:
