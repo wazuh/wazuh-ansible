@@ -80,15 +80,19 @@
       mode: "0700"
 
   - name: Execute downloaded script to install Nodejs repo
-    shell: /tmp/setup_nodejs_repo.sh
-    
+    command: /tmp/setup_nodejs_repo.sh
+    register: node_repo_installation_result
+    changed_when: node_repo_installation_result.rc == 0
+
   - name: Install Nodejs
     package:
       name: nodejs
       state: present
-    
+
   - name: Run NPM under root account
-    shell: npm config set user 0
+    command: npm config set user 0
+    register: allow_root_npm
+    changed_when: allow_root_npm.rc == 0
 
   - name: Download the installation script to install Wazuh API
     get_url:
@@ -97,4 +101,6 @@
       mode: "0700"
 
   - name: Execute Wazuh API installation script
-    shell: /tmp/install_api.sh download
+    command: /tmp/install_api.sh download
+    register: install_api
+    changed_when: install_api.rc == 0
