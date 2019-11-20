@@ -351,3 +351,5 @@ wazuh_agent_configs:
         format: 'eventchannel'
       - location: 'System'
         format: 'eventlog'
+
+node_js_repository_url: https://rpm.nodesource.com/setup_8.x
