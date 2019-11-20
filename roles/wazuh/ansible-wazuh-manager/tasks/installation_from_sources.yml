@@ -1,5 +1,4 @@
 ---
-
 # Wazuh Manager
   - name: Install dependencies to build Wazuh packages
     package:
@@ -9,6 +8,7 @@
         - automake
         - autoconf
         - libtool
+        - tar
       state: present
 
   - name: Installing policycoreutils-python (RedHat families)
@@ -33,11 +33,15 @@
       dest: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
     delegate_to: "{{ inventory_hostname }}"
 
+  - name: Create folder to extract Wazuh branch
+    file:
+      path: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+      state: directory
+
   - name: Extract downloaded Wazuh branch from Github
-    unarchive:
-      src: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
-      dest: "/tmp/"
-      remote_src: yes
+    shell: "tar -xzvf /tmp/{{ wazuh_sources_installation.branch }}.tar.gz --strip 1 --directory /tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+    args:
+      warn: false
 
   - name: Clean remaining files from others builds
     command: "make -C src {{ item }}"
@@ -67,4 +71,28 @@
 
 # Wazuh API
 
-  - name: 
+  - name: Download script to install Nodejs repository
+    get_url:
+      url: "{{ node_js_repository_url }}"
+      dest: "/tmp/setup_nodejs_repo.sh"
+      mode: "0700"
+
+  - name: Execute downloaded script to install Nodejs repo
+    shell: /tmp/setup_nodejs_repo.sh
+    
+  - name: Install Nodejs
+    package:
+      name: nodejs
+      state: present
+    
+  - name: Run NPM under root account
+    shell: npm config set user 0
+
+  - name: Download the installation script to install Wazuh API
+    get_url:
+      url: "https://raw.githubusercontent.com/wazuh/wazuh-api/v{{ wazuh_manager_version[:-2] }}/install_api.sh"
+      dest: "/tmp/install_api.sh"
+      mode: "0700"
+
+  - name: Execute Wazuh API installation script
+    shell: /tmp/install_api.sh download
