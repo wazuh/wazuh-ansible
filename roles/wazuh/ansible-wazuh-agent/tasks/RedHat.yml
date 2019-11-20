@@ -1,6 +1,6 @@
 ---
 
-- include_tasks: "installation_from_sources"
+- include_tasks: "../roles/wazuh/ansible-wazuh-agent/tasks/installation_from_sources.yml"
   when:
     - wazuh_sources_installation.enabled
 
