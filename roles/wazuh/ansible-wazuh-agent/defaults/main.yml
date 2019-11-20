@@ -17,7 +17,7 @@ wazuh_sources_installation:
   user_generate_authd_cert: "n"
   user_update: "y"
   user_binaryinstall: null
-  user_agent_server_ip: "172.16.1.2"
+  user_agent_server_ip: "YOUR_MANAGER_IP"
   user_agent_server_name: null
   user_agent_config_profile: null
   user_ca_store: "/var/ossec/wpk_root.pem"
