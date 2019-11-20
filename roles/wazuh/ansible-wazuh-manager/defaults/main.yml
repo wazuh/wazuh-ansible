@@ -6,7 +6,7 @@ wazuh_manager_package_state: present
 
 wazuh_sources_installation:
   enabled: true
-  branch: "3.10"
+  branch: "v3.10.2"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -18,7 +18,7 @@ wazuh_sources_installation:
   user_enable_openscap: "y"
   user_enable_authd: "y"
   user_generate_authd_cert: null
-  user_update: null
+  user_update: "y"
   user_binaryinstall: null
   user_enable_email: "n"
   user_auto_start: "y"
