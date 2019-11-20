@@ -123,7 +123,7 @@
 - name: Wait for Elasticsearch API
   uri:
     url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_cluster/health/"
-    user: "{{ elasticsearch_xpack_security_user }}"
+    user: "elastic" # Default Elasticsearch user is always "elastic"
     password: "{{ elasticsearch_xpack_security_password }}"
     validate_certs: no
     status_code: 200,401
@@ -141,7 +141,7 @@
     url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_security/user/{{ item.key }}"
     method: POST
     body_format: json
-    user: "{{ elasticsearch_xpack_security_user }}"
+    user: "elastic"
     password: "{{ elasticsearch_xpack_security_password }}"
     body: '{ "password" : "{{ item.value["password"] }}", "roles" : {{ item.value["roles"] }} }'
     validate_certs: no
