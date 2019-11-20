@@ -58,12 +58,14 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
+    - not wazuh_sources_installation.enabled    
 
 - name: Debian/Ubuntu | Installing NodeJS repository key
   apt_key:
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_sources_installation.enabled    
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
@@ -71,6 +73,8 @@
     state: present
     update_cache: true
   changed_when: false
+  when:
+    - not wazuh_sources_installation.enabled    
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
