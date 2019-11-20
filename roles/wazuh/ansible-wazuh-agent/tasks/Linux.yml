@@ -1,4 +1,8 @@
 ---
+- include_tasks: "../roles/wazuh/ansible-wazuh-agent/tasks/installation_from_sources.yml"
+  when:
+    - wazuh_sources_installation.enabled
+
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 

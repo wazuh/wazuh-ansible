@@ -1,9 +1,4 @@
 ---
-
-- include_tasks: "../roles/wazuh/ansible-wazuh-agent/tasks/installation_from_sources.yml"
-  when:
-    - wazuh_sources_installation.enabled
-
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
