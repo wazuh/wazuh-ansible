@@ -103,6 +103,7 @@
     NODE_OPTIONS: "--max-old-space-size=3072"
   args:
     executable: /bin/bash
+    creates: /usr/share/kibana/plugins/wazuh/package.json
   become: yes
   become_user: kibana
   notify: restart kibana
