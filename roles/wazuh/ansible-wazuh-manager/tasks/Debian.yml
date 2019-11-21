@@ -1,7 +1,7 @@
 ---
 - include_tasks: "installation_from_sources.yml"
   when:
-    - wazuh_manager_sources_installation.enabled
+    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
@@ -28,6 +28,7 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
     - not wazuh_manager_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key:
@@ -35,6 +36,7 @@
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_manager_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -45,6 +47,7 @@
   changed_when: false
   when:
     - not wazuh_manager_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
   become: true
@@ -59,13 +62,14 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
     - not wazuh_manager_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing NodeJS repository key
   apt_key:
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Add NodeSource repositories for Node.js
   apt_repository:
@@ -74,7 +78,7 @@
     update_cache: true
   changed_when: false
   when:
-    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
@@ -127,11 +131,10 @@
   tags:
     - config
 
-- name: Debian/Ubuntu | Install wazuh-manager, wazuh-api
+- name: Debian/Ubuntu | Install wazuh-manager
   apt:
     name:
       - "wazuh-manager={{ wazuh_manager_version }}"
-      - "wazuh-api={{ wazuh_manager_version }}"
     state: present
     cache_valid_time: 3600
     install_recommends: false
@@ -140,3 +143,16 @@
   tags: init
   when:
     - not wazuh_manager_sources_installation.enabled
+
+- name: Debian/Ubuntu | Install wazuh-api
+  apt:
+    name:
+      - "wazuh-api={{ wazuh_manager_version }}"
+    state: present
+    cache_valid_time: 3600
+    install_recommends: false
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  tags: init
+  when:
+    - not wazuh_api_sources_installation.enabled
