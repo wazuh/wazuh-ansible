@@ -23,3 +23,10 @@ node_certs_destination: /etc/kibana/certs
 master_certs_path: /es_certs
 generate_CA: true
 ca_cert_name: ""
+
+# Nodejs
+node_js_repository_url: https://rpm.nodesource.com/setup_8.x
+
+# Build from sources
+build_from_sources: true
+wazuh_plugin_branch: 3.10-7.4
