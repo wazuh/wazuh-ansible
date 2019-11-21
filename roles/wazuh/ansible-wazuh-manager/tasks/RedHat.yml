@@ -18,8 +18,7 @@
     warn: false
     executable: /bin/bash
   when:
-    - ansible_distribution|lower == "amazon"
-    - ansible_distribution == 'Fedora'
+    - ansible_distribution|lower == "amazon" or ansible_distribution|lower == 'fedora'
 
 - name: CentOS/RedHat/Amazon/Fedora | Install NodeJS
   package:
