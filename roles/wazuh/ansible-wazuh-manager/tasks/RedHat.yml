@@ -1,4 +1,8 @@
 ---
+- name: Check if NodeJS service Exists
+  stat: path=/usr/bin/node
+  register: node_service_status
+
 - name: Centos | Get Nodejs
   shell: |
     set -o pipefail
@@ -8,7 +12,7 @@
     executable: /bin/bash
     creates: /etc/yum.repos.d/nodesource-el7.repo
   when:
-    - ansible_distribution_major_version|int > 5
+    - ansible_distribution_major_version|int > 5 and not node_service_status.stat.exists
 
 - name: AmazonLinux/Fedora| Get Nodejs
   shell: |
@@ -18,7 +22,7 @@
     warn: false
     executable: /bin/bash
   when:
-    - ansible_distribution|lower == "amazon" or ansible_distribution|lower == 'fedora'
+    - ( ansible_distribution|lower == "amazon" or ansible_distribution|lower == 'fedora' ) and not node_service_status.stat.exists
 
 - name: CentOS/RedHat/Amazon/Fedora | Install NodeJS
   package:
@@ -28,6 +32,7 @@
   until: nodejs_is_installed is succeeded
   tags:
     - init
+  when: not node_service_status.stat.exists
 
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
