@@ -29,6 +29,24 @@ wazuh_manager_sources_installation:
   user_ca_store: null
   threads: "2"
 
+wazuh_api_sources_installation:
+  enabled: true
+  branch: "v3.10.2"
+  update: "y"
+  remove: "y"
+  directory: null
+  port: 55000
+  https: "n"
+  authd: null
+  proxy: null
+  country: null
+  state: null
+  locality: null
+  org_name: null
+  org_unit: null
+  common_name: null
+  password: null
+
 wazuh_manager_config:
   repo:
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
