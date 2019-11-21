@@ -13,6 +13,25 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
+- name: Installing NodeJS repository script
+  become: true
+  get_url:
+    url: "https://{{ repo_dic[ansible_os_family] }}nodesource.com/setup_8.x"
+    dest: /etc/nodejs.sh
+    mode: '0775'
+  changed_when: false
+
+- name: Running NodeJS bash script
+  script: /etc/nodejs.sh
+
+- name: Installing NodeJS
+  package:
+    name: ntpdate
+    state: present
+  register: nodejs_service_is_installed
+  until: nodejs_service_is_installed is succeeded
+  tags: init
+
 - name: Install expect
   package:
     name: expect

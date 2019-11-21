@@ -38,24 +38,6 @@
     update_cache: true
   changed_when: false
 
-- name: Debian/Ubuntu | Installing NodeJS repository
-  become: true
-  shell: |
-    set -o pipefail
-    curl -sL https://deb.nodesource.com/setup_8.x | bash -
-  args:
-    warn: false
-    executable: /bin/bash
-  changed_when: false
-
-- name: Debian/Ubuntu | Install NodeJS
-  apt:
-    name: "nodejs"
-    state: present
-  register: nodejs_package_is_installed
-  until: nodejs_package_is_installed is succeeded
-  tags: init
-
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
