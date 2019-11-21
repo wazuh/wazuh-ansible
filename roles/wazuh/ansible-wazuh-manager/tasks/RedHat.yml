@@ -1,25 +1,5 @@
 ---
-- name: RedHat/CentOS | Install Nodejs repo
-  yum_repository:
-    name: NodeJS
-    description: NodeJS-$releasever
-    baseurl: https://rpm.nodesource.com/pub_6.x/el/{{ ansible_distribution_major_version }}/x86_64
-    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
-    gpgcheck: true
-  changed_when: false
-  when:
-    - ansible_distribution_major_version|int > 5
-
-- name: Fedora | Install Nodejs repo
-  yum_repository:
-    name: NodeJS
-    description: NodeJS-$releasever
-    baseurl: https://rpm.nodesource.com/pub_6.x/fc/$releasever/x86_64
-    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
-    gpgcheck: true
-  when: ansible_distribution == 'Fedora'
-
-- name: AmazonLinux | Get Nodejs
+- name: Centos | Get Nodejs
   shell: |
     set -o pipefail
     curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
@@ -28,7 +8,27 @@
     executable: /bin/bash
     creates: /etc/yum.repos.d/nodesource-el7.repo
   when:
+    - ansible_distribution_major_version|int > 5
+
+- name: AmazonLinux/Fedora| Get Nodejs
+  shell: |
+    set -o pipefail
+    curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+  args:
+    warn: false
+    executable: /bin/bash
+  when:
     - ansible_distribution|lower == "amazon"
+    - ansible_distribution == 'Fedora'
+
+- name: CentOS/RedHat/Amazon/Fedora | Install NodeJS
+  package:
+    name: "nodejs"
+    state: present
+  register: nodejs_is_installed
+  until: nodejs_is_installed is succeeded
+  tags:
+    - init
 
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
