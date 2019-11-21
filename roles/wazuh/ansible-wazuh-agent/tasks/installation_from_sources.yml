@@ -28,17 +28,17 @@
 
   - name: Download required packages from github.com/wazuh/wazuh
     get_url:
-      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_sources_installation.branch }}.tar.gz"
-      dest: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
+      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+      dest: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
     delegate_to: "{{ inventory_hostname }}"
 
   - name: Create folder to extract Wazuh branch
     file:
-      path: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+      path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
       state: directory
 
   - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
-    command: "tar -xzvf /tmp/{{ wazuh_sources_installation.branch }}.tar.gz --strip 1 --directory /tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+    command: "tar -xzvf /tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz --strip 1 --directory /tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
     register: wazuh_untar
     changed_when: wazuh_untar.rc ==0
     args:
@@ -47,7 +47,7 @@
   - name: Clean remaining files from others builds
     command: "make -C src {{ item }}"
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/src/"
+      chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/src/"
     with_items:
       - "clean"
       - "clean-deps"
@@ -58,7 +58,7 @@
   - name: Render the "preloaded-vars.conf" file
     template:
       src: "templates/preloaded_vars.conf.j2"
-      dest: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/etc/preloaded-vars.conf"
+      dest: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/etc/preloaded-vars.conf"
       owner: root
       group: root
       mode: '644'
@@ -68,4 +68,4 @@
     register: installation_result
     changed_when: installation_result == 0
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+      chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"

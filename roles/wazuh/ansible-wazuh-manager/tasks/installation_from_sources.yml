@@ -29,17 +29,17 @@
 
   - name: Download required packages from github.com/wazuh/wazuh
     get_url:
-      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_sources_installation.branch }}.tar.gz"
-      dest: "/tmp/{{ wazuh_sources_installation.branch }}.tar.gz"
+      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+      dest: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
     delegate_to: "{{ inventory_hostname }}"
 
   - name: Create folder to extract Wazuh branch
     file:
-      path: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+      path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
       state: directory
 
   - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
-    command: "tar -xzvf /tmp/{{ wazuh_sources_installation.branch }}.tar.gz --strip 1 --directory /tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+    command: "tar -xzvf /tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz --strip 1 --directory /tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
     register: wazuh_untar
     changed_when: wazuh_untar.rc ==0
     args:
@@ -48,7 +48,7 @@
   - name: Clean remaining files from others builds
     command: "make -C src {{ item }}"
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/src/"
+      chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/src/"
     with_items:
       - "clean"
       - "clean-deps"
@@ -59,7 +59,7 @@
   - name: Render the "preloaded-vars.conf" file
     template:
       src: "templates/preloaded_vars.conf.j2"
-      dest: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}/etc/preloaded-vars.conf"
+      dest: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/etc/preloaded-vars.conf"
       owner: root
       group: root
       mode: '644'
@@ -69,38 +69,46 @@
     register: installation_result
     changed_when: installation_result == 0
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_sources_installation.branch }}"
+      chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
 
 # Wazuh API
+  - name: Check if Wazuh API is already installed
+    stat:
+      path: /var/ossec/api/app.js
+    register: wazuh_api
 
-  - name: Download script to install Nodejs repository
-    get_url:
-      url: "{{ node_js_repository_url }}"
-      dest: "/tmp/setup_nodejs_repo.sh"
-      mode: "0700"
+  - name: Install Wazuh API from sources
+    block:
+      - name: Download script to install Nodejs repository
+        get_url:
+          url: "{{ node_js_repository_url }}"
+          dest: "/tmp/setup_nodejs_repo.sh"
+          mode: "0700"
 
-  - name: Execute downloaded script to install Nodejs repo
-    command: /tmp/setup_nodejs_repo.sh
-    register: node_repo_installation_result
-    changed_when: node_repo_installation_result.rc == 0
+      - name: Execute downloaded script to install Nodejs repo
+        command: /tmp/setup_nodejs_repo.sh
+        register: node_repo_installation_result
+        changed_when: node_repo_installation_result.rc == 0
 
-  - name: Install Nodejs
-    package:
-      name: nodejs
-      state: present
+      - name: Install Nodejs
+        package:
+          name: nodejs
+          state: present
 
-  - name: Run NPM under root account
-    command: npm config set user 0
-    register: allow_root_npm
-    changed_when: allow_root_npm.rc == 0
+      - name: Run NPM under root account
+        command: npm config set user 0
+        register: allow_root_npm
+        changed_when: allow_root_npm.rc == 0
 
-  - name: Download the installation script to install Wazuh API
-    get_url:
-      url: "https://raw.githubusercontent.com/wazuh/wazuh-api/v{{ wazuh_manager_version[:-2] }}/install_api.sh"
-      dest: "/tmp/install_api.sh"
-      mode: "0700"
+      - name: Download the installation script to install Wazuh API
+        get_url:
+          url: "https://raw.githubusercontent.com/wazuh/wazuh-api/v{{ wazuh_manager_version[:-2] }}/install_api.sh"
+          dest: "/tmp/install_api.sh"
+          mode: "0700"
 
-  - name: Execute Wazuh API installation script
-    shell: /tmp/install_api.sh download > /tmp/build_api_log.txt
-    register: install_api
-    changed_when: install_api.rc == 0
+      - name: Execute Wazuh API installation script
+        shell: /tmp/install_api.sh download > /tmp/build_api_log.txt
+        register: install_api
+        changed_when: install_api.rc == 0
+    when:
+      - not wazuh_api.stat.exists

@@ -4,7 +4,7 @@ wazuh_manager_version: 3.10.2-1
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
-wazuh_sources_installation:
+wazuh_manager_sources_installation:
   enabled: true
   branch: "v3.10.2"
   user_language: "en"

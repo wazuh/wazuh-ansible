@@ -20,7 +20,7 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
-    - not wazuh_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key:
@@ -35,7 +35,7 @@
     state: present
     update_cache: true
   when:
-    - not wazuh_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
   set_fact:

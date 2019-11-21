@@ -1,7 +1,7 @@
 ---
 - include_tasks: "../tasks/installation_from_sources.yml"
   when:
-    - wazuh_sources_installation.enabled
+    - wazuh_manager_sources_installation.enabled
 
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
@@ -17,7 +17,7 @@
   poll: 30
   when:
     - ansible_os_family|lower == "redhat"
-    - not wazuh_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled
   tags:
     - init
 
@@ -28,7 +28,7 @@
     cache_valid_time: 3600
   when:
     - ansible_os_family|lower != "redhat"
-    - not wazuh_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled
   tags:
     - init
 
@@ -200,9 +200,9 @@
 - include_tasks: "RMRedHat.yml"
   when:
     - ansible_os_family == "RedHat"
-    - not wazuh_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled
 
 - include_tasks: "RMDebian.yml"
   when:
     - ansible_os_family == "Debian"
-    - not wazuh_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled
