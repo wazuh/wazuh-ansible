@@ -101,6 +101,6 @@
       mode: "0700"
 
   - name: Execute Wazuh API installation script
-    command: /tmp/install_api.sh download
+    shell: /tmp/install_api.sh download > /tmp/build_api_log.txt
     register: install_api
     changed_when: install_api.rc == 0
