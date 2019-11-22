@@ -1,9 +1,5 @@
 ---
 - hosts: <WAZUH_MANAGER_HOST>
-- vars:
-    - repo_dic:
-        debian: "deb"
-        redhat: "rpm"
   roles:
     - role: ../roles/wazuh/ansible-wazuh-manager
     - role: ../roles/wazuh/ansible-filebeat
