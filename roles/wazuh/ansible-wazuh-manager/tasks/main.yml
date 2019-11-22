@@ -7,12 +7,6 @@
       - tar
     state: present
 
-- include_tasks: "RedHat.yml"
-  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
-
-- include_tasks: "Debian.yml"
-  when: ansible_os_family == "Debian"
-
 - name: Check if NodeJS service Exists
   stat:
     path: /usr/bin/node
@@ -40,6 +34,12 @@
   register: nodejs_service_is_installed
   until: nodejs_service_is_installed is succeeded
   tags: init
+
+- include_tasks: "RedHat.yml"
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
+
+- include_tasks: "Debian.yml"
+  when: ansible_os_family == "Debian"
 
 - name: Install expect
   package:
