@@ -13,20 +13,29 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
+- name: Check if NodeJS service Exists
+  stat:
+    path: /usr/bin/node
+  register: node_service_status
+
 - name: Installing NodeJS repository script
   become: true
   get_url:
-    url: "https://{{ repo_dic[ansible_os_family] }}nodesource.com/setup_8.x"
+    url: "https://{{ repo_dic[ansible_os_family|lower] }}.nodesource.com/setup_8.x"
     dest: /etc/nodejs.sh
     mode: '0775'
   changed_when: false
+  when: not node_service_status.stat.exists
 
 - name: Running NodeJS bash script
-  script: /etc/nodejs.sh
+  command: sh /etc/nodejs.sh
+  register: nodejs_script
+  changed_when: nodejs_script.rc == 0
+  when: not node_service_status.stat.exists
 
 - name: Installing NodeJS
   package:
-    name: ntpdate
+    name: nodejs
     state: present
   register: nodejs_service_is_installed
   until: nodejs_service_is_installed is succeeded
