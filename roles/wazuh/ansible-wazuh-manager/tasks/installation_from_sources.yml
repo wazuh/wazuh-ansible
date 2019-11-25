@@ -24,7 +24,7 @@
 
       - name: Removing old folders
         file: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
-        state: absent          
+        state: absent
 
       - name: Installing policycoreutils-python (RedHat families)
         package:
@@ -168,5 +168,3 @@
       - wazuh_api_sources_installation.enabled
     tags:
       - api
-    
-    
