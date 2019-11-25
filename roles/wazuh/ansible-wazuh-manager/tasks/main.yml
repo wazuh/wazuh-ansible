@@ -16,7 +16,7 @@
   block:
     - name: Download NodeJS repository script
       get_url:
-        url: "https://{{ repo_dic[ansible_os_family|lower] }}.nodesource.com/setup_8.x"
+        url: "https://{{ nodejs['repo_dic'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
         dest: /etc/nodejs.sh
         mode: '0775'
       changed_when: false

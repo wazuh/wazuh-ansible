@@ -326,6 +326,8 @@ wazuh_agent_configs:
         format: 'eventchannel'
       - location: 'System'
         format: 'eventlog'
-repo_dic:
-  debian: "deb"
-  redhat: "rpm"
+nodejs:
+  repo_dic:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_8.x"
