@@ -77,8 +77,6 @@
       owner: root
       group: root
       mode: '644'
-    tags:
-      - molecule-idempotence-notest
 
   - name: Executing "install.sh" script to build and install the Wazuh Agent
     shell: ./install.sh > /tmp/build_agent_log.txt
