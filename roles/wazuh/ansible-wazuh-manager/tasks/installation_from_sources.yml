@@ -83,7 +83,7 @@
           mode: '644'
 
       - name: Executing "install.sh" script to build and install the Wazuh Manager
-        shell: ./install.sh > /tmp/build_manager_log.txt
+        shell: ./install.sh > /tmp/build_wazuh_manager_log.txt
         register: installation_result
         changed_when: installation_result == 0
         args:
@@ -102,14 +102,31 @@
 
   - name: Install Wazuh API from sources
     block:
+      - name: Install dependencies to build Wazuh packages
+        package:
+          name:
+            - make
+            - gcc
+            - automake
+            - autoconf
+            - libtool
+            - tar
+          state: present
+
       - name: Ensure Git is present in the host
         package:
           name: git
           state: present
 
+      - name: Modify repo url if host is in Debian family
+        set_fact:
+          node_js_repo_type: deb
+        when:
+          - ansible_os_family | lower == "debian"
+
       - name: Download script to install Nodejs repository
         get_url:
-          url: "{{ node_js_repository_url }}"
+          url: "https://{{ node_js_repo_type }}.{{ node_js_repo_url }}"
           dest: "/tmp/setup_nodejs_repo.sh"
           mode: "0700"
 
@@ -148,7 +165,7 @@
           mode: '644'
 
       - name: Execute Wazuh API installation script
-        shell: ./install_api.sh > /tmp/build_api_log.txt
+        shell: ./install_api.sh > /tmp/build_wazuh_api_log.txt
         register: install_api
         changed_when: install_api.rc == 0
         args:
