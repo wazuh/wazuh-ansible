@@ -19,12 +19,12 @@
           state: present
 
       - name: Removing old files
-        file: 
+        file:
           path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
           state: absent
 
       - name: Removing old folders
-        file: 
+        file:
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
           state: absent
 
@@ -100,12 +100,12 @@
           chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
 
       - name: Cleanup downloaded files
-        file: 
+        file:
           path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
           state: absent
 
       - name: Cleanup created folders
-        file: 
+        file:
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
           state: absent
 
