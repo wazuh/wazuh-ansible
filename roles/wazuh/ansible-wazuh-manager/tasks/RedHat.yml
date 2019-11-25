@@ -159,7 +159,6 @@
     - init
 
 - include_tasks: "../tasks/installation_from_sources.yml"
-  tags: manager
   when:
     - wazuh_manager_sources_installation.enabled
 
@@ -176,7 +175,6 @@
     - init
 
 - include_tasks: "../tasks/installation_from_sources.yml"
-  tags: api
   when:
     - wazuh_api_sources_installation.enabled
 
