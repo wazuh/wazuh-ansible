@@ -41,11 +41,13 @@
       url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
       dest: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
     delegate_to: "{{ inventory_hostname }}"
+    changed_when: false
 
   - name: Create folder to extract Wazuh branch
     file:
       path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
       state: directory
+    changed_when: false
 
   - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
     command: >-
@@ -53,7 +55,7 @@
       --strip 1
       --directory /tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}
     register: wazuh_untar
-    changed_when: wazuh_untar.rc ==0
+    changed_when: false
     args:
       warn: false
 
@@ -75,6 +77,7 @@
       owner: root
       group: root
       mode: '644'
+    changed_when: false
 
   - name: Executing "install.sh" script to build and install the Wazuh Agent
     shell: ./install.sh > /tmp/build_agent_log.txt
@@ -87,8 +90,10 @@
     file:
       path: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
       state: absent
+    changed_when: false
 
   - name: Cleanup created folders
     file:
       path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
       state: absent
+    changed_when: false
