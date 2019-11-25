@@ -25,8 +25,9 @@ generate_CA: true
 ca_cert_name: ""
 
 # Nodejs
-node_js_repository_url: https://rpm.nodesource.com/setup_8.x
+node_js_repo_url: https://rpm.nodesource.com/setup_8.x
+node_js_repo_type: rpm
 
 # Build from sources
-build_from_sources: true
-wazuh_plugin_branch: 3.10-7.4
+build_from_sources: false
+wazuh_plugin_branch: 3.10-7.3
