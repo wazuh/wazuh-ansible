@@ -10,7 +10,8 @@
   when:
     - (ansible_facts['os_family']|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
-    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_agent_sources_installation.enabled
+    - not wazuh_api_sources_installation.enabled
   register: repo_v5_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
@@ -23,7 +24,7 @@
   changed_when: false
   when:
     - repo_v5_installed is skipped
-    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_agent_sources_installation.enabled
 
 - name: RedHat/CentOS/Fedora | download Oracle Java RPM
   get_url:
