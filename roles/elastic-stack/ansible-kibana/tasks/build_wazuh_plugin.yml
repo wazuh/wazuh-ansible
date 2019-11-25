@@ -5,9 +5,15 @@
       name: git
       state: present
 
+  - name: Modify repo url if host is in Debian family
+    set_fact:
+      node_js_repo_type: deb
+    when:
+      - ansible_os_family | lower == "debian"
+
   - name: Download script to install Nodejs repository
     get_url:
-      url: "{{ node_js_repository_url }}"
+      url: "https://{{ node_js_repo_type }}.{{ node_js_repo_url }}"
       dest: "/tmp/setup_nodejs_repo.sh"
       mode: "0700"
 
