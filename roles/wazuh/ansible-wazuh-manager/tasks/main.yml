@@ -28,7 +28,7 @@
     chdir: /var/ossec/etc/
   tags:
     - config
-  when: not wazuh_manager_config.authd.ssl_agent_ca is not none
+  when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
   copy:
