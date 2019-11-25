@@ -18,6 +18,14 @@
             - tar
           state: present
 
+      - name: Removing old files
+        file: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+        state: absent
+
+      - name: Removing old folders
+        file: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+        state: absent          
+
       - name: Installing policycoreutils-python (RedHat families)
         package:
           name:
@@ -88,6 +96,15 @@
         changed_when: installation_result == 0
         args:
           chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+
+      - name: Cleanup downloaded files
+        file: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+        state: absent
+
+      - name: Cleanup created folders
+        file: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+        state: absent
+
     when:
       - not wazuh_ossec_control.stat.exists
       - wazuh_manager_sources_installation.enabled
@@ -95,6 +112,7 @@
       - manager
 
 # Wazuh API
+
   - name: Check if Wazuh API is already installed
     stat:
       path: /var/ossec/api/app.js
@@ -117,33 +135,6 @@
         package:
           name: git
           state: present
-
-      - name: Modify repo url if host is in Debian family
-        set_fact:
-          node_js_repo_type: deb
-        when:
-          - ansible_os_family | lower == "debian"
-
-      - name: Download script to install Nodejs repository
-        get_url:
-          url: "https://{{ node_js_repo_type }}.{{ node_js_repo_url }}"
-          dest: "/tmp/setup_nodejs_repo.sh"
-          mode: "0700"
-
-      - name: Execute downloaded script to install Nodejs repo
-        command: /tmp/setup_nodejs_repo.sh
-        register: node_repo_installation_result
-        changed_when: node_repo_installation_result.rc == 0
-
-      - name: Install Nodejs
-        package:
-          name: nodejs
-          state: present
-
-      - name: Run NPM under root account
-        command: npm config set user 0
-        register: allow_root_npm
-        changed_when: allow_root_npm.rc == 0
 
       - name: Remove old repository folder
         file:
@@ -177,3 +168,5 @@
       - wazuh_api_sources_installation.enabled
     tags:
       - api
+    
+    

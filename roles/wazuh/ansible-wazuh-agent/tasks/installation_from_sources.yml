@@ -9,6 +9,14 @@
         - libtool
         - tar
       state: present
+      
+      - name: Removing old files
+        file: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+        state: absent
+
+      - name: Removing old folders
+        file: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+        state: absent             
 
   - name: Installing policycoreutils-python (RedHat families)
     package:
@@ -76,3 +84,11 @@
     changed_when: installation_result == 0
     args:
       chdir: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+
+    - name: Cleanup downloaded files
+      file: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+      state: absent
+
+    - name: Cleanup created folders
+      file: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+      state: absent             
