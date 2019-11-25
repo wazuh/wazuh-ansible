@@ -370,5 +370,8 @@ wazuh_agent_configs:
       - location: 'System'
         format: 'eventlog'
 
-node_js_repo_url: nodesource.com/setup_8.x
-node_js_repo_type: rpm
+nodejs:
+  repo_dic:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_8.x" 
