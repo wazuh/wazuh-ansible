@@ -56,8 +56,6 @@
     changed_when: wazuh_untar.rc ==0
     args:
       warn: false
-    tags:
-      - molecule-idempotence-notest
 
   - name: Clean remaining files from others builds
     command: "make -C src {{ item }}"
