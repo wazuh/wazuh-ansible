@@ -28,26 +28,31 @@
 
   - name: Download required packages from github.com/wazuh/wazuh
     get_url:
-      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
-      dest: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+      dest: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
     delegate_to: "{{ inventory_hostname }}"
 
   - name: Create folder to extract Wazuh branch
     file:
-      path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+      path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
       state: directory
 
   - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
-    command: "tar -xzvf /tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz --strip 1 --directory /tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+    command: >-
+      tar -xzvf /tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz
+      --strip 1
+      --directory /tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}
     register: wazuh_untar
     changed_when: wazuh_untar.rc ==0
     args:
       warn: false
+    tags:
+      - molecule-idempotence-notest
 
   - name: Clean remaining files from others builds
     command: "make -C src {{ item }}"
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/src/"
+      chdir: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}/src/"
     with_items:
       - "clean"
       - "clean-deps"
@@ -57,15 +62,17 @@
 
   - name: Render the "preloaded-vars.conf" file
     template:
-      src: "templates/preloaded_vars.conf.j2"
-      dest: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/etc/preloaded-vars.conf"
+      src: "templates/preloaded_vars_agent.conf.j2"
+      dest: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}/etc/preloaded-vars.conf"
       owner: root
       group: root
       mode: '644'
+    tags:
+      - molecule-idempotence-notest
 
   - name: Executing "install.sh" script to build and install the Wazuh Agent
-    shell: ./install.sh > /tmp/build_log.txt
+    shell: ./install.sh > /tmp/build_agent_log.txt
     register: installation_result
     changed_when: installation_result == 0
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+      chdir: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
