@@ -19,12 +19,14 @@
           state: present
 
       - name: Removing old files
-        file: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
-        state: absent
+        file: 
+          path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+          state: absent
 
       - name: Removing old folders
-        file: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
-        state: absent
+        file: 
+          path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          state: absent
 
       - name: Installing policycoreutils-python (RedHat families)
         package:
@@ -98,12 +100,14 @@
           chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
 
       - name: Cleanup downloaded files
-        file: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
-        state: absent
+        file: 
+          path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+          state: absent
 
       - name: Cleanup created folders
-        file: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
-        state: absent
+        file: 
+          path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          state: absent
 
     when:
       - not wazuh_ossec_control.stat.exists
