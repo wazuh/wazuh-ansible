@@ -133,8 +133,14 @@
             - autoconf
             - libtool
             - tar
-            - npm
           state: present
+      
+      - name: Explicitly installing npm for Debian hosts
+        package:
+          name: npm
+          state: present
+        when:
+          - ansible_distribution == "Debian"
 
       - name: Ensure Git is present in the host
         package:
