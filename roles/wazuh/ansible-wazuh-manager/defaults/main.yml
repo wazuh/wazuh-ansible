@@ -30,7 +30,7 @@ wazuh_manager_sources_installation:
   threads: "2"
 
 wazuh_api_sources_installation:
-  enabled: true
+  enabled: false
   branch: "v3.10.2"
   update: "y"
   remove: "y"
