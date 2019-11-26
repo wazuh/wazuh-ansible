@@ -10,8 +10,7 @@
   when:
     - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
-    - not wazuh_manager_sources_installation.enabled
-    - not wazuh_api_sources_installation.enabled
+    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
   register: repo_v5_manager_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
