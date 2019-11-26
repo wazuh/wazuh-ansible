@@ -1,5 +1,4 @@
 ---
-
   - name: Ensure the Git package is present
     package:
       name: git
@@ -13,7 +12,6 @@
 
   - name: Download script to install Nodejs repository
     get_url:
-    nodejs['repo_dict'][ansible_os_family|lower]
       url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
       dest: "/tmp/setup_nodejs_repo.sh"
       mode: "0700"
