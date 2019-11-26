@@ -13,7 +13,8 @@
 
   - name: Download script to install Nodejs repository
     get_url:
-      url: "https://{{ node_js_repo_type }}.{{ node_js_repo_url }}"
+    nodejs['repo_dict'][ansible_os_family|lower]
+      url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
       dest: "/tmp/setup_nodejs_repo.sh"
       mode: "0700"
 

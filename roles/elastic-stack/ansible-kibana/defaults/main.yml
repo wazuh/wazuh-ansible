@@ -25,8 +25,11 @@ generate_CA: true
 ca_cert_name: ""
 
 # Nodejs
-node_js_repo_url: https://rpm.nodesource.com/setup_8.x
-node_js_repo_type: rpm
+nodejs:
+  repo_dict:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_8.x" 
 
 # Build from sources
 build_from_sources: false

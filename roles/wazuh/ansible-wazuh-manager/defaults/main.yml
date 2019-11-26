@@ -371,7 +371,7 @@ wazuh_agent_configs:
         format: 'eventlog'
 
 nodejs:
-  repo_dic:
+  repo_dict:
       debian: "deb"
       redhat: "rpm"
   repo_url_ext: "nodesource.com/setup_8.x" 
