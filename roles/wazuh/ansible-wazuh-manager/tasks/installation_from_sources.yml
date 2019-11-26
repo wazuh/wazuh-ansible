@@ -133,6 +133,7 @@
             - autoconf
             - libtool
             - tar
+            - npm
           state: present
 
       - name: Ensure Git is present in the host
