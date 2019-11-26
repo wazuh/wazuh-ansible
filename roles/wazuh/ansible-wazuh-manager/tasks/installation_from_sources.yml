@@ -134,7 +134,7 @@
             - libtool
             - tar
           state: present
-      
+
       - name: Explicitly installing npm for Debian hosts
         package:
           name: npm
