@@ -5,7 +5,7 @@ wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
 wazuh_manager_sources_installation:
-  enabled: true
+  enabled: false
   branch: "v3.10.2"
   user_language: "en"
   user_no_stop: "y"
@@ -30,7 +30,7 @@ wazuh_manager_sources_installation:
   threads: "2"
 
 wazuh_api_sources_installation:
-  enabled: false
+  enabled: true
   branch: "v3.10.2"
   update: "y"
   remove: "y"
