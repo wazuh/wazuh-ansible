@@ -1,8 +1,4 @@
 ---
-- include_tasks: "installation_from_sources.yml"
-  when:
-    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
-
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
     name:
@@ -109,6 +105,10 @@
   tags: init
   when:
     - not wazuh_manager_sources_installation.enabled
+
+- include_tasks: "installation_from_sources.yml"
+  when:
+    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
 
 - name: Debian/Ubuntu | Install wazuh-api
   apt:

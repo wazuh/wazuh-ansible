@@ -137,10 +137,6 @@
   tags:
     - init
 
-- include_tasks: "../tasks/installation_from_sources.yml"
-  when:
-    - wazuh_api_sources_installation.enabled
-
 - name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
   replace:
     path: /etc/init.d/wazuh-manager
