@@ -19,7 +19,7 @@
   - name: Execute downloaded script to install Nodejs repo
     command: /tmp/setup_nodejs_repo.sh
     register: node_repo_installation_result
-    changed_when: node_repo_installation_result.rc == 0
+    changed_when: false
 
   - name: Install Nodejs
     package:
@@ -29,7 +29,7 @@
   - name: Run NPM under root account
     command: npm config set user 0
     register: allow_root_npm
-    changed_when: allow_root_npm.rc == 0
+    changed_when: false
 
   - name: Install yarn dependency to build the Wazuh Kibana Plugin
     command: npm install -g yarn@1.10.1
@@ -40,11 +40,12 @@
     file:
       path: /tmp/app
       state: absent
+    changed_when: false
 
   - name: Clone wazuh-kibana-app repository # Using command as git module doesn't cover single-branch nor depth
     command: git clone https://github.com/wazuh/wazuh-kibana-app -b {{ wazuh_plugin_branch }} --single-branch --depth=1 app # noqa 303
     register: clone_app_repo_result
-    changed_when: clone_app_repo_result.rc == 0
+    changed_when: false
     args:
       chdir: "/tmp"
 
