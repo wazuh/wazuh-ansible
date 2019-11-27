@@ -123,7 +123,7 @@
 
 - include_tasks: "../tasks/installation_from_sources.yml"
   when:
-    - wazuh_manager_sources_installation.enabled
+    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
 
 - name: CentOS/RedHat/Amazon | Install Wazuh API
   package:
