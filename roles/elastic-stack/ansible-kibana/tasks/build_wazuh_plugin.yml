@@ -26,13 +26,9 @@
       name: nodejs
       state: present
 
-  - name: Run NPM under root account
-    command: npm config set user 0
-    register: allow_root_npm
-    changed_when: false
-
   - name: Install yarn dependency to build the Wazuh Kibana Plugin
-    command: npm install -g yarn@1.10.1
+    # Using shell due to errors when evaluating text between @ with command
+    shell: "npm install -g {{ 'yarn' }}{{ '@' }}{{ '1.10.1'}}" # noqa 305
     register: install_yarn_result
     changed_when: install_yarn_result == 0
 
@@ -56,7 +52,7 @@
       - "yarn build"
       - "yarn build" # Executing multiple times to workaround errors returned by yarn build
     register: yarn_execution_result
-    changed_when: yarn_execution_result == 0
+    changed_when: false
     args:
       chdir: "/tmp/app/"
 
