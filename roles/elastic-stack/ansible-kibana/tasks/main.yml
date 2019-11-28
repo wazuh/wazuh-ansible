@@ -1,4 +1,13 @@
 ---
+
+- name: Stopping early, trying to compile Wazuh Kibana Plugin on Debian 10 is not possible
+  fail:
+    msg: "It's not possible to compile the Wazuh Kibana plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
+  when:
+    - build_from_sources
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "10"
+
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
@@ -107,6 +116,7 @@
   when:
     - build_from_sources is defined
     - build_from_sources
+
 
 - name: Install Wazuh Plugin (can take a while)
   shell: "/usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
