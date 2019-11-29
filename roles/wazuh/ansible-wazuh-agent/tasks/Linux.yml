@@ -5,6 +5,10 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
+- include_tasks: "installation_from_sources.yml"
+  when:
+    - wazuh_agent_sources_installation.enabled
+
 - name: Linux CentOS/RedHat | Install wazuh-agent
   package:
     name: wazuh-agent-{{ wazuh_agent_version }}
@@ -13,6 +17,7 @@
   poll: 30
   when:
     - ansible_os_family|lower == "redhat"
+    - not wazuh_agent_sources_installation.enabled
   tags:
     - init
 
@@ -23,6 +28,7 @@
     cache_valid_time: 3600
   when:
     - ansible_os_family|lower != "redhat"
+    - not wazuh_agent_sources_installation.enabled
   tags:
     - init
 
@@ -192,7 +198,11 @@
   tags: config
 
 - include_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
+  when:
+    - ansible_os_family == "RedHat"
+    - not wazuh_agent_sources_installation.enabled
 
 - include_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
+  when:
+    - ansible_os_family == "Debian"
+    - not wazuh_agent_sources_installation.enabled

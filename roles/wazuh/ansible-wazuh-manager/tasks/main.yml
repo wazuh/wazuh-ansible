@@ -16,7 +16,7 @@
   block:
     - name: Download NodeJS repository script
       get_url:
-        url: "https://{{ nodejs['repo_dic'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
+        url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
         dest: /etc/nodejs.sh
         mode: '0775'
       changed_when: false
@@ -56,7 +56,7 @@
     chdir: /var/ossec/etc/
   tags:
     - config
-  when: not wazuh_manager_config.authd.ssl_agent_ca is not none
+  when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
   copy:
@@ -382,7 +382,11 @@
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
 - include_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+  when:
+    - ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+    - not wazuh_manager_sources_installation.enabled
 
 - include_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
+  when:
+    - ansible_os_family == "Debian"
+    - not wazuh_manager_sources_installation.enabled

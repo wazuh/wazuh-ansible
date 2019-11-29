@@ -6,7 +6,7 @@
       elasticsearch_network_host: <node-1 IP>
       node_name: node-1
       elasticsearch_bootstrap_node: true
-      elasticsearch_cluster_nodes: 
+      elasticsearch_cluster_nodes:
         - <node-1 IP>
         - <node-2 IP>
         - <node-3 IP>
@@ -22,7 +22,7 @@
   vars:
     instances:
       node1:
-        name: node-1       # Important: must be equal to elasticsearch_node_name.                    
+        name: node-1       # Important: must be equal to elasticsearch_node_name.
         ip: <node-1 IP>   # When unzipping, the node will search for its node name folder to get the cert.
       node2:
         name: node-2
@@ -43,10 +43,10 @@
         - <node-1 IP>
         - <node-2 IP>
         - <node-3 IP>
-  
+
 - hosts: <node-3 IP>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch 
+    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-3 IP>
       elasticsearch_node_name: node-3
       single_node: false

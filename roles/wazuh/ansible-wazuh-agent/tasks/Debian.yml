@@ -20,12 +20,14 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
+    - not wazuh_agent_sources_installation.enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key:
     url: "{{ wazuh_agent_config.repo.gpg }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_agent_sources_installation.enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -33,6 +35,8 @@
     repo: "{{ wazuh_agent_config.repo.apt }}"
     state: present
     update_cache: true
+  when:
+    - not wazuh_agent_sources_installation.enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
   set_fact:
