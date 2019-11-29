@@ -38,32 +38,6 @@
     update_cache: true
   changed_when: false
 
-- name: Debian/Ubuntu | Installing NodeJS repository key (Ubuntu 14)
-  become: true
-  shell: |
-    set -o pipefail
-    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-  args:
-    warn: false
-    executable: /bin/bash
-  changed_when: false
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
-
-- name: Debian/Ubuntu | Installing NodeJS repository key
-  apt_key:
-    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-  when:
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-
-- name: Debian/Ubuntu | Add NodeSource repositories for Node.js
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
-    state: present
-    update_cache: true
-  changed_when: false
-
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
