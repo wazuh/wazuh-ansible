@@ -109,7 +109,7 @@
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
 
-- name: CentOS/RedHat/Amazon | Install Wazuh Manager
+- name: CentOS/RedHat/Amazon | Install wazuh-manager
   package:
     name: "wazuh-manager-{{ wazuh_manager_version }}"
     state: "{{ wazuh_manager_package_state }}"
@@ -125,7 +125,7 @@
   when:
     - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
 
-- name: CentOS/RedHat/Amazon | Install Wazuh API
+- name: CentOS/RedHat/Amazon | Install wazuh-api
   package:
     name: "wazuh-api-{{ wazuh_manager_version }}"
     state: "{{ wazuh_manager_package_state }}"
