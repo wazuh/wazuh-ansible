@@ -50,7 +50,6 @@
     with_items:
       - "yarn"
       - "yarn build"
-      - "yarn build" # Executing multiple times to workaround errors returned by yarn build
     register: yarn_execution_result
     changed_when: false
     args:
