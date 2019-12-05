@@ -51,7 +51,6 @@
   <rootcheck>
     <disabled>no</disabled>
     {% if ansible_system == "Linux" %}
-    <check_unixaudit>yes</check_unixaudit>
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
     <check_dev>yes</check_dev>
@@ -65,11 +64,6 @@
 
     <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
-    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
-    {% if cis_distribution_filename is defined %}
-    <system_audit>/var/ossec/etc/shared/{{ cis_distribution_filename }}</system_audit>
-    {% endif %}
     <skip_nfs>yes</skip_nfs>
     {% endif %}
     {% if ansible_os_family == "Windows" %}
@@ -118,6 +112,13 @@
     {% endfor %}
     {% endif %}
 
+    <!-- File types to ignore -->
+    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' %}
+    {% for ignore in wazuh_agent_config.syscheck.ignore_linux_type %}
+    <ignore type="sregex">{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
     {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
     {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
     <ignore type="sregex">{{ ignore }}</ignore>
@@ -132,13 +133,6 @@
     
     <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
     {% endif %}
-    <!-- Remove not monitored files -->
-    <remove_old_diff>{{ wazuh_agent_config.syscheck.remove_old_diff }}</remove_old_diff>
-
-    {% if ansible_system == "Linux"%}
-    <!-- Allow the system to restart Auditd after installing the plugin -->
-    <restart_audit>{{ wazuh_agent_config.syscheck.restart_audit }}</restart_audit>
-    {% endif %} 
 
     {% if ansible_os_family == "Windows" %}
     {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
@@ -234,13 +228,6 @@
     <java_path>{{ wazuh_agent_config.cis_cat.java_path }}</java_path>
     {% endif %}
     <ciscat_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.cis_cat.ciscat_path_win }}{% else %}{{ wazuh_agent_config.cis_cat.ciscat_path }}{% endif %}</ciscat_path>
-    {% if ansible_system == "Linux" %}
-    {% for benchmark in wazuh_agent_config.cis_cat.content %}
-    <content type="{{ benchmark.type }}" path="{{ benchmark.path }}">
-      <profile>{{ benchmark.profile }}</profile>
-    </content>
-    {% endfor %}
-    {% endif %}
   </wodle>
   {% endif %}
 
