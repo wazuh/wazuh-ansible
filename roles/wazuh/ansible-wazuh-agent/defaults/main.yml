@@ -275,7 +275,7 @@ wazuh_agent_config:
     wday: ''
     time: ''
   cis_cat:
-    disable: 'no'
+    disable: 'yes'
     install_java: 'no'
     timeout: 1800
     interval: '1d'
