@@ -32,5 +32,5 @@ nodejs:
   repo_url_ext: "nodesource.com/setup_8.x" 
 
 # Build from sources
-build_from_sources: true
+build_from_sources: false
 wazuh_plugin_branch: 3.10-7.4
