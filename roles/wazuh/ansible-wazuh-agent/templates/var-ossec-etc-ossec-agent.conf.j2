@@ -113,7 +113,7 @@
     {% endif %}
 
     <!-- File types to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' %}
+    {% if wazuh_agent_config.syscheck.ignore_linux_type is defined and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' %}
     {% for ignore in wazuh_agent_config.syscheck.ignore_linux_type %}
     <ignore type="sregex">{{ ignore }}</ignore>
     {% endfor %}
