@@ -59,17 +59,23 @@
     - name: Linux | Register agent (via authd)
       shell: >
         /var/ossec/bin/agent-auth
-        {% if wazuh_agent_authd.agent_name is defined %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
+        {% if wazuh_agent_authd.agent_name is defined and wazuh_agent_authd.agent_name != None %}
+        -A {{ wazuh_agent_authd.agent_name }}
+        {% endif %}
         -m {{ wazuh_managers.0.address }}
         -p {{ wazuh_agent_authd.port }}
-        {% if wazuh_agent_nat %}-I "any" {% endif %}
-        {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
-        {% if wazuh_agent_authd.ssl_agent_ca is defined %}
+        {% if wazuh_agent_nat %} -I "any" {% endif %}
+        {% if authd_pass is defined %} -P {{ authd_pass }} {% endif %}
+        {% if wazuh_agent_authd.ssl_agent_ca is defined and wazuh_agent_authd.ssl_agent_ca != None %}
         -v "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
+        {% endif %}
+        {% if wazuh_agent_authd.ssl_agent_cert is defined and wazuh_agent_authd.ssl_agent_cert != None %}
         -x "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_cert | basename }}"
+        {% endif %}
+        {% if wazuh_agent_authd.ssl_agent_key is defined and wazuh_agent_authd.ssl_agent_key != None  %}
         -k "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_key | basename }}"
         {% endif %}
-        {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %}-a{% endif %}
+        {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %} -a {% endif %}
       register: agent_auth_output
       notify: restart wazuh-agent
       vars:
