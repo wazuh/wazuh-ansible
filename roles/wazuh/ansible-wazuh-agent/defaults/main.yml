@@ -2,7 +2,7 @@
 wazuh_agent_version: 3.11.0-1
 
 wazuh_agent_sources_installation:
-  enabled: "false"
+  enabled: "true"
   branch: "v3.11.0"
   user_language: "y"
   user_no_stop: "y"
@@ -250,11 +250,11 @@ wazuh_agent_config:
   osquery:
     disable: 'yes'
     run_daemon: 'yes'
-    bin_path_win: 'C:\ProgramData\osquery\osqueryd'
+    bin_path_win: 'C:\Program Files\osquery\osqueryd'
     log_path: '/var/log/osquery/osqueryd.results.log'
-    log_path_win: 'C:\ProgramData\osquery\log\osqueryd.results.log'
+    log_path_win: 'C:\Program Files\osquery\log\osqueryd.results.log'
     config_path: '/etc/osquery/osquery.conf'
-    config_path_win: 'C:\ProgramData\osquery\osquery.conf'
+    config_path_win: 'C:\Program Files\osquery\osquery.conf'
     add_labels: 'yes'
   syscollector:
     disable: 'no'
