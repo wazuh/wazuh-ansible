@@ -215,35 +215,35 @@ wazuh_manager_config:
     interval: '5m'
     ignore_time: '6h'
     run_on_start: 'yes'
-    providers:
-      canonical:
-        - name: 'canonical'
-          enabled: 'no'
-          os:
-            - precise
-            - trusty
-            - xenial
-            - bionic
-          update_interval: '1h'
-      debian:
-        - name: 'debian'
-          enabled: 'no'
-          os:
-            - wheezy
-            - stretch
-            - jessie
-            - buster
-          update_interval: '1h'
-      redhat:
-        - name: 'redhat'
-          enabled: 'no'
-          update_from_year: '2010'
-          update_interval: '1h'
-      nvd:
-        - name: 'nvd'
-          enabled: 'no'
-          update_from_year: '2010'
-          update_interval: '1h'    
+    providers_:
+      - canonical:
+          - enabled: 'no'
+            os:
+              - 'precise'
+              - 'trusty'
+              - 'xenial'
+              - 'bionic'
+            update_interval: '1h'
+            name: 'canonical'
+      - debian:
+          - enabled: 'no'
+            os:
+              - 'wheezy'
+              - 'stretch'
+              - 'jessie'
+              - 'buster'
+            update_interval: '1h'
+            name: 'debian'
+      - redhat:
+          - enabled: 'no'
+            update_from_year: '2010'
+            update_interval: '1h'
+            name: 'redhat'
+      - nvd:
+          - enabled: 'no'
+            update_from_year: '2010'
+            update_interval: '1h'
+            name: 'nvd'
   vuls:
     disable: 'yes'
     interval: '1d'
