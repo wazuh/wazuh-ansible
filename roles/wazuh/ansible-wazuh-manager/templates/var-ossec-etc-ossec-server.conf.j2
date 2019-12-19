@@ -258,7 +258,7 @@
     <run_on_start>{{ wazuh_manager_config.vulnerability_detector.run_on_start }}</run_on_start>
   {% endif %}
   {% if wazuh_manager_config.vulnerability_detector.providers is defined %}
-  {% for provider_ in wazuh_manager_config.vulnerability_detector.providers_ %}
+  {% for provider_ in wazuh_manager_config.vulnerability_detector.providers %}
     <provider name={{ provider_.name }}>
       {% if provider_.enabled is defined %}
       <enabled>{{ provider_.enabled }}</enabled>
