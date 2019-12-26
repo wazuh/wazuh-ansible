@@ -60,7 +60,7 @@
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
           state: directory
 
-    # When downloading "v3.10.2" extracted folder name is 3.10.2. 
+    # When downloading "v3.11.0" extracted folder name is 3.11.0. 
     # Explicitly creating the folder with proper naming and striping first level in .tar.gz file
 
       - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
