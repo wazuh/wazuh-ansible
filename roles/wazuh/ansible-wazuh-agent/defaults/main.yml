@@ -1,5 +1,28 @@
 ---
-wazuh_agent_version: 3.10.2
+wazuh_agent_version: 3.11.0-1
+
+wazuh_agent_sources_installation:
+  enabled: false
+  branch: "v3.11.0"
+  user_language: "y"
+  user_no_stop: "y"
+  user_install_type: "agent"
+  user_dir: "/var/ossec"
+  user_delete_dir: "y"
+  user_enable_active_response: "y"
+  user_enable_syscheck: "y"
+  user_enable_rootcheck: "y"
+  user_enable_openscap: "y"
+  user_enable_sca: "y"
+  user_enable_authd: "y"
+  user_generate_authd_cert: "n"
+  user_update: "y"
+  user_binaryinstall: null
+  user_agent_server_ip: "YOUR_MANAGER_IP"
+  user_agent_server_name: null
+  user_agent_config_profile: null
+  user_ca_store: "/var/ossec/wpk_root.pem"
+
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
@@ -12,6 +35,7 @@ wazuh_auto_restart: 'yes'
 wazuh_agent_authd:
   enable: false
   port: 1515
+  agent_name: null
   ssl_agent_ca: null
   ssl_agent_cert: null
   ssl_agent_key: null
@@ -26,11 +50,15 @@ wazuh_winagent_config:
   auth_path: C:\Program Files\ossec-agent\agent-auth.exe
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
-  version: '3.10.2'
+  version: '3.11.0'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
   md5: 71650780904cbfc2e45eae4298adb7a3 
 wazuh_agent_config:
+  repo:
+    apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/3.x/yum/'
+    gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   active_response:
     ar_disabled: 'no'
     ca_store: '/var/ossec/etc/wpk_root.pem'
@@ -213,7 +241,7 @@ wazuh_agent_config:
   rootcheck:
     frequency: 43200
   openscap:
-    disable: 'no'
+    disable: 'yes'
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
@@ -236,6 +264,14 @@ wazuh_agent_config:
     packages: 'yes'
     ports_no: 'yes'
     processes: 'yes'
+  sca:
+    enabled: 'yes'
+    scan_on_start: 'yes'
+    interval: '12h'
+    skip_nfs: 'yes'
+    day: ''
+    wday: ''
+    time: ''
   cis_cat:
     disable: 'yes'
     install_java: 'yes'

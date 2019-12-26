@@ -1,69 +1,34 @@
 ---
-- name: RedHat/CentOS | Install Nodejs repo
+- name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
-    name: NodeJS
-    description: NodeJS-$releasever
-    baseurl: https://rpm.nodesource.com/pub_6.x/el/{{ ansible_distribution_major_version }}/x86_64
-    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
+    name: wazuh_repo
+    description: Wazuh repository
+    baseurl: "{{ wazuh_manager_config.repo.yum }}5/"
+    gpgkey: "{{ wazuh_manager_config.repo.gpg }}-5"
     gpgcheck: true
   changed_when: false
   when:
-    - ansible_distribution_major_version|int > 5
-
-- name: Fedora | Install Nodejs repo
-  yum_repository:
-    name: NodeJS
-    description: NodeJS-$releasever
-    baseurl: https://rpm.nodesource.com/pub_6.x/fc/$releasever/x86_64
-    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
-    gpgcheck: true
-  when: ansible_distribution == 'Fedora'
-
-- name: AmazonLinux | Get Nodejs
-  shell: |
-    set -o pipefail
-    curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
-  args:
-    warn: false
-    executable: /bin/bash
-  when:
-    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
-
-- name: AmazonLinux | Install Nodejs repo
-  yum:
-    name: nodejs
-    state: present
-  register: wazuh_manager_amz_node_packages_installed
-  until: wazuh_manager_amz_node_packages_installed is succeeded
-  when:
-    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+    - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
+    - (ansible_distribution_major_version|int <= 5)
+    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
+  register: repo_v5_manager_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
     description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    baseurl: "{{ wazuh_manager_config.repo.yum }}"
+    gpgkey: "{{ wazuh_manager_config.repo.gpg }}"
     gpgcheck: true
   changed_when: false
   when:
-    - (ansible_distribution_major_version|int > 5) or (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-
-- name: RedHat/CentOS 5 | Install Wazuh repo
-  yum_repository:
-    name: wazuh_repo
-    description: Wazuh repository
-    baseurl: https://packages.wazuh.com/3.x/yum/5/
-    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    gpgcheck: true
-  when:
-    - ansible_distribution_major_version|int == 5
+    - repo_v5_manager_installed is skipped
+    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
   with_items:
     - openscap-scanner
-    - openssl
   register: wazuh_manager_openscp_packages_installed
   until: wazuh_manager_openscp_packages_installed is succeeded
   tags:
@@ -143,3 +108,55 @@
     cis_distribution_filename: cis_rhel7_linux_rcl.txt
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+
+- name: CentOS/RedHat/Amazon | Install wazuh-manager
+  package:
+    name: "wazuh-manager-{{ wazuh_manager_version }}"
+    state: "{{ wazuh_manager_package_state }}"
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  when:
+    - ansible_os_family|lower == "redhat"
+    - not wazuh_manager_sources_installation.enabled
+  tags:
+    - init
+
+- include_tasks: "../tasks/installation_from_sources.yml"
+  when:
+    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
+
+- name: CentOS/RedHat/Amazon | Install wazuh-api
+  package:
+    name: "wazuh-api-{{ wazuh_manager_version }}"
+    state: "{{ wazuh_manager_package_state }}"
+  register: wazuh_api_main_packages_installed
+  until: wazuh_api_main_packages_installed is succeeded
+  when:
+    - ansible_os_family|lower == "redhat"
+    - not wazuh_api_sources_installation.enabled
+  tags:
+    - init
+
+- name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
+  replace:
+    path: /etc/init.d/wazuh-manager
+    regexp: 'echo -n "Starting Wazuh-manager: "'
+    replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
+  when:
+    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
+    - wazuh_manager_config.cluster.disable != 'yes'
+
+- name: Install expect (EL5)
+  package:
+    name: "{{ item }}"
+    state: "{{ wazuh_manager_package_state }}"
+  with_items:
+    - expect
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  when:
+    - ansible_os_family|lower == "RedHat"
+    - ansible_distribution_major_version|int < 6
+  tags:
+    - init
+

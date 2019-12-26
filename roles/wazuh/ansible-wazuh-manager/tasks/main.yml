@@ -1,62 +1,53 @@
 ---
-- import_tasks: "RedHat.yml"
+- name: "Install dependencies"
+  package:
+    name:
+      - unzip
+      - openssl
+      - tar
+    state: present
+
+- name: Check if NodeJS service exists
+  stat:
+    path: /usr/bin/node
+  register: node_service_status
+
+- name: Install NodeJS repository
+  block:
+    - name: Download NodeJS repository script
+      get_url:
+        url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
+        dest: /etc/nodejs.sh
+        mode: '0775'
+      changed_when: false
+
+    - name: Run NodeJS bash script
+      command: sh /etc/nodejs.sh
+      register: nodejs_script
+      changed_when: nodejs_script.rc == 0
+  when: not node_service_status.stat.exists
+
+- name: Installing NodeJS
+  package:
+    name: nodejs
+    state: present
+  register: nodejs_service_is_installed
+  until: nodejs_service_is_installed is succeeded
+  tags: init
+
+- include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
-- import_tasks: "Debian.yml"
+- include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- name: CentOS/RedHat/Amazon | Install wazuh-manager, wazuh-api
-  package: pkg={{ item }}-{{ wazuh_manager_api_version }}-1 state={{ wazuh_manager_package_state }}
-  with_items:
-    - wazuh-manager
-    - wazuh-api
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
-  when:
-    - ansible_distribution in ['CentOS','RedHat', 'Amazon']
-  tags:
-    - init
-
-- name: Debian/Ubuntu | Install wazuh-manager, wazuh-api
-  apt:
-    name: "{{ item }}={{ wazuh_manager_api_version }}-1"
-    state: present
-    cache_valid_time: 3600
-  with_items:
-    - wazuh-manager
-    - wazuh-api
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
-  when:
-  - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'])
-  tags: init
-
 - name: Install expect
-  package: pkg=expect state={{ wazuh_manager_package_state }}
+  package:
+    name: expect
+    state: "{{ wazuh_manager_package_state }}"
   when:
-    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6)
+    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6)
   tags: init
-
-- name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
-  replace:
-    path: /etc/init.d/wazuh-manager
-    regexp: 'echo -n "Starting Wazuh-manager: "'
-    replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
-  when:
-    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
-    - wazuh_manager_config.cluster.disable != 'yes'
-
-- name: Install wazuh-manager and expect (EL5)
-  package: pkg={{ item }} state={{ wazuh_manager_package_state }}
-  with_items:
-    - wazuh-manager-{{ wazuh_manager_api_version }}
-    - expect
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
-  when:
-    - ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
-  tags:
-    - init
 
 - name: Generate SSL files for authd
   command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{ wazuh_manager_fqdn }}/"
@@ -65,7 +56,7 @@
     chdir: /var/ossec/etc/
   tags:
     - config
-  when: not wazuh_manager_config.authd.ssl_agent_ca is not none
+  when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
   copy:
@@ -322,8 +313,6 @@
   notify: restart wazuh-api
   when:
     - wazuh_api_user is defined
-    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' or ansible_distribution == 'Amazon')
-    - ansible_distribution_major_version|int < 6
   tags:
     - config
 
@@ -392,8 +381,12 @@
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
-- import_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+- include_tasks: "RMRedHat.yml"
+  when:
+    - ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+    - not wazuh_manager_sources_installation.enabled
 
-- import_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
+- include_tasks: "RMDebian.yml"
+  when:
+    - ansible_os_family == "Debian"
+    - not wazuh_manager_sources_installation.enabled

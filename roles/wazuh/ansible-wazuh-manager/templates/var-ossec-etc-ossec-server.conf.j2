@@ -1,4 +1,4 @@
-#jinja2: trim_blocks: False
+#jinja2: lstrip_blocks: True
 <!--
   Wazuh - Manager - Default configuration
   More info at: https://documentation.wazuh.com
@@ -62,11 +62,15 @@
     <log_format>{{ wazuh_manager_config.log_format }}</log_format>
   </logging>
 
-  {% for connection in wazuh_manager_config.connection %}
-   <remote>
+{% for connection in wazuh_manager_config.connection %}
+  <remote>
     <connection>{{ connection.type }}</connection>
-    {% if connection.port is defined %}<port>{{ connection.port }}</port>{% endif %}
-    {% if connection.protocol is defined %}<protocol>{{ connection.protocol }}</protocol>{% endif %}
+    {% if connection.port is defined %}
+    <port>{{ connection.port }}</port>
+    {% endif %}
+    {% if connection.protocol is defined %}
+    <protocol>{{ connection.protocol }}</protocol>
+    {% endif %}
     {% if connection.allowed_ips is defined %}
     {% for allowed_ip in connection.allowed_ips %}
     <allowed-ips>{{ allowed_ip }}</allowed-ips>
@@ -77,11 +81,17 @@
     <denied-ips>{{ denied_ip }}</denied-ips>
     {% endfor %}
     {% endif %}
-    {% if connection.local_ip is defined %}<local_ip>{{ connection.local_ip }}</local_ip>{% endif %}
-    {% if connection.ipv6 is defined %}<ipv6>{{ connection.ipv6 }}</ipv6>{% endif %}
-    {% if connection.queue_size is defined %}<queue_size>{{connection.queue_size}}</queue_size>{% endif %}
+    {% if connection.local_ip is defined %}
+    <local_ip>{{ connection.local_ip }}</local_ip>
+    {% endif %}
+    {% if connection.ipv6 is defined %}
+    <ipv6>{{ connection.ipv6 }}</ipv6>
+    {% endif %}
+    {% if connection.queue_size is defined %}
+    <queue_size>{{connection.queue_size}}</queue_size>
+    {% endif %}
   </remote>
-  {% endfor %}
+{% endfor %}
 
 {% if wazuh_manager_config.reports is defined %}
 {% for report in wazuh_manager_config.reports %}
@@ -101,7 +111,6 @@
 {% endif %}
 {% endfor %}
 {% endif %}
-
 
   <!-- Policy monitoring -->
   <rootcheck>
@@ -222,6 +231,30 @@
     <processes>{{ wazuh_manager_config.syscollector.processes }}</processes>
   </wodle>
 
+  <sca>
+  {% if wazuh_manager_config.sca.enabled | length > 0 %}
+    <enabled>{{ wazuh_manager_config.sca.enabled }}</enabled>
+  {% endif %}
+  {% if wazuh_manager_config.sca.scan_on_start | length > 0 %}
+    <scan_on_start>{{ wazuh_manager_config.sca.scan_on_start }}</scan_on_start>
+  {% endif %}
+  {% if wazuh_manager_config.sca.interval | length > 0 %}
+    <interval>{{ wazuh_manager_config.sca.interval }}</interval>
+  {% endif %}
+  {% if wazuh_manager_config.sca.skip_nfs | length > 0 %}
+    <skip_nfs>yes</skip_nfs>
+  {% endif %}
+  {% if wazuh_manager_config.sca.day | length > 0 %}  
+    <day>yes</day>
+  {% endif %}
+  {% if wazuh_manager_config.sca.wday | length > 0 %}  
+    <wday>yes</wday>
+  {% endif %}
+  {% if wazuh_manager_config.sca.time | length > 0 %}  
+    <time>yes</time>
+  {% endif %}
+  </sca>
+
   <wodle name="vulnerability-detector">
     <disabled>{{ wazuh_manager_config.vul_detector.disable }}</disabled>
     <interval>{{ wazuh_manager_config.vul_detector.interval }}</interval>
@@ -273,7 +306,6 @@
     {% for no_diff in wazuh_manager_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
-
     {% if wazuh_manager_config.syscheck.skip_nfs is defined %}
     <skip_nfs>{{ wazuh_manager_config.syscheck.skip_nfs }}</skip_nfs>
     {% endif %}
@@ -295,52 +327,76 @@
 {% endfor %}
   </global>
 
-  {% for command in wazuh_manager_config.commands %}
-    <command>
-      <name>{{ command.name }}</name>
-      <executable>{{ command.executable }}</executable>
-      <expect>{{ command.expect }}</expect>
-      <timeout_allowed>{{ command.timeout_allowed }}</timeout_allowed>
-    </command>
+{% for command in wazuh_manager_config.commands %}
+
+  <command>
+    <name>{{ command.name }}</name>
+    <executable>{{ command.executable }}</executable>
+    <expect>{{ command.expect }}</expect>
+    <timeout_allowed>{{ command.timeout_allowed }}</timeout_allowed>
+  </command>
+{% endfor %}
+
+  <ruleset>
+  <!-- Default ruleset -->
+  <decoder_dir>ruleset/decoders</decoder_dir>
+  <rule_dir>ruleset/rules</rule_dir>
+  {% if wazuh_manager_config.rule_exclude is defined %}
+  {% for rule in wazuh_manager_config.rule_exclude %}
+  <rule_exclude>{{ rule }}</rule_exclude>
   {% endfor %}
+  {% endif %}
+  {% if cdb_lists is defined %}
+  {% for list in cdb_lists %}
+  <list>etc/lists/{{ list.name }}</list>
+  {% endfor %}
+  {% endif %}
 
-   <ruleset>
-    <!-- Default ruleset -->
-    <decoder_dir>ruleset/decoders</decoder_dir>
-    <rule_dir>ruleset/rules</rule_dir>
-    {% if wazuh_manager_config.rule_exclude is defined %}
-    {% for rule in wazuh_manager_config.rule_exclude %}
-    <rule_exclude>{{ rule }}</rule_exclude>
-    {% endfor %}
-    {% endif %}
-    {% if cdb_lists is defined %}
-    {% for list in cdb_lists %}
-    <list>etc/lists/{{ list.name }}</list>
-    {% endfor %}
-    {% endif %}
-
-    <!-- User-defined ruleset -->
-    <decoder_dir>etc/decoders</decoder_dir>
-    <rule_dir>etc/rules</rule_dir>
+  <!-- User-defined ruleset -->
+  <decoder_dir>etc/decoders</decoder_dir>
+  <rule_dir>etc/rules</rule_dir>
   </ruleset>
 
 {% if wazuh_manager_config.authd.enable == true %}
   <auth>
     <disabled>no</disabled>
-    {% if wazuh_manager_config.authd.port is not none %}<port>{{wazuh_manager_config.authd.port}}</port>{% else %}<port>1515</port>{% endif %}
-    {% if wazuh_manager_config.authd.use_source_ip is not none %}<use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>{% endif %}
-    {% if wazuh_manager_config.authd.force_insert is not none %}<force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>{% endif %}
-    {% if wazuh_manager_config.authd.force_time is not none %}<force_time>{{wazuh_manager_config.authd.force_time}}</force_time>{% endif %}
-    {% if wazuh_manager_config.authd.purge is not none %}<purge>{{wazuh_manager_config.authd.purge}}</purge>{% endif %}
-    {% if wazuh_manager_config.authd.use_password is not none %}<use_password>{{wazuh_manager_config.authd.use_password}}</use_password>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}<ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_verify_host is not none %}<ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_cert is not none %}<ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_key is not none %}<ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>{% endif %}
-    {% if wazuh_manager_config.authd.ssl_auto_negotiate is not none %}<ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>{% endif %}
+    {% if wazuh_manager_config.authd.port is not none %}
+    <port>{{wazuh_manager_config.authd.port}}</port>
+    {% else %}
+    <port>1515</port>
+    {% endif %}
+    {% if wazuh_manager_config.authd.use_source_ip is not none %}
+    <use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>
+    {% endif %}
+    {% if wazuh_manager_config.authd.force_insert is not none %}
+    <force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>
+    {% endif %}
+    {% if wazuh_manager_config.authd.force_time is not none %}
+    <force_time>{{wazuh_manager_config.authd.force_time}}</force_time>
+    {% endif %}
+    {% if wazuh_manager_config.authd.purge is not none %}
+    <purge>{{wazuh_manager_config.authd.purge}}</purge>
+    {% endif %}
+    {% if wazuh_manager_config.authd.use_password is not none %}
+    <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}
+    <ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_verify_host is not none %}
+    <ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_cert is not none %}
+    <ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_key is not none %}
+    <ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_auto_negotiate is not none %}
+    <ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>
+    {% endif %}
   </auth>
 {% endif %}
-
 
   <cluster>
     <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
@@ -361,7 +417,7 @@
     <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
   </cluster>
 
-  {% if ansible_system == "Linux" and wazuh_manager_config.vuls.disable == 'no' %}
+{% if ansible_system == "Linux" and wazuh_manager_config.vuls.disable == 'no' %}
   <wodle name="command">
     <disabled>no</disabled>
     <tag>Wazuh-VULS</tag>
@@ -370,7 +426,7 @@
     <ignore_output>yes</ignore_output>
     <run_on_start>{{ wazuh_manager_config.vuls.run_on_start }}</run_on_start>
   </wodle>
-  {% endif %}
+{% endif -%}
 
 {% if agentless_creds is defined %}
 {% for agentless in agentless_creds %}
@@ -383,11 +439,8 @@
       <arguments>{{ agentless.arguments }}</arguments>
     {% endif %}
   </agentless>
-
 {% endfor %}
-{% endif %}
-
-
+{% endif -%}
 
 {% if wazuh_manager_config.active_responses is defined %}
   {% for response in wazuh_manager_config.active_responses %}
@@ -403,10 +456,11 @@
       {%if response.repeated_offenders is defined %}<repeated_offenders>{{ response.repeated_offenders }}</repeated_offenders>{% endif %}
     </active-response>
   {% endfor %}
-{% endif %}
+{% endif -%}
 
   <!-- Files to monitor (localfiles) -->
 {% for localfile in wazuh_manager_config.localfiles.common %}
+
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -444,6 +498,7 @@
 
 {% if ansible_os_family == "Debian" %}
 {% for localfile in wazuh_manager_config.localfiles.debian %}
+
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -478,10 +533,11 @@
      {% endif %}
   </localfile>
 {% endfor %}
-{% endif %}
+{% endif -%}
 
 {% if ansible_os_family == "RedHat" %}  
 {% for localfile in wazuh_manager_config.localfiles.centos %}
+
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
      {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -516,7 +572,7 @@
      {% endif %}
   </localfile>
 {% endfor %}
-{% endif %}
+{% endif -%}
 
 {% if wazuh_manager_config.syslog_outputs is defined %}
 {% for syslog_output in wazuh_manager_config.syslog_outputs %}

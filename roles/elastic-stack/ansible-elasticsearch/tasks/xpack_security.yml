@@ -1,12 +1,4 @@
 
-- name: Install unzip dependency.
-  package:
-    name: unzip
-    state: present
-  delegate_to: "127.0.0.1"
-  when:
-    - node_certs_generator
-
 - name: Check if certificate exists locally
   stat:
     path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"
@@ -68,7 +60,9 @@
     - node_certs_generator
     - not xpack_certs_zip.stat.exists
     - generate_CA
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Generating certificates for Elasticsearch security (using provided CA | Without CA Password)
   command: >-
@@ -82,7 +76,9 @@
     - not xpack_certs_zip.stat.exists
     - not generate_CA
     - ca_password | length == 0
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Generating certificates for Elasticsearch security (using provided CA | Using CA Password)
   command: >-
@@ -96,7 +92,9 @@
     - not xpack_certs_zip.stat.exists
     - not generate_CA
     - ca_password | length > 0
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Verify the Elastic certificates directory
   file:
@@ -124,7 +122,9 @@
     mode: 0700
   when:
     - node_certs_generator
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Delete certs.zip in Generator node
   file:
@@ -132,16 +132,18 @@
     path: "{{ node_certs_source }}/certs.zip"
   when:
     - node_certs_generator
+  tags: molecule-idempotence-notest
 
 - name: Unzip generated certs.zip
   unarchive:
     src: "{{ master_certs_path }}/certs.zip"
     dest: "{{ master_certs_path }}/"
-  become: true
   delegate_to: "127.0.0.1"
   when:
     - node_certs_generator
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Copying node's certificate from master
   copy:
@@ -153,7 +155,9 @@
     - "{{ master_certs_path }}/ca/ca.crt"
   when:
     - generate_CA
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Copying node's certificate from master (Custom CA)
   copy:
@@ -165,7 +169,9 @@
     - "{{ master_certs_path }}/ca/{{ ca_cert_name }}"
   when:
     - not generate_CA
-  tags: xpack-security
+  tags:
+    - xpack-security
+    - molecule-idempotence-notest
 
 - name: Ensuring folder permissions
   file:
@@ -179,8 +185,11 @@
   tags: xpack-security
 
 - name: Set elasticsearch bootstrap password
-  shell: >-
-    set -o pipefail;
+  shell: |
+    set -o pipefail
     echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
+  args:
+    executable: /bin/bash
   when:
     - node_certs_generator
+  tags: molecule-idempotence-notest

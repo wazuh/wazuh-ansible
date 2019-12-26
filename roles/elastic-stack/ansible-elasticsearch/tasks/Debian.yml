@@ -38,7 +38,7 @@
   apt_repository:
     repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
     state: present
-    filename: 'elastic_repo'
+    filename: 'elastic_repo_7'
     update_cache: true
   changed_when: false
 

@@ -13,5 +13,3 @@
     name: wazuh-api
     state: restarted
     enabled: true
-  when:
-    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 6)

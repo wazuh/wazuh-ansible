@@ -1,4 +1,13 @@
 ---
+
+- name: Stopping early, trying to compile Wazuh Kibana Plugin on Debian 10 is not possible
+  fail:
+    msg: "It's not possible to compile the Wazuh Kibana plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
+  when:
+    - build_from_sources
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "10"
+
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
@@ -74,28 +83,43 @@
   tags: configure
 
 - name: Checking Wazuh-APP version
-  shell: |
-    set -o pipefail
-    grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json | xargs echo
+  shell: >-
+    grep -c -E 'version.*{{ elastic_stack_version }}' /usr/share/kibana/plugins/wazuh/package.json
   args:
     executable: /bin/bash
     removes: /usr/share/kibana/plugins/wazuh/package.json
   register: wazuh_app_verify
   changed_when: false
-  tags: install
+  failed_when:
+    - wazuh_app_verify.rc != 0
+    - wazuh_app_verify.rc != 1
 
 - name: Removing old Wazuh-APP
-  command: /usr/share/kibana/bin/kibana-plugin remove wazuh
-  when: wazuh_app_verify.stdout == "0"
+  command: /usr/share/kibana/bin/kibana-plugin --allow-root remove wazuh
+  when: wazuh_app_verify.rc == 1
   tags: install
 
 - name: Removing bundles
-  file: path=/usr/share/kibana/optimize/bundles state=absent
-  when: wazuh_app_verify.stdout == "0"
+  file:
+    path: /usr/share/kibana/optimize/bundles
+    state: absent
+  when: wazuh_app_verify.rc == 1
   tags: install
 
-- name: Install Wazuh-APP (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
+- name: Explicitly starting Kibana to generate "wazuh-"
+  service:
+    name: kibana
+    state: started
+
+- name: Build and Install Wazuh Kibana Plugin from sources
+  import_tasks: build_wazuh_plugin.yml
+  when:
+    - build_from_sources is defined
+    - build_from_sources
+
+
+- name: Install Wazuh Plugin (can take a while)
+  shell: "/usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
   environment:
     NODE_OPTIONS: "--max-old-space-size=3072"
   args:
@@ -107,6 +131,8 @@
   tags:
     - install
     - skip_ansible_lint
+  when:
+    - not build_from_sources
 
 - name: Reload systemd configuration
   systemd:

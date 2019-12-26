@@ -1,6 +1,56 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.11.0_7.5.1]
+
+### Added
+
+- Update to Wazuh v3.11.0
+
+- Wazuh Agent registration task now explicitly notify restart ([@jm404](https://github.com/jm404)) [PR#302](https://github.com/wazuh/wazuh-ansible/pull/302)
+
+- Support both IP and DNS when creating elastic cluster ([@xr09](https://github.com/xr09)) [PR#252](https://github.com/wazuh/wazuh-ansible/pull/252)
+
+- Added config tag to the Wazuh Agent's enable task ([@xr09](https://github.com/xr09)) [PR#261](https://github.com/wazuh/wazuh-ansible/pull/261)
+
+- Implement task to configure Elasticsearch user on every cluster node ([@xr09](https://github.com/xr09)) [PR#270](https://github.com/wazuh/wazuh-ansible/pull/270)
+
+- Added SCA to Wazuh Agent and Manager installation ([@jm404](https://github.com/jm404)) [PR#260](https://github.com/wazuh/wazuh-ansible/pull/260)
+
+- Added support for environments with low disk space ([@xr09](https://github.com/xr09)) [PR#281](https://github.com/wazuh/wazuh-ansible/pull/281)
+
+- Add parameters to configure an Elasticsearch coordinating node ([@jm404](https://github.com/jm404)) [PR#292](https://github.com/wazuh/wazuh-ansible/pull/292)
+ 
+
+### Changed
+
+- Updated Filebeat and Elasticsearch templates ([@manuasir](https://github.com/manuasir)) [PR#285](https://github.com/wazuh/wazuh-ansible/pull/285)
+
+- Make ossec.conf file more readable by removing trailing whitespaces ([@jm404](https://github.com/jm404)) [PR#286](https://github.com/wazuh/wazuh-ansible/pull/286)
+
+- Wazuh repositories can now be configured to different sources URLs ([@jm404](https://github.com/jm404)) [PR#288](https://github.com/wazuh/wazuh-ansible/pull/288)
+
+- Wazuh App URL is now flexible ([@jm404](https://github.com/jm404)) [PR#304](https://github.com/wazuh/wazuh-ansible/pull/304)
+
+- Agent installation task now does not hardcodes the "-1" sufix ([@jm404](https://github.com/jm404)) [PR#310](https://github.com/wazuh/wazuh-ansible/pull/310)
+
+- Enhanced task importation in Wazuh Manager role and removed deprecated warnings ([@xr09](https://github.com/xr09)) [PR#320](https://github.com/wazuh/wazuh-ansible/pull/320)
+
+- Wazuh API installation task have been upgraded ([@rshad](https://github.com/rshad)) [PR#330](https://github.com/wazuh/wazuh-ansible/pull/330)
+
+- It's now possible to install Wazuh Manager and Agent from sources ([@jm404](https://github.com/jm404)) [PR#329](https://github.com/wazuh/wazuh-ansible/pull/329)
+
+
+### Fixed
+
+- Ansible upgrade from 6.x to 7.x ([@jm404](https://github.com/jm404)) [PR#252](https://github.com/wazuh/wazuh-ansible/pull/251)
+
+- Wazuh Agent registration using agent name has been fixed ([@jm404](https://github.com/jm404)) [PR#298](https://github.com/wazuh/wazuh-ansible/pull/298)
+- Fix Wazuh repository and installation conditionals ([@jm404](https://github.com/jm404)) [PR#299](https://github.com/wazuh/wazuh-ansible/pull/299)
+
+- Fixed Wazuh Agent registration using an Agent's name ([@jm404](https://github.com/jm404)) [PR#334](https://github.com/wazuh/wazuh-ansible/pull/334)
+
+
 ## [v3.10.2_7.3.2]
 
 ### Added
