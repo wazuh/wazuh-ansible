@@ -9,6 +9,14 @@ elastic_stack_version: 7.5.1
 wazuh_version: 3.11.0
 wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
+# API credentials
+api_auth:
+  - api_id: "default"
+    api_url: "http://localhost"
+    api_port: 55000
+    api_user: "foo"
+    api_password: "bar"
+
 # Xpack Security
 kibana_xpack_security: false
 
