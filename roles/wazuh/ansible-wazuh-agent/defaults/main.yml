@@ -2,7 +2,7 @@
 wazuh_agent_version: 3.11.1-1
 
 wazuh_agent_sources_installation:
-  enabled: "true"
+  enabled: "false"
   branch: "v3.11.1"
   user_language: "y"
   user_no_stop: "y"
