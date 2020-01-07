@@ -154,23 +154,33 @@
     <content type="oval" path="cve-debian-9-oval.xml"/>
     {% endif %}
     {% elif ansible_distribution == 'CentOS' %}
-      {% if ansible_distribution_major_version == '7' %}
+      {% if ansible_distribution_major_version == '8' %}
+        {# Policy not available #}
+      {% elif ansible_distribution_major_version == '7' %}
       <content type="xccdf" path="ssg-centos-7-ds.xml">
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
       {% elif ansible_distribution_major_version == '6' %}
       <content type="xccdf" path="ssg-centos-6-ds.xml">
-      {% endif %}
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
+      {% endif %}
     {% elif ansible_distribution == 'RedHat' %}
-      {% if ansible_distribution_major_version == '7' %}
+      {% if ansible_distribution_major_version == '8' %}
+        {# Policy not available #}
+      {% elif ansible_distribution_major_version == '7' %}
       <content type="xccdf" path="ssg-rhel-7-ds.xml">
+        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+        <profile>xccdf_org.ssgproject.content_profile_common</profile>
+      </content>
       {% elif ansible_distribution_major_version == '6' %}
       <content type="xccdf" path="ssg-rhel-6-ds.xml">
-      {% endif %}
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
+      {% endif %}
       {% if ansible_distribution_major_version == '7' %}
       <content type="oval" path="cve-redhat-7-ds.xml"/>
       {% elif ansible_distribution_major_version == '6' %}

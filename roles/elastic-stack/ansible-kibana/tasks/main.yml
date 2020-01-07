@@ -134,6 +134,30 @@
   when:
     - not build_from_sources
 
+- name: Wait for Elasticsearch port
+  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
+
+- name: Select correct API protocol
+  set_fact:
+    elastic_api_protocol: "{% if kibana_xpack_security %}https{% else %}http{% endif %}"
+  
+- name: Attempting to delete legacy Wazuh index if exists
+  uri:
+    url: "{{ elastic_api_protocol }}://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}/.wazuh"
+    method: DELETE
+    user: "{{ elasticsearch_xpack_security_user }}"
+    password: "{{ elasticsearch_xpack_security_password }}"
+    validate_certs: no
+    status_code: 200, 404
+
+- name: Configure Wazuh Kibana Plugin
+  template:
+    src: wazuh.yml.j2
+    dest: /usr/share/kibana/plugins/wazuh/wazuh.yml
+    owner: kibana
+    group: root
+    mode: 0644
+
 - name: Reload systemd configuration
   systemd:
     daemon_reload: true
