@@ -151,7 +151,7 @@
     status_code: 200, 404
   ignore_errors: yes
 
-- name: Configure Wazuh Plugin
+- name: Configure Wazuh Kibana Plugin
   template:
     src: wazuh.yml.j2
     dest: /usr/share/kibana/plugins/wazuh/wazuh.yml
