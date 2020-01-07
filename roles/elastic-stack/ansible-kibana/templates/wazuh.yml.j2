@@ -125,10 +125,10 @@
 #     password: <password>
 
 hosts:
-{% for api in api_auth %}
-  - {{ api['api_id'] }}:
-      url: {{ api['api_url'] }}
-      port: {{ api['api_port'] }}
-      user: {{ api['api_user'] }}
-      password: {{ api['api_password'] }}
+{% for api in wazuh_api_credentials %}
+  - {{ api['id'] }}:
+      url: {{ api['url'] }}
+      port: {{ api['port'] }}
+      user: {{ api['user'] }}
+      password: {{ api['password'] }}
 {% endfor %}
