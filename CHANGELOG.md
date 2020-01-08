@@ -60,11 +60,11 @@ All notable changes to this project will be documented in this file.
 - Fixed Wazuh Agent registration using an Agent's name ([@jm404](https://github.com/jm404)) [PR#334](https://github.com/wazuh/wazuh-ansible/pull/334)
 
 
-## [v3.10.2_7.3.2]
+## [v3.11.0_7.3.2]
 
 ### Added
 
-- Update to Wazuh v3.10.2
+- Update to Wazuh v3.11.0
 
 ### Changed
 
