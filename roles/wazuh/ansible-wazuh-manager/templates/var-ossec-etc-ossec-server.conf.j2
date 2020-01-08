@@ -18,7 +18,7 @@
     <smtp_server>{{ wazuh_manager_config.mail_smtp_server }}</smtp_server>
     <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
     <email_maxperhour>{{ wazuh_manager_config.mail_maxperhour }}</email_maxperhour>
-    <queue_size>{{ wazuh_manager_config.mail_queue_size }}</queue_size>
+    <email_log_source>{{ wazuh_manager_config.email_log_source }}</email_log_source>
   </global>
 
   <alerts>
@@ -115,7 +115,6 @@
   <!-- Policy monitoring -->
   <rootcheck>
     <disabled>no</disabled>
-    <check_unixaudit>yes</check_unixaudit>
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
     <check_dev>yes</check_dev>
@@ -129,11 +128,6 @@
 
     <rootkit_files>/var/ossec/etc/shared/default/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/default/rootkit_trojans.txt</rootkit_trojans>
-    <system_audit>/var/ossec/etc/shared/default/system_audit_rcl.txt</system_audit>
-    <system_audit>/var/ossec/etc/shared/default/system_audit_ssh.txt</system_audit>
-    {% if cis_distribution_filename is defined %}
-    <system_audit>/var/ossec/etc/shared/default/{{ cis_distribution_filename }}</system_audit>
-    {% endif %}
 
     <skip_nfs>yes</skip_nfs>
   </rootcheck>
@@ -212,11 +206,6 @@
     <java_path>{{ wazuh_manager_config.cis_cat.java_path }}</java_path>
     {% endif %}
     <ciscat_path>{{ wazuh_manager_config.cis_cat.ciscat_path }}</ciscat_path>
-    {% for benchmark in wazuh_manager_config.cis_cat.content %}
-    <content type="{{ benchmark.type }}" path="{{ benchmark.path }}">
-      <profile>{{ benchmark.profile }}</profile>
-    </content>
-    {% endfor %}
   </wodle>
 
   <!-- Osquery integration -->
@@ -265,24 +254,40 @@
   {% endif %}
   </sca>
 
-  <wodle name="vulnerability-detector">
-    <disabled>{{ wazuh_manager_config.vul_detector.disable }}</disabled>
-    <interval>{{ wazuh_manager_config.vul_detector.interval }}</interval>
-    <ignore_time>{{ wazuh_manager_config.vul_detector.ignore_time }}</ignore_time>
-    <run_on_start>{{ wazuh_manager_config.vul_detector.run_on_start }}</run_on_start>
-    <feed name="ubuntu-18">
-      <disabled>{{ wazuh_manager_config.vul_detector.ubuntu.disable }}</disabled>
-      <update_interval>{{ wazuh_manager_config.vul_detector.ubuntu.update_interval }}</update_interval>
-    </feed>
-    <feed name="redhat">
-      <disabled>{{ wazuh_manager_config.vul_detector.redhat.disable }}</disabled>
-      <update_interval>{{ wazuh_manager_config.vul_detector.redhat.update_interval }}</update_interval>
-    </feed>
-    <feed name="debian-9">
-      <disabled>{{ wazuh_manager_config.vul_detector.debian.disable }}</disabled>
-      <update_interval>{{ wazuh_manager_config.vul_detector.debian.update_interval }}</update_interval>
-    </feed>
-  </wodle>
+  <vulnerability-detector>
+  {% if wazuh_manager_config.vulnerability_detector.enabled is defined %}
+    <enabled>{{ wazuh_manager_config.vulnerability_detector.enabled }}</enabled>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.interval is defined %}
+    <interval>{{ wazuh_manager_config.vulnerability_detector.interval }}</interval>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.ignore_time is defined %}
+    <ignore_time>{{ wazuh_manager_config.vulnerability_detector.ignore_time }}</ignore_time>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.run_on_start is defined %}
+    <run_on_start>{{ wazuh_manager_config.vulnerability_detector.run_on_start }}</run_on_start>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.providers is defined %}
+  {% for provider_ in wazuh_manager_config.vulnerability_detector.providers %}
+    <provider name={{ provider_.name }}>
+      {% if provider_.enabled is defined %}
+      <enabled>{{ provider_.enabled }}</enabled>
+      {% endif %}
+      {% if provider_.os is defined %}
+      {% for os_ in provider_.os %}
+      <os>{{ os_ }}</os>
+      {% endfor %}
+      {% endif %}
+      {% if provider_.update_from_year is defined %}
+      <update_from_year>{{ provider_.update_from_year }}</update_from_year>
+      {% endif %}
+      {% if provider_.update_interval is defined %}
+      <update_interval>{{ provider_.update_interval }}</update_interval>
+      {% endif %}
+    </provider>
+  {% endfor %}
+  {% endif %}
+  </vulnerability-detector>
 
   <!-- File integrity monitoring -->
   <syscheck>
@@ -293,7 +298,7 @@
     <frequency>{{ wazuh_manager_config.syscheck.frequency }}</frequency>
     <scan_on_start>{{ wazuh_manager_config.syscheck.scan_on_start }}</scan_on_start>
 
-    <!-- Don't ignore files that change more than 'frequency' times -->
+    <!-- Do not ignore files that change more than 'frequency' times -->
     {% if wazuh_manager_config.syscheck.auto_ignore_frequency is defined %}
     <auto_ignore {{ wazuh_manager_config.syscheck.auto_ignore_frequency.frequency }} {{ wazuh_manager_config.syscheck.auto_ignore_frequency.timeframe }}>{{wazuh_manager_config.syscheck.auto_ignore_frequency.value }}</auto_ignore>
     {% endif %}
@@ -312,22 +317,20 @@
     {% endfor %}
     {% endif %}
 
+    <!-- File types to ignore -->
+    {% if wazuh_manager_config.syscheck.ignore_linux_type is defined and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' %}
+    {% for ignore in wazuh_manager_config.syscheck.ignore_linux_type %}
+    <ignore type="sregex">{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
+
     <!-- Files no diff -->
     {% for no_diff in wazuh_manager_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
     {% if wazuh_manager_config.syscheck.skip_nfs is defined %}
     <skip_nfs>{{ wazuh_manager_config.syscheck.skip_nfs }}</skip_nfs>
-    {% endif %}
-
-    <!-- Remove not monitored files -->
-    {% if wazuh_manager_config.syscheck.remove_old_diff is defined %}
-    <remove_old_diff>{{ wazuh_manager_config.syscheck.remove_old_diff }}</remove_old_diff>
-    {% endif %}
-
-    <!-- Allow the system to restart Auditd after installing the plugin -->
-    {% if wazuh_manager_config.syscheck.restart_audit is defined %}
-    <restart_audit>{{ wazuh_manager_config.syscheck.restart_audit }}</restart_audit>
     {% endif %}
   </syscheck>
 
@@ -390,6 +393,12 @@
     {% if wazuh_manager_config.authd.use_password is not none %}
     <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
     {% endif %}
+    {% if wazuh_manager_config.authd.limit_maxagents is not none %}
+    <limit_maxagents>{{wazuh_manager_config.authd.limit_maxagents}}</limit_maxagents>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ciphers is not none %}
+    <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
+    {% endif %}    
     {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}
     <ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
     {% endif %}
