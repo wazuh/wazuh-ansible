@@ -60,7 +60,7 @@
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
           state: directory
 
-    # When downloading "v3.11.1" extracted folder name is 3.11.1. 
+    # When downloading "v3.11.0" extracted folder name is 3.11.0. 
 
     # Explicitly creating the folder with proper naming and striping first level in .tar.gz file
 
