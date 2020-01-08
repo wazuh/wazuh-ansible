@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 
 - Update to Wazuh v3.11.0
 
+- Implemented changes to configure Wazuh API using the `wazuh.yml` file ([@xr09](https://github.com/xr09)) [PR#342](https://github.com/wazuh/wazuh-ansible/pull/342)
+
 - Wazuh Agent registration task now explicitly notify restart ([@jm404](https://github.com/jm404)) [PR#302](https://github.com/wazuh/wazuh-ansible/pull/302)
 
 - Support both IP and DNS when creating elastic cluster ([@xr09](https://github.com/xr09)) [PR#252](https://github.com/wazuh/wazuh-ansible/pull/252)
