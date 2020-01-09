@@ -86,8 +86,6 @@
   <!-- <directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
     <directories check_all="yes">/etc,/usr/bin,/usr/sbin</directories>
     <directories check_all="yes">/bin,/sbin,/boot</directories>
-
-    <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
     {% endif %}
 
@@ -113,7 +111,7 @@
     {% endif %}
 
     <!-- File types to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore_linux_type is defined and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' %}
+    {% if wazuh_agent_config.syscheck.ignore_linux_type is defined %}
     {% for ignore in wazuh_agent_config.syscheck.ignore_linux_type %}
     <ignore type="sregex">{{ ignore }}</ignore>
     {% endfor %}
@@ -161,9 +159,9 @@
   </syscheck>
   {% endif %}
 
-  {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
+  {% if ansible_system == "Linux" %}
   <wodle name="open-scap">
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.openscap.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.openscap.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.openscap.scan_on_start }}</scan-on-start>
@@ -214,9 +212,8 @@
   </wodle>
   {% endif %}
 
-  {% if wazuh_agent_config.cis_cat.disable == 'no' %}
   <wodle name="cis-cat">
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.cis_cat.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.cis_cat.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.cis_cat.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.cis_cat.scan_on_start }}</scan-on-start>
@@ -229,7 +226,6 @@
     {% endif %}
     <ciscat_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.cis_cat.ciscat_path_win }}{% else %}{{ wazuh_agent_config.cis_cat.ciscat_path }}{% endif %}</ciscat_path>
   </wodle>
-  {% endif %}
 
   <!-- Osquery integration -->
   <wodle name="osquery">
