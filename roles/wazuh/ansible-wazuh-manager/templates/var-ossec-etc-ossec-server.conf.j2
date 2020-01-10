@@ -360,8 +360,8 @@
   <rule_exclude>{{ rule }}</rule_exclude>
   {% endfor %}
   {% endif %}
-  {% if cdb_lists is defined %}
-  {% for list in cdb_lists %}
+  {% if wazuh_manager_config.ruleset.cdb_lists is defined %}
+  {% for list in wazuh_manager_config.ruleset.cdb_lists %}
   <list>etc/lists/{{ list }}</list>
   {% endfor %}
   {% endif %}

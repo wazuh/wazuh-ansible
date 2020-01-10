@@ -327,6 +327,10 @@ wazuh_manager_config:
   ruleset:
     rules_path: 'custom_ruleset/rules/'
     decoders_path: 'custom_ruleset/decoders/'
+    cdb_lists:
+      - 'audit-keys'
+      - 'security-eventchannel'
+      - 'amazon/aws-eventnames'
   rule_exclude:
     - '0215-policy_rules.xml'
   syslog_outputs:

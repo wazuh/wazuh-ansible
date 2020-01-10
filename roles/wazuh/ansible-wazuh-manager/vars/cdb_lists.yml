@@ -1,5 +1,0 @@
----
-cdb_lists:
-  - 'audit-keys'
-  - 'security-eventchannel'
-  - 'amazon/aws-eventnames'
