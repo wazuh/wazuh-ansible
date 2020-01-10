@@ -114,7 +114,7 @@ wazuh_manager_config:
   email_log_source: 'alerts.log'
   extra_emails:
     - enable: false
-      mail_to: 'admin@example.net'
+      mail_to: 'recipient@example.wazuh.com'
       format: full
       level: 7
       event_location: null
@@ -126,7 +126,7 @@ wazuh_manager_config:
     - enable: false
       category: 'syscheck'
       title: 'Daily report: File changes'
-      email_to: 'admin@example.net'
+      email_to: 'recipient@example.wazuh.com'
       location: null
       group: null
       rule: null
