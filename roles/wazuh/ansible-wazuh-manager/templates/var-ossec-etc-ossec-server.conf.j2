@@ -26,6 +26,11 @@
     <email_alert_level>{{ wazuh_manager_config.email_level }}</email_alert_level>
   </alerts>
 
+  <!-- Choose between "plain", "json", or "plain,json" for the format of internal logs -->
+  <logging>
+    <log_format>{{ wazuh_manager_config.log_format }}</log_format>
+  </logging>
+
 {% if wazuh_manager_config.extra_emails is defined %}
 {% for mail in wazuh_manager_config.extra_emails %}
 {% if mail.enable == true %}
@@ -57,10 +62,7 @@
 {% endfor %}
 {% endif %}
 
-  <!-- Choose between "plain", "json", or "plain,json" for the format of internal logs -->
-  <logging>
-    <log_format>{{ wazuh_manager_config.log_format }}</log_format>
-  </logging>
+
 
 {% for connection in wazuh_manager_config.connection %}
   <remote>
@@ -351,92 +353,6 @@
   </command>
 {% endfor %}
 
-  <ruleset>
-  <!-- Default ruleset -->
-  <decoder_dir>ruleset/decoders</decoder_dir>
-  <rule_dir>ruleset/rules</rule_dir>
-  {% if wazuh_manager_config.rule_exclude is defined %}
-  {% for rule in wazuh_manager_config.rule_exclude %}
-  <rule_exclude>{{ rule }}</rule_exclude>
-  {% endfor %}
-  {% endif %}
-  {% if wazuh_manager_config.ruleset.cdb_lists is defined %}
-  {% for list in wazuh_manager_config.ruleset.cdb_lists %}
-  <list>etc/lists/{{ list }}</list>
-  {% endfor %}
-  {% endif %}
-
-  <!-- User-defined ruleset -->
-  <decoder_dir>etc/decoders</decoder_dir>
-  <rule_dir>etc/rules</rule_dir>
-  </ruleset>
-
-{% if wazuh_manager_config.authd.enable == true %}
-  <auth>
-    <disabled>no</disabled>
-    {% if wazuh_manager_config.authd.port is not none %}
-    <port>{{wazuh_manager_config.authd.port}}</port>
-    {% else %}
-    <port>1515</port>
-    {% endif %}
-    {% if wazuh_manager_config.authd.use_source_ip is not none %}
-    <use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>
-    {% endif %}
-    {% if wazuh_manager_config.authd.force_insert is not none %}
-    <force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>
-    {% endif %}
-    {% if wazuh_manager_config.authd.force_time is not none %}
-    <force_time>{{wazuh_manager_config.authd.force_time}}</force_time>
-    {% endif %}
-    {% if wazuh_manager_config.authd.purge is not none %}
-    <purge>{{wazuh_manager_config.authd.purge}}</purge>
-    {% endif %}
-    {% if wazuh_manager_config.authd.use_password is not none %}
-    <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
-    {% endif %}
-    {% if wazuh_manager_config.authd.limit_maxagents is not none %}
-    <limit_maxagents>{{wazuh_manager_config.authd.limit_maxagents}}</limit_maxagents>
-    {% endif %}
-    {% if wazuh_manager_config.authd.ciphers is not none %}
-    <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
-    {% endif %}    
-    {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}
-    <ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
-    {% endif %}
-    {% if wazuh_manager_config.authd.ssl_verify_host is not none %}
-    <ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>
-    {% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_cert is not none %}
-    <ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>
-    {% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_key is not none %}
-    <ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>
-    {% endif %}
-    {% if wazuh_manager_config.authd.ssl_auto_negotiate is not none %}
-    <ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>
-    {% endif %}
-  </auth>
-{% endif %}
-
-  <cluster>
-    <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
-    <name>{{ wazuh_manager_config.cluster.name }}</name>
-    <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
-    <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
-    <key>{{ wazuh_manager_config.cluster.key }}</key>
-    {% if wazuh_manager_config.cluster.interval is defined %}
-    <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
-    {% endif %}
-    <port>{{ wazuh_manager_config.cluster.port }}</port>
-    <bind_addr>{{ wazuh_manager_config.cluster.bind_addr }}</bind_addr>
-    <nodes>
-    {% for node in wazuh_manager_config.cluster.nodes %}
-      <node>{{ node }}</node>
-    {% endfor %}
-    </nodes>
-    <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
-  </cluster>
-
 {% if ansible_system == "Linux" and wazuh_manager_config.vuls.disable == 'no' %}
   <wodle name="command">
     <disabled>no</disabled>
@@ -613,5 +529,92 @@
   {% endfor %}
   </labels>
 {% endif %}
+
+
+  <ruleset>
+  <!-- Default ruleset -->
+  <decoder_dir>ruleset/decoders</decoder_dir>
+  <rule_dir>ruleset/rules</rule_dir>
+  {% if wazuh_manager_config.rule_exclude is defined %}
+  {% for rule in wazuh_manager_config.rule_exclude %}
+  <rule_exclude>{{ rule }}</rule_exclude>
+  {% endfor %}
+  {% endif %}
+  {% if wazuh_manager_config.ruleset.cdb_lists is defined %}
+  {% for list in wazuh_manager_config.ruleset.cdb_lists %}
+  <list>etc/lists/{{ list }}</list>
+  {% endfor %}
+  {% endif %}
+
+  <!-- User-defined ruleset -->
+  <decoder_dir>etc/decoders</decoder_dir>
+  <rule_dir>etc/rules</rule_dir>
+  </ruleset>
+
+{% if wazuh_manager_config.authd.enable == true %}
+  <auth>
+    <disabled>no</disabled>
+    {% if wazuh_manager_config.authd.port is not none %}
+    <port>{{wazuh_manager_config.authd.port}}</port>
+    {% else %}
+    <port>1515</port>
+    {% endif %}
+    {% if wazuh_manager_config.authd.use_source_ip is not none %}
+    <use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>
+    {% endif %}
+    {% if wazuh_manager_config.authd.force_insert is not none %}
+    <force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>
+    {% endif %}
+    {% if wazuh_manager_config.authd.force_time is not none %}
+    <force_time>{{wazuh_manager_config.authd.force_time}}</force_time>
+    {% endif %}
+    {% if wazuh_manager_config.authd.purge is not none %}
+    <purge>{{wazuh_manager_config.authd.purge}}</purge>
+    {% endif %}
+    {% if wazuh_manager_config.authd.use_password is not none %}
+    <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
+    {% endif %}
+    {% if wazuh_manager_config.authd.limit_maxagents is not none %}
+    <limit_maxagents>{{wazuh_manager_config.authd.limit_maxagents}}</limit_maxagents>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ciphers is not none %}
+    <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
+    {% endif %}    
+    {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}
+    <ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_verify_host is not none %}
+    <ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_cert is not none %}
+    <ssl_manager_cert>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_manager_key is not none %}
+    <ssl_manager_key>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>
+    {% endif %}
+    {% if wazuh_manager_config.authd.ssl_auto_negotiate is not none %}
+    <ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>
+    {% endif %}
+  </auth>
+{% endif %}
+
+  <cluster>
+    <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
+    <name>{{ wazuh_manager_config.cluster.name }}</name>
+    <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
+    <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
+    <key>{{ wazuh_manager_config.cluster.key }}</key>
+    {% if wazuh_manager_config.cluster.interval is defined %}
+    <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
+    {% endif %}
+    <port>{{ wazuh_manager_config.cluster.port }}</port>
+    <bind_addr>{{ wazuh_manager_config.cluster.bind_addr }}</bind_addr>
+    <nodes>
+    {% for node in wazuh_manager_config.cluster.nodes %}
+      <node>{{ node }}</node>
+    {% endfor %}
+    </nodes>
+    <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
+  </cluster>
 
 </ossec_config>
