@@ -19,8 +19,12 @@
       {% endif %}
     </server>
     {% endfor %}
-    {% if wazuh_profile is not none %}
-    <config-profile>{{ wazuh_profile }}</config-profile>
+    {% if wazuh_profile_centos is not none or wazuh_profile_ubuntu is not none %}
+    {% if ansible_distribution == 'CentOS' %}
+    <config-profile>{{ wazuh_profile_centos }}</config-profile>
+    {% elif ansible_distribution == "Ubuntu" %}
+    <config-profile>{{ wazuh_profile_ubuntu }}</config-profile>
+    {% endif %}
     {% endif %}
     {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
@@ -36,16 +40,6 @@
     <queue_size>{{ wazuh_agent_config.client_buffer.queue_size }}</queue_size>
     <events_per_second>{{ wazuh_agent_config.client_buffer.events_per_sec }}</events_per_second>
   </client_buffer>
-
-  <logging>
-    <log_format>{{ wazuh_agent_config.log_format }}</log_format>
-  </logging>
-
-  <active-response>
-    <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
-    <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
-    <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
-  </active-response>
 
   {% if wazuh_agent_config.rootcheck is defined %}
   <rootcheck>
@@ -75,95 +69,10 @@
   </rootcheck>
   {% endif %}
 
-  <!-- Directories to check  (perform all possible verifications) -->
-  {% if wazuh_agent_config.syscheck is defined %}
-  <syscheck>
-    <disabled>no</disabled>
-  <!-- <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
-    <!-- Frequency that syscheck is executed -- default every 20 hours -->
-    <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
-    {% if ansible_system == "Linux" %}
-  <!-- <directories check_all="yes" realtime="yes" restrict="^/var/ossec/etc/shared/agent.conf$">/var/ossec/etc/shared</directories> -->
-    <directories check_all="yes">/etc,/usr/bin,/usr/sbin</directories>
-    <directories check_all="yes">/bin,/sbin,/boot</directories>
 
-    <auto_ignore>{{ wazuh_agent_config.syscheck.auto_ignore }}</auto_ignore>
-    <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
-    {% endif %}
-
-    <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
-    {% for directory in wazuh_agent_config.syscheck.directories %}
-    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
-    {% endfor %}
-    {% endif %}
-
-    <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
-    {% for directory in wazuh_agent_config.syscheck.win_directories %}
-    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
-    {% endfor %}
-    {% endif %}
-
-    <!-- Files/directories to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Linux" %}
-    {% for ignore in wazuh_agent_config.syscheck.ignore %}
-    <ignore>{{ ignore }}</ignore>
-    {% endfor %}
-    {% endif %}
-
-    <!-- File types to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore_linux_type is defined and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' %}
-    {% for ignore in wazuh_agent_config.syscheck.ignore_linux_type %}
-    <ignore type="sregex">{{ ignore }}</ignore>
-    {% endfor %}
-    {% endif %}
-
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
-    {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
-    <ignore type="sregex">{{ ignore }}</ignore>
-    {% endfor %}
-    {% endif %}
-
-    {% if ansible_system == "Linux" %}
-    <!-- Files no diff -->
-    {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
-    <nodiff>{{ no_diff }}</nodiff>
-    {% endfor %}
-    
-    <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
-    {% endif %}
-
-    {% if ansible_os_family == "Windows" %}
-    {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
-    {% if registry_key.arch is defined %}
-    <windows_registry arch="{{ registry_key.arch }}">{{ registry_key.key }}</windows_registry>
-    {% else %}
-    <windows_registry>{{ registry_key.key }}</windows_registry>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-
-    {% if ansible_os_family == "Windows" %}
-    {% for registry_key in wazuh_agent_config.syscheck.windows_registry_ignore %}
-    {% if registry_key.type is defined %}
-    <registry_ignore type="{{ registry_key.type }}">{{ registry_key.key }}</registry_ignore>
-    {% else %}
-    <registry_ignore>{{ registry_key.key }}</registry_ignore>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-
-    {% if ansible_os_family == "Windows" %}
-    <!-- Frequency for ACL checking (seconds) -->
-    <windows_audit_interval>{{ wazuh_agent_config.syscheck.win_audit_interval }}</windows_audit_interval>
-    {% endif %}
-  </syscheck>
-  {% endif %}
-
-  {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
+  {% if ansible_system == "Linux" %}
   <wodle name="open-scap">
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.openscap.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.openscap.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.openscap.scan_on_start }}</scan-on-start>
@@ -214,9 +123,8 @@
   </wodle>
   {% endif %}
 
-  {% if wazuh_agent_config.cis_cat.disable == 'no' %}
   <wodle name="cis-cat">
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.cis_cat.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.cis_cat.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.cis_cat.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.cis_cat.scan_on_start }}</scan-on-start>
@@ -229,7 +137,6 @@
     {% endif %}
     <ciscat_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.cis_cat.ciscat_path_win }}{% else %}{{ wazuh_agent_config.cis_cat.ciscat_path }}{% endif %}</ciscat_path>
   </wodle>
-  {% endif %}
 
   <!-- Osquery integration -->
   <wodle name="osquery">
@@ -279,6 +186,88 @@
     <time>yes</time>
   {% endif %}
   </sca>
+
+
+  <!-- Directories to check  (perform all possible verifications) -->
+  {% if wazuh_agent_config.syscheck is defined %}
+  <syscheck>
+    <disabled>no</disabled>
+  <!-- <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
+    <!-- Frequency that syscheck is executed -- default every 20 hours -->
+    <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
+    {% if ansible_system == "Linux" %}
+    <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
+    <!-- Directories to check  (perform all possible verifications) -->
+    {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
+    {% for directory in wazuh_agent_config.syscheck.directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
+    {% endfor %}
+    {% endif %}
+    {% endif %}
+
+    <!-- Directories to check  (perform all possible verifications) -->
+    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
+    {% for directory in wazuh_agent_config.syscheck.win_directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Files/directories to ignore -->
+    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Linux" %}
+    {% for ignore in wazuh_agent_config.syscheck.ignore %}
+    <ignore>{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
+    <!-- File types to ignore -->
+    {% if wazuh_agent_config.syscheck.ignore_linux_type is defined %}
+    {% for ignore in wazuh_agent_config.syscheck.ignore_linux_type %}
+    <ignore type="sregex">{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
+    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
+    {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
+    <ignore type="sregex">{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
+    {% if ansible_system == "Linux" %}
+    <!-- Files no diff -->
+    {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
+    <nodiff>{{ no_diff }}</nodiff>
+    {% endfor %}
+    
+    <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
+    {% endif %}
+
+    {% if ansible_os_family == "Windows" %}
+    {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
+    {% if registry_key.arch is defined %}
+    <windows_registry arch="{{ registry_key.arch }}">{{ registry_key.key }}</windows_registry>
+    {% else %}
+    <windows_registry>{{ registry_key.key }}</windows_registry>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if ansible_os_family == "Windows" %}
+    {% for registry_key in wazuh_agent_config.syscheck.windows_registry_ignore %}
+    {% if registry_key.type is defined %}
+    <registry_ignore type="{{ registry_key.type }}">{{ registry_key.key }}</registry_ignore>
+    {% else %}
+    <registry_ignore>{{ registry_key.key }}</registry_ignore>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if ansible_os_family == "Windows" %}
+    <!-- Frequency for ACL checking (seconds) -->
+    <windows_audit_interval>{{ wazuh_agent_config.syscheck.win_audit_interval }}</windows_audit_interval>
+    {% endif %}
+  </syscheck>
+  {% endif %}
+
 
   {% if ansible_system == "Linux" and wazuh_agent_config.vuls.disable == 'no' %}
   <wodle name="command">
@@ -368,5 +357,15 @@
   {% endfor %}
   </labels>
 {% endif %}
+
+  <active-response>
+    <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
+    <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
+    <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
+  </active-response>
+
+  <logging>
+    <log_format>{{ wazuh_agent_config.log_format }}</log_format>
+  </logging>
 
 </ossec_config>

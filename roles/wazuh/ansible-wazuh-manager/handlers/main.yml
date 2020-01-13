@@ -1,7 +1,4 @@
 ---
-- name: rebuild cdb_lists
-  command: /var/ossec/bin/ossec-makelists
-
 - name: restart wazuh-manager
   service:
     name: wazuh-manager

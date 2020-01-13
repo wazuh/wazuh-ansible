@@ -30,7 +30,8 @@ wazuh_managers:
     api_port: 55000
     api_proto: 'http'
     api_user: null
-wazuh_profile: null
+wazuh_profile_centos: 'centos, centos7, centos7.6'
+wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
 wazuh_auto_restart: 'yes'
 wazuh_agent_authd:
   enable: false
@@ -102,7 +103,7 @@ wazuh_agent_config:
     directories:
       - dirs: /etc,/usr/bin,/usr/sbin
         checks: 'check_all="yes"'
-      - dirs: /bin,/sbin
+      - dirs: /bin,/sbin,/boot
         checks: 'check_all="yes"'
     win_directories:
       - dirs: '%WINDIR%\regedit.exe'
