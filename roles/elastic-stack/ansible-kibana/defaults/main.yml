@@ -1,10 +1,47 @@
 ---
+kibana_node_name: node-1
+
 elasticsearch_http_port: "9200"
 elasticsearch_network_host: "127.0.0.1"
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
-elastic_stack_version: 6.5.4
-wazuh_version: 3.8.2
+elastic_stack_version: 7.5.1
+wazuh_version: 3.11.1
+wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
+
+elasticrepo_server: https://artifacts.elastic.co/packages/7.x/apt
 elasticrepo_gpg_keyserver: pool.sks-keyservers.net
-elasticrepo_server: https://artifacts.elastic.co/packages/6.x/apt
-wazuhapp_location: https://packages.wazuh.com/wazuhapp
+
+# API credentials
+wazuh_api_credentials:
+  - id: "default"
+    url: "http://localhost"
+    port: 55000
+    user: "foo"
+    password: "bar"
+
+# Xpack Security
+kibana_xpack_security: false
+
+elasticsearch_xpack_security_user: elastic
+elasticsearch_xpack_security_password: elastic_pass
+
+node_certs_generator: false
+node_certs_source: /usr/share/elasticsearch
+node_certs_destination: /etc/kibana/certs
+
+# CA Generation
+master_certs_path: /es_certs
+generate_CA: true
+ca_cert_name: ""
+
+# Nodejs
+nodejs:
+  repo_dict:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_8.x" 
+
+# Build from sources
+build_from_sources: false
+wazuh_plugin_branch: 3.11-7.5

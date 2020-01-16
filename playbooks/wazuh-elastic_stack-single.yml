@@ -1,6 +1,8 @@
-- hosts: <your single server host>
+---
+- hosts: <your server host>
   roles:
-      - {role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager}
-      - {role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'localhost'}
-      - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-logstash, elasticsearch_network_host: 'localhost' }
-      - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-kibana, elasticsearch_network_host: 'localhost' }
+    - {role: ../roles/wazuh/ansible-wazuh-manager}
+    - role: ../roles/wazuh/ansible-filebeat
+      filebeat_output_elasticsearch_hosts: localhost:9200
+    - {role: ../roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: '0.0.0.0', single_node: true}
+    - { role: ../roles/elastic-stack/ansible-kibana, elasticsearch_network_host: '0.0.0.0', elasticsearch_reachable_host: 'localhost' }

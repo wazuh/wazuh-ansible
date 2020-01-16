@@ -1,6 +1,178 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.11.1_7.5.1]
+
+### Added
+
+- Update to Wazuh v3.11.1
+
+
+## [v3.11.0_7.5.1]
+
+### Added
+
+- Update to Wazuh v3.11.0
+
+- Implemented changes to configure Wazuh API using the `wazuh.yml` file ([@xr09](https://github.com/xr09)) [PR#342](https://github.com/wazuh/wazuh-ansible/pull/342)
+
+- Wazuh Agent registration task now explicitly notify restart ([@jm404](https://github.com/jm404)) [PR#302](https://github.com/wazuh/wazuh-ansible/pull/302)
+
+- Support both IP and DNS when creating elastic cluster ([@xr09](https://github.com/xr09)) [PR#252](https://github.com/wazuh/wazuh-ansible/pull/252)
+
+- Added config tag to the Wazuh Agent's enable task ([@xr09](https://github.com/xr09)) [PR#261](https://github.com/wazuh/wazuh-ansible/pull/261)
+
+- Implement task to configure Elasticsearch user on every cluster node ([@xr09](https://github.com/xr09)) [PR#270](https://github.com/wazuh/wazuh-ansible/pull/270)
+
+- Added SCA to Wazuh Agent and Manager installation ([@jm404](https://github.com/jm404)) [PR#260](https://github.com/wazuh/wazuh-ansible/pull/260)
+
+- Added support for environments with low disk space ([@xr09](https://github.com/xr09)) [PR#281](https://github.com/wazuh/wazuh-ansible/pull/281)
+
+- Add parameters to configure an Elasticsearch coordinating node ([@jm404](https://github.com/jm404)) [PR#292](https://github.com/wazuh/wazuh-ansible/pull/292)
+ 
+
+### Changed
+
+- Updated Filebeat and Elasticsearch templates ([@manuasir](https://github.com/manuasir)) [PR#285](https://github.com/wazuh/wazuh-ansible/pull/285)
+
+- Make ossec.conf file more readable by removing trailing whitespaces ([@jm404](https://github.com/jm404)) [PR#286](https://github.com/wazuh/wazuh-ansible/pull/286)
+
+- Wazuh repositories can now be configured to different sources URLs ([@jm404](https://github.com/jm404)) [PR#288](https://github.com/wazuh/wazuh-ansible/pull/288)
+
+- Wazuh App URL is now flexible ([@jm404](https://github.com/jm404)) [PR#304](https://github.com/wazuh/wazuh-ansible/pull/304)
+
+- Agent installation task now does not hardcodes the "-1" sufix ([@jm404](https://github.com/jm404)) [PR#310](https://github.com/wazuh/wazuh-ansible/pull/310)
+
+- Enhanced task importation in Wazuh Manager role and removed deprecated warnings ([@xr09](https://github.com/xr09)) [PR#320](https://github.com/wazuh/wazuh-ansible/pull/320)
+
+- Wazuh API installation task have been upgraded ([@rshad](https://github.com/rshad)) [PR#330](https://github.com/wazuh/wazuh-ansible/pull/330)
+
+- It's now possible to install Wazuh Manager and Agent from sources ([@jm404](https://github.com/jm404)) [PR#329](https://github.com/wazuh/wazuh-ansible/pull/329)
+
+
+### Fixed
+
+- Ansible upgrade from 6.x to 7.x ([@jm404](https://github.com/jm404)) [PR#252](https://github.com/wazuh/wazuh-ansible/pull/251)
+
+- Wazuh Agent registration using agent name has been fixed ([@jm404](https://github.com/jm404)) [PR#298](https://github.com/wazuh/wazuh-ansible/pull/298)
+- Fix Wazuh repository and installation conditionals ([@jm404](https://github.com/jm404)) [PR#299](https://github.com/wazuh/wazuh-ansible/pull/299)
+
+- Fixed Wazuh Agent registration using an Agent's name ([@jm404](https://github.com/jm404)) [PR#334](https://github.com/wazuh/wazuh-ansible/pull/334)
+
+
+## [v3.11.0_7.3.2]
+
+### Added
+
+- Update to Wazuh v3.11.0
+
+### Changed
+
+- Moved molecule folder to Wazuh QA Repository [manuasir](https://github.com/manuasir) [#120ed16](https://github.com/wazuh/wazuh-ansible/commit/120ed163b6f131315848938beca65c1f1cad7f1b)
+
+- Refactored XPack Security configuration tasks [@jm404](https://github.com/jm404) [#246](https://github.com/wazuh/wazuh-ansible/pull/246)
+
+### Fixed
+
+- Fixed ES bootstrap password configuration [@jm404](https://github.com/jm404) [#b8803de](https://github.com/wazuh/wazuh-ansible/commit/b8803de85fb71edf090b0c076d4fe3684cd7cb36)
+
+## [v3.10.0_7.3.2]
+
+### Added
+
+- Update to Wazuh v3.10.0 
+
+### Changed
+
+- Updated Kibana [@jm404](https://github.com/jm404) [#237](https://github.com/wazuh/wazuh-ansible/pull/237)
+- Updated agent.conf template [@moodymob](https://github.com/moodymob) [#222](https://github.com/wazuh/wazuh-ansible/pull/222)
+- Improved molecule tests [@rshad](https://github.com/rshad) [#223](https://github.com/wazuh/wazuh-ansible/pull/223/files)
+- Moved "run_cluster_mode.sh" script to molecule folder [@jm404](https://github.com/jm404) [#a9d2c52](https://github.com/wazuh/wazuh-ansible/commit/a9d2c5201047c273c2c4fead5a54e576111da455)
+
+### Fixed
+
+- Fixed typo in the `agent.conf` template [@joey1a2b3c](https://github.com/joey1a2b3c) [#227](https://github.com/wazuh/wazuh-ansible/pull/227)
+- Updated conditionals in tasks to fix Amazon Linux installation [@jm404](https://github.com/jm404) [#229](https://github.com/wazuh/wazuh-ansible/pull/229)
+- Fixed Kibana installation in Amazon Linux [@jm404](https://github.com/jm404) [#232](https://github.com/wazuh/wazuh-ansible/pull/232)
+- Fixed Windows Agent installation and configuration [@jm404](https://github.com/jm404) [#234](https://github.com/wazuh/wazuh-ansible/pull/234)
+
+### Fixed
+
+- Removed registry key check on Wazuh Agent installation in windows [@jm404](https://github.com/jm404) [#265](https://github.com/wazuh/wazuh-ansible/pull/265)
+
+## [v3.9.5_7.2.1]
+
+### Added 
+
+- Update to Wazuh v3.9.5
+- Update to Elastic Stack to v7.2.1
+
+## [v3.9.4_7.2.0]
+
+### Added 
+
+- Support for registring agents behind NAT [@jheikki100](https://github.com/jheikki100) [#208](https://github.com/wazuh/wazuh-ansible/pull/208)
+
+### Changed
+
+- Default protocol to TCP [@ionphractal](https://github.com/ionphractal) [#204](https://github.com/wazuh/wazuh-ansible/pull/204).
+
+### Fixed
+
+- Fixed network.host is not localhost [@rshad](https://github.com/rshad) [#204](https://github.com/wazuh/wazuh-ansible/pull/212).
+
+## [v3.9.3_7.2.0]
+
+### Added 
+- Update to Wazuh v3.9.3 ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+- Added Versioning Control for Wazuh stack's components installation, so now it's possible to specify which package to install for wazuh-manager, wazuh-agent, Filebeat, Elasticsearch and Kibana. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+- Fixes for Molecule testing issues. Issues such as Ansible-Lint and None-Idempotent tasks. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+- Fixes for Wazuh components installations' related issues. Such issues were related to determined OS distributions such as `Ubuntu Trusty` and `CetOS 6`. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+-  Created Ansible playbook and role in order to automate the uninstallation of already installed Wazuh components. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
+
+
+## [v3.9.2_7.1.1]
+
+### Added 
+
+- Update to Wazuh v3.9.2
+- Support for Elastic 7
+- Ability to deploy an Elasticsearch cluster [#6b95e3](https://github.com/wazuh/wazuh-ansible/commit/6b95e304b6ac4dfec08df5cd0fe29be9cc7dc22c)
+
+## [v3.9.2_6.8.0]
+
+### Added 
+
+- Update to Wazuh v3.9.2
+
+## [v3.9.1]
+
+### Added 
+
+- Update to Wazuh v3.9.1
+- Support for ELK v6.8.0
+
+## [v3.9.0]
+
+### Added
+
+- Update to Wazuh Wazuh v3.9.0 ([manuasir](https://github.com/manuasir) [#177](https://github.com/wazuh/wazuh-ansible/pull/177)).
+- Support for Elasticsearch v6.7.1 ([LuisGi91](https://github.com/LuisGi91) [#168](https://github.com/wazuh/wazuh-ansible/pull/168)).
+- Added Molecule testing suit ([JJediny](https://github.com/JJediny) [#151](https://github.com/wazuh/wazuh-ansible/pull/151)).
+- Added Molecule tests for Wazuh Manager ([dj-wasabi](https://github.com/dj-wasabi) [#169](https://github.com/wazuh/wazuh-ansible/pull/169)).
+- Added Molecule tests for Wazuh Agent ([dj-wasabi](https://github.com/dj-wasabi) [#174](https://github.com/wazuh/wazuh-ansible/pull/174)).
+
+### Changed
+
+- Updated network commands ([kravietz](https://github.com/kravietz) [#159](https://github.com/wazuh/wazuh-ansible/pull/159)).
+- Enable active response section ([kravietz](https://github.com/kravietz) [#155](https://github.com/wazuh/wazuh-ansible/pull/155)).
+
+### Fixed
+
+- Fix default active response ([LuisGi93](https://github.com/LuisGi93) [#164](https://github.com/wazuh/wazuh-ansible/pull/164)).
+- Changing from Oracle Java to OpenJDK ([LuisGi93](https://github.com/LuisGi93) [#173](https://github.com/wazuh/wazuh-ansible/pull/173)).
+- Adding alias to agent config file template ([LuisGi93](https://github.com/LuisGi93) [#163](https://github.com/wazuh/wazuh-ansible/pull/163)).
+
 ## [v3.8.2]
 
 ### Changed 
@@ -9,8 +181,9 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.8.1]
 
-### Changed 
+### Changed
 - Update to Wazuh version v3.8.1. ([#148](https://github.com/wazuh/wazuh-ansible/pull/148))
+
 
 ## [v3.8.0]
 
@@ -20,7 +193,7 @@ All notable changes to this project will be documented in this file.
 - Adapt ossec.conf file for windows agents ([#118](https://github.com/wazuh/wazuh-ansible/pull/118))
 - Added labels to ossec.conf ([#135](https://github.com/wazuh/wazuh-ansible/pull/135))
 
-### Changed 
+### Changed
 
 - Changed Windows installation directory ([#116](https://github.com/wazuh/wazuh-ansible/pull/116))
 - move redundant tags to the outer block ([#133](https://github.com/wazuh/wazuh-ansible/pull/133))
@@ -56,7 +229,7 @@ All notable changes to this project will be documented in this file.
 
  - Changed windows agent version. ([#89](https://github.com/wazuh/wazuh-ansible/pull/89))
  - Updating to Elastic Stack to 6.5.3 and Wazuh 3.7.1. ([#108](https://github.com/wazuh/wazuh-ansible/pull/108))
- 
+
 ### Fixed
 
 - Solve the conflict betwwen tha agent configuration and the shared master configuration. Also include monitoring for `/var/log/auth.log`. ([#90](https://github.com/wazuh/wazuh-ansible/pull/90))
@@ -97,7 +270,6 @@ Ansible starting point.
 Roles:
  - Elastic Stack:
    - ansible-elasticsearch: This role is prepared to install elasticsearch on the host that runs it.
-   - ansible-logstash: This role involves the installation of logstash on the host that runs it.
    - ansible-kibana: Using this role we will install Kibana on the host that runs it.
  - Wazuh:
    - ansible-filebeat: This role is prepared to install filebeat on the host that runs it.

@@ -3,6 +3,7 @@
   yum_repository:
     name: elastic_repo
     description: Elastic repository for 6.x packages
-    baseurl: https://artifacts.elastic.co/packages/6.x/yum
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    gpgcheck: yes
+    gpgcheck: true
+  changed_when: false

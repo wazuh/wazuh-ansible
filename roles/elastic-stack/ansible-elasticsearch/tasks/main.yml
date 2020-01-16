@@ -48,16 +48,6 @@
     - ansible_service_mgr != "systemd"
     - ansible_os_family == "RedHat"
 
-- name: Configure Elasticsearch.
-  template:
-    src: elasticsearch.yml.j2
-    dest: /etc/elasticsearch/elasticsearch.yml
-    owner: root
-    group: elasticsearch
-    mode: 0660
-  notify: restart elasticsearch
-  tags: configure
-
 - name: Configure Elasticsearch JVM memmory.
   template:
     src: jvm.options.j2
@@ -68,46 +58,95 @@
   notify: restart elasticsearch
   tags: configure
 
-- name: Reload systemd
-  systemd: daemon_reload=yes
-  ignore_errors: yes
-  when: 
-    - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
+# fix in new PR (ignore_errors)
+
+- import_tasks: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+- import_tasks: "xpack_security.yml"
+  when:
+    - elasticsearch_xpack_security
+
+- name: Configure Elasticsearch.
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+  tags: configure
+
+- name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: elasticsearch - memlock unlimited
+    create: yes
+  become: true
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+  changed_when: false
+
+- name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.d/elasticsearch.conf
+  lineinfile:
+    path: /etc/security/limits.d/elasticsearch.conf
+    line: elasticsearch - memlock unlimited
+    create: yes
+  become: true
+  changed_when: false
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
 
 - name: Ensure Elasticsearch started and enabled
   service:
     name: elasticsearch
-    enabled: yes
+    enabled: true
     state: started
-
-- name: Make sure Elasticsearch is running before proceeding
-  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
   tags:
     - configure
     - init
 
-- name: Check for Wazuh Alerts template
-  uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
-    method: GET
-    status_code: 200, 404
-  register: wazuh_alerts_template_exits
-  tags: init
-
-- name: Installing Wazuh Alerts template
-  uri:
-    url: "http://{{elasticsearch_network_host}}:{{elasticsearch_http_port}}/_template/wazuh"
-    method: PUT
-    status_code: 200
-    body_format: json
-    body: "{{ lookup('template','wazuh-elastic6-template-alerts.json.j2') }}"
-  when: wazuh_alerts_template_exits.status != 200
-  tags: init
+- name: Make sure Elasticsearch is running before proceeding
+  wait_for: host={{ elasticsearch_reachable_host }} port={{ elasticsearch_http_port }} delay=3 timeout=400
+  tags:
+    - configure
+    - init
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
 - import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
+
+- name: Wait for Elasticsearch API
+  uri:
+    url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_cluster/health/"
+    user: "elastic" # Default Elasticsearch user is always "elastic"
+    password: "{{ elasticsearch_xpack_security_password }}"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until: (  _result.json is defined) and (_result.json.status == "green")
+  retries: 24
+  delay: 5
+  when:
+    - elasticsearch_xpack_users is defined
+
+- name: Create elasticsearch users
+  uri:
+    url: "https://{{ node_certs_generator_ip }}:{{ elasticsearch_http_port }}/_security/user/{{ item.key }}"
+    method: POST
+    body_format: json
+    user: "elastic"
+    password: "{{ elasticsearch_xpack_security_password }}"
+    body: '{ "password" : "{{ item.value["password"] }}", "roles" : {{ item.value["roles"] }} }'
+    validate_certs: no
+  loop: "{{ elasticsearch_xpack_users|default({})|dict2items }}"
+  register: http_response
+  failed_when: http_response.status != 200
+  when:
+    - elasticsearch_xpack_users is defined

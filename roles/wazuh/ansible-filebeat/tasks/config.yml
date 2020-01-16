@@ -9,6 +9,16 @@
   notify: restart filebeat
   tags: configure
 
+- name: Copy Elasticsearch template.
+  template:
+    src: elasticsearch.yml.j2
+    dest: "/etc/filebeat/wazuh-template.json"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart filebeat
+  tags: configure
+
 - name: Ensure Filebeat SSL key pair directory exists.
   file:
     path: "{{ filebeat_ssl_dir }}"

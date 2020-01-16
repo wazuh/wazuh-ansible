@@ -1,0 +1,182 @@
+---
+# Wazuh Manager
+  - name: Check if Wazuh Manager is already installed
+    stat:
+      path: /var/ossec/bin/ossec-control
+    register: wazuh_ossec_control
+
+  - name: Installing Wazuh Manager from sources
+    block:
+      - name: Install dependencies to build Wazuh packages
+        package:
+          name:
+            - make
+            - gcc
+            - automake
+            - autoconf
+            - libtool
+            - tar
+          state: present
+
+      - name: Removing old files
+        file:
+          path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+          state: absent
+
+      - name: Removing old folders
+        file:
+          path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          state: absent
+
+      - name: Installing policycoreutils-python (RedHat families)
+        package:
+          name:
+            - policycoreutils-python
+        when:
+          - ansible_os_family|lower == "redhat"
+
+      - name: Installing policycoreutils-python-utils (Debian families)
+        package:
+          name:
+            - libc6-dev
+            - curl
+            - policycoreutils
+        when:
+          - ansible_os_family|lower == "debian"
+
+      - name: Remove old repository folder
+        file:
+          path: /tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}
+          state: absent
+
+      - name: Download required packages from github.com/wazuh/wazuh
+        get_url:
+          url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+          dest: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+        delegate_to: "{{ inventory_hostname }}"
+
+      - name: Create folder to extract Wazuh branch
+        file:
+          path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          state: directory
+
+    # When downloading "v3.11.0" extracted folder name is 3.11.0. 
+
+    # Explicitly creating the folder with proper naming and striping first level in .tar.gz file
+
+      - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
+        command: >-
+          tar -xzvf /tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz
+          --strip 1
+          --directory /tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}
+        register: wazuh_untar
+        changed_when: wazuh_untar.rc ==0
+        args:
+          warn: false
+
+      - name: Clean remaining files from others builds
+        command: "make -C src {{ item }}"
+        args:
+          chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/src/"
+        with_items:
+          - "clean"
+          - "clean-deps"
+        register: clean_result
+        changed_when: clean_result.rc == 0
+        failed_when: false
+
+      - name: Render the "preloaded-vars.conf" file
+        template:
+          src: "templates/preloaded_vars_manager.conf.j2"
+          dest: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/etc/preloaded-vars.conf"
+          owner: root
+          group: root
+          mode: '644'
+
+      - name: Executing "install.sh" script to build and install the Wazuh Manager
+        shell: ./install.sh > /tmp/build_wazuh_manager_log.txt
+        register: installation_result
+        changed_when: installation_result == 0
+        args:
+          chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+
+      - name: Cleanup downloaded files
+        file:
+          path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
+          state: absent
+
+      - name: Cleanup created folders
+        file:
+          path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          state: absent
+
+    when:
+      - not wazuh_ossec_control.stat.exists
+      - wazuh_manager_sources_installation.enabled
+    tags:
+      - manager
+
+# Wazuh API
+
+  - name: Check if Wazuh API is already installed
+    stat:
+      path: /var/ossec/api/app.js
+    register: wazuh_api
+
+  - name: Install Wazuh API from sources
+    block:
+      - name: Install dependencies to build Wazuh packages
+        package:
+          name:
+            - make
+            - gcc
+            - automake
+            - autoconf
+            - libtool
+            - tar
+          state: present
+
+      - name: Explicitly installing npm for Debian hosts
+        package:
+          name: npm
+          state: present
+        when:
+          - ansible_distribution == "Debian"
+
+      - name: Ensure Git is present in the host
+        package:
+          name: git
+          state: present
+
+      - name: Remove old repository folder
+        file:
+          path: /tmp/wazuh-api
+          state: absent
+
+      - name: Download the Wazuh API repository
+        git:
+          repo: 'https://github.com/wazuh/wazuh-api.git'
+          version: "{{ wazuh_api_sources_installation.branch }}"
+          dest: /tmp/wazuh-api
+
+      - name: Configure Wazuh API installation
+        template:
+          src: "templates/preloaded_vars_api.conf.j2"
+          dest: "/tmp/wazuh-api/configuration/preloaded_vars.conf"
+          owner: root
+          group: root
+          mode: '644'
+
+      - name: Execute Wazuh API installation script
+        shell: ./install_api.sh > /tmp/build_wazuh_api_log.txt
+        register: install_api
+        changed_when: install_api.rc == 0
+        args:
+          chdir: "/tmp/wazuh-api"
+        notify:
+          - restart wazuh-api
+    when:
+      - not wazuh_api.stat.exists
+      - wazuh_api_sources_installation.enabled
+    tags:
+      - api
