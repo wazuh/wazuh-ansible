@@ -8,10 +8,11 @@
   register: filebeat_ca_packages_install
   until: filebeat_ca_packages_install is succeeded
 
-- name: Debian/Ubuntu | Add Elasticsearch apt key.
+- name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
-    keyserver: "{{ elasticrepo_gpg_keyserver }}"
+    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
     id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
+    state: present
 
 - name: Debian/Ubuntu | Add Filebeat repository.
   apt_repository:

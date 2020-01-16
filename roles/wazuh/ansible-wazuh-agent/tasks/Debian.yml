@@ -25,6 +25,7 @@
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key:
     url: "{{ wazuh_agent_config.repo.gpg }}"
+    id: 0DCFCA5547B19D2A6099506096B3EE5F29111145
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_agent_sources_installation.enabled
