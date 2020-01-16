@@ -8,7 +8,7 @@
   register: kibana_installing_ca_package
   until: kibana_installing_ca_package is succeeded
 
-- name: Debian/Ubuntu | Add Elasticsearch GPG key.
+- name: Debian/Ubuntu | Add Elasticsearch GPG key
   apt_key:
     url: "{{ elasticrepo.gpg }}"
     id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
