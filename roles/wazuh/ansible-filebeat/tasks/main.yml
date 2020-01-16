@@ -70,7 +70,7 @@
 
 - name: Download Filebeat module package
   get_url:
-    url: https://packages.wazuh.com/3.x/filebeat/{{ filebeat_module_package_name }}
+    url: "{{ filebeat_module_package_url }}/{{ filebeat_module_package_name }}"
     dest: "{{ filebeat_module_package_path }}"
   when: not filebeat_module_folder.stat.exists
 

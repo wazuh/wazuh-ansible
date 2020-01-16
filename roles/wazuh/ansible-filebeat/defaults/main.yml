@@ -28,6 +28,7 @@ filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
 
+filebeat_module_package_url: https://packages.wazuh.com/3.x/filebeat
 filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
 filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module
