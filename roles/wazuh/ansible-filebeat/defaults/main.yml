@@ -49,5 +49,7 @@ master_certs_path: /es_certs
 generate_CA: true
 ca_cert_name: ""
 
-elasticrepo_gpg_keyserver: pool.sks-keyservers.net
-elasticrepo_server: https://artifacts.elastic.co/packages/7.x/apt
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'

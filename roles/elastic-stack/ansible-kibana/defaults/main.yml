@@ -9,8 +9,10 @@ elastic_stack_version: 7.5.1
 wazuh_version: 3.11.1
 wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
-elasticrepo_server: https://artifacts.elastic.co/packages/7.x/apt
-elasticrepo_gpg_keyserver: pool.sks-keyservers.net
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
 
 # API credentials
 wazuh_api_credentials:
