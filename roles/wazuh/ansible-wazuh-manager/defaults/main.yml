@@ -396,6 +396,3 @@ nodejs:
       debian: "deb"
       redhat: "rpm"
   repo_url_ext: "nodesource.com/setup_8.x"
-
-wauzhrepo_gpg_keyserver: pool.sks-keyservers.net
-wazuhrepo_server: https://packages.wazuh.com/3.x/apt/

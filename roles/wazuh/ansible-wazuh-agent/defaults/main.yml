@@ -342,8 +342,4 @@ wazuh_agent_config:
     list:
       - key: Env
         value: Production
-
 wazuh_agent_nat: false
-
-wazuhrepo_server: https://packages.wazuh.com/3.x/apt/
-wauzhrepo_gpg_keyserver: pool.sks-keyservers.net
