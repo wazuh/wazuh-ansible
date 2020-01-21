@@ -31,7 +31,7 @@
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
     url: "{{ elasticrepo.gpg }}"
-    id: "{{ elasticrepo.kid }}"
+    id: "{{ elasticrepo.key_id }}"
     state: present
 
 - name: Debian/Ubuntu | Install Elastic repo
