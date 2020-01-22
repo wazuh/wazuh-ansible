@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.11.2_7.5.1]
+
+### Added
+
+- Update to Wazuh v3.11.2
+
+### Changed
+
+- Update templates for Python 3 compatibility ([@xr09](https://github.com/xr09)) [PR#344](https://github.com/wazuh/wazuh-ansible/pull/344)
+
 ## [v3.11.1_7.5.1]
 
 ### Added
