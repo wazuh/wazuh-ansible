@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [v3.11.3_7.5.1]
+## [v3.11.3_7.5.2]
 
 ### Added
 
