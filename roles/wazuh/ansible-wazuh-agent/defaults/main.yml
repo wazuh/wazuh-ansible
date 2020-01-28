@@ -54,7 +54,7 @@ wazuh_winagent_config:
   version: '3.11.3'
   revision: '1'
   repo: https://packages.wazuh.com/3.x/windows/
-  md5: 9b6e57054353e31f449ce61bf3695271
+  md5: e4623e7cd3f2fc6ac8a313cbdd7c3cba
 wazuh_agent_config:
   repo:
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
