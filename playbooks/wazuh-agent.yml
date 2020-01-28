@@ -6,7 +6,7 @@
     wazuh_managers:
       - address: <your manager IP>
         port: 1514
-        protocol: tcp
+        protocol: udp
         api_port: 55000
         api_proto: 'http'
         api_user: ansible
