@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.11.3_7.5.1]
+
+### Added
+
+- Update to Wazuh v3.11.3
+
+### Fixed
+
+- Fix Wazuh Agent configuration file for RHEL 8 ([@xr09](https://github.com/xr09)) [PR#354](https://github.com/wazuh/wazuh-ansible/pull/354)
+- Fix default port used in Wazuh Agent playbook ([@jm404](https://github.com/jm404)) [PR#347](https://github.com/wazuh/wazuh-ansible/pull/347)
+
 ## [v3.11.2_7.5.1]
 
 ### Added
