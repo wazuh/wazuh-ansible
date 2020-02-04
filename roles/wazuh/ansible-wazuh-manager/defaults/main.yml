@@ -395,4 +395,4 @@ nodejs:
   repo_dict:
       debian: "deb"
       redhat: "rpm"
-  repo_url_ext: "nodesource.com/setup_8.x"
+  repo_url_ext: "nodesource.com/setup_10.x"
