@@ -10,12 +10,13 @@
 
 - name: Debian/Ubuntu | Add Elasticsearch apt key.
   apt_key:
-    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    url: "{{ elasticrepo.gpg }}"
+    id: "{{ elasticrepo.key_id }}"
     state: present
 
 - name: Debian/Ubuntu | Add Filebeat repository.
   apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
+    repo: "deb {{ elasticrepo.apt }} stable main"
     state: present
     update_cache: true
   changed_when: false

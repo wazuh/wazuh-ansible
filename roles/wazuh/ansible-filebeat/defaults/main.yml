@@ -28,6 +28,7 @@ filebeat_ssl_certificate_file: ""
 filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
 
+filebeat_module_package_url: https://packages.wazuh.com/3.x/filebeat
 filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
 filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module
@@ -49,4 +50,8 @@ master_certs_path: /es_certs
 generate_CA: true
 ca_cert_name: ""
 
-
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'

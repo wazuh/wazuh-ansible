@@ -10,12 +10,13 @@
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key
   apt_key:
-    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    url: "{{ elasticrepo.gpg }}"
+    id: "{{ elasticrepo.key_id }}"
     state: present
 
 - name: Debian/Ubuntu | Install Elastic repo
   apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
+    repo: "deb {{ elasticrepo.apt }} stable main"
     state: present
     filename: 'elastic_repo_7'
     update_cache: true
