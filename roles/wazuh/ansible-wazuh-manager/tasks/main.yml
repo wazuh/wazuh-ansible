@@ -355,6 +355,13 @@
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
+- name: Create agent groups
+  shell: "/var/ossec/bin/agent_groups -a -g {{ item }} -q"
+  with_items:
+    - "{{ agent_groups.groups }}"
+  when:
+    - ( agent_groups.groups is defined) and ( agent_groups.groups|length > 0)
+
 - include_tasks: "RMRedHat.yml"
   when:
     - ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
