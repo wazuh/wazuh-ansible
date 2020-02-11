@@ -399,5 +399,4 @@ nodejs:
   repo_url_ext: "nodesource.com/setup_10.x"
 
 agent_groups:
-  groups: # [] # groups to create
-    - group2
+  groups: [] # groups to create
