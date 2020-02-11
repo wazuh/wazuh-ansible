@@ -356,7 +356,7 @@
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
 - name: Create agent groups
-  shell: "/var/ossec/bin/agent_groups -a -g {{ item }} -q"
+  command: "/var/ossec/bin/agent_groups -a -g {{ item }} -q"
   with_items:
     - "{{ agent_groups.groups }}"
   when:
