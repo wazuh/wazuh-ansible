@@ -342,8 +342,7 @@
   environment:
     LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:/var/ossec/framework/lib"
   when:
-    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' or ansible_distribution == 'Amazon')
-    - ansible_distribution_major_version|int < 6
+    - not (ansible_facts['os_family']|lower == 'redhat' and ansible_distribution_major_version|int < 6)
 
 - name: Ensure Wazuh Manager is started and enabled (EL5)
   service:
