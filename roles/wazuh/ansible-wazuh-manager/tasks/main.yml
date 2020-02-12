@@ -361,6 +361,7 @@
     - "{{ agent_groups.groups }}"
   when:
     - ( agent_groups.groups is defined) and ( agent_groups.groups|length > 0)
+  tags: molecule-idempotence-notest
 
 - include_tasks: "RMRedHat.yml"
   when:
