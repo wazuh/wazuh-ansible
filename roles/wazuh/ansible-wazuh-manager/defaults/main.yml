@@ -47,6 +47,9 @@ wazuh_api_sources_installation:
   common_name: null
   password: null
 
+wazuh_api_user:
+  - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
+
 wazuh_manager_config:
   repo:
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
