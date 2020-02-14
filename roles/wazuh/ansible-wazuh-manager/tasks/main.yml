@@ -191,12 +191,6 @@
   tags:
     - config
 
-- name: Retrieving Wazuh-API User Credentials
-  include_vars: wazuh_api_creds.yml
-  when:
-    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6)
-  tags:
-    - config
 
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
