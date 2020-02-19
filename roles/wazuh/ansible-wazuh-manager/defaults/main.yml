@@ -4,6 +4,15 @@ wazuh_manager_version: 3.11.3-1
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
+# Custom packages installation
+wazuh_custom_packages_installation_manager_enabled: true
+wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/deb/var/wazuh-manager_3.12.0-0.3319fimreworksqlite_amd64.deb"
+wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/rpm/var/wazuh-manager-3.12.0-0.3319fimreworksqlite.x86_64.rpm"
+wazuh_custom_packages_installation_api_enabled: true
+wazuh_custom_packages_installation_api_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/deb/var/wazuh-api_3.12.0-0.3319fimreworksqlite_amd64.deb"
+wazuh_custom_packages_installation_api_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/rpm/var/wazuh-api-3.12.0-0.3319fimreworksqlite.x86_64.rpm"
+
+# Sources installation
 wazuh_manager_sources_installation:
   enabled: false
   branch: "v3.11.3"
