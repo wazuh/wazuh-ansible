@@ -36,7 +36,7 @@
   until: oracle_java_task_rpm_download is succeeded
   when:
     - wazuh_agent_config.cis_cat.disable == 'no'
-    - wazuh_agent_config.cis_cat.install_java == 'yes'    
+    - wazuh_agent_config.cis_cat.install_java == 'yes'
   tags:
     - init
 
