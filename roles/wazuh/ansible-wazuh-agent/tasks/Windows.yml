@@ -45,7 +45,7 @@
     state: present
 
 - name: Windows | Check if client.keys exists
-  win_stat: 
+  win_stat:
     path: "{{ wazuh_agent_win_path }}client.keys"
   register: check_windows_key
   tags:
