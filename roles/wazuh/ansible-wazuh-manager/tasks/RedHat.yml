@@ -11,6 +11,7 @@
     - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
     - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
   register: repo_v5_manager_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
@@ -24,6 +25,7 @@
   when:
     - repo_v5_manager_installed is skipped
     - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
@@ -118,12 +120,17 @@
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
   tags:
     - init
 
 - include_tasks: "../tasks/installation_from_sources.yml"
   when:
     - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
+
+- include_tasks: "../tasks/installation_from_custom_packages.yml"
+  when:
+    - wazuh_custom_packages_installation_manager_enabled or wazuh_custom_packages_installation_api_enabled
 
 - name: CentOS/RedHat/Amazon | Install wazuh-api
   package:
@@ -134,6 +141,7 @@
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_api_enabled
   tags:
     - init
 
