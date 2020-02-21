@@ -356,53 +356,53 @@ wazuh_manager_config:
       - key: Env
         value: Production
 
-wazuh_agent_configs:
-  - type: os
-    type_value: Linux
-    syscheck:
-      frequency: 43200
-      scan_on_start: 'yes'
-      alert_new_files: 'yes'
-      ignore:
-        - /etc/mtab
-        - /etc/mnttab
-        - /etc/hosts.deny
-        - /etc/mail/statistics
-        - /etc/svc/volatile
-      no_diff:
-        - /etc/ssl/private.key
-    rootcheck:
-      frequency: 43200
-      cis_distribution_filename: null
-    localfiles:
-      - format: 'syslog'
-        location: '/var/log/messages'
-      - format: 'syslog'
-        location: '/var/log/secure'
-      - format: 'syslog'
-        location: '/var/log/maillog'
-      - format: 'apache'
-        location: '/var/log/httpd/error_log'
-      - format: 'apache'
-        location: '/var/log/httpd/access_log'
-      - format: 'apache'
-        location: '/var/ossec/logs/active-responses.log'
-  - type: os
-    type_value: Windows
-    syscheck:
-      frequency: 43200
-      scan_on_start: 'yes'
-      auto_ignore: 'no'
-      alert_new_files: 'yes'
-      windows_registry:
-        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
-          arch: 'both'
-        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
-    localfiles:
-      - location: 'Security'
-        format: 'eventchannel'
-      - location: 'System'
-        format: 'eventlog'
+# shared_agent_config:
+  # - type: os
+  #   type_value: Linux
+  #   syscheck:
+  #     frequency: 43200
+  #     scan_on_start: 'yes'
+  #     alert_new_files: 'yes'
+  #     ignore:
+  #       - /etc/mtab
+  #       - /etc/mnttab
+  #       - /etc/hosts.deny
+  #       - /etc/mail/statistics
+  #       - /etc/svc/volatile
+  #     no_diff:
+  #       - /etc/ssl/private.key
+  #   rootcheck:
+  #     frequency: 43200
+  #     cis_distribution_filename: null
+  #   localfiles:
+  #     - format: 'syslog'
+  #       location: '/var/log/messages'
+  #     - format: 'syslog'
+  #       location: '/var/log/secure'
+  #     - format: 'syslog'
+  #       location: '/var/log/maillog'
+  #     - format: 'apache'
+  #       location: '/var/log/httpd/error_log'
+  #     - format: 'apache'
+  #       location: '/var/log/httpd/access_log'
+  #     - format: 'apache'
+  #       location: '/var/ossec/logs/active-responses.log'
+  # - type: os
+  #   type_value: Windows
+  #   syscheck:
+  #     frequency: 43200
+  #     scan_on_start: 'yes'
+  #     auto_ignore: 'no'
+  #     alert_new_files: 'yes'
+  #     windows_registry:
+  #       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
+  #         arch: 'both'
+  #       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
+  #   localfiles:
+  #     - location: 'Security'
+  #       format: 'eventchannel'
+  #     - location: 'System'
+  #       format: 'eventlog'
 
 nodejs:
   repo_dict:
