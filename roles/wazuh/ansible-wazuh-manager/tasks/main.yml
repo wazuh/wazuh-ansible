@@ -158,6 +158,8 @@
   tags:
     - init
     - config
+  when:
+    - shared_agent_config is defined
 
 - name: Installing the config.js (api configuration)
   template: src=var-ossec-api-configuration-config.js.j2
