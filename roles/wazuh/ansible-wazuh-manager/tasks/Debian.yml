@@ -132,3 +132,4 @@
   when:
     - not wazuh_api_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
+    - wazuh_manager_config.cluster.node_type == "master"

@@ -13,6 +13,8 @@
           state: present
         when:
           - wazuh_custom_packages_installation_api_enabled
+          - wazuh_manager_config.cluster.node_type == "master"
+
     when:
       - ansible_os_family|lower == "debian"
 
@@ -30,5 +32,6 @@
         state: present
       when:
         - wazuh_custom_packages_installation_api_enabled
+        - wazuh_manager_config.cluster.node_type == "master"
     when:
       - ansible_os_family|lower == "redhat"

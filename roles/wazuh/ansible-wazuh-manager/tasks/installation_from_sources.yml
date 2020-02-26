@@ -122,6 +122,8 @@
     stat:
       path: /var/ossec/api/app.js
     register: wazuh_api
+    when:       
+      - wazuh_manager_config.cluster.node_type == "master"
 
   - name: Install Wazuh API from sources
     block:
@@ -178,5 +180,6 @@
     when:
       - not wazuh_api.stat.exists
       - wazuh_api_sources_installation.enabled
+      - wazuh_manager_config.cluster.node_type == "master"
     tags:
       - api
