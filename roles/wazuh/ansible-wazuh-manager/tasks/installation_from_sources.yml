@@ -122,7 +122,7 @@
     stat:
       path: /var/ossec/api/app.js
     register: wazuh_api
-    when:       
+    when:
       - wazuh_manager_config.cluster.node_type == "master"
 
   - name: Install Wazuh API from sources

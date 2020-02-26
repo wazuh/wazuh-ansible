@@ -11,7 +11,7 @@
   stat:
     path: /usr/bin/node
   register: node_service_status
-  when: 
+  when:
     - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Install NodeJS repository
@@ -27,7 +27,7 @@
       command: sh /etc/nodejs.sh
       register: nodejs_script
       changed_when: nodejs_script.rc == 0
-  when: 
+  when:
     - not node_service_status.stat.exists
     - wazuh_manager_config.cluster.node_type == "master"
 
@@ -37,7 +37,7 @@
     state: present
   register: nodejs_service_is_installed
   until: nodejs_service_is_installed is succeeded
-  when: 
+  when:
     - wazuh_manager_config.cluster.node_type == "master"
 
   tags: init
@@ -175,7 +175,7 @@
             group=ossec
             mode=0740
   notify: restart wazuh-api
-  when: 
+  when:
     - wazuh_manager_config.cluster.node_type == "master"
 
   tags:
