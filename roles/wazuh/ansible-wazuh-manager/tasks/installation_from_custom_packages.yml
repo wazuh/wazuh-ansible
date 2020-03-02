@@ -48,7 +48,7 @@
         - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
         - not (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
 
-    - name: Install Wazuh Manager from .rpm packages | dnf
+    - name: Install Wazuh API from .rpm packages | dnf
       dnf:
         name: "{{ wazuh_custom_packages_installation_api_rpm_url }}"
         state: present
