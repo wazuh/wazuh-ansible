@@ -142,6 +142,7 @@
     - ansible_os_family|lower == "redhat"
     - not wazuh_api_sources_installation.enabled
     - not wazuh_custom_packages_installation_api_enabled
+    - wazuh_manager_config.cluster.node_type == "master"
   tags:
     - init
 

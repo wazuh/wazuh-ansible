@@ -13,6 +13,8 @@
           state: present
         when:
           - wazuh_custom_packages_installation_api_enabled
+          - wazuh_manager_config.cluster.node_type == "master"
+
     when:
       - ansible_os_family|lower == "debian"
 
@@ -47,6 +49,7 @@
         - not (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8")
         - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
         - not (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
+        - wazuh_manager_config.cluster.node_type == "master"
 
     - name: Install Wazuh API from .rpm packages | dnf
       dnf:
@@ -57,6 +60,7 @@
         - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
           (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8") or
           (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
-
+        - wazuh_manager_config.cluster.node_type == "master"
+        
     when:
       - ansible_os_family|lower == "redhat"

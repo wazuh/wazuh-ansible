@@ -11,6 +11,8 @@
   stat:
     path: /usr/bin/node
   register: node_service_status
+  when:
+    - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Install NodeJS repository
   block:
@@ -25,7 +27,9 @@
       command: sh /etc/nodejs.sh
       register: nodejs_script
       changed_when: nodejs_script.rc == 0
-  when: not node_service_status.stat.exists
+  when:
+    - not node_service_status.stat.exists
+    - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Installing NodeJS
   package:
@@ -33,6 +37,9 @@
     state: present
   register: nodejs_service_is_installed
   until: nodejs_service_is_installed is succeeded
+  when:
+    - wazuh_manager_config.cluster.node_type == "master"
+
   tags: init
 
 - include_tasks: "RedHat.yml"
@@ -168,6 +175,9 @@
             group=ossec
             mode=0740
   notify: restart wazuh-api
+  when:
+    - wazuh_manager_config.cluster.node_type == "master"
+
   tags:
     - init
     - config
@@ -304,6 +314,7 @@
   notify: restart wazuh-api
   when:
     - wazuh_api_user is defined
+    - wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
 
@@ -325,14 +336,20 @@
   tags:
     - config
 
-- name: Ensure Wazuh Manager, wazuh API service is started and enabled
+- name: Ensure Wazuh Manager service is started and enabled.
   service:
-    name: "{{ item }}"
+    name: "wazuh-manager"
     enabled: true
     state: started
-  with_items:
-    - wazuh-manager
-    - wazuh-api
+  tags:
+    - config
+
+- name: Ensure Wazuh API service is started and enabled.
+  service:
+    name: "wazuh-api"
+    enabled: true
+    state: started
+  when: wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
 
