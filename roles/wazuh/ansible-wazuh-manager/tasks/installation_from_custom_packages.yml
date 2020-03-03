@@ -27,7 +27,6 @@
         - wazuh_custom_packages_installation_manager_enabled
         - not (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8")
         - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
-        - not (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
 
     - name: Install Wazuh Manager from .rpm packages | dnf
       dnf:
@@ -36,9 +35,7 @@
       when:
         - wazuh_custom_packages_installation_manager_enabled
         - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
-          (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8") or
-          (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
-
+          (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
 
     - name: Install Wazuh API from .rpm packages | yum
       yum:
@@ -48,7 +45,6 @@
         - wazuh_custom_packages_installation_api_enabled
         - not (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8")
         - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
-        - not (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
         - wazuh_manager_config.cluster.node_type == "master"
 
     - name: Install Wazuh API from .rpm packages | dnf
@@ -58,9 +54,8 @@
       when:
         - wazuh_custom_packages_installation_api_enabled
         - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
-          (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8") or
-          (ansible_distribution|lower == "amazon" and ansible_distribution_major_version >= "2")
+          (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
         - wazuh_manager_config.cluster.node_type == "master"
-        
+
     when:
       - ansible_os_family|lower == "redhat"
