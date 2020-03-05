@@ -4,8 +4,8 @@
   yum_repository:
     name: elastic_repo_7
     description: Elastic repository for 7.x packages
-    baseurl: https://artifacts.elastic.co/packages/7.x/yum
-    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    baseurl: "{{ elasticrepo.yum }}"
+    gpgkey: "{{ elasticrepo.gpg }}"
     gpgcheck: true
   changed_when: false
 

@@ -20,7 +20,7 @@ This role has some variables which you can or need to override.
 ```
 wazuh_manager_fqdn: ~
 wazuh_manager_config: []
-wazuh_agent_configs: []
+shared_agent_config: []
 ```
 
 Vault variables
@@ -157,7 +157,7 @@ wazuh_manager_config:
       level: 6
       timeout: 600
 
-wazuh_agent_configs:
+shared_agent_config:
   - type: os
     type_value: linux
     frequency_check: 79200

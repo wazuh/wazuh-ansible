@@ -1,6 +1,6 @@
 #jinja2: trim_blocks: False
-{% if wazuh_agent_configs is defined %}
-{% for agent_config in wazuh_agent_configs %}
+{% if shared_agent_config is defined %}
+{% for agent_config in shared_agent_config %}
 <agent_config {{ agent_config.type }}="{{ agent_config.type_value }}">
   {% if agent_config.syscheck is defined %}
   <syscheck>
