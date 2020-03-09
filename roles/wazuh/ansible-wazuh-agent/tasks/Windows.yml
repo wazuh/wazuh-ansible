@@ -38,6 +38,8 @@
   register: wazuh_agent_status
   failed_when:
     - wazuh_agent_status.stat.checksum != wazuh_winagent_config.md5
+  when:
+    - wazuh_winagent_config.check_md5
 
 - name: Windows | Install Agent if not already installed
   win_package:
