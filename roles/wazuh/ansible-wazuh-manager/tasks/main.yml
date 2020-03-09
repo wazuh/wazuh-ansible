@@ -11,8 +11,6 @@
   stat:
     path: /usr/bin/node
   register: node_service_status
-  when:
-    - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Install NodeJS repository
   block:
