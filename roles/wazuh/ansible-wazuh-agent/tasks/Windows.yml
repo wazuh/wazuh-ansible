@@ -30,6 +30,15 @@
   when:
     - not wazuh_package_downloaded.stat.exists
 
+- name: Windows | Verify the Wazuh Agent installer
+  win_stat:
+    path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
+    get_checksum: true
+    checksum_algorithm: md5
+  register: wazuh_agent_status
+  failed_when:
+    - wazuh_agent_status.stat.checksum != wazuh_winagent_config.md5
+
 - name: Windows | Install Agent if not already installed
   win_package:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
