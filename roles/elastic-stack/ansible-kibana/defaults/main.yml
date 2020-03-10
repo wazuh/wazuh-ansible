@@ -43,8 +43,11 @@ nodejs:
   repo_dict:
       debian: "deb"
       redhat: "rpm"
-  repo_url_ext: "nodesource.com/setup_8.x" 
+  repo_url_ext: "nodesource.com/setup_8.x"
 
 # Build from sources
 build_from_sources: false
 wazuh_plugin_branch: 3.11-7.6
+
+#Nodejs NODE_OPTIONS
+node_options: --max-old-space-size=4096

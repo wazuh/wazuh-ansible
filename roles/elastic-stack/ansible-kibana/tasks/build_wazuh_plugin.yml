@@ -63,9 +63,7 @@
       chdir: "/tmp/app/build"
 
   - name: Install Wazuh Plugin (can take a while)
-    shell: "/usr/share/kibana/bin/kibana-plugin install file:///tmp/app/build/{{ wazuhapp_package_name.stdout }}"
-    environment:
-      NODE_OPTIONS: "--max-old-space-size=3072"
+    shell: 'NODE_OPTIONS="{{node_options}}" /usr/share/kibana/bin/kibana-plugin install file:///tmp/app/build/{{ wazuhapp_package_name.stdout }}'
     args:
       executable: /bin/bash
       creates: /usr/share/kibana/plugins/wazuh/package.json

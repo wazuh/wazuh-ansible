@@ -62,6 +62,12 @@
     - kibana_xpack_security
   tags: xpack-security
 
+- name: Node configuration
+  replace:
+    path: /usr/share/kibana/bin/kibana
+    regexp: 'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$\{NODE_OPTIONS\}\" NODE_ENV=production exec \"\$\{NODE}\" \"\$\{DIR\}/src/cli\" \$\{@\}'
+    replace: 'NODE_OPTIONS="--no-warnings {{node_options}} --max-http-header-size=65536 ${NODE_OPTIONS}" NODE_ENV=production exec "${NODE}" "${DIR}/src/cli" ${@}'
+
 - name: Ensuring certificates folder owner
   file:
     path: "{{ node_certs_destination }}/"
@@ -119,9 +125,7 @@
 
 
 - name: Install Wazuh Plugin (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
-  environment:
-    NODE_OPTIONS: "--max-old-space-size=3072"
+  shell: 'NODE_OPTIONS="{{node_options}}" /usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip'
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
@@ -134,6 +138,13 @@
     - skip_ansible_lint
   when:
     - not build_from_sources
+
+- name: Kibana optimization (can take a while)
+  shell: 'NODE_OPTIONS="{{node_options}}" /usr/share/kibana/bin/kibana --optimize --allow-root'
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: kibana
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
