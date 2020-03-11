@@ -50,4 +50,5 @@ build_from_sources: false
 wazuh_plugin_branch: 3.11-7.6
 
 #Nodejs NODE_OPTIONS
+# kibana_script_node_options: --max-old-space-size=4096
 node_options: --max-old-space-size=4096

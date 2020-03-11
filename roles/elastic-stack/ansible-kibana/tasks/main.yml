@@ -62,11 +62,12 @@
     - kibana_xpack_security
   tags: xpack-security
 
-- name: Node configuration
+- name: Kibana script additional configuration for node
   replace:
     path: /usr/share/kibana/bin/kibana
     regexp: 'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$\{NODE_OPTIONS\}\" NODE_ENV=production exec \"\$\{NODE}\" \"\$\{DIR\}/src/cli\" \$\{@\}'
-    replace: 'NODE_OPTIONS="--no-warnings {{node_options}} --max-http-header-size=65536 ${NODE_OPTIONS}" NODE_ENV=production exec "${NODE}" "${DIR}/src/cli" ${@}'
+    replace: 'NODE_OPTIONS="--no-warnings {{kibana_script_node_options}} --max-http-header-size=65536 ${NODE_OPTIONS}" NODE_ENV=production exec "${NODE}" "${DIR}/src/cli" ${@}'
+  when: kibana_script_node_options is defined
 
 - name: Ensuring certificates folder owner
   file:
