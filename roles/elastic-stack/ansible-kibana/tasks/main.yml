@@ -153,6 +153,8 @@
     executable: /bin/bash
   become: yes
   become_user: kibana
+  tags:
+    - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
