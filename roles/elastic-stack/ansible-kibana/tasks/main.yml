@@ -66,11 +66,11 @@
   replace:
     path: /usr/share/kibana/bin/kibana
     regexp: >-
-      'NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$\{NODE_OPTIONS\}\"
-      NODE_ENV=production exec \"\$\{NODE}\" \"\$\{DIR\}/src/cli\" \$\{@\}'
+      NODE_OPTIONS=\"--no-warnings --max-http-header-size=65536 \$\{NODE_OPTIONS\}\"
+      NODE_ENV=production exec \"\$\{NODE}\" \"\$\{DIR\}/src/cli\" \$\{@\}
     replace: >-
-      'NODE_OPTIONS="--no-warnings {{ kibana_script_node_options }} --max-http-header-size=65536 ${NODE_OPTIONS}"
-      NODE_ENV=production exec "${NODE}" "${DIR}/src/cli" ${@}'
+      NODE_OPTIONS="--no-warnings {{ kibana_script_node_options }} --max-http-header-size=65536 ${NODE_OPTIONS}"
+      NODE_ENV=production exec "${NODE}" "${DIR}/src/cli" ${@}
   when: kibana_script_node_options | length > 0
 
 
@@ -131,8 +131,9 @@
 
 
 - name: Install Wazuh Plugin (can take a while)
-  shell: "NODE_OPTIONS=\" {{ node_options }} \" /usr/share/kibana/bin/kibana-plugin \
-         install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
+  shell: >-
+    NODE_OPTIONS=" {{ node_options }} " /usr/share/kibana/bin/kibana-plugin install
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
@@ -147,7 +148,7 @@
     - not build_from_sources
 
 - name: Kibana optimization (can take a while)
-  shell: 'NODE_OPTIONS=" {{ node_options }} " /usr/share/kibana/bin/kibana --optimize'
+  shell: NODE_OPTIONS=" {{ node_options }} " /usr/share/kibana/bin/kibana --optimize
   args:
     executable: /bin/bash
   become: yes
