@@ -153,6 +153,7 @@
     executable: /bin/bash
   become: yes
   become_user: kibana
+  changed_when: false
   tags:
     - skip_ansible_lint
 
