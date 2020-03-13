@@ -117,11 +117,10 @@
     - build_from_sources is defined
     - build_from_sources
 
-
 - name: Install Wazuh Plugin (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
-  environment:
-    NODE_OPTIONS: "--max-old-space-size=3072"
+  shell: >-
+    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
@@ -134,6 +133,16 @@
     - skip_ansible_lint
   when:
     - not build_from_sources
+
+- name: Kibana optimization (can take a while)
+  shell: NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana --optimize
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: kibana
+  changed_when: false
+  tags:
+    - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
