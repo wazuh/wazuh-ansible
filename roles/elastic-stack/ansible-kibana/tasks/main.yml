@@ -132,7 +132,7 @@
 
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
-    NODE_OPTIONS=" {{ node_options }} " /usr/share/kibana/bin/kibana-plugin install
+    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
     {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip
   args:
     executable: /bin/bash
@@ -148,7 +148,7 @@
     - not build_from_sources
 
 - name: Kibana optimization (can take a while)
-  shell: NODE_OPTIONS=" {{ node_options }} " /usr/share/kibana/bin/kibana --optimize
+  shell: NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana --optimize
   args:
     executable: /bin/bash
   become: yes
