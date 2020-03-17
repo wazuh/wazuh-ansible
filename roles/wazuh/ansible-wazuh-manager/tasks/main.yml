@@ -18,7 +18,7 @@
       get_url:
         url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
         dest: /etc/nodejs.sh
-        mode: '0775'
+        mode: 0775
       changed_when: false
 
     - name: Run NodeJS bash script
