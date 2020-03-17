@@ -28,7 +28,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-    mode: 0444
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
@@ -42,7 +42,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-    mode: 0444
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
@@ -79,7 +79,7 @@
     dest: /etc/kibana/kibana.yml
     owner: root
     group: root
-    mode: 0664
+    mode: 0644
   notify: restart kibana
   tags: configure
 

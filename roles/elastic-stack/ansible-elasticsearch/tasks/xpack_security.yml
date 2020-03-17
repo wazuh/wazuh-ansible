@@ -149,7 +149,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-    mode: 0444
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.crt"
@@ -164,7 +164,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-    mode: 0444
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.crt"
