@@ -28,6 +28,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: '0444'
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
