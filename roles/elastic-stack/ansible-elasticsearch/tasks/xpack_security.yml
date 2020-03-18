@@ -35,7 +35,7 @@
   copy:
     src: "{{ master_certs_path }}/ca/{{ ca_key_name }}"
     dest: "{{ node_certs_source }}/{{ ca_key_name }}"
-    mode: '0664'
+    mode: 0440
   when:
    - not generate_CA
    - node_certs_generator
@@ -45,7 +45,7 @@
   copy:
     src: "{{ master_certs_path }}/ca/{{ ca_cert_name }}"
     dest: "{{ node_certs_source }}/{{ ca_cert_name }}"
-    mode: '0664'
+    mode: 0440
   when:
     - not generate_CA
     - node_certs_generator
@@ -100,7 +100,7 @@
   file:
     path: "{{ master_certs_path }}"
     state: directory
-    mode: '0700'
+    mode: 0700
   delegate_to: "127.0.0.1"
   when:
     - node_certs_generator
@@ -109,7 +109,7 @@
   file:
     path: "{{ master_certs_path }}/ca/"
     state: directory
-    mode: '0700'
+    mode: 0700
   delegate_to: "127.0.0.1"
   when:
     - node_certs_generator
@@ -149,6 +149,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.crt"
@@ -163,6 +164,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.crt"
@@ -176,7 +178,7 @@
 - name: Ensuring folder permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: '0774'
+    mode: 0774
     state: directory
     recurse: yes
   when:

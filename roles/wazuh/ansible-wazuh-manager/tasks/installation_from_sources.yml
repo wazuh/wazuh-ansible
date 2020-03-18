@@ -60,7 +60,7 @@
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
           state: directory
 
-    # When downloading "v3.11.0" extracted folder name is 3.11.0. 
+    # When downloading "v3.11.0" extracted folder name is 3.11.0.
 
     # Explicitly creating the folder with proper naming and striping first level in .tar.gz file
 
@@ -91,7 +91,7 @@
           dest: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}/etc/preloaded-vars.conf"
           owner: root
           group: root
-          mode: '644'
+          mode: 0644
 
       - name: Executing "install.sh" script to build and install the Wazuh Manager
         shell: ./install.sh > /tmp/build_wazuh_manager_log.txt
@@ -167,7 +167,7 @@
           dest: "/tmp/wazuh-api/configuration/preloaded_vars.conf"
           owner: root
           group: root
-          mode: '644'
+          mode: 0644
 
       - name: Execute Wazuh API installation script
         shell: ./install_api.sh > /tmp/build_wazuh_api_log.txt

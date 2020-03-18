@@ -28,6 +28,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
@@ -41,7 +42,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-    mode: '0664'
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
@@ -65,7 +66,7 @@
 - name: Ensuring certificates folder owner
   file:
     path: "{{ node_certs_destination }}/"
-    mode: '0770'
+    mode: 0770
     recurse: yes
   when:
     - kibana_xpack_security
@@ -78,7 +79,7 @@
     dest: /etc/kibana/kibana.yml
     owner: root
     group: root
-    mode: '0664'
+    mode: 0644
   notify: restart kibana
   tags: configure
 

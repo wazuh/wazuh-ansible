@@ -14,7 +14,7 @@
     get_url:
       url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
       dest: "/tmp/setup_nodejs_repo.sh"
-      mode: "0700"
+      mode: 0700
 
   - name: Execute downloaded script to install Nodejs repo
     command: /tmp/setup_nodejs_repo.sh
