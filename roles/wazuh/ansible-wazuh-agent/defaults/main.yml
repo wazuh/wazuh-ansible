@@ -32,13 +32,13 @@ wazuh_agent_sources_installation:
   user_agent_config_profile: null
   user_ca_store: "/var/ossec/wpk_root.pem"
 
-wazuh_managers:
-    address: 127.0.0.1
-    port: 1514
-    protocol: udp
-    api_port: 55000
-    api_proto: 'http'
-    api_user: null
+wazuh_manager:
+  address: 127.0.0.1
+  port: 1514
+  protocol: udp
+  api_port: 55000
+  api_proto: 'http'
+  api_user: null
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
 wazuh_auto_restart: 'yes'
