@@ -8,17 +8,15 @@
 
 <ossec_config>
   <client>
-    {% for manager in wazuh_managers  %}
     <server>
-      <address>{{ manager.address }}</address>
-      {% if manager.port is defined %}
-      <port>{{ manager.port }}</port>
+      <address>{{ wazuh_manager.address }}</address>
+      {% if wazuh_manager.port is defined %}
+      <port>{{ wazuh_manager.port }}</port>
       {% endif %}
-      {% if manager.protocol is defined %}
-      <protocol>{{ manager.protocol }}</protocol>
+      {% if wazuh_manager.protocol is defined %}
+      <protocol>{{ wazuh_manager.protocol }}</protocol>
       {% endif %}
     </server>
-    {% endfor %}
     {% if wazuh_profile_centos is not none or wazuh_profile_ubuntu is not none %}
     {% if ansible_distribution == 'CentOS' %}
     <config-profile>{{ wazuh_profile_centos }}</config-profile>
@@ -186,13 +184,13 @@
   {% if wazuh_agent_config.sca.skip_nfs | length > 0 %}
     <skip_nfs>yes</skip_nfs>
   {% endif %}
-  {% if wazuh_agent_config.sca.day | length > 0 %}  
+  {% if wazuh_agent_config.sca.day | length > 0 %}
     <day>yes</day>
   {% endif %}
-  {% if wazuh_agent_config.sca.wday | length > 0 %}  
+  {% if wazuh_agent_config.sca.wday | length > 0 %}
     <wday>yes</wday>
   {% endif %}
-  {% if wazuh_agent_config.sca.time | length > 0 %}  
+  {% if wazuh_agent_config.sca.time | length > 0 %}
     <time>yes</time>
   {% endif %}
   </sca>
@@ -247,7 +245,7 @@
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
-    
+
     <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
     {% endif %}
 
@@ -293,7 +291,7 @@
   <!-- Files to monitor (localfiles) -->
   {% if ansible_system == "Linux" %}
   {% for localfile in wazuh_agent_config.localfiles.linux %}
-  
+
   <localfile>
     <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
