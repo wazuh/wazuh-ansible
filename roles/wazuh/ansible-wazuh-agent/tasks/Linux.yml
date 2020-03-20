@@ -76,7 +76,7 @@
         -k "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_key | basename }}"
         {% endif %}
         {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %} -a {% endif %}
-        {% if wazuh_agent_authd.groups is defined and wazuh_agent_authd.groups != None %}
+        {% if wazuh_agent_authd.groups is defined and wazuh_agent_authd.groups | length > 0 %}
         -G "{{ wazuh_agent_authd.groups | join(',') }}"
         {% endif %}
       register: agent_auth_output
