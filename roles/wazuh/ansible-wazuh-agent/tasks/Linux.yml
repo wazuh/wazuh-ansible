@@ -9,6 +9,10 @@
   when:
     - wazuh_agent_sources_installation.enabled
 
+- include_tasks: "installation_from_custom_packages.yml"
+  when:
+    - wazuh_custom_packages_installation_agent_enabled
+
 - name: Linux CentOS/RedHat | Install wazuh-agent
   package:
     name: wazuh-agent-{{ wazuh_agent_version }}
@@ -18,6 +22,7 @@
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_agent_sources_installation.enabled
+    - not wazuh_custom_packages_installation_agent_enabled
   tags:
     - init
 
@@ -29,6 +34,7 @@
   when:
     - ansible_os_family|lower != "redhat"
     - not wazuh_agent_sources_installation.enabled
+    - not wazuh_custom_packages_installation_agent_enabled
   tags:
     - init
 

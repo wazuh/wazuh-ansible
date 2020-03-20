@@ -28,6 +28,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
@@ -41,7 +42,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
-    mode: '0664'
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.crt"
@@ -65,7 +66,7 @@
 - name: Ensuring certificates folder owner
   file:
     path: "{{ node_certs_destination }}/"
-    mode: '0770'
+    mode: 0770
     recurse: yes
   when:
     - kibana_xpack_security
@@ -78,7 +79,7 @@
     dest: /etc/kibana/kibana.yml
     owner: root
     group: root
-    mode: '0664'
+    mode: 0644
   notify: restart kibana
   tags: configure
 
@@ -117,14 +118,14 @@
     - build_from_sources is defined
     - build_from_sources
 
-
 - name: Install Wazuh Plugin (can take a while)
-  shell: "/usr/share/kibana/bin/kibana-plugin install {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip"
-  environment:
-    NODE_OPTIONS: "--max-old-space-size=3072"
+  shell: >-
+    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
+    chdir: /usr/share/kibana
   become: yes
   become_user: kibana
   notify: restart kibana
@@ -133,6 +134,16 @@
     - skip_ansible_lint
   when:
     - not build_from_sources
+
+- name: Kibana optimization (can take a while)
+  shell: NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana --optimize
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: kibana
+  changed_when: false
+  tags:
+    - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}

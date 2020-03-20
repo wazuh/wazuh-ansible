@@ -18,14 +18,16 @@
       get_url:
         url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
         dest: /etc/nodejs.sh
-        mode: '0775'
+        mode: 0775
       changed_when: false
 
     - name: Run NodeJS bash script
       command: sh /etc/nodejs.sh
       register: nodejs_script
       changed_when: nodejs_script.rc == 0
-  when: not node_service_status.stat.exists
+  when:
+    - not node_service_status.stat.exists
+    - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Installing NodeJS
   package:
@@ -33,6 +35,9 @@
     state: present
   register: nodejs_service_is_installed
   until: nodejs_service_is_installed is succeeded
+  when:
+    - wazuh_manager_config.cluster.node_type == "master"
+
   tags: init
 
 - include_tasks: "RedHat.yml"
@@ -158,6 +163,8 @@
   tags:
     - init
     - config
+  when:
+    - shared_agent_config is defined
 
 - name: Installing the config.js (api configuration)
   template: src=var-ossec-api-configuration-config.js.j2
@@ -166,6 +173,9 @@
             group=ossec
             mode=0740
   notify: restart wazuh-api
+  when:
+    - wazuh_manager_config.cluster.node_type == "master"
+
   tags:
     - init
     - config
@@ -191,12 +201,6 @@
   tags:
     - config
 
-- name: Retrieving Wazuh-API User Credentials
-  include_vars: wazuh_api_creds.yml
-  when:
-    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6)
-  tags:
-    - config
 
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
@@ -308,6 +312,7 @@
   notify: restart wazuh-api
   when:
     - wazuh_api_user is defined
+    - wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
 
@@ -329,31 +334,22 @@
   tags:
     - config
 
-- name: Ensure Wazuh Manager, wazuh API service is started and enabled
+- name: Ensure Wazuh Manager service is started and enabled.
   service:
-    name: "{{ item }}"
+    name: "wazuh-manager"
     enabled: true
     state: started
-  with_items:
-    - wazuh-manager
-    - wazuh-api
   tags:
     - config
-  environment:
-    LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:/var/ossec/framework/lib"
-  when:
-    - not (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' or ansible_distribution == 'Amazon')
-    - ansible_distribution_major_version|int < 6
 
-- name: Ensure Wazuh Manager is started and enabled (EL5)
+- name: Ensure Wazuh API service is started and enabled.
   service:
-    name: wazuh-manager
+    name: "wazuh-api"
     enabled: true
     state: started
+  when: wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
-  when:
-    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int < 6
 
 - name: Create agent groups
   command: "/var/ossec/bin/agent_groups -a -g {{ item }} -q"

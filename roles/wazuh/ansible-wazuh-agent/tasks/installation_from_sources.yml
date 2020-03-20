@@ -76,7 +76,7 @@
       dest: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}/etc/preloaded-vars.conf"
       owner: root
       group: root
-      mode: '644'
+      mode: 0644
     changed_when: false
 
   - name: Executing "install.sh" script to build and install the Wazuh Agent

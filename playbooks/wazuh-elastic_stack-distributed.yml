@@ -4,7 +4,7 @@
   roles:
     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-1 IP>
-      node_name: node-1
+      elasticsearch_node_name: node-1
       elasticsearch_bootstrap_node: true
       elasticsearch_cluster_nodes:
         - <node-1 IP>

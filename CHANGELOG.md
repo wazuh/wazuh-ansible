@@ -1,6 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.11.4_7.6.1]
+
+### Added
+
+- Update to Wazuh v3.11.4
+- Support for RHEL/CentOS 8 ([@jm404](https://github.com/jm404)) [PR#377](https://github.com/wazuh/wazuh-ansible/pull/377)
+
+### Changed
+
+- Disabled shared configuration by default ([@jm404](https://github.com/jm404)) [PR#369](https://github.com/wazuh/wazuh-ansible/pull/369)
+- Add chdir argument to Wazuh Kibana Plugin installation tasks ([@jm404](https://github.com/jm404)) [PR#375](https://github.com/wazuh/wazuh-ansible/pull/375)
+- Adjustments for systems without (direct) internet connection ([@joschneid](https://github.com/joschneid)) [PR#348](https://github.com/wazuh/wazuh-ansible/pull/348)
+
+### Fixed
+
+- Avoid to install Wazuh API in worker nodes ([@manuasir](https://github.com/manuasir)) [PR#371](https://github.com/wazuh/wazuh-ansible/pull/371)
+- Conditionals of custom Wazuh packages installation tasks ([@rshad](https://github.com/rshad)) [PR#372](https://github.com/wazuh/wazuh-ansible/pull/372)
+- Fix Ansible elastic_stack-distributed template ([@francobep](https://github.com/francobep)) [PR#352](https://github.com/wazuh/wazuh-ansible/pull/352)
+- Fix manager API verification ([@Zenidd](https://github.com/Zenidd)) [PR#360](https://github.com/wazuh/wazuh-ansible/pull/360)
+
 ## [v3.11.3_7.5.2]
 
 ### Added
