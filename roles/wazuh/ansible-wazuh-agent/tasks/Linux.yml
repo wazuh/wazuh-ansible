@@ -68,7 +68,7 @@
         {% if wazuh_agent_authd.agent_name is defined and wazuh_agent_authd.agent_name != None %}
         -A {{ wazuh_agent_authd.agent_name }}
         {% endif %}
-        -m {{ wazuh_managers.0.address }}
+        -m {{ wazuh_agent_authd.registration_address }}
         -p {{ wazuh_agent_authd.port }}
         {% if wazuh_agent_nat %} -I "any" {% endif %}
         {% if authd_pass is defined %} -P {{ authd_pass }} {% endif %}
@@ -88,13 +88,13 @@
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
 
     - name: Linux | Verify agent registration
       shell: echo {{ agent_auth_output }} | grep "Valid key created"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
 
   when: wazuh_agent_authd.enable
   tags:
@@ -109,7 +109,7 @@
 
     - name: Linux | Create the agent key via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
+        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/"
         validate_certs: false
         method: POST
         body: '{"name":"{{ agent_name }}"}'
@@ -126,13 +126,13 @@
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
       become: false
       ignore_errors: true
 
     - name: Linux | Retieve new agent data via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
+        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
         validate_certs: false
         method: GET
         return_content: true
@@ -140,7 +140,7 @@
         password: "{{ api_pass }}"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
         - newagent_api.json.error == 0
       register: newagentdata_api
       delegate_to: localhost
@@ -158,7 +158,7 @@
       register: manage_agents_output
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
         - newagent_api.changed
       notify: restart wazuh-agent
 
