@@ -273,7 +273,7 @@ wazuh_manager_config:
       alert_level: 12
   monitor_aws:
     disable: 'no'
-    internal: '10m'
+    interval: '10m'
     run_on_start: 'yes'
     skip_on_error: 'yes'
     s3:
