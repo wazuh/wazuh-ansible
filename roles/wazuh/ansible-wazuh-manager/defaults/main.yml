@@ -410,5 +410,4 @@ nodejs:
       redhat: "rpm"
   repo_url_ext: "nodesource.com/setup_10.x"
 
-agent_groups:
-  groups: [] # groups to create
+agent_groups: [] # groups to create
