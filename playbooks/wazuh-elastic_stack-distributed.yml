@@ -2,7 +2,7 @@
 
 - hosts: <node-1 IP>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+    - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-1 IP>
       elasticsearch_node_name: node-1
       elasticsearch_bootstrap_node: true
@@ -33,7 +33,7 @@
 
 - hosts: <node-2 IP>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+    - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-2 IP>
       elasticsearch_node_name: node-2
       single_node: false
@@ -46,7 +46,7 @@
 
 - hosts: <node-3 IP>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+    - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-3 IP>
       elasticsearch_node_name: node-3
       single_node: false
@@ -60,21 +60,21 @@
 
 # - hosts: 172.16.0.162
 #   roles:
-#     - role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager
+#     - role: ../roles/wazuh/ansible-wazuh-manager
 
-#     - role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-filebeat
+#     - role: ../roles/wazuh/ansible-filebeat
 #       filebeat_output_elasticsearch_hosts: 172.16.0.161:9200
 #       filebeat_xpack_security: true
 #       filebeat_node_name: node-2
 #       node_certs_generator: false
 #       elasticsearch_xpack_security_password: elastic_pass
 
-#     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+#     - role: ../roles/elastic-stack/ansible-elasticsearch
 #       elasticsearch_network_host: 172.16.0.162
 #       node_name: node-2
 #       elasticsearch_bootstrap_node: false
 #       elasticsearch_master_candidate: true
-#       elasticsearch_discovery_nodes: 
+#       elasticsearch_discovery_nodes:
 #         - 172.16.0.161
 #         - 172.16.0.162
 #       elasticsearch_xpack_security: true
@@ -83,7 +83,7 @@
 
 # - hosts: 172.16.0.163
 #   roles:
-#     - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-kibana
+#     - role: ../roles/elastic-stack/ansible-kibana
 #       kibana_xpack_security: true
 #       kibana_node_name: node-3
 #       elasticsearch_network_host: 172.16.0.161
