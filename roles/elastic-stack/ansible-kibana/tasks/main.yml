@@ -161,10 +161,15 @@
     validate_certs: no
     status_code: 200, 404
 
+- name: Create wazuh plugin config directory
+  file:
+    path: /usr/share/kibana/optimize/wazuh/config/
+    state: directory
+
 - name: Configure Wazuh Kibana Plugin
   template:
     src: wazuh.yml.j2
-    dest: /usr/share/kibana/plugins/wazuh/wazuh.yml
+    dest: /usr/share/kibana/optimize/wazuh/config/wazuh.yml
     owner: kibana
     group: root
     mode: 0644
