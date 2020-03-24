@@ -409,3 +409,5 @@ nodejs:
       debian: "deb"
       redhat: "rpm"
   repo_url_ext: "nodesource.com/setup_10.x"
+
+agent_groups: [] # groups to create
