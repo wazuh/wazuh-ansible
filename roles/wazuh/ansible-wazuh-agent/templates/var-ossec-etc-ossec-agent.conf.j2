@@ -61,7 +61,6 @@
     <skip_nfs>yes</skip_nfs>
     {% endif %}
     {% if ansible_os_family == "Windows" %}
-    <windows_audit>./shared/win_audit_rcl.txt</windows_audit>
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
@@ -186,13 +185,13 @@
   {% if wazuh_agent_config.sca.skip_nfs | length > 0 %}
     <skip_nfs>yes</skip_nfs>
   {% endif %}
-  {% if wazuh_agent_config.sca.day | length > 0 %}  
+  {% if wazuh_agent_config.sca.day | length > 0 %}
     <day>yes</day>
   {% endif %}
-  {% if wazuh_agent_config.sca.wday | length > 0 %}  
+  {% if wazuh_agent_config.sca.wday | length > 0 %}
     <wday>yes</wday>
   {% endif %}
-  {% if wazuh_agent_config.sca.time | length > 0 %}  
+  {% if wazuh_agent_config.sca.time | length > 0 %}
     <time>yes</time>
   {% endif %}
   </sca>
@@ -246,8 +245,11 @@
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
-    
+
     <skip_nfs>{{ wazuh_agent_config.syscheck.skip_nfs }}</skip_nfs>
+    <skip_dev>{{ wazuh_agent_config.syscheck.skip_dev }}</skip_dev>
+    <skip_proc>{{ wazuh_agent_config.syscheck.skip_proc }}</skip_proc>
+    <skip_sys>{{ wazuh_agent_config.syscheck.skip_sys }}</skip_sys>
     {% endif %}
 
     {% if ansible_os_family == "Windows" %}
@@ -274,6 +276,20 @@
     <!-- Frequency for ACL checking (seconds) -->
     <windows_audit_interval>{{ wazuh_agent_config.syscheck.win_audit_interval }}</windows_audit_interval>
     {% endif %}
+
+      <!-- Nice value for Syscheck module -->
+    <process_priority>{{ wazuh_agent_config.syscheck.process_priority }}</process_priority>
+
+    <!-- Maximum output throughput -->
+    <max_eps>{{ wazuh_agent_config.syscheck.max_eps }}</max_eps>
+
+    <!-- Database synchronization settings -->
+    <synchronization>
+      <enabled>{{ wazuh_agent_config.syscheck.sync_enabled }}</enabled>
+      <interval>{{ wazuh_agent_config.syscheck.interval }}</interval>
+      <max_interval>{{ wazuh_agent_config.syscheck.max_interval }}</max_interval>
+      <max_eps>{{ wazuh_agent_config.syscheck.max_eps }}</max_eps>
+    </synchronization>
   </syscheck>
   {% endif %}
 
@@ -292,7 +308,7 @@
   <!-- Files to monitor (localfiles) -->
   {% if ansible_system == "Linux" %}
   {% for localfile in wazuh_agent_config.localfiles.linux %}
-  
+
   <localfile>
     <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
