@@ -286,9 +286,9 @@
     <!-- Database synchronization settings -->
     <synchronization>
       <enabled>{{ wazuh_agent_config.syscheck.sync_enabled }}</enabled>
-      <interval>{{ wazuh_agent_config.syscheck.interval }}</interval>
-      <max_interval>{{ wazuh_agent_config.syscheck.max_interval }}</max_interval>
-      <max_eps>{{ wazuh_agent_config.syscheck.max_eps }}</max_eps>
+      <interval>{{ wazuh_agent_config.syscheck.sync_interval }}</interval>
+      <max_interval>{{ wazuh_agent_config.syscheck.sync_max_interval }}</max_interval>
+      <max_eps>{{ wazuh_agent_config.syscheck.sync_max_eps }}</max_eps>
     </synchronization>
   </syscheck>
   {% endif %}
