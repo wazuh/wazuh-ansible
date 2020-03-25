@@ -105,7 +105,7 @@ wazuh_manager_config:
   authd:
     enable: true
     port: 1515
-    use_source_ip: 'yes'
+    use_source_ip: 'no'
     force_insert: 'yes'
     force_time: 0
     purge: 'yes'
@@ -166,24 +166,29 @@ wazuh_manager_config:
       - /etc/cups/certs
       - /etc/dumpdates
       - /etc/svc/volatile
-      - /sys/kernel/security
-      - /sys/kernel/debug
-      - /dev/core
     ignore_linux_type:
-      - '^/proc'
       - '.log$|.swp$'
     no_diff:
       - /etc/ssl/private.key
     directories:
       - dirs: /etc,/usr/bin,/usr/sbin
-        checks: 'check_all="yes"'
+        checks: ''
       - dirs: /bin,/sbin,/boot
-        checks: 'check_all="yes"'
+        checks: ''
     auto_ignore_frequency:
       frequency: 'frequency="10"'
       timeframe: 'timeframe="3600"'
       value: 'no'
     skip_nfs: 'yes'
+    skip_dev: 'yes'
+    skip_proc: 'yes'
+    skip_sys: 'yes'
+    process_priority: 10
+    max_eps: 100
+    sync_enabled: 'yes'
+    sync_interval: '5m'
+    sync_max_interval: '1h'
+    sync_max_eps: 10
   rootcheck:
     frequency: 43200
   openscap:
