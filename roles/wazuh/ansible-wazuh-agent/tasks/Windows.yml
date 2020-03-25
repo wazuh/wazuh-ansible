@@ -38,6 +38,9 @@
   register: wazuh_agent_status
   failed_when:
     - wazuh_agent_status.stat.checksum != wazuh_winagent_config.md5
+  when:
+    - wazuh_winagent_config.check_md5
+
 
 - name: Windows | Install Agent if not already installed
   win_package:
@@ -59,7 +62,7 @@
 - name: Windows | Register agent
   win_shell: >
     {{ wazuh_agent_win_auth_path }}
-    -m {{ wazuh_managers.0.address }}
+    -m {{ wazuh_agent_authd.registration_address }}
     -p {{ wazuh_agent_authd.port }}
     {% if wazuh_agent_authd.agent_name is defined %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
     {% if authd_pass is defined %} -P {{ authd_pass }}{% endif %}
@@ -68,7 +71,7 @@
   when:
     - wazuh_agent_authd.enable
     - not check_windows_key.stat.exists or check_windows_key.stat.size == 0
-    - wazuh_managers.0.address is not none
+    - wazuh_agent_authd.registration_address is not none
   tags:
     - config
 

@@ -18,7 +18,7 @@
       get_url:
         url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
         dest: /etc/nodejs.sh
-        mode: '0775'
+        mode: 0775
       changed_when: false
 
     - name: Run NodeJS bash script
@@ -350,6 +350,14 @@
   when: wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
+
+- name: Create agent groups
+  command: "/var/ossec/bin/agent_groups -a -g {{ item }} -q"
+  with_items:
+    - "{{ agent_groups }}"
+  when:
+    - ( agent_groups is defined) and ( agent_groups|length > 0)
+  tags: molecule-idempotence-notest
 
 - include_tasks: "RMRedHat.yml"
   when:

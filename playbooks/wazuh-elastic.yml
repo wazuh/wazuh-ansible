@@ -1,5 +1,5 @@
 ---
 - hosts: <YOUR_ELASTICSEARCH_IP>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch
+    - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: '<YOUR_ELASTICSEARCH_IP>'

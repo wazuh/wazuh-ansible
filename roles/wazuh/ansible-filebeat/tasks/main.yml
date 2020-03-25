@@ -30,6 +30,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.crt"
@@ -43,6 +44,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.crt"
@@ -55,7 +57,7 @@
 - name: Ensuring folder & certs permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: '0774'
+    mode: 0774
     state: directory
     recurse: yes
   when:

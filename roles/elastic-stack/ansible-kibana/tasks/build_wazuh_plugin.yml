@@ -14,7 +14,7 @@
     get_url:
       url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
       dest: "/tmp/setup_nodejs_repo.sh"
-      mode: "0700"
+      mode: 0700
 
   - name: Execute downloaded script to install Nodejs repo
     command: /tmp/setup_nodejs_repo.sh
@@ -63,9 +63,7 @@
       chdir: "/tmp/app/build"
 
   - name: Install Wazuh Plugin (can take a while)
-    shell: "/usr/share/kibana/bin/kibana-plugin install file:///tmp/app/build/{{ wazuhapp_package_name.stdout }}"
-    environment:
-      NODE_OPTIONS: "--max-old-space-size=3072"
+    shell: NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install file:///tmp/app/build/{{ wazuhapp_package_name.stdout }}
     args:
       executable: /bin/bash
       creates: /usr/share/kibana/plugins/wazuh/package.json
