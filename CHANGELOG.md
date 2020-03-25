@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.12.0_7.6.1]
+
+### Added
+
+- Update to Wazuh v3.12.0
+- Added registration address variable to wazuh-agent playbook ([@Zenidd](https://github.com/Zenidd)) [PR#392](https://github.com/wazuh/wazuh-ansible/pull/392)
+
+### Changed
+
+- Bump NodeJS version to 10.x ([@manuasir](https://github.com/manuasir)) [PR#386](https://github.com/wazuh/wazuh-ansible/pull/386)
+- Add flag to enable/disable Windows MD5 check ([@jm404](https://github.com/jm404)) [PR#383](https://github.com/wazuh/wazuh-ansible/pull/383)
+- Rule paths are now relative to playbooks. ([@Zenidd ](https://github.com/Zenidd)) [PR#393](https://github.com/wazuh/wazuh-ansible/pull/393)
+
+### Fixed
+
+- Removed bad formed XML comments. ([@manuasir](https://github.com/manuasir)) [PR#391](https://github.com/wazuh/wazuh-ansible/pull/391)
+- NodeJS node_options variable and Kibana plugin optimization fix. ([@Zenidd](https://github.com/Zenidd)) [PR#385](https://github.com/wazuh/wazuh-ansible/pull/385)
+- Restrictive permissions for certificate files. ([@Zenidd](https://github.com/Zenidd)) [PR#382](https://github.com/wazuh/wazuh-ansible/pull/382)
+
 ## [v3.11.4_7.6.1]
 
 ### Added
@@ -70,7 +89,7 @@ All notable changes to this project will be documented in this file.
 - Added support for environments with low disk space ([@xr09](https://github.com/xr09)) [PR#281](https://github.com/wazuh/wazuh-ansible/pull/281)
 
 - Add parameters to configure an Elasticsearch coordinating node ([@jm404](https://github.com/jm404)) [PR#292](https://github.com/wazuh/wazuh-ansible/pull/292)
- 
+
 
 ### Changed
 
@@ -121,7 +140,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Update to Wazuh v3.10.0 
+- Update to Wazuh v3.10.0
 
 ### Changed
 
@@ -143,14 +162,14 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.9.5_7.2.1]
 
-### Added 
+### Added
 
 - Update to Wazuh v3.9.5
 - Update to Elastic Stack to v7.2.1
 
 ## [v3.9.4_7.2.0]
 
-### Added 
+### Added
 
 - Support for registring agents behind NAT [@jheikki100](https://github.com/jheikki100) [#208](https://github.com/wazuh/wazuh-ansible/pull/208)
 
@@ -164,7 +183,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.9.3_7.2.0]
 
-### Added 
+### Added
 - Update to Wazuh v3.9.3 ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
 - Added Versioning Control for Wazuh stack's components installation, so now it's possible to specify which package to install for wazuh-manager, wazuh-agent, Filebeat, Elasticsearch and Kibana. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
 - Fixes for Molecule testing issues. Issues such as Ansible-Lint and None-Idempotent tasks. ([rshad](https://github.com/rshad) [PR#206](https://github.com/wazuh/wazuh-ansible/pull/206#))
@@ -174,7 +193,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.9.2_7.1.1]
 
-### Added 
+### Added
 
 - Update to Wazuh v3.9.2
 - Support for Elastic 7
@@ -182,13 +201,13 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.9.2_6.8.0]
 
-### Added 
+### Added
 
 - Update to Wazuh v3.9.2
 
 ## [v3.9.1]
 
-### Added 
+### Added
 
 - Update to Wazuh v3.9.1
 - Support for ELK v6.8.0
@@ -216,7 +235,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v3.8.2]
 
-### Changed 
+### Changed
 
 - Update to Wazuh version v3.8.2. ([#150](https://github.com/wazuh/wazuh-ansible/pull/150))
 
@@ -316,4 +335,3 @@ Roles:
    - ansible-filebeat: This role is prepared to install filebeat on the host that runs it.
    - ansible-wazuh-manager: With this role we will install Wazuh manager and Wazuh API on the host that runs it.
    - ansible-wazuh-agent: Using this role we will install Wazuh agent on the host that runs it and is able to register it.
-
