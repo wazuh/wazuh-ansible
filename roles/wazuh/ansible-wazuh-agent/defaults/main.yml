@@ -111,11 +111,7 @@ wazuh_agent_config:
       - /etc/cups/certs
       - /etc/dumpdates
       - /etc/svc/volatile
-      - /sys/kernel/security
-      - /sys/kernel/debug
-      - /dev/core
     ignore_linux_type:
-      - '^/proc'
       - '.log$|.swp$'
     ignore_win:
       - '.log$|.htm$|.jpg$|.png$|.chm$|.pnf$|.evtx$'

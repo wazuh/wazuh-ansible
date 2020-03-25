@@ -245,13 +245,13 @@
   {% if wazuh_manager_config.sca.skip_nfs | length > 0 %}
     <skip_nfs>yes</skip_nfs>
   {% endif %}
-  {% if wazuh_manager_config.sca.day | length > 0 %}  
+  {% if wazuh_manager_config.sca.day | length > 0 %}
     <day>yes</day>
   {% endif %}
-  {% if wazuh_manager_config.sca.wday | length > 0 %}  
+  {% if wazuh_manager_config.sca.wday | length > 0 %}
     <wday>yes</wday>
   {% endif %}
-  {% if wazuh_manager_config.sca.time | length > 0 %}  
+  {% if wazuh_manager_config.sca.time | length > 0 %}
     <time>yes</time>
   {% endif %}
   </sca>
@@ -332,6 +332,29 @@
     {% if wazuh_manager_config.syscheck.skip_nfs is defined %}
     <skip_nfs>{{ wazuh_manager_config.syscheck.skip_nfs }}</skip_nfs>
     {% endif %}
+    {% if wazuh_manager_config.syscheck.skip_dev is defined %}
+    <skip_dev>{{ wazuh_manager_config.syscheck.skip_dev }}</skip_dev>
+    {% endif %}
+    {% if wazuh_manager_config.syscheck.skip_proc is defined %}
+    <skip_proc>{{ wazuh_manager_config.syscheck.skip_proc }}</skip_proc>
+    {% endif %}
+    {% if wazuh_manager_config.syscheck.skip_sys is defined %}
+    <skip_sys>{{ wazuh_manager_config.syscheck.skip_sys }}</skip_sys>
+    {% endif %}
+
+    <!-- Nice value for Syscheck module -->
+    <process_priority>{{ wazuh_agent_config.syscheck.process_priority }}</process_priority>
+
+    <!-- Maximum output throughput -->
+    <max_eps>{{ wazuh_agent_config.syscheck.max_eps }}</max_eps>
+
+    <!-- Database synchronization settings -->
+    <synchronization>
+      <enabled>{{ wazuh_agent_config.syscheck.sync_enabled }}</enabled>
+      <interval>{{ wazuh_agent_config.syscheck.interval }}</interval>
+      <max_interval>{{ wazuh_agent_config.syscheck.max_interval }}</max_interval>
+      <max_eps>{{ wazuh_agent_config.syscheck.max_eps }}</max_eps>
+    </synchronization>
   </syscheck>
 
   <global>
@@ -470,7 +493,7 @@
 {% endfor %}
 {% endif -%}
 
-{% if ansible_os_family == "RedHat" %}  
+{% if ansible_os_family == "RedHat" %}
 {% for localfile in wazuh_manager_config.localfiles.centos %}
 
   <localfile>
@@ -578,7 +601,7 @@
     {% endif %}
     {% if wazuh_manager_config.authd.ciphers is not none %}
     <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
-    {% endif %}    
+    {% endif %}
     {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}
     <ssl_agent_ca>/var/ossec/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
     {% endif %}
