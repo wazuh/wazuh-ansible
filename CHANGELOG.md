@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
 - Bump NodeJS version to 10.x ([@manuasir](https://github.com/manuasir)) [PR#386](https://github.com/wazuh/wazuh-ansible/pull/386)
 - Add flag to enable/disable Windows MD5 check ([@jm404](https://github.com/jm404)) [PR#383](https://github.com/wazuh/wazuh-ansible/pull/383)
 - Rule paths are now relative to playbooks. ([@Zenidd ](https://github.com/Zenidd)) [PR#393](https://github.com/wazuh/wazuh-ansible/pull/393)
+- Add the option to create agent groups and add an agent to 1 or more group. ([@rshad](https://github.com/rshad)) [PR#361](https://github.com/wazuh/wazuh-ansible/pull/361)
+
 
 ### Fixed
 
