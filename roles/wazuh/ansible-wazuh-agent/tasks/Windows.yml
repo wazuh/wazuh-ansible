@@ -41,6 +41,7 @@
   when:
     - wazuh_winagent_config.check_md5
 
+
 - name: Windows | Install Agent if not already installed
   win_package:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
