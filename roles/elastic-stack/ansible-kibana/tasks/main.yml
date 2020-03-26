@@ -165,6 +165,10 @@
   file:
     path: /usr/share/kibana/optimize/wazuh/config/
     state: directory
+    recurse: yes
+    owner: kibana
+    group: kibana
+    mode: '0755'
 
 - name: Configure Wazuh Kibana Plugin
   template:
