@@ -1,8 +1,70 @@
 ---
+wazuh_manager_version: 3.12.0-1
+
 wazuh_manager_fqdn: "wazuh-server"
-wazuh_manager_package_state: latest
+wazuh_manager_package_state: present
+
+# Custom packages installation
+wazuh_custom_packages_installation_manager_enabled: false
+wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/deb/var/wazuh-manager_3.12.0-0.3319fimreworksqlite_amd64.deb"
+wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/rpm/var/wazuh-manager-3.12.0-0.3319fimreworksqlite.x86_64.rpm"
+wazuh_custom_packages_installation_api_enabled: false
+wazuh_custom_packages_installation_api_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/deb/var/wazuh-api_3.12.0-0.3319fimreworksqlite_amd64.deb"
+wazuh_custom_packages_installation_api_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/rpm/var/wazuh-api-3.12.0-0.3319fimreworksqlite.x86_64.rpm"
+
+# Sources installation
+wazuh_manager_sources_installation:
+  enabled: false
+  branch: "v3.12.0"
+  user_language: "en"
+  user_no_stop: "y"
+  user_install_type: "server"
+  user_dir: "/var/ossec"
+  user_delete_dir: null
+  user_enable_active_response: null
+  user_enable_syscheck: "y"
+  user_enable_rootcheck: "y"
+  user_enable_openscap: "y"
+  user_enable_authd: "y"
+  user_generate_authd_cert: null
+  user_update: "y"
+  user_binaryinstall: null
+  user_enable_email: "n"
+  user_auto_start: "y"
+  user_email_address: null
+  user_email_smpt: null
+  user_enable_syslog: "n"
+  user_white_list: "n"
+  user_ca_store: null
+  threads: "2"
+
+wazuh_api_sources_installation:
+  enabled: false
+  branch: "v3.12.0"
+  update: "y"
+  remove: "y"
+  directory: null
+  port: 55000
+  https: "n"
+  authd: null
+  proxy: null
+  country: null
+  state: null
+  locality: null
+  org_name: null
+  org_unit: null
+  common_name: null
+  password: null
+
+wazuh_api_user:
+  - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
 
 wazuh_manager_config:
+  repo:
+    apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/3.x/yum/'
+    gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+    key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
@@ -33,9 +95,7 @@ wazuh_manager_config:
     port: '1516'
     bind_addr: '0.0.0.0'
     nodes:
-      - '172.17.0.2'
-      - '172.17.0.3'
-      - '172.17.0.4'
+      - 'manager'
     hidden: 'no'
   connection:
     - type: 'secure'
@@ -45,26 +105,29 @@ wazuh_manager_config:
   authd:
     enable: true
     port: 1515
-    use_source_ip: 'yes'
+    use_source_ip: 'no'
     force_insert: 'yes'
     force_time: 0
-    purge: 'no'
+    purge: 'yes'
     use_password: 'no'
+    limit_maxagents: 'yes'
+    ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
     ssl_agent_ca: null
     ssl_verify_host: 'no'
-    ssl_manager_cert: '/var/ossec/etc/sslmanager.cert'
-    ssl_manager_key: '/var/ossec/etc/sslmanager.key'
+    ssl_manager_cert: 'sslmanager.cert'
+    ssl_manager_key: 'sslmanager.key'
     ssl_auto_negotiate: 'no'
   email_notification: 'no'
   mail_to:
     - 'admin@example.net'
-  mail_smtp_server: localhost
-  mail_from: wazuh-server@example.com
+  mail_smtp_server: smtp.example.wazuh.com
+  mail_from: ossecm@example.wazuh.com
   mail_maxperhour: 12
   mail_queue_size: 131072
+  email_log_source: 'alerts.log'
   extra_emails:
     - enable: false
-      mail_to: 'admin@example.net'
+      mail_to: 'recipient@example.wazuh.com'
       format: full
       level: 7
       event_location: null
@@ -76,7 +139,7 @@ wazuh_manager_config:
     - enable: false
       category: 'syscheck'
       title: 'Daily report: File changes'
-      email_to: 'admin@example.net'
+      email_to: 'recipient@example.wazuh.com'
       location: null
       group: null
       rule: null
@@ -103,26 +166,33 @@ wazuh_manager_config:
       - /etc/cups/certs
       - /etc/dumpdates
       - /etc/svc/volatile
-      - /sys/kernel/security
-      - /sys/kernel/debug
+    ignore_linux_type:
+      - '.log$|.swp$'
     no_diff:
       - /etc/ssl/private.key
     directories:
       - dirs: /etc,/usr/bin,/usr/sbin
-        checks: 'check_all="yes"'
+        checks: ''
       - dirs: /bin,/sbin,/boot
-        checks: 'check_all="yes"'
+        checks: ''
     auto_ignore_frequency:
       frequency: 'frequency="10"'
       timeframe: 'timeframe="3600"'
       value: 'no'
     skip_nfs: 'yes'
-    remove_old_diff: 'yes'
-    restart_audit: 'yes'
+    skip_dev: 'yes'
+    skip_proc: 'yes'
+    skip_sys: 'yes'
+    process_priority: 10
+    max_eps: 100
+    sync_enabled: 'yes'
+    sync_interval: '5m'
+    sync_max_interval: '1h'
+    sync_max_eps: 10
   rootcheck:
     frequency: 43200
   openscap:
-    disable: 'no'
+    disable: 'yes'
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
@@ -134,10 +204,6 @@ wazuh_manager_config:
     scan_on_start: 'yes'
     java_path: '/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin'
     ciscat_path: 'wodles/ciscat'
-    content:
-      - type: 'xccdf'
-        path: 'benchmarks/CIS_Ubuntu_Linux_16.04_LTS_Benchmark_v1.0.0-xccdf.xml'
-        profile: 'xccdf_org.cisecurity.benchmarks_profile_Level_1_-_Server'
   osquery:
     disable: 'yes'
     run_daemon: 'yes'
@@ -154,20 +220,44 @@ wazuh_manager_config:
     packages: 'yes'
     ports_no: 'yes'
     processes: 'yes'
-  vul_detector:
-    disable: 'yes'
+  sca:
+    enabled: 'yes'
+    scan_on_start: 'yes'
+    interval: '12h'
+    skip_nfs: 'yes'
+    day: ''
+    wday: ''
+    time: ''
+  vulnerability_detector:
+    enabled: 'no'
     interval: '5m'
     ignore_time: '6h'
     run_on_start: 'yes'
-    ubuntu:
-      disable: 'yes'
-      update_interval: '1h'
-    redhat:
-      disable: 'yes'
-      update_interval: '1h'
-    debian:
-      disable: 'yes'
-      update_interval: '1h'
+    providers:
+      - enabled: 'no'
+        os:
+          - 'precise'
+          - 'trusty'
+          - 'xenial'
+          - 'bionic'
+        update_interval: '1h'
+        name: '"canonical"'
+      - enabled: 'no'
+        os:
+          - 'wheezy'
+          - 'stretch'
+          - 'jessie'
+          - 'buster'
+        update_interval: '1h'
+        name: '"debian"'
+      - enabled: 'no'
+        update_from_year: '2010'
+        update_interval: '1h'
+        name: '"redhat"'
+      - enabled: 'no'
+        update_from_year: '2010'
+        update_interval: '1h'
+        name: '"nvd"'
   vuls:
     disable: 'yes'
     interval: '1d'
@@ -178,19 +268,20 @@ wazuh_manager_config:
       - 'updatenvd'
       - 'nvd-year 2016'
       - 'autoupdate'
-  log_level: 1
+  log_level: 3
   email_level: 12
   localfiles:
     common:
       - format: 'command'
-        command: df -P -x squashfs -x tmpfs -x devtmpfs
+        command: df -P
         frequency: '360'
       - format: 'full_command'
-        command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
+        command: netstat -tulpn | sed 's/\([[:alnum:]]\+\)\ \+[[:digit:]]\+\ \+[[:digit:]]\+\ \+\(.*\):\([[:digit:]]*\)\ \+\([0-9\.\:\*]\+\).\+\ \([[:digit:]]*\/[[:alnum:]\-]*\).*/\1 \2 == \3 == \4 \5/' | sort -k 4 -g | sed 's/ == \(.*\) ==/:\1/' | sed 1,2d
         alias: 'netstat listening ports'
         frequency: '360'
       - format: 'full_command'
         command: 'last -n 20'
+        frequency: '360'
       - format: 'syslog'
         location: '/var/ossec/logs/active-responses.log'
     debian:
@@ -213,20 +304,16 @@ wazuh_manager_config:
         location: '/var/log/audit/audit.log'
   globals:
     - '127.0.0.1'
-    - '192.168.2.1'
+    - '^localhost.localdomain$'
+    - '127.0.0.53'
   commands:
     - name: 'disable-account'
       executable: 'disable-account.sh'
       expect: 'user'
       timeout_allowed: 'yes'
-    # - name: 'restart-ossec'
-    #   executable: 'restart-ossec.sh'
-    #   expect: ''
-    #   timeout_allowed: 'no'
-    - name: 'win_restart-ossec'
-      executable: 'restart-ossec.cmd'
+    - name: 'restart-ossec'
+      executable: 'restart-ossec.sh'
       expect: ''
-      timeout_allowed: 'no'
     - name: 'firewall-drop'
       executable: 'firewall-drop.sh'
       expect: 'srcip'
@@ -243,6 +330,10 @@ wazuh_manager_config:
       executable: 'route-null.cmd'
       expect: 'srcip'
       timeout_allowed: 'yes'
+    - name: 'win_route-null-2012'
+      executable: 'route-null-2012.cmd'
+      expect: 'srcip'
+      timeout_allowed: 'yes'
     - name: 'netsh'
       executable: 'netsh.cmd'
       expect: 'srcip'
@@ -254,6 +345,10 @@ wazuh_manager_config:
   ruleset:
     rules_path: 'custom_ruleset/rules/'
     decoders_path: 'custom_ruleset/decoders/'
+    cdb_lists:
+      - 'audit-keys'
+      - 'security-eventchannel'
+      - 'amazon/aws-eventnames'
   rule_exclude:
     - '0215-policy_rules.xml'
   syslog_outputs:
@@ -266,51 +361,58 @@ wazuh_manager_config:
       - key: Env
         value: Production
 
-wazuh_agent_configs:
-  - type: os
-    type_value: Linux
-    syscheck:
-      frequency: 43200
-      scan_on_start: 'yes'
-      auto_ignore: 'no'
-      alert_new_files: 'yes'
-      ignore:
-        - /etc/mtab
-        - /etc/mnttab
-        - /etc/hosts.deny
-        - /etc/mail/statistics
-        - /etc/svc/volatile
-      no_diff:
-        - /etc/ssl/private.key
-    rootcheck:
-      frequency: 43200
-      cis_distribution_filename: null
-    localfiles:
-      - format: 'syslog'
-        location: '/var/log/messages'
-      - format: 'syslog'
-        location: '/var/log/secure'
-      - format: 'syslog'
-        location: '/var/log/maillog'
-      - format: 'apache'
-        location: '/var/log/httpd/error_log'
-      - format: 'apache'
-        location: '/var/log/httpd/access_log'
-      - format: 'apache'
-        location: '/var/ossec/logs/active-responses.log'
-  - type: os
-    type_value: Windows
-    syscheck:
-      frequency: 43200
-      scan_on_start: 'yes'
-      auto_ignore: 'no'
-      alert_new_files: 'yes'
-      windows_registry:
-        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
-          arch: 'both'
-        - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
-    localfiles:
-      - location: 'Security'
-        format: 'eventchannel'
-      - location: 'System'
-        format: 'eventlog'
+# shared_agent_config:
+  # - type: os
+  #   type_value: Linux
+  #   syscheck:
+  #     frequency: 43200
+  #     scan_on_start: 'yes'
+  #     alert_new_files: 'yes'
+  #     ignore:
+  #       - /etc/mtab
+  #       - /etc/mnttab
+  #       - /etc/hosts.deny
+  #       - /etc/mail/statistics
+  #       - /etc/svc/volatile
+  #     no_diff:
+  #       - /etc/ssl/private.key
+  #   rootcheck:
+  #     frequency: 43200
+  #     cis_distribution_filename: null
+  #   localfiles:
+  #     - format: 'syslog'
+  #       location: '/var/log/messages'
+  #     - format: 'syslog'
+  #       location: '/var/log/secure'
+  #     - format: 'syslog'
+  #       location: '/var/log/maillog'
+  #     - format: 'apache'
+  #       location: '/var/log/httpd/error_log'
+  #     - format: 'apache'
+  #       location: '/var/log/httpd/access_log'
+  #     - format: 'apache'
+  #       location: '/var/ossec/logs/active-responses.log'
+  # - type: os
+  #   type_value: Windows
+  #   syscheck:
+  #     frequency: 43200
+  #     scan_on_start: 'yes'
+  #     auto_ignore: 'no'
+  #     alert_new_files: 'yes'
+  #     windows_registry:
+  #       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
+  #         arch: 'both'
+  #       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\Folder'
+  #   localfiles:
+  #     - location: 'Security'
+  #       format: 'eventchannel'
+  #     - location: 'System'
+  #       format: 'eventlog'
+
+nodejs:
+  repo_dict:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_10.x"
+
+agent_groups: [] # groups to create

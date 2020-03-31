@@ -1,5 +1,8 @@
 ---
-- hosts: <your wazuh server host>
+- hosts: <WAZUH_MANAGER_HOST>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager
-    - {role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: 'your elasticsearch IP'}
+    - role: ../roles/wazuh/ansible-wazuh-manager
+    - role: ../roles/wazuh/ansible-filebeat
+      filebeat_output_elasticsearch_hosts: <YOUR_ELASTICSEARCH_IP>:9200
+
+

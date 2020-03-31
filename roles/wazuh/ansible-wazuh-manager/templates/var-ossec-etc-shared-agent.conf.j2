@@ -1,12 +1,13 @@
 #jinja2: trim_blocks: False
-{% if wazuh_agent_configs is defined %}
-{% for agent_config in wazuh_agent_configs %}
+{% if shared_agent_config is defined %}
+{% for agent_config in shared_agent_config %}
 <agent_config {{ agent_config.type }}="{{ agent_config.type_value }}">
   {% if agent_config.syscheck is defined %}
   <syscheck>
+    {% if agent_config.syscheck.auto_ignore is defined %}
     <auto_ignore>{{ agent_config.syscheck.auto_ignore }}</auto_ignore>
+    {% endif %}
     <alert_new_files>{{ agent_config.syscheck.alert_new_files }}</alert_new_files>
-    <!-- Frequency that syscheck is executed -- default every 20 hours -->
     <frequency>{{ agent_config.syscheck.frequency }}</frequency>
     <scan_on_start>{{ agent_config.syscheck.scan_on_start }}</scan_on_start>
 
@@ -66,7 +67,7 @@
        {% endif %}
        {% endif %}
        {% if localfile.format == 'json' and localfile.labels is defined %}
-       {% for key, value in localfile.labels.iteritems() %}
+       {% for key, value in localfile.labels.items() %}
        <label key="{{ key }}">{{ value }}</label>
        {% endfor %}
        {% endif %}

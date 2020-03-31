@@ -1,0 +1,17 @@
+
+# {{ ansible_managed }}
+# TO-DO
+
+{% if node_certs_generator %}
+instances:
+{% for (key,value) in instances.items() %}
+- name: "{{ value.name }}"
+{% if value.ip is defined and value.ip | length > 0 %}
+  ip:
+   - "{{ value.ip }}"
+{% elif value.dns is defined and value.dns | length > 0 %}
+  dns:
+   - "{{ value.dns }}"
+{% endif %}
+{% endfor %}
+{% endif %}

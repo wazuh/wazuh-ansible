@@ -5,7 +5,7 @@
     dest: "/etc/filebeat/filebeat.yml"
     owner: root
     group: root
-    mode: 0644
+    mode: 0400
   notify: restart filebeat
   tags: configure
 
@@ -15,7 +15,7 @@
     dest: "/etc/filebeat/wazuh-template.json"
     owner: root
     group: root
-    mode: 0644
+    mode: 0400
   notify: restart filebeat
   tags: configure
 
@@ -30,7 +30,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ filebeat_ssl_dir }}/{{ item | basename }}"
-    mode: 0644
+    mode: 0400
   with_items:
     - "{{ filebeat_ssl_key_file }}"
     - "{{ filebeat_ssl_certificate_file }}"

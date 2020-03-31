@@ -1,14 +1,40 @@
 ---
-- import_tasks: "RedHat.yml"
+- include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- import_tasks: "Debian.yml"
+- include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- name: Linux | Install wazuh-agent
-  package: name=wazuh-agent state=present
+- include_tasks: "installation_from_sources.yml"
+  when:
+    - wazuh_agent_sources_installation.enabled
+
+- include_tasks: "installation_from_custom_packages.yml"
+  when:
+    - wazuh_custom_packages_installation_agent_enabled
+
+- name: Linux CentOS/RedHat | Install wazuh-agent
+  package:
+    name: wazuh-agent-{{ wazuh_agent_version }}
+    state: present
   async: 90
-  poll: 15
+  poll: 30
+  when:
+    - ansible_os_family|lower == "redhat"
+    - not wazuh_agent_sources_installation.enabled
+    - not wazuh_custom_packages_installation_agent_enabled
+  tags:
+    - init
+
+- name: Linux Debian | Install wazuh-agent
+  apt:
+    name: "wazuh-agent={{ wazuh_agent_version }}"
+    state: present
+    cache_valid_time: 3600
+  when:
+    - ansible_os_family|lower != "redhat"
+    - not wazuh_agent_sources_installation.enabled
+    - not wazuh_custom_packages_installation_agent_enabled
   tags:
     - init
   when: not ansible_check_mode
@@ -40,28 +66,39 @@
     - name: Linux | Register agent (via authd)
       shell: >
         /var/ossec/bin/agent-auth
-        -A {{ agent_name }}
-        -m {{ wazuh_managers.0.address }}
+        {% if wazuh_agent_authd.agent_name is defined and wazuh_agent_authd.agent_name != None %}
+        -A {{ wazuh_agent_authd.agent_name }}
+        {% endif %}
+        -m {{ wazuh_agent_authd.registration_address }}
         -p {{ wazuh_agent_authd.port }}
-        {% if authd_pass is defined %}-P {{ authd_pass }}{% endif %}
-        {% if wazuh_agent_authd.ssl_agent_ca is not none %}
+        {% if wazuh_agent_nat %} -I "any" {% endif %}
+        {% if authd_pass is defined %} -P {{ authd_pass }} {% endif %}
+        {% if wazuh_agent_authd.ssl_agent_ca is defined and wazuh_agent_authd.ssl_agent_ca != None %}
         -v "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
+        {% endif %}
+        {% if wazuh_agent_authd.ssl_agent_cert is defined and wazuh_agent_authd.ssl_agent_cert != None %}
         -x "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_cert | basename }}"
+        {% endif %}
+        {% if wazuh_agent_authd.ssl_agent_key is defined and wazuh_agent_authd.ssl_agent_key != None  %}
         -k "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_key | basename }}"
         {% endif %}
-        {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %}-a{% endif %}
+        {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %} -a {% endif %}
+        {% if wazuh_agent_authd.groups is defined and wazuh_agent_authd.groups | length > 0 %}
+        -G "{{ wazuh_agent_authd.groups | join(',') }}"
+        {% endif %}
       register: agent_auth_output
+      notify: restart wazuh-agent
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
 
     - name: Linux | Verify agent registration
       shell: echo {{ agent_auth_output }} | grep "Valid key created"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
 
   when: wazuh_agent_authd.enable
   tags:
@@ -76,7 +113,7 @@
 
     - name: Linux | Create the agent key via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/"
+        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/"
         validate_certs: false
         method: POST
         body: '{"name":"{{ agent_name }}"}'
@@ -87,18 +124,21 @@
         user: "{{ wazuh_managers.0.api_user }}"
         password: "{{ api_pass }}"
       register: newagent_api
+      notify: restart wazuh-agent
       # changed_when: newagent_api.json.error == 0
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
       become: false
       ignore_errors: true
 
     - name: Linux | Retieve new agent data via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_managers.0.address }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
+        url: >-
+          "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address
+          }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
         validate_certs: false
         method: GET
         return_content: true
@@ -106,7 +146,7 @@
         password: "{{ api_pass }}"
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
         - newagent_api.json.error == 0
       register: newagentdata_api
       delegate_to: localhost
@@ -117,14 +157,14 @@
       environment:
         OSSEC_ACTION: i
         OSSEC_AGENT_NAME: '{{ newagentdata_api.json.data.name }}'
-        OSSEC_AGENT_IP: '{{ newagentdata_api.json.data.ip }}'
+        OSSEC_AGENT_IP: '{% if wazuh_agent_nat %}any{% else %}{{ newagentdata_api.json.data.ip }}{% endif %}'
         OSSEC_AGENT_ID: '{{ newagent_api.json.data.id }}'
         OSSEC_AGENT_KEY: '{{ newagent_api.json.data.key }}'
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+        - wazuh_agent_authd.registration_address is not none
         - newagent_api.changed
       notify: restart wazuh-agent
 
@@ -174,9 +214,14 @@
     name: wazuh-agent
     enabled: true
     state: started
+  tags: config
 
-- import_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
+- include_tasks: "RMRedHat.yml"
+  when:
+    - ansible_os_family == "RedHat"
+    - not wazuh_agent_sources_installation.enabled
 
-- import_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
+- include_tasks: "RMDebian.yml"
+  when:
+    - ansible_os_family == "Debian"
+    - not wazuh_agent_sources_installation.enabled

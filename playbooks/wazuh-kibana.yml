@@ -1,4 +1,6 @@
 ---
-- hosts: <your kibana host>
+- hosts: <KIBANA_HOST>
   roles:
-    - {role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-kibana, elasticsearch_network_host: 'your elasticsearch IP'}
+    - role: ../roles/elastic-stack/ansible-kibana
+      elasticsearch_network_host: <YOUR_ELASTICSEARCH_IP>
+

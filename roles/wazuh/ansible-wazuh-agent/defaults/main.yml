@@ -1,16 +1,53 @@
 ---
+wazuh_agent_version: 3.12.0-1
+
+
+# Custom packages installation
+
+wazuh_custom_packages_installation_agent_enabled: false
+wazuh_custom_packages_installation_agent_deb_url: ""
+wazuh_custom_packages_installation_agent_rpm_url: ""
+
+# Sources installation
+
+wazuh_agent_sources_installation:
+  enabled: false
+  branch: "v3.12.0"
+  user_language: "y"
+  user_no_stop: "y"
+  user_install_type: "agent"
+  user_dir: "/var/ossec"
+  user_delete_dir: "y"
+  user_enable_active_response: "y"
+  user_enable_syscheck: "y"
+  user_enable_rootcheck: "y"
+  user_enable_openscap: "y"
+  user_enable_sca: "y"
+  user_enable_authd: "y"
+  user_generate_authd_cert: "n"
+  user_update: "y"
+  user_binaryinstall: null
+  user_agent_server_ip: "YOUR_MANAGER_IP"
+  user_agent_server_name: null
+  user_agent_config_profile: null
+  user_ca_store: "/var/ossec/wpk_root.pem"
+
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
-    protocol: tcp
+    protocol: udp
     api_port: 55000
     api_proto: 'http'
     api_user: null
-wazuh_profile: null
+wazuh_profile_centos: 'centos, centos7, centos7.6'
+wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
 wazuh_auto_restart: 'yes'
 wazuh_agent_authd:
+  registration_address: 127.0.0.1
   enable: false
   port: 1515
+  agent_name: null
+  groups: []
   ssl_agent_ca: null
   ssl_agent_cert: null
   ssl_agent_key: null
@@ -19,15 +56,22 @@ wazuh_notify_time: '10'
 wazuh_time_reconnect: '60'
 wazuh_crypto_method: 'aes'
 wazuh_winagent_config:
-  install_dir: 'C:\Program Files\ossec-agent\'
-  install_dir_x86: 'C:\Program Files (x86)\ossec-agent\'
-  auth_path: C:\'Program Files'\ossec-agent\agent-auth.exe
+  download_dir: C:\
+  install_dir: C:\Program Files\ossec-agent\
+  install_dir_x86: C:\Program Files (x86)\ossec-agent\
+  auth_path: C:\Program Files\ossec-agent\agent-auth.exe
+  # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
-  version: '3.9.2'
-  revision: '1'
-  repo: https://packages.wazuh.com/3.x/windows/
-  md5: 43936e7bc7eb51bd186f47dac4a6f477
+  check_md5: True
+  md5: 91efaefae4e1977670eab0c768a22a93
+wazuh_winagent_config_url: https://packages.wazuh.com/3.x/windows/wazuh-agent-3.12.0-1.msi
+wazuh_winagent_package_name: wazuh-agent-3.12.0-1.msi
 wazuh_agent_config:
+  repo:
+    apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/3.x/yum/'
+    gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+    key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
   active_response:
     ar_disabled: 'no'
     ca_store: '/var/ossec/etc/wpk_root.pem'
@@ -43,10 +87,17 @@ wazuh_agent_config:
     scan_on_start: 'yes'
     auto_ignore: 'no'
     alert_new_files: 'yes'
-    remove_old_diff: 'yes'
-    restart_audit: 'yes'
-    win_audit_interval: 300
+    win_audit_interval: 60
     skip_nfs: 'yes'
+    skip_dev: 'yes'
+    skip_proc: 'yes'
+    skip_sys: 'yes'
+    process_priority: 10
+    max_eps: 100
+    sync_enabled: 'yes'
+    sync_interval: '5m'
+    sync_max_interval: '1h'
+    sync_max_eps: 10
     ignore:
       - /etc/mtab
       - /etc/hosts.deny
@@ -60,114 +111,47 @@ wazuh_agent_config:
       - /etc/cups/certs
       - /etc/dumpdates
       - /etc/svc/volatile
-      - /sys/kernel/security
-      - /sys/kernel/debug
+    ignore_linux_type:
+      - '.log$|.swp$'
     ignore_win:
       - '.log$|.htm$|.jpg$|.png$|.chm$|.pnf$|.evtx$'
     no_diff:
       - /etc/ssl/private.key
     directories:
       - dirs: /etc,/usr/bin,/usr/sbin
-        checks: 'check_all="yes"'
-      - dirs: /bin,/sbin
-        checks: 'check_all="yes"'
+        checks: ''
+      - dirs: /bin,/sbin,/boot
+        checks: ''
     win_directories:
-      - dirs: '%WINDIR%\regedit.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\system.ini'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\win.ini'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\at.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\attrib.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\cacls.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\cmd.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\drivers\etc'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\eventcreate.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\ftp.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\lsass.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\net.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\net1.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\netsh.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\reg.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\regedt32.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\regsvr32.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\runas.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\sc.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\schtasks.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\sethc.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\subst.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\wbem\WMIC.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\WindowsPowerShell\v1.0\powershell.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\SysNative\winrm.vbs'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\at.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\attrib.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\cacls.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\cmd.exe'
-        checks: 'check_all="yes"'
+      - dirs: '%WINDIR%'
+        checks: 'recursion_level="0" restrict="regedit.exe$|system.ini$|win.ini$"'
+      - dirs: '%WINDIR%\SysNative'
+        checks: >-
+          recursion_level="0" restrict="at.exe$|attrib.exe$|cacls.exe$|cmd.exe$|eventcreate.exe$|ftp.exe$|lsass.exe$|
+          net.exe$|net1.exe$|netsh.exe$|reg.exe$|regedt32.exe|regsvr32.exe|runas.exe|sc.exe|schtasks.exe|sethc.exe|subst.exe$"
+      - dirs: '%WINDIR%\SysNative\drivers\etc%'
+        checks: 'recursion_level="0"'
+      - dirs: '%WINDIR%\SysNative\wbem'
+        checks: 'recursion_level="0" restrict="WMIC.exe$"'
+      - dirs: '%WINDIR%\SysNative\WindowsPowerShell\v1.0'
+        checks: 'recursion_level="0" restrict="powershell.exe$"'
+      - dirs: '%WINDIR%\SysNative'
+        checks: 'recursion_level="0" restrict="winrm.vbs$"'
+      - dirs: '%WINDIR%\System32'
+        checks: >-
+          recursion_level="0" restrict="at.exe$|attrib.exe$|cacls.exe$|cmd.exe$|eventcreate.exe$|ftp.exe$|lsass.exe$|net.exe$|net1.exe$|
+          netsh.exe$|reg.exe$|regedit.exe$|regedt32.exe$|regsvr32.exe$|runas.exe$|sc.exe$|schtasks.exe$|sethc.exe$|subst.exe$"
       - dirs: '%WINDIR%\System32\drivers\etc'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\eventcreate.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\ftp.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\net.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\net1.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\netsh.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\reg.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\regedit.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\regedt32.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\regsvr32.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\runas.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\sc.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\schtasks.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\sethc.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\subst.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\wbem\WMIC.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe'
-        checks: 'check_all="yes"'
-      - dirs: '%WINDIR%\System32\winrm.vbs'
-        checks: 'check_all="yes"'
+        checks: 'recursion_level="0"'
+      - dirs: '%WINDIR%\System32\wbem'
+        checks: 'recursion_level="0" restrict="WMIC.exe$"'
+      - dirs: '%WINDIR%\System32\WindowsPowerShell\v1.0'
+        checks: 'recursion_level="0" restrict="powershell.exe$"'
+      - dirs: '%WINDIR%\System32'
+        checks: 'recursion_level="0" restrict="winrm.vbs$"'
       - dirs: '%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\Startup'
-        checks: 'check_all="yes" realtime="yes"'
+        checks: 'realtime="yes"'
+
     windows_registry:
       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\cmdfile'
@@ -210,18 +194,18 @@ wazuh_agent_config:
   rootcheck:
     frequency: 43200
   openscap:
-    disable: 'no'
+    disable: 'yes'
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
   osquery:
     disable: 'yes'
     run_daemon: 'yes'
-    bin_path_win: 'C:\ProgramData\osquery\osqueryd'
+    bin_path_win: 'C:\Program Files\osquery\osqueryd'
     log_path: '/var/log/osquery/osqueryd.results.log'
-    log_path_win: 'C:\ProgramData\osquery\log\osqueryd.results.log'
+    log_path_win: 'C:\Program Files\osquery\log\osqueryd.results.log'
     config_path: '/etc/osquery/osquery.conf'
-    config_path_win: 'C:\ProgramData\osquery\osquery.conf'
+    config_path_win: 'C:\Program Files\osquery\osquery.conf'
     add_labels: 'yes'
   syscollector:
     disable: 'no'
@@ -233,20 +217,24 @@ wazuh_agent_config:
     packages: 'yes'
     ports_no: 'yes'
     processes: 'yes'
+  sca:
+    enabled: 'yes'
+    scan_on_start: 'yes'
+    interval: '12h'
+    skip_nfs: 'yes'
+    day: ''
+    wday: ''
+    time: ''
   cis_cat:
     disable: 'yes'
-    install_java: 'yes'
+    install_java: 'no'
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
-    java_path: '/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin'
+    java_path: 'wodles/java'
     java_path_win: '\\server\jre\bin\java.exe'
-    ciscat_path: '/var/ossec/wodles/ciscat'
+    ciscat_path: 'wodles/ciscat'
     ciscat_path_win: 'C:\cis-cat'
-    content:
-      - type: 'xccdf'
-        path: 'benchmarks/CIS_Ubuntu_Linux_16.04_LTS_Benchmark_v1.0.0-xccdf.xml'
-        profile: 'xccdf_org.cisecurity.benchmarks_profile_Level_1_-_Server'
   vuls:
     disable: 'yes'
     interval: '1d'
@@ -279,15 +267,15 @@ wazuh_agent_config:
     linux:
       - format: 'syslog'
         location: '/var/ossec/logs/active-responses.log'
-      - format: 'command'
-        command: df -P -x squashfs -x tmpfs -x devtmpfs
-        frequency: '360'
-      - format: 'full_command'
-        command: ss -nutal | awk '{print $1,$5,$6;}' | sort -b | column -t
-        alias: 'netstat listening ports'
-        frequency: '360'
       - format: 'full_command'
         command: 'last -n 20'
+        frequency: '360'
+      - format: 'command'
+        command: df -P
+        frequency: '360'
+      - format: 'full_command'
+        command: netstat -tulpn | sed 's/\([[:alnum:]]\+\)\ \+[[:digit:]]\+\ \+[[:digit:]]\+\ \+\(.*\):\([[:digit:]]*\)\ \+\([0-9\.\:\*]\+\).\+\ \([[:digit:]]*\/[[:alnum:]\-]*\).*/\1 \2 == \3 == \4 \5/' | sort -k 4 -g | sed 's/ == \(.*\) ==/:\1/' | sed 1,2d
+        alias: 'netstat listening ports'
         frequency: '360'
     windows:
       - format: 'eventlog'
@@ -304,3 +292,4 @@ wazuh_agent_config:
     list:
       - key: Env
         value: Production
+wazuh_agent_nat: false
