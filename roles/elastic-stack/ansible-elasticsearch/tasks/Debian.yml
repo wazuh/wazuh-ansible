@@ -18,16 +18,6 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
 
-- name: Update and upgrade apt packages
-  become: true
-  apt:
-    upgrade: yes
-    update_cache: yes
-    cache_valid_time: 86400 #One day
-  when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
-
 - name: Debian/Ubuntu | Add Elasticsearch GPG key.
   apt_key:
     url: "{{ elasticrepo.gpg }}"
