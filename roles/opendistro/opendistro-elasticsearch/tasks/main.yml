@@ -1,0 +1,58 @@
+---
+- import_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- import_tasks: Debian.yml
+  when: ansible_os_family == "Debian"
+
+- name: Configure OpenDistro Elasticsearch JVM memmory.
+  template:
+    src: jvm.options.j2
+    dest: /etc/elasticsearch/jvm.options
+    owner: root
+    group: elasticsearch
+    mode: 0660
+  notify: restart elasticsearch
+  tags: configure
+
+# fix in new PR (ignore_errors)
+
+- import_tasks: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+
+- name: Ensure Elasticsearch started and enabled
+  service:
+    name: elasticsearch
+    enabled: true
+    state: started
+  tags:
+    - configure
+    - init
+
+- name: Make sure Elasticsearch is running before proceeding
+  wait_for: host=localhost port=9200 delay=3 timeout=400
+  tags:
+    - configure
+    - init
+
+- import_tasks: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+- import_tasks: "RMDebian.yml"
+  when: ansible_os_family == "Debian"
+
+- name: Wait for Elasticsearch API
+  uri:
+    url: "https://localhost:9200/_cluster/health/"
+    user: "admin" # Default Elasticsearch user is always "elastic"
+    password: "{{ opendistro_security_password }}"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until: (  _result.json is defined) and (_result.json.status == "green")
+  retries: 24
+  delay: 5
+

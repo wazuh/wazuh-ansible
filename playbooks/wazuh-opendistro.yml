@@ -1,0 +1,4 @@
+---
+- hosts: 172.16.0.161
+  roles:
+    - role: ../roles/opendistro/opendistro-elasticsearch
