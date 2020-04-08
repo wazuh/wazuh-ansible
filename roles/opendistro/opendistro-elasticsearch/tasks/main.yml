@@ -11,7 +11,8 @@
     dest: /etc/elasticsearch/jvm.options
     owner: root
     group: elasticsearch
-    mode: 0660
+    mode: 0644
+    force: yes
   notify: restart elasticsearch
   tags: configure
 
@@ -20,6 +21,10 @@
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
+- name: Copy Configuration File
+  template: src=elasticsearch.yml dest={{conf_dir}}/elasticsearch.yml group=elasticsearch mode=0644 backup=yes
+  register: system_change
+  notify: restart elasticsearch
 
 - name: Ensure Elasticsearch started and enabled
   service:
@@ -41,18 +46,4 @@
 
 - import_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"
-
-- name: Wait for Elasticsearch API
-  uri:
-    url: "https://localhost:9200/_cluster/health/"
-    user: "admin" # Default Elasticsearch user is always "elastic"
-    password: "{{ opendistro_security_password }}"
-    validate_certs: no
-    status_code: 200,401
-    return_content: yes
-    timeout: 4
-  register: _result
-  until: (  _result.json is defined) and (_result.json.status == "green")
-  retries: 24
-  delay: 5
 

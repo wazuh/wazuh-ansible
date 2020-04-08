@@ -2,6 +2,19 @@
 # The OpenDistro version
 opendistro_version: 1.6.0
 
+elasticsearch_cluster_name: wazuh-cluster
+
+# Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
+minimum_master_nodes: 2
+
+# Elasticsearch version
+es_version: "7.3.2"
+es_major_version: "7.x"
+
+# Configure hostnames for Elasticsearch nodes
+# Example es1.example.com, es2.example.com
+domain_name: example.com
+
 # The OpenDistro package repository
 package_repos:
   yum: 
@@ -12,8 +25,60 @@ package_repos:
       baseurl: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
       gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
 
+populate_inventory_to_hosts_file: true
+
+es_plugin_bin_path: /usr/share/elasticsearch/bin/elasticsearch-plugin
+es_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
+es_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
+
+es_nodes: |-
+        {% for item in groups['es-cluster'] -%}
+          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
 # Security password
 opendistro_security_password: admin
-
 # Set JVM memory limits
-elasticsearch_jvm_xms: null
+opendistro_jvm_xms: null
+
+opendistro_http_port: 9200
+opendistro_network_host: 127.0.0.1
+opendistro_reachable_host: 127.0.0.1
+opendistro_jvm_xms: null
+elastic_stack_version: 7.6.1
+opendistro_lower_disk_requirements: false
+
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-opendistro'
+  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
+
+# Cluster Settings
+single_node: true
+opendistro_cluster_name: wazuh
+opendistro_node_name: node-1
+opendistro_bootstrap_node: false
+opendistro_node_master: false
+opendistro_cluster_nodes:
+  - 127.0.0.1
+opendistro_discovery_nodes:
+  - 127.0.0.1
+opendistro_node_data: true
+opendistro_node_ingest: true
+
+# X-Pack Security 
+opendistro_xpack_security: false
+opendistro_xpack_security_user: elastic
+opendistro_xpack_security_password: elastic_pass
+
+node_certs_generator: false
+node_certs_source: /usr/share/elasticsearch
+node_certs_destination: /etc/elasticsearch/certs
+
+# CA generation
+master_certs_path: /es_certs
+generate_CA: true
+ca_key_name: ""
+ca_cert_name: ""
+ca_password: ""

@@ -34,3 +34,118 @@
 - name: RedHat/CentOS/Fedora | Install OpenDistro
   package: name=opendistroforelasticsearch-{{ opendistro_version }} state=present
   tags: install
+
+## Here we are going to use self-signed certificates for Transport (Node-Node communication) & REST API layer
+## Using searchguard offline TLS tool to create node & root certificates
+- name: RedHat/CentOS/Fedora | Create local temporary directory for certificates generation
+  local_action:
+    module: file
+    path: /tmp/opendistro-nodecerts
+    state: directory
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Download certificates generation tool
+  local_action:
+    module: get_url
+    url: https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.zip
+    dest: /tmp/opendistro-nodecerts/search-guard-tlstool.zip
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Extract the certificates generation tool
+  local_action: command chdir=/tmp/opendistro-nodecerts tar -xvf search-guard-tlstool.zip
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Add the execution bit to the binary
+  local_action:
+    module: file
+    dest: /tmp/opendistro-nodecerts/tools/sgtlstool.sh
+    mode: a+x
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Prepare the certificates generation template file
+  local_action:
+    module: template
+    src: tlsconfig.yml
+    dest: /tmp/opendistro-nodecerts/config/tlsconfig.yml
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Generate the node & admin certificates in local
+  local_action:
+    module: command /tmp/opendistro-nodecerts/tools/sgtlstool.sh -c /tmp/opendistro-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opendistro-nodecerts/config/
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Copy the node & admin certificates to Elasticsearch cluster
+  copy:
+    src: "/tmp/opendistro-nodecerts/config/{{ item }}"
+    dest: /etc/elasticsearch/
+    mode: 0644
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ inventory_hostname }}.key"
+    - "{{ inventory_hostname }}.pem"
+    - "{{ inventory_hostname }}_http.key"
+    - "{{ inventory_hostname }}_http.pem"
+    - "{{ inventory_hostname }}_elasticsearch_config_snippet.yml"
+    - admin.key
+    - admin.pem
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Copy the opendistro security configuration file to cluster
+  blockinfile:
+    block: "{{ lookup('file', '/tmp/opendistro-nodecerts/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+    dest: "{{ conf_dir }}/elasticsearch.yml"
+    backup: yes
+    insertafter: EOF
+    marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Prepare the opendistro security configuration file
+  command: sed -i 's/searchguard/opendistro_security/g' {{ conf_dir }}/elasticsearch.yml
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Restart elasticsearch with security configuration
+  systemd:
+    name: elasticsearch
+    state: restarted
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Copy the opendistro security internal users template
+  template:
+    src: internal_users.yml
+    dest: "{{ es_sec_plugin_conf_path }}/internal_users.yml"
+    mode: 0644
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Set the Admin user password
+  shell: >
+    sed -i 's,{{ admin_password }},'$(sh {{ es_sec_plugin_tools_path }}/hash.sh -p {{ admin_password }} | tail -1)','
+    {{ es_sec_plugin_conf_path }}/internal_users.yml
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Set the kibanaserver user pasword
+  shell: >
+    sed -i 's,{{ kibanaserver_password }},'$(sh {{ es_sec_plugin_tools_path }}/hash.sh -p {{ kibanaserver_password }} | tail -1)','
+    {{ es_sec_plugin_conf_path }}/internal_users.yml
+  run_once: true
+  when: install.changed
+
+- name: RedHat/CentOS/Fedora | Initialize the opendistro security index in elasticsearch
+  shell: >
+    sh {{ es_sec_plugin_tools_path }}/securityadmin.sh
+    -cacert {{ conf_dir }}/root-ca.pem
+    -cert {{ conf_dir }}/admin.pem
+    -key {{ conf_dir }}/admin.key
+    -cd {{ es_sec_plugin_conf_path }}/
+    -nhnv -icl
+    -h {{ hostvars[inventory_hostname]['ip'] }}
+  run_once: true
+  when: install.changed
