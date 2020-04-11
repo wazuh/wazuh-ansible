@@ -50,17 +50,25 @@
     - name: Retrieving authd Credentials
       include_vars: authd_pass.yml
 
-    - name: Copy CA, SSL key and cert for authd
+    - name: Copy CA root certificate to verify authd
+      copy:
+        src: "{{ wazuh_agent_authd.ssl_agent_ca }}"
+        dest: "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
+        mode: 0644
+      when:
+        - wazuh_agent_authd.ssl_agent_ca is not none
+
+    - name: Copy TLS/SSL certificate for agent verification
       copy:
         src: "{{ item }}"
         dest: "/var/ossec/etc/{{ item | basename }}"
         mode: 0644
       with_items:
-        - "{{ wazuh_agent_authd.ssl_agent_ca }}"
         - "{{ wazuh_agent_authd.ssl_agent_cert }}"
         - "{{ wazuh_agent_authd.ssl_agent_key }}"
       when:
-        - wazuh_agent_authd.ssl_agent_ca is not none
+        - wazuh_agent_authd.ssl_agent_cert is not none
+        - wazuh_agent_authd.ssl_agent_key is not none
 
     - name: Linux | Register agent (via authd)
       shell: >
