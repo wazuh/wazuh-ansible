@@ -62,25 +62,6 @@
     - ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version == '6'
     - wazuh_manager_config.cluster.disable != 'yes'
 
-- name: CentOS/RedHat 6 | Install python-cryptography module
-  pip: name=cryptography state=present
-  register: wazuh_manager_cryptography_package_installed
-  until: wazuh_manager_cryptography_package_installed is succeeded
-  environment:
-    PATH: "/opt/rh/python27/root/usr/bin:{{ ansible_env.PATH }}"
-    LD_LIBRARY_PATH: "/opt/rh/python27/root/usr/lib64:/opt/rh/python27/root/usr/lib"
-  when:
-    - ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version == '6'
-    - wazuh_manager_config.cluster.disable != 'yes'
-
-- name: RedHat/CentOS/Fedora | Install python-cryptography module
-  package: name=python-cryptography state=present
-  register: wazuh_manager_cryptography_package_installed
-  until: wazuh_manager_cryptography_package_installed is succeeded
-  when:
-    - not (( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '6' )
-    - wazuh_manager_config.cluster.disable != 'yes'
-
 - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
   yum: name=java-1.8.0-openjdk state=present
   when:
@@ -168,4 +149,3 @@
     - ansible_distribution_major_version|int < 6
   tags:
     - init
-

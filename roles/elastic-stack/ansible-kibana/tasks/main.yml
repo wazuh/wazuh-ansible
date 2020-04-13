@@ -165,14 +165,12 @@
   file:
     path: /usr/share/kibana/optimize/wazuh/config/
     state: directory
+    recurse: yes
 
 - name: Configure Wazuh Kibana Plugin
   template:
     src: wazuh.yml.j2
     dest: /usr/share/kibana/optimize/wazuh/config/wazuh.yml
-    owner: kibana
-    group: root
-    mode: 0644
 
 - name: Reload systemd configuration
   systemd:
