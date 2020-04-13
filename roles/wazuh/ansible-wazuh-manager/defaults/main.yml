@@ -236,7 +236,6 @@ wazuh_manager_config:
     providers:
       - enabled: 'no'
         os:
-          - 'precise'
           - 'trusty'
           - 'xenial'
           - 'bionic'
