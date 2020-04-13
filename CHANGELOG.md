@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.12.2_7.6.2]
+
+### Added
+
+- Update to Wazuh v3.12.2
+
 ## [v3.12.1_7.6.2]
 
 ### Added
