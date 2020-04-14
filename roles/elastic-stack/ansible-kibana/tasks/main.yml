@@ -169,6 +169,7 @@
     owner: kibana
     group: kibana
     mode: 0751
+  changed_when: False
 
 - name: Configure Wazuh Kibana Plugin
   template:
@@ -176,7 +177,8 @@
     dest: /usr/share/kibana/optimize/wazuh/config/wazuh.yml
     owner: kibana
     group: kibana
-    mode: 0644
+    mode: 0751
+  changed_when: False
 
 - name: Reload systemd configuration
   systemd:
