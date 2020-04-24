@@ -2,9 +2,6 @@
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- import_tasks: Debian.yml
-  when: ansible_os_family == "Debian"
-
 - name: Configure OpenDistro Elasticsearch JVM memmory.
   template:
     src: jvm.options.j2
@@ -43,7 +40,3 @@
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
-
-- import_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
-

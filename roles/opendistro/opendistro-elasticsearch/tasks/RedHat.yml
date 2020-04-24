@@ -43,20 +43,17 @@
     path: /tmp/opendistro-nodecerts
     state: directory
   run_once: true
-  when: install.changed
 
 - name: RedHat/CentOS/Fedora | Download certificates generation tool
   local_action:
     module: get_url
     url: https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.zip
     dest: /tmp/opendistro-nodecerts/search-guard-tlstool.zip
-  run_once: true
-  when: install.changed
+  run_once: /tmp/opendistro-nodecerts/search-guard-tlstool.zip
 
 - name: RedHat/CentOS/Fedora | Extract the certificates generation tool
-  local_action: command chdir=/tmp/opendistro-nodecerts tar -xvf search-guard-tlstool.zip
+  local_action: command chdir=/tmp/opendistro-nodecerts unzip search-guard-tlstool.zip
   run_once: true
-  when: install.changed
 
 - name: RedHat/CentOS/Fedora | Add the execution bit to the binary
   local_action:
@@ -64,21 +61,18 @@
     dest: /tmp/opendistro-nodecerts/tools/sgtlstool.sh
     mode: a+x
   run_once: true
-  when: install.changed
 
 - name: RedHat/CentOS/Fedora | Prepare the certificates generation template file
   local_action:
     module: template
-    src: tlsconfig.yml
+    src: ../templates/tlsconfig.yml
     dest: /tmp/opendistro-nodecerts/config/tlsconfig.yml
   run_once: true
-  when: install.changed
 
 - name: RedHat/CentOS/Fedora | Generate the node & admin certificates in local
   local_action:
     module: command /tmp/opendistro-nodecerts/tools/sgtlstool.sh -c /tmp/opendistro-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opendistro-nodecerts/config/
   run_once: true
-  when: install.changed
 
 - name: RedHat/CentOS/Fedora | Copy the node & admin certificates to Elasticsearch cluster
   copy:

@@ -13,7 +13,7 @@ es_major_version: "7.x"
 
 # Configure hostnames for Elasticsearch nodes
 # Example es1.example.com, es2.example.com
-domain_name: example.com
+domain_name: wazuh.com
 
 # The OpenDistro package repository
 package_repos:
