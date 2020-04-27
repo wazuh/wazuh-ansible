@@ -354,6 +354,29 @@ wazuh_manager_config:
     - server: null
       port: null
       format: null
+  integrations:
+    #slack
+    - name: null
+      hook_url: '<hook_url>'
+      alert_level: 10
+      alert_format: 'json'
+      rule_id: null
+    #pagerduty
+    - name: null
+      api_key: '<api_key>'
+      alert_level: 12
+  monitor_aws:
+    disable: 'no'
+    interval: '10m'
+    run_on_start: 'yes'
+    skip_on_error: 'yes'
+    s3:
+      - name: null
+        bucket_type: null
+        path: null
+        only_logs_after: null
+        access_key: null
+        secret_key: null
   labels:
     enable: false
     list:
