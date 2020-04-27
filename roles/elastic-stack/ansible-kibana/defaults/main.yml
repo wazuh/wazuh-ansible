@@ -50,4 +50,4 @@ build_from_sources: false
 wazuh_plugin_branch: 3.12-7.6
 
 #Nodejs NODE_OPTIONS
-node_options: --max-old-space-size=2048
+node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536
