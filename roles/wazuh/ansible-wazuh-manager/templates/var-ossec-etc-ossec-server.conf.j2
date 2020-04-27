@@ -570,10 +570,10 @@
 {% endfor %}
 {% endif %}
 
-{% if monitor_aws is defined %}
+{% if monitor_aws is defined and monitor_aws.disabled == "no" %}
   <!-- S3 -->
   <wodle name="aws-s3">
-    <disabled>{{ monitor_aws.disable }}</disabled>
+    <disabled>{{ monitor_aws.disabled }}</disabled>
     <interval>{{ monitor_aws.interval }}</interval>
     <run_on_start>{{ monitor_aws.run_on_start }}</run_on_start>
     <skip_on_error>{{ monitor_aws.skip_on_error }}</skip_on_error>

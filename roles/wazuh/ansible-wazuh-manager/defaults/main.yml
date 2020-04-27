@@ -366,7 +366,7 @@ wazuh_manager_config:
       api_key: '<api_key>'
       alert_level: 12
   monitor_aws:
-    disable: 'no'
+    disabled: 'yes'
     interval: '10m'
     run_on_start: 'yes'
     skip_on_error: 'yes'
