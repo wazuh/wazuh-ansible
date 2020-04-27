@@ -33,7 +33,7 @@
 
 - name: RedHat/CentOS/Fedora | Install OpenDistro
   package: name=opendistroforelasticsearch-{{ opendistro_version }} state=present
-  tags: install
+  register: install
 
 ## Here we are going to use self-signed certificates for Transport (Node-Node communication) & REST API layer
 ## Using searchguard offline TLS tool to create node & root certificates
@@ -65,7 +65,7 @@
 - name: RedHat/CentOS/Fedora | Prepare the certificates generation template file
   local_action:
     module: template
-    src: ../templates/tlsconfig.yml
+    src: opendistro/opendistro-elasticsearch/templates/tlsconfig.yml
     dest: /tmp/opendistro-nodecerts/config/tlsconfig.yml
   run_once: true
 
