@@ -52,8 +52,10 @@
   run_once: /tmp/opendistro-nodecerts/search-guard-tlstool.zip
 
 - name: RedHat/CentOS/Fedora | Extract the certificates generation tool
-  local_action: command chdir=/tmp/opendistro-nodecerts unzip search-guard-tlstool.zip
-  run_once: true
+  local_action:
+    module: unarchive
+    src: /tmp/opendistro-nodecerts/search-guard-tlstool.zip
+    dest: /tmp/opendistro-nodecerts/
 
 - name: RedHat/CentOS/Fedora | Add the execution bit to the binary
   local_action:
@@ -65,7 +67,7 @@
 - name: RedHat/CentOS/Fedora | Prepare the certificates generation template file
   local_action:
     module: template
-    src: opendistro/opendistro-elasticsearch/templates/tlsconfig.yml
+    src: "templates/tlsconfig.yml.j2"
     dest: /tmp/opendistro-nodecerts/config/tlsconfig.yml
   run_once: true
 
@@ -112,7 +114,7 @@
 
 - name: RedHat/CentOS/Fedora | Copy the opendistro security internal users template
   template:
-    src: internal_users.yml
+    src: "templates/internal_users.yml.j2"
     dest: "{{ es_sec_plugin_conf_path }}/internal_users.yml"
     mode: 0644
   run_once: true
