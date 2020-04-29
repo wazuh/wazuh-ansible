@@ -34,7 +34,14 @@
     dest: /tmp/opendistro-nodecerts/config/tlsconfig.yml
   run_once: true
 
+- name: RedHat/CentOS/Fedora | Check if root CA file exists
+  local_action:
+    module: stat 
+    path: /tmp/opendistro-nodecerts/config/root-ca.key
+  register: root_ca_file
+
 - name: RedHat/CentOS/Fedora | Generate the node & admin certificates in local
   local_action:
-    module: command /tmp/opendistro-nodecerts/tools/sgtlstool.sh -c /tmp/opendistro-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opendistro-nodecerts/config/ -f
+    module: command /tmp/opendistro-nodecerts/tools/sgtlstool.sh -c /tmp/opendistro-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opendistro-nodecerts/config/ -f -o
   run_once: true
+  when: root_ca_file.stat.exists == False
