@@ -1,10 +1,12 @@
 ---
+- import_tasks: LocalActions.yml
+
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
 - name: Configure OpenDistro Elasticsearch JVM memmory.
   template:
-    src: jvm.options.j2
+    src: "templates/jvm.options.j2"
     dest: /etc/elasticsearch/jvm.options
     owner: root
     group: elasticsearch
@@ -19,7 +21,12 @@
   when: ansible_os_family == "RedHat"
 
 - name: Copy Configuration File
-  template: src=elasticsearch.yml dest={{conf_dir}}/elasticsearch.yml group=elasticsearch mode=0644 backup=yes
+  template: 
+    src: "templates/elasticsearch.ym.j2"
+    dest: "{{conf_dir}}/elasticsearch.yml"
+    group: elasticsearch
+    mode: 0644
+    backup: yes
   register: system_change
   notify: restart elasticsearch
 

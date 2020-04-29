@@ -1,0 +1,40 @@
+---
+
+- name: RedHat/CentOS/Fedora | Create local temporary directory for certificates generation
+  local_action:
+    module: file
+    path: /tmp/opendistro-nodecerts
+    state: directory
+  run_once: true
+
+- name: RedHat/CentOS/Fedora | Download certificates generation tool
+  local_action:
+    module: get_url
+    url: https://releases.floragunn.com/search-guard-tlstool/1.7/search-guard-tlstool-1.7.zip
+    dest: /tmp/opendistro-nodecerts/search-guard-tlstool-1.7.zip
+  run_once: /tmp/opendistro-nodecerts/search-guard-tlstool.zip
+
+- name: RedHat/CentOS/Fedora | Extract the certificates generation tool
+  local_action:
+    module: unarchive
+    src: /tmp/opendistro-nodecerts/search-guard-tlstool-1.7.zip
+    dest: /tmp/opendistro-nodecerts/
+
+- name: RedHat/CentOS/Fedora | Add the execution bit to the binary
+  local_action:
+    module: file
+    dest: /tmp/opendistro-nodecerts/tools/sgtlstool.sh
+    mode: a+x
+  run_once: true
+
+- name: RedHat/CentOS/Fedora | Prepare the certificates generation template file
+  local_action:
+    module: template
+    src: "templates/tlsconfig.yml.j2"
+    dest: /tmp/opendistro-nodecerts/config/tlsconfig.yml
+  run_once: true
+
+- name: RedHat/CentOS/Fedora | Generate the node & admin certificates in local
+  local_action:
+    module: command /tmp/opendistro-nodecerts/tools/sgtlstool.sh -c /tmp/opendistro-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opendistro-nodecerts/config/ -f
+  run_once: true
