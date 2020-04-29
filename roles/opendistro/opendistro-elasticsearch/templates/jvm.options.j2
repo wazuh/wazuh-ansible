@@ -23,10 +23,10 @@
 
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
-{% if elasticsearch_jvm_xms is not none %}
-{% if elasticsearch_jvm_xms < 32000 %}
--Xms{{ elasticsearch_jvm_xms }}m
--Xmx{{ elasticsearch_jvm_xms }}m
+{% if opendistro_jvm_xms is not none %}
+{% if opendistro_jvm_xms < 32000 %}
+-Xms{{ opendistro_jvm_xms }}m
+-Xmx{{ opendistro_jvm_xms }}m
 {% else %}
 -Xms32000m
 -Xmx32000m

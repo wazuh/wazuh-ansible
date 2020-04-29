@@ -1,7 +1,6 @@
 ---
 # The OpenDistro version
 opendistro_version: 1.6.0
-
 elasticsearch_cluster_name: wazuh-cluster
 
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
@@ -25,12 +24,9 @@ package_repos:
       baseurl: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
       gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
 
-populate_inventory_to_hosts_file: true
-
-es_plugin_bin_path: /usr/share/elasticsearch/bin/elasticsearch-plugin
-es_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
-es_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
-
+opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
+opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
+opendistro_conf_path: /etc/elasticsearch/
 es_nodes: |-
         {% for item in groups['es-cluster'] -%}
           {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
@@ -42,11 +38,6 @@ opendistro_security_password: admin
 opendistro_jvm_xms: null
 
 opendistro_http_port: 9200
-opendistro_network_host: 127.0.0.1
-opendistro_reachable_host: 127.0.0.1
-opendistro_jvm_xms: null
-elastic_stack_version: 7.6.1
-opendistro_lower_disk_requirements: false
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'
@@ -54,6 +45,7 @@ elasticrepo:
   gpg: 'https://artifacts.elastic.co/GPG-KEY-opendistro'
   key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
 
+opendistro_admin_password: Test@123
 # Cluster Settings
 single_node: true
 opendistro_cluster_name: wazuh
@@ -67,18 +59,3 @@ opendistro_discovery_nodes:
 opendistro_node_data: true
 opendistro_node_ingest: true
 
-# X-Pack Security 
-opendistro_xpack_security: false
-opendistro_xpack_security_user: elastic
-opendistro_xpack_security_password: elastic_pass
-
-node_certs_generator: false
-node_certs_source: /usr/share/elasticsearch
-node_certs_destination: /etc/elasticsearch/certs
-
-# CA generation
-master_certs_path: /es_certs
-generate_CA: true
-ca_key_name: ""
-ca_cert_name: ""
-ca_password: ""

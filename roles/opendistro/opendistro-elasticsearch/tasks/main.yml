@@ -22,8 +22,8 @@
 
 - name: Copy Configuration File
   template: 
-    src: "templates/elasticsearch.ym.j2"
-    dest: "{{conf_dir}}/elasticsearch.yml"
+    src: "templates/elasticsearch.yml.j2"
+    dest: "{{opendistro_conf_path}}/elasticsearch.yml"
     group: elasticsearch
     mode: 0644
     backup: yes

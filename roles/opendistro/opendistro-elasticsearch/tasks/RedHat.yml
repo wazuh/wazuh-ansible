@@ -56,14 +56,14 @@
 - name: RedHat/CentOS/Fedora | Copy the opendistro security configuration file to cluster
   blockinfile:
     block: "{{ lookup('file', '/tmp/opendistro-nodecerts/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
-    dest: "{{ conf_dir }}/elasticsearch.yml"
+    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
     backup: yes
     insertafter: EOF
     marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
   when: install.changed
 
 - name: RedHat/CentOS/Fedora | Prepare the opendistro security configuration file
-  command: sed -i 's/searchguard/opendistro_security/g' {{ conf_dir }}/elasticsearch.yml
+  command: sed -i 's/searchguard/opendistro_security/g' {{ opendistro_conf_path }}/elasticsearch.yml
   when: install.changed
 
 - name: RedHat/CentOS/Fedora | Restart elasticsearch with security configuration
@@ -75,32 +75,32 @@
 - name: RedHat/CentOS/Fedora | Copy the opendistro security internal users template
   template:
     src: "templates/internal_users.yml.j2"
-    dest: "{{ es_sec_plugin_conf_path }}/internal_users.yml"
+    dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
     mode: 0644
   run_once: true
   when: install.changed
 
 - name: RedHat/CentOS/Fedora | Set the Admin user password
   shell: >
-    sed -i 's,{{ admin_password }},'$(sh {{ es_sec_plugin_tools_path }}/hash.sh -p {{ admin_password }} | tail -1)','
-    {{ es_sec_plugin_conf_path }}/internal_users.yml
+    sed -i 's,{{ admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ admin_password }} | tail -1)','
+    {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
   run_once: true
   when: install.changed
 
 - name: RedHat/CentOS/Fedora | Set the kibanaserver user pasword
   shell: >
-    sed -i 's,{{ kibanaserver_password }},'$(sh {{ es_sec_plugin_tools_path }}/hash.sh -p {{ kibanaserver_password }} | tail -1)','
-    {{ es_sec_plugin_conf_path }}/internal_users.yml
+    sed -i 's,{{ kibanaserver_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ kibanaserver_password }} | tail -1)','
+    {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
   run_once: true
   when: install.changed
 
 - name: RedHat/CentOS/Fedora | Initialize the opendistro security index in elasticsearch
   shell: >
-    sh {{ es_sec_plugin_tools_path }}/securityadmin.sh
-    -cacert {{ conf_dir }}/root-ca.pem
-    -cert {{ conf_dir }}/admin.pem
-    -key {{ conf_dir }}/admin.key
-    -cd {{ es_sec_plugin_conf_path }}/
+    sh {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
+    -cacert {{ opendistro_conf_path }}/root-ca.pem
+    -cert {{ opendistro_conf_path }}/admin.pem
+    -key {{ opendistro_conf_path }}/admin.key
+    -cd {{ opendistro_sec_plugin_conf_path }}/
     -nhnv -icl
     -h {{ hostvars[inventory_hostname]['ip'] }}
   run_once: true
