@@ -86,7 +86,6 @@ wazuh_agent_config:
     frequency: 43200
     scan_on_start: 'yes'
     auto_ignore: 'no'
-    alert_new_files: 'yes'
     win_audit_interval: 60
     skip_nfs: 'yes'
     skip_dev: 'yes'

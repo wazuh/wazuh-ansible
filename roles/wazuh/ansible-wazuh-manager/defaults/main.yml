@@ -152,7 +152,6 @@ wazuh_manager_config:
     frequency: 43200
     scan_on_start: 'yes'
     auto_ignore: 'no'
-    alert_new_files: 'yes'
     ignore:
       - /etc/mtab
       - /etc/hosts.deny
@@ -389,7 +388,6 @@ wazuh_manager_config:
   #   syscheck:
   #     frequency: 43200
   #     scan_on_start: 'yes'
-  #     alert_new_files: 'yes'
   #     ignore:
   #       - /etc/mtab
   #       - /etc/mnttab
@@ -420,7 +418,6 @@ wazuh_manager_config:
   #     frequency: 43200
   #     scan_on_start: 'yes'
   #     auto_ignore: 'no'
-  #     alert_new_files: 'yes'
   #     windows_registry:
   #       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
   #         arch: 'both'
