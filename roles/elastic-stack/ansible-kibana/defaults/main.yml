@@ -6,7 +6,7 @@ elasticsearch_network_host: "127.0.0.1"
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 elastic_stack_version: 7.6.2
-wazuh_version: 3.12.2
+wazuh_version: 3.12.3
 wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
 elasticrepo:
