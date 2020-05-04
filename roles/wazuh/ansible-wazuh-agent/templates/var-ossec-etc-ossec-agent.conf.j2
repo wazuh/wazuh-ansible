@@ -201,7 +201,6 @@
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
-  <!-- <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     {% if ansible_system == "Linux" %}
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
