@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [v3.12.3_7.6.2]
+
+### Added
+
+- Update to Wazuh v3.12.2
+- AWS S3 block to template ([@limitup](https://github.com/limitup)) [PR#404](https://github.com/wazuh/wazuh-ansible/pull/413)
+
+### Changed
+
+- Update Kibana optimize task parameters and command ([@jm404](https://github.com/jm404)) [PR#404](https://github.com/wazuh/wazuh-ansible/pull/412)
+- Update Kibana optimize folder and owner ([@jm404](https://github.com/jm404)) [PR#404](https://github.com/wazuh/wazuh-ansible/pull/410)
+
 ## [v3.12.2_7.6.2]
 
 ### Added
