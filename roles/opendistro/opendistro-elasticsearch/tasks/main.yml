@@ -4,6 +4,110 @@
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
+- name: Install OpenDistro
+  package: name=opendistroforelasticsearch-{{ opendistro_version }} state=present
+  register: install
+
+- name: Copy the node & admin certificates to Elasticsearch cluster
+  copy:
+    src: "/tmp/opendistro-nodecerts/config/{{ item }}"
+    dest: /etc/elasticsearch/
+    mode: 0644
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ inventory_hostname }}.key"
+    - "{{ inventory_hostname }}.pem"
+    - "{{ inventory_hostname }}_http.key"
+    - "{{ inventory_hostname }}_http.pem"
+    - "{{ inventory_hostname }}_elasticsearch_config_snippet.yml"
+    - admin.key
+    - admin.pem
+  when: install.changed
+
+- name: Remove demo certs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{opendistro_conf_path}}/kirk.pem"
+    - "{{opendistro_conf_path}}/kirk-key.pem"
+    - "{{opendistro_conf_path}}/esnode.pem"
+    - "{{opendistro_conf_path}}/esnode-key.pem"
+  when: install.changed
+
+- name: Remove elasticsearch configuration file
+  file:
+    path: "{{opendistro_conf_path}}/elasticsearch.yml"
+    state: absent
+  when: install.changed
+  
+- name: Copy Configuration File
+  blockinfile:
+    block: "{{ lookup('template', 'elasticsearch.yml.j2') }}"
+    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    create: true
+    group: elasticsearch
+    mode: 0640
+    marker: "## {mark} Opendistro general settings ##"
+  when: install.changed
+
+- name: Copy the opendistro security configuration file to cluster
+  blockinfile:
+    block: "{{ lookup('file', '/tmp/opendistro-nodecerts/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    insertafter: EOF
+    marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+  when: install.changed
+
+- name: Prepare the opendistro security configuration file
+  replace:
+    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    regexp: 'searchguard'
+    replace: 'opendistro_security'
+  tags: local
+  when: install.changed
+
+- name: Restart elasticsearch with security configuration
+  systemd:
+    name: elasticsearch
+    state: restarted
+  when: install.changed
+
+- name: Copy the opendistro security internal users template
+  template:
+    src: "templates/internal_users.yml.j2"
+    dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
+    mode: 0644
+  run_once: true
+  when: install.changed
+
+- name: Set the Admin user password
+  shell: >
+    sed -i 's,{{ admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ admin_password }} | tail -1)','
+    {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+  run_once: true
+  when: install.changed
+
+- name: Set the kibanaserver user pasword
+  shell: >
+    sed -i 's,{{ kibanaserver_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ kibanaserver_password }} | tail -1)','
+    {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+  run_once: true
+  when: install.changed
+
+- name: Initialize the opendistro security index in elasticsearch
+  shell: >
+    sh {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
+    -cacert {{ opendistro_conf_path }}/root-ca.pem
+    -cert {{ opendistro_conf_path }}/admin.pem
+    -key {{ opendistro_conf_path }}/admin.key
+    -cd {{ opendistro_sec_plugin_conf_path }}/
+    -nhnv -icl
+    -h {{ hostvars[inventory_hostname]['ip'] }}
+  run_once: true
+  when: install.changed
+
 - name: Configure OpenDistro Elasticsearch JVM memmory.
   template:
     src: "templates/jvm.options.j2"
@@ -13,22 +117,7 @@
     mode: 0644
     force: yes
   notify: restart elasticsearch
-  tags: configure
-
-# fix in new PR (ignore_errors)
-
-- import_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
-
-- name: Copy Configuration File
-  template: 
-    src: "templates/elasticsearch.yml.j2"
-    dest: "{{opendistro_conf_path}}/elasticsearch.yml"
-    group: elasticsearch
-    mode: 0644
-    backup: yes
-  register: system_change
-  notify: restart elasticsearch
+  tags: opendistro
 
 - name: Ensure Elasticsearch started and enabled
   service:
@@ -36,13 +125,13 @@
     enabled: true
     state: started
   tags:
-    - configure
+    - opendistro
     - init
 
 - name: Make sure Elasticsearch is running before proceeding
   wait_for: host=localhost port=9200 delay=3 timeout=400
   tags:
-    - configure
+    - opendistro
     - init
 
 - import_tasks: "RMRedHat.yml"
