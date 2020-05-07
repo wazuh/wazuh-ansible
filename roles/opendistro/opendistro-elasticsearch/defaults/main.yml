@@ -45,7 +45,8 @@ elasticrepo:
   gpg: 'https://artifacts.elastic.co/GPG-KEY-opendistro'
   key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
 
-opendistro_admin_password: Test@123
+opendistro_admin_password: changeme
+opendistro_kibana_password: changeme
 # Cluster Settings
 single_node: true
 opendistro_cluster_name: wazuh

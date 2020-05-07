@@ -91,7 +91,7 @@
 
 - name: Set the kibanaserver user pasword
   shell: >
-    sed -i 's,{{ kibanaserver_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ kibanaserver_password }} | tail -1)','
+    sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
     {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
   run_once: true
   when: install.changed
