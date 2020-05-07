@@ -84,7 +84,7 @@
 
 - name: Set the Admin user password
   shell: >
-    sed -i 's,{{ admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ admin_password }} | tail -1)','
+    sed -i 's,{{ opendistro_admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }} | tail -1)','
     {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
   run_once: true
   when: install.changed
