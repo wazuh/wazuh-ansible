@@ -128,11 +128,20 @@
     - opendistro
     - init
 
-- name: Make sure Elasticsearch is running before proceeding
-  wait_for: host=localhost port=9200 delay=3 timeout=400
-  tags:
-    - opendistro
-    - init
+- name: Wait for Elasticsearch API
+  uri:
+    url: "https://{{ es_nodes.split(',')[0].split('\"')[0] }}:9200/_cluster/health/"
+    user: "admin" # Default OpenDistro user is always "admin"
+    password: "{{ opendistro_admin_password }}"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until: (  _result.json is defined) and (_result.json.status == "green")
+  retries: 24
+  delay: 5
+  tags: debug
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
