@@ -9,7 +9,6 @@
       - "{{ opendistro_conf_path }}/kirk-key.pem"
       - "{{ opendistro_conf_path }}/esnode.pem"
       - "{{ opendistro_conf_path }}/esnode-key.pem"
-    when: install.changed
 
   - name: Copy the node & admin certificates to Elasticsearch cluster
     copy:
@@ -26,7 +25,6 @@
       - "{{ inventory_hostname }}_elasticsearch_config_snippet.yml"
       - admin.key
       - admin.pem
-    when: install.changed
 
   - name: Copy the opendistro security configuration file to cluster
     blockinfile:
@@ -34,7 +32,6 @@
       dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
       insertafter: EOF
       marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
-    when: install.changed
 
   - name: Prepare the opendistro security configuration file
     replace:
@@ -42,13 +39,11 @@
       regexp: 'searchguard'
       replace: 'opendistro_security'
     tags: local
-    when: install.changed
 
   - name: Restart elasticsearch with security configuration
     systemd:
       name: elasticsearch
       state: restarted
-    when: install.changed
 
   - name: Copy the opendistro security internal users template
     template:
@@ -56,21 +51,18 @@
       dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
       mode: 0644
     run_once: true
-    when: install.changed
 
   - name: Set the Admin user password
     shell: >
       sed -i 's,{{ opendistro_admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }} | tail -1)','
       {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
     run_once: true
-    when: install.changed
 
   - name: Set the kibanaserver user pasword
     shell: >
       sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
       {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
     run_once: true
-    when: install.changed
 
   - name: Initialize the opendistro security index in elasticsearch
     command: >
@@ -82,7 +74,7 @@
       -nhnv -icl
       -h {{ hostvars[inventory_hostname]['ip'] }}
     run_once: true
-    when: install.changed
 
   tags:
     - production_ready
+  when: install.changed
