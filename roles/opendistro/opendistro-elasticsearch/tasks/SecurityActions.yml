@@ -5,10 +5,10 @@
       path: "{{ item }}"
       state: absent
     with_items:
-      - "{{opendistro_conf_path}}/kirk.pem"
-      - "{{opendistro_conf_path}}/kirk-key.pem"
-      - "{{opendistro_conf_path}}/esnode.pem"
-      - "{{opendistro_conf_path}}/esnode-key.pem"
+      - "{{ opendistro_conf_path }}/kirk.pem"
+      - "{{ opendistro_conf_path }}/kirk-key.pem"
+      - "{{ opendistro_conf_path }}/esnode.pem"
+      - "{{ opendistro_conf_path }}/esnode-key.pem"
     when: install.changed
 
   - name: Copy the node & admin certificates to Elasticsearch cluster

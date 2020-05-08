@@ -12,7 +12,7 @@
 
 - name: Remove elasticsearch configuration file
   file:
-    path: "{{opendistro_conf_path}}/elasticsearch.yml"
+    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
     state: absent
   when: install.changed
   tags: install
