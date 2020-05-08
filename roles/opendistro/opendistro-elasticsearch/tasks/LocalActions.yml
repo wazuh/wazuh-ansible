@@ -4,7 +4,7 @@
   - name: Local action | Create local temporary directory for certificates generation
     local_action:
       module: file
-      path: {{ local_certs_path }}
+      path: "{{ local_certs_path }}"
       state: directory
     run_once: true
     
@@ -12,8 +12,8 @@
     local_action:
       module: get_url
       url: "{{ certs_gen_tool_url }}"
-      dest: "{{ local_certs_path }}/search-guard-tlstool-1.7.zip"
-    run_once: "{{ local_certs_path }}/search-guard-tlstool.zip"
+      dest: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+    run_once: true
 
   - name: Local action | Extract the certificates generation tool
     local_action:

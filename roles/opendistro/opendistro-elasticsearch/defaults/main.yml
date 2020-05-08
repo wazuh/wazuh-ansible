@@ -39,8 +39,9 @@ opendistro_jvm_xms: null
 
 opendistro_http_port: 9200
 
+certs_gen_tool_version: 1.7
 # Url of Search Guard certificates generator tool
-certs_gen_tool_url: https://releases.floragunn.com/search-guard-tlstool/1.7/search-guard-tlstool-1.7.zip
+certs_gen_tool_url: "https://releases.floragunn.com/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'

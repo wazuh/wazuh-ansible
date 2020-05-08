@@ -6,8 +6,9 @@
   when: ansible_os_family == 'RedHat'
 
 - name: Install OpenDistro
-  package: name=opendistroforelasticsearch-{{ opendistro_version }} 
-  state: present
+  package:
+    name: opendistroforelasticsearch-{{ opendistro_version }} 
+    state: present
   register: install
   tags: install
 
