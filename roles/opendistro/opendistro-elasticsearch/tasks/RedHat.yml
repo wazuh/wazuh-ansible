@@ -22,7 +22,8 @@
     changed_when: false
 
   - name: RedHat/CentOS/Fedora | Install OpenJDK 11
-    yum: name=java-11-openjdk-devel state=present
+    yum: name=java-11-openjdk-devel 
+    state: present
 
   - name: RedHat/CentOS/Fedora | Install OpenDistro dependencies
     yum:
