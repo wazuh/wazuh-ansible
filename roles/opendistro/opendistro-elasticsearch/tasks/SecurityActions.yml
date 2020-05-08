@@ -73,8 +73,8 @@
     when: install.changed
 
   - name: Initialize the opendistro security index in elasticsearch
-    shell: >
-      sh {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
+    command: >
+      {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
       -cacert {{ opendistro_conf_path }}/root-ca.pem
       -cert {{ opendistro_conf_path }}/admin.pem
       -key {{ opendistro_conf_path }}/admin.key
