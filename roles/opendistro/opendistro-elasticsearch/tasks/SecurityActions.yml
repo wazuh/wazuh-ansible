@@ -12,7 +12,7 @@
 
   - name: Copy the node & admin certificates to Elasticsearch cluster
     copy:
-      src: "/tmp/opendistro-nodecerts/config/{{ item }}"
+      src: "{{ local_certs_path }}/config/{{ item }}"
       dest: /etc/elasticsearch/
       mode: 0644
     with_items:
@@ -28,7 +28,7 @@
 
   - name: Copy the opendistro security configuration file to cluster
     blockinfile:
-      block: "{{ lookup('file', '/tmp/opendistro-nodecerts/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+      block: "{{ lookup('file', '{{ local_certs_path }}/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
       dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
       insertafter: EOF
       marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"

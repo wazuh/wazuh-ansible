@@ -39,6 +39,9 @@ opendistro_jvm_xms: null
 
 opendistro_http_port: 9200
 
+# Url of Search Guard certificates generator tool
+certs_gen_tool_url: https://releases.floragunn.com/search-guard-tlstool/1.7/search-guard-tlstool-1.7.zip
+
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'
   yum: 'https://artifacts.elastic.co/packages/7.x/yum'
@@ -50,13 +53,5 @@ opendistro_kibana_password: changeme
 # Cluster Settings
 single_node: true
 opendistro_cluster_name: wazuh
-opendistro_node_name: node-1
-opendistro_bootstrap_node: false
-opendistro_node_master: false
-opendistro_cluster_nodes:
-  - 127.0.0.1
-opendistro_discovery_nodes:
-  - 127.0.0.1
-opendistro_node_data: true
-opendistro_node_ingest: true
 
+local_certs_path: /tmp/opendistro-nodecerts
