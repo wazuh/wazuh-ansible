@@ -1,6 +1,6 @@
 ---
 
-- import_tasks: LocalActions.yml
+- import_tasks: local_actions.yml
 
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
@@ -30,7 +30,7 @@
   when: install.changed
   tags: install
 
-- import_tasks: SecurityActions.yml
+- import_tasks: security_actions.yml
 
 - name: Configure OpenDistro Elasticsearch JVM memmory.
   template:
