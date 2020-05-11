@@ -26,14 +26,14 @@
       - admin.key
       - admin.pem
 
-  - name: Copy the opendistro security configuration file to cluster
+  - name: Copy the OpenDistrosecurity configuration file to cluster
     blockinfile:
       block: "{{ lookup('file', '{{ local_certs_path }}/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
       dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
       insertafter: EOF
       marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
 
-  - name: Prepare the opendistro security configuration file
+  - name: Prepare the OpenDistrosecurity configuration file
     replace:
       path: "{{ opendistro_conf_path }}/elasticsearch.yml"
       regexp: 'searchguard'
@@ -45,7 +45,7 @@
       name: elasticsearch
       state: restarted
 
-  - name: Copy the opendistro security internal users template
+  - name: Copy the OpenDistrosecurity internal users template
     template:
       src: "templates/internal_users.yml.j2"
       dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
@@ -58,13 +58,13 @@
       {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
     run_once: true
 
-  - name: Set the kibanaserver user pasword
+  - name: Set the kibanaserver role/user pasword
     shell: >
       sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
       {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
     run_once: true
 
-  - name: Initialize the opendistro security index in elasticsearch
+  - name: Initialize the OpenDistrosecurity index in elasticsearch
     command: >
       {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
       -cacert {{ opendistro_conf_path }}/root-ca.pem
