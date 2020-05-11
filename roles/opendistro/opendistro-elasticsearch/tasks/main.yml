@@ -1,0 +1,68 @@
+---
+
+- import_tasks: local_actions.yml
+
+- import_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Install OpenDistro
+  package:
+    name: opendistroforelasticsearch-{{ opendistro_version }} 
+    state: present
+  register: install
+  tags: install
+
+- name: Remove elasticsearch configuration file
+  file:
+    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    state: absent
+  when: install.changed
+  tags: install
+  
+- name: Copy Configuration File
+  blockinfile:
+    block: "{{ lookup('template', 'elasticsearch.yml.j2') }}"
+    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    create: true
+    group: elasticsearch
+    mode: 0640
+    marker: "## {mark} Opendistro general settings ##"
+  when: install.changed
+  tags: install
+
+- import_tasks: security_actions.yml
+
+- name: Configure OpenDistro Elasticsearch JVM memmory.
+  template:
+    src: "templates/jvm.options.j2"
+    dest: /etc/elasticsearch/jvm.options
+    owner: root
+    group: elasticsearch
+    mode: 0644
+    force: yes
+  notify: restart elasticsearch
+  tags: install
+
+- name: Ensure Elasticsearch started and enabled
+  service:
+    name: elasticsearch
+    enabled: true
+    state: started
+
+- name: Wait for Elasticsearch API
+  uri:
+    url: "https://{{ es_nodes.split(',')[0].split('\"')[0] }}:9200/_cluster/health/"
+    user: "admin" # Default OpenDistro user is always "admin"
+    password: "{{ opendistro_admin_password }}"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until: (  _result.json is defined) and (_result.json.status == "green")
+  retries: 24
+  delay: 5
+  tags: debug
+
+- import_tasks: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"

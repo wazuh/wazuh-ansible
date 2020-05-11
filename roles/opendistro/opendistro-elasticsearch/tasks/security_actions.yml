@@ -1,0 +1,80 @@
+- block:
+
+  - name: Remove demo certs
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - "{{ opendistro_conf_path }}/kirk.pem"
+      - "{{ opendistro_conf_path }}/kirk-key.pem"
+      - "{{ opendistro_conf_path }}/esnode.pem"
+      - "{{ opendistro_conf_path }}/esnode-key.pem"
+
+  - name: Copy the node & admin certificates to Elasticsearch cluster
+    copy:
+      src: "{{ local_certs_path }}/config/{{ item }}"
+      dest: /etc/elasticsearch/
+      mode: 0644
+    with_items:
+      - root-ca.pem
+      - root-ca.key
+      - "{{ inventory_hostname }}.key"
+      - "{{ inventory_hostname }}.pem"
+      - "{{ inventory_hostname }}_http.key"
+      - "{{ inventory_hostname }}_http.pem"
+      - "{{ inventory_hostname }}_elasticsearch_config_snippet.yml"
+      - admin.key
+      - admin.pem
+
+  - name: Copy the OpenDistro security configuration file to cluster
+    blockinfile:
+      block: "{{ lookup('file', '{{ local_certs_path }}/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+      dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+      insertafter: EOF
+      marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+
+  - name: Prepare the OpenDistro security configuration file
+    replace:
+      path: "{{ opendistro_conf_path }}/elasticsearch.yml"
+      regexp: 'searchguard'
+      replace: 'opendistro_security'
+    tags: local
+
+  - name: Restart elasticsearch with security configuration
+    systemd:
+      name: elasticsearch
+      state: restarted
+
+  - name: Copy the OpenDistro security internal users template
+    template:
+      src: "templates/internal_users.yml.j2"
+      dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
+      mode: 0644
+    run_once: true
+
+  - name: Set the Admin user password
+    shell: >
+      sed -i 's,{{ opendistro_admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }} | tail -1)','
+      {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+    run_once: true
+
+  - name: Set the kibanaserver role/user pasword
+    shell: >
+      sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
+      {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+    run_once: true
+
+  - name: Initialize the OpenDistro security index in elasticsearch
+    command: >
+      {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
+      -cacert {{ opendistro_conf_path }}/root-ca.pem
+      -cert {{ opendistro_conf_path }}/admin.pem
+      -key {{ opendistro_conf_path }}/admin.key
+      -cd {{ opendistro_sec_plugin_conf_path }}/
+      -nhnv -icl
+      -h {{ hostvars[inventory_hostname]['ip'] }}
+    run_once: true
+
+  tags:
+    - production_ready
+  when: install.changed

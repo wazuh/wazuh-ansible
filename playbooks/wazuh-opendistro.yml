@@ -1,0 +1,4 @@
+---
+- hosts: es-cluster
+  roles:
+    - role: ../roles/opendistro/opendistro-elasticsearch
