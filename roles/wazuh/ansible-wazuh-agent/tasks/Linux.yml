@@ -123,15 +123,15 @@
         user: "{{ wazuh_managers.0.api_user }}"
         password: "{{ api_pass }}"
       register: newagent_api
-      notify: restart wazuh-agent
-      # changed_when: newagent_api.json.error == 0
-      vars:
-        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ inventory_hostname }}{% endif %}"
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      become: no
+      changed_when: newagent_api.json.error == 0
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_agent_authd.registration_address is not none
-      become: false
-      ignore_errors: true
+        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - wazuh_managers.0.address is not none
+      tags:
+        - config
+        - api
 
     - name: Linux | Retieve new agent data via rest-API
       uri:
@@ -148,8 +148,11 @@
         - wazuh_agent_authd.registration_address is not none
         - newagent_api.json.error == 0
       register: newagentdata_api
-      delegate_to: localhost
-      become: false
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      become: no
+      tags:
+        - config
+        - api
 
     - name: Linux | Register agent (via rest-API)
       command: /var/ossec/bin/manage_agents
