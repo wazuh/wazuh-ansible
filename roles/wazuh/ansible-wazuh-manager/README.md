@@ -18,19 +18,19 @@ Role Variables
 
 This role has some variables which you can or need to override.
 ```
-wazuh_manager_fqdn: []
+wazuh_manager_fqdn: ~
 wazuh_manager_config: []
-wazuh_agent_configs: []
+shared_agent_config: []
 ```
 
 Vault variables
 ----------------
 
-### vars/agentless_creeds.yml
+### vars/agentless_creds.yml
 This file has the agenless credentials.
 ```
 ---
- agentless_creeds:
+ agentless_creds:
  - type: ssh_integrity_check_linux
    frequency: 3600
    host: root@example.net
@@ -157,7 +157,7 @@ wazuh_manager_config:
       level: 6
       timeout: 600
 
-wazuh_agent_configs:
+shared_agent_config:
   - type: os
     type_value: linux
     frequency_check: 79200

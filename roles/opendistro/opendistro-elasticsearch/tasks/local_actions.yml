@@ -1,0 +1,51 @@
+---
+- block:
+
+  - name: Local action | Create local temporary directory for certificates generation
+    local_action:
+      module: file
+      path: "{{ local_certs_path }}"
+      state: directory
+    run_once: true
+    
+  - name: Local action | Download certificates generation tool
+    local_action:
+      module: get_url
+      url: "{{ certs_gen_tool_url }}"
+      dest: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+    run_once: true
+
+  - name: Local action | Extract the certificates generation tool
+    local_action:
+      module: unarchive
+      src: "{{ local_certs_path }}/search-guard-tlstool-1.7.zip"
+      dest: "{{ local_certs_path }}/"
+
+  - name: Local action | Add the execution bit to the binary
+    local_action:
+      module: file
+      dest: "{{ local_certs_path }}/tools/sgtlstool.sh"
+      mode: a+x
+    run_once: true
+
+  - name: Local action | Prepare the certificates generation template file
+    local_action:
+      module: template
+      src: "templates/tlsconfig.yml.j2"
+      dest: "{{ local_certs_path }}/config/tlsconfig.yml"
+    run_once: true
+
+  - name: Local action | Check if root CA file exists
+    local_action:
+      module: stat 
+      path: "{{ local_certs_path }}/config/root-ca.key"
+    register: root_ca_file
+
+  - name: Local action | Generate the node & admin certificates in local
+    local_action:
+      module: command {{ local_certs_path }}/tools/sgtlstool.sh -c {{ local_certs_path }}/config/tlsconfig.yml -ca -crt -t {{ local_certs_path }}/config/ -f -o
+    run_once: true
+    when: root_ca_file.stat.exists == False
+
+  tags:
+  - generate-certs

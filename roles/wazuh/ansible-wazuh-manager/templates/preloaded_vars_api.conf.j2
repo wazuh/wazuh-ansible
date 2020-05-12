@@ -1,0 +1,7 @@
+{% for key, value in wazuh_api_sources_installation.items() %}
+{% if "enabled" not in key and "branch" not in key %}
+{% if value is defined and value is not none %}
+{{ key|upper }}="{{ value }}"
+{% endif %}
+{% endif %}
+{% endfor %}

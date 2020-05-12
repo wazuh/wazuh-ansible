@@ -1,69 +1,83 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
   apt:
-    name: "{{ item }}"
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
     state: present
     cache_valid_time: 3600
-  with_items:
-    - apt-transport-https
-    - ca-certificates
+    install_recommends: false
+  register: wazuh_manager_https_packages_installed
+  until: wazuh_manager_https_packages_installed is succeeded
+
+- name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
+  become: true
+  shell: |
+    set -o pipefail
+    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+  args:
+    warn: false
+    executable: /bin/bash
+  changed_when: false
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version | int == 14
+    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
-  apt_key: url=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+  apt_key:
+    url: "{{ wazuh_manager_config.repo.gpg }}"
+    id: "{{ wazuh_manager_config.repo.key_id }}"
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
-    repo: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
+    filename: wazuh_repo
+    repo: "{{ wazuh_manager_config.repo.apt }}"
     state: present
-    update_cache: yes
-
-- name: Debian/Ubuntu | Installing NodeJS repository key
-  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-
-- name: Debian/Ubuntu | Add NodeSource repositories for Node.js
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
-    state: present
-    update_cache: yes
+    update_cache: true
+  changed_when: false
+  when:
+    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
 
+- name: Debian/Ubuntu | Install OpenJDK-8 repo
+  apt_repository:
+    repo: 'ppa:openjdk-r/ppa'
+    state: present
+    update_cache: true
+  when:
+    - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+
 - when:
-   - wazuh_manager_config.cis_cat.disable == 'no'
-   - wazuh_manager_config.cis_cat.install_java == 'yes'
+    - wazuh_manager_config.cis_cat.disable == 'no'
+    - wazuh_manager_config.cis_cat.install_java == 'yes'
   block:
-  - name: Debian/Ubuntu | Setting webupd8 repository
-    apt_repository:
-      repo: 'ppa:webupd8team/java'
-      codename: 'xenial'
-      update_cache: yes
-
-  - name: Debian/Ubuntu | Accept Oracle Java 8 license
-    debconf:
-      name: oracle-java8-installer
-      question: shared/accepted-oracle-license-v1-1
-      value: true
-      vtype: boolean
-
-  - name: Debian/Ubuntu | Oracle Java 8 installer
-    apt:
-      name: oracle-java8-installer
-      state: present
-      cache_valid_time: 3600
+    - name: Debian/Ubuntu | Install OpenJDK 1.8
+      apt: name=openjdk-8-jre state=present cache_valid_time=3600
   tags:
     - init
 
 - name: Debian/Ubuntu | Install OpenScap
-  package:
-    name: "{{ item }}"
+  apt:
+    name:
+      - libopenscap8
+      - xsltproc
     state: present
     cache_valid_time: 3600
+    install_recommends: false
+  register: wazuh_manager_openscap_installed
+  until: wazuh_manager_openscap_installed is succeeded
   when: wazuh_manager_config.openscap.disable == 'no'
-  with_items:
-    - libopenscap8
-    - xsltproc
   tags:
     - init
 
@@ -71,7 +85,7 @@
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version
-  changed_when: true
+  changed_when: false
   tags:
     - config
 
@@ -79,6 +93,43 @@
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   when: wazuh_manager_config.openscap.disable == 'no'
   register: openscap_version_valid
-  changed_when: true
+  changed_when: false
   tags:
     - config
+
+- name: Debian/Ubuntu | Install wazuh-manager
+  apt:
+    name:
+      - "wazuh-manager={{ wazuh_manager_version }}"
+    state: present
+    cache_valid_time: 3600
+    install_recommends: false
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  tags: init
+  when:
+    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
+
+- include_tasks: "installation_from_sources.yml"
+  when:
+    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
+
+- include_tasks: "installation_from_custom_packages.yml"
+  when:
+    - wazuh_custom_packages_installation_manager_enabled or wazuh_custom_packages_installation_api_enabled
+
+- name: Debian/Ubuntu | Install wazuh-api
+  apt:
+    name:
+      - "wazuh-api={{ wazuh_manager_version }}"
+    state: present
+    cache_valid_time: 3600
+    install_recommends: false
+  register: wazuh_manager_main_packages_installed
+  until: wazuh_manager_main_packages_installed is succeeded
+  tags: init
+  when:
+    - not wazuh_api_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
+    - wazuh_manager_config.cluster.node_type == "master"

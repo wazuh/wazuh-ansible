@@ -1,9 +1,91 @@
-- hosts: <your wazuh server host>
+---
+
+- hosts: <node-1 IP>
   roles:
-    - role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-wazuh-manager
-    - { role: /etc/ansible/roles/wazuh-ansible/roles/wazuh/ansible-filebeat, filebeat_output_logstash_hosts: 'your elastic stack server IP' }
-- hosts: <your elastic stack server host>
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: <node-1 IP>
+      elasticsearch_node_name: node-1
+      elasticsearch_bootstrap_node: true
+      elasticsearch_cluster_nodes:
+        - <node-1 IP>
+        - <node-2 IP>
+        - <node-3 IP>
+      elasticsearch_discovery_nodes:
+        - <node-1 IP>
+        - <node-2 IP>
+        - <node-3 IP>
+      elasticsearch_xpack_security: true
+      node_certs_generator: true
+      elasticsearch_xpack_security_password: elastic_pass
+      single_node: false
+
+  vars:
+    instances:
+      node1:
+        name: node-1       # Important: must be equal to elasticsearch_node_name.
+        ip: <node-1 IP>   # When unzipping, the node will search for its node name folder to get the cert.
+      node2:
+        name: node-2
+        ip: <node-2 IP>
+      node3:
+        name: node-3
+        ip: <node-3 IP>
+
+- hosts: <node-2 IP>
   roles:
-    - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'localhost' }
-    - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-logstash, logstash_input_beats: true, elasticsearch_network_host: 'localhost' }
-    - { role: /etc/ansible/roles/wazuh-ansible/roles/elastic-stack/ansible-kibana, elasticsearch_network_host: 'localhost' }
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: <node-2 IP>
+      elasticsearch_node_name: node-2
+      single_node: false
+      elasticsearch_xpack_security: true
+      elasticsearch_master_candidate: true
+      elasticsearch_discovery_nodes:
+        - <node-1 IP>
+        - <node-2 IP>
+        - <node-3 IP>
+
+- hosts: <node-3 IP>
+  roles:
+    - role: ../roles/elastic-stack/ansible-elasticsearch
+      elasticsearch_network_host: <node-3 IP>
+      elasticsearch_node_name: node-3
+      single_node: false
+      elasticsearch_xpack_security: true
+      elasticsearch_master_candidate: true
+      elasticsearch_discovery_nodes:
+        - <node-1 IP>
+        - <node-2 IP>
+        - <node-3 IP>
+
+
+# - hosts: 172.16.0.162
+#   roles:
+#     - role: ../roles/wazuh/ansible-wazuh-manager
+
+#     - role: ../roles/wazuh/ansible-filebeat
+#       filebeat_output_elasticsearch_hosts: 172.16.0.161:9200
+#       filebeat_xpack_security: true
+#       filebeat_node_name: node-2
+#       node_certs_generator: false
+#       elasticsearch_xpack_security_password: elastic_pass
+
+#     - role: ../roles/elastic-stack/ansible-elasticsearch
+#       elasticsearch_network_host: 172.16.0.162
+#       node_name: node-2
+#       elasticsearch_bootstrap_node: false
+#       elasticsearch_master_candidate: true
+#       elasticsearch_discovery_nodes:
+#         - 172.16.0.161
+#         - 172.16.0.162
+#       elasticsearch_xpack_security: true
+#       node_certs_generator: false
+
+
+# - hosts: 172.16.0.163
+#   roles:
+#     - role: ../roles/elastic-stack/ansible-kibana
+#       kibana_xpack_security: true
+#       kibana_node_name: node-3
+#       elasticsearch_network_host: 172.16.0.161
+#       node_certs_generator: false
+#       elasticsearch_xpack_security_password: elastic_pass

@@ -32,16 +32,17 @@ The following is an example of how this role can be used:
          wazuh_managers:
            - address: 127.0.0.1
              port: 1514
-             protocol: udp
+             protocol: tcp
              api_port: 55000
              api_proto: 'http'
              api_user: 'ansible'
          wazuh_agent_authd:
+           registration_address: 127.0.0.1
            enable: true
            port: 1515
            ssl_agent_ca: null
            ssl_auto_negotiate: 'no'
-     
+
 
 License and copyright
 ---------------------

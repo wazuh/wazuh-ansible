@@ -1,0 +1,58 @@
+---
+# The OpenDistro version
+opendistro_version: 1.6.0
+elasticsearch_cluster_name: wazuh-cluster
+
+# Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
+minimum_master_nodes: 2
+
+# Elasticsearch version
+es_version: "7.3.2"
+es_major_version: "7.x"
+
+# Configure hostnames for Elasticsearch nodes
+# Example es1.example.com, es2.example.com
+domain_name: wazuh.com
+
+# The OpenDistro package repository
+package_repos:
+  yum: 
+    opendistro: 
+      baseurl: 'https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/'
+      gpg: 'https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch'
+    elasticsearch_oss:
+      baseurl: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
+      gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+
+opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
+opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
+opendistro_conf_path: /etc/elasticsearch/
+es_nodes: |-
+        {% for item in groups['es-cluster'] -%}
+          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
+# Security password
+opendistro_security_password: admin
+# Set JVM memory limits
+opendistro_jvm_xms: null
+
+opendistro_http_port: 9200
+
+certs_gen_tool_version: 1.7
+# Url of Search Guard certificates generator tool
+certs_gen_tool_url: "https://releases.floragunn.com/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-opendistro'
+  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
+
+opendistro_admin_password: changeme
+opendistro_kibana_password: changeme
+# Cluster Settings
+single_node: true
+opendistro_cluster_name: wazuh
+
+local_certs_path: /tmp/opendistro-nodecerts
