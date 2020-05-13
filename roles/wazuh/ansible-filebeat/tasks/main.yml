@@ -100,7 +100,6 @@
     path: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
   when: filebeat_module_package.stat.exists
 
-- meta: end_play
 - import_tasks: config.yml
   when: filebeat_create_config
   notify: restart filebeat
