@@ -127,7 +127,7 @@
       become: no
       changed_when: newagent_api.json.error == 0
       when:
-        - check_keys.stat.exists == false or check_keys.stat.size == 0
+        - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_managers.0.address is not none
       tags:
         - config
