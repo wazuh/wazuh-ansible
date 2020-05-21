@@ -16,8 +16,8 @@ domain_name: wazuh.com
 
 # The OpenDistro package repository
 package_repos:
-  yum: 
-    opendistro: 
+  yum:
+    opendistro:
       baseurl: 'https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/'
       gpg: 'https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch'
     elasticsearch_oss:

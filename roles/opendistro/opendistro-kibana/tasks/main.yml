@@ -1,0 +1,62 @@
+---
+
+- name: Stopping early, trying to compile Wazuh Kibana Plugin on Debian 10 is not possible
+  fail:
+    msg: "It's not possible to compile the Wazuh Kibana plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
+  when:
+    - build_from_sources
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "10"
+
+- import_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+  ignore_errors: true
+  when:
+    - not (ansible_distribution == "Amazon" and ansible_distribution_version == "(Karoo)")
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
+    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
+    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
+
+- name: Install Kibana
+  package:
+    name: opendistroforelasticsearch-kibana
+    state: present
+  register: install
+  tags: install
+
+
+- name: Remove Kibana configuration file
+  file:
+    path: "{{ kibana_conf_path }}/kibana.yml"
+    state: absent
+  when: install.changed
+  tags: install
+
+- import_tasks: security_actions.yml
+
+- name: Copy Configuration File
+  blockinfile:
+    block: "{{ lookup('template', 'opendistro_kibana.yml.j2') }}"
+    dest: "{{ kibana_conf_path }}/kibana.yml"
+    create: true
+    group: root
+    mode: 0640
+    marker: "## {mark} Kibana general settings ##"
+  notify: restart kibana
+
+  tags:
+    - install
+    - configure
+
+- name: Ensure Kibana started and enabled
+  service:
+    name: kibana
+    enabled: true
+    state: started
+
+- import_tasks: RMRedHat.yml
+  when: ansible_os_family == 'RedHat'
