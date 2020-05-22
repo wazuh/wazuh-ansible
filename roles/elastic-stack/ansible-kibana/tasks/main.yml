@@ -56,7 +56,7 @@
   file:
     path: "{{ node_certs_destination }}/"
     state: directory
-    recurse: yes
+    recurse: no
     owner: kibana
     group: kibana
   when:
@@ -67,7 +67,7 @@
   file:
     path: "{{ node_certs_destination }}/"
     mode: 0770
-    recurse: yes
+    recurse: no
   when:
     - kibana_xpack_security
   notify: restart kibana
