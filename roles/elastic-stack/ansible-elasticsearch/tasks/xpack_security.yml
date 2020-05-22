@@ -180,7 +180,7 @@
     path: "{{ node_certs_destination }}/"
     mode: 0774
     state: directory
-    recurse: yes
+    recurse: no
   when:
     - elasticsearch_xpack_security
     - generate_CA

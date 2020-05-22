@@ -59,7 +59,7 @@
     path: "{{ node_certs_destination }}/"
     mode: 0774
     state: directory
-    recurse: yes
+    recurse: no
   when:
     - filebeat_xpack_security
   tags: xpack-security
