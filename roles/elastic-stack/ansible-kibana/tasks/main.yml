@@ -66,14 +66,6 @@
     mode: 0770
   when:
     - kibana_xpack_security
-  tags: xpack-security
-
-- name: Ensuring certificates folder owner
-  file:
-    path: "{{ node_certs_destination }}/"
-    recurse: no
-  when:
-    - kibana_xpack_security
   notify: restart kibana
   tags: xpack-security
 
