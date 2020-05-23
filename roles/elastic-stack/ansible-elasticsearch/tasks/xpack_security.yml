@@ -184,7 +184,7 @@
     path: "{{ node_certs_destination }}/"
     owner: root
     group: elasticsearch
-    mode: 0774
+    mode: 0770
     state: directory
     recurse: no
   when:

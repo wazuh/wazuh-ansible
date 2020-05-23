@@ -56,13 +56,14 @@
     - not generate_CA
   tags: xpack-security
 
-- name: Ensuring certificates folder owner
+- name: Ensuring certificates folder owner and permissions
   file:
     path: "{{ node_certs_destination }}/"
     state: directory
     recurse: no
     owner: kibana
     group: kibana
+    mode: 0770
   when:
     - kibana_xpack_security
   tags: xpack-security
@@ -70,7 +71,6 @@
 - name: Ensuring certificates folder owner
   file:
     path: "{{ node_certs_destination }}/"
-    mode: 0770
     recurse: no
   when:
     - kibana_xpack_security
