@@ -142,7 +142,6 @@
     creates: /usr/share/kibana/optimize/wazuh/
   become: yes
   become_user: kibana
-  changed_when: false
   tags:
     - skip_ansible_lint
 
