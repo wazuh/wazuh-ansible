@@ -1,0 +1,6 @@
+---
+- name: RedHat/CentOS/Fedora | Remove Filebeat repository (and clean up left-over metadata)
+  yum_repository:
+    name: elastic_repo_7
+    state: absent
+  changed_when: false

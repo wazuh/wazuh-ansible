@@ -43,7 +43,8 @@
     block: "{{ lookup('template', 'opendistro_kibana.yml.j2') }}"
     dest: "{{ kibana_conf_path }}/kibana.yml"
     create: true
-    group: root
+    group: kibana
+    owner: kibana
     mode: 0640
     marker: "## {mark} Kibana general settings ##"
   notify: restart kibana
