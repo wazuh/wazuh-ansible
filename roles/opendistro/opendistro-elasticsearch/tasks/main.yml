@@ -7,7 +7,7 @@
 
 - name: Install OpenDistro
   package:
-    name: opendistroforelasticsearch-{{ opendistro_version }} 
+    name: opendistroforelasticsearch-{{ opendistro_version }}
     state: present
   register: install
   tags: install
@@ -18,7 +18,7 @@
     state: absent
   when: install.changed
   tags: install
-  
+
 - name: Copy Configuration File
   blockinfile:
     block: "{{ lookup('template', 'elasticsearch.yml.j2') }}"
