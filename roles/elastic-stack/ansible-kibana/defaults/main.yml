@@ -25,6 +25,7 @@ wazuh_api_credentials:
 
 # Xpack Security
 kibana_xpack_security: false
+kibana_ssl_verification_mode: "full"
 
 elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
