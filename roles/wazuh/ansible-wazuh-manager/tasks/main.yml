@@ -106,7 +106,7 @@
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest=/var/ossec/etc/rules/local_rules.xml
-            owner=root
+            owner=ossec
             group=ossec
             mode=0640
   notify: restart wazuh-manager
@@ -118,7 +118,7 @@
 - name: Adding local rules files
   copy: src="{{ wazuh_manager_config.ruleset.rules_path }}"
         dest=/var/ossec/etc/rules/
-        owner=root
+        owner=ossec
         group=ossec
         mode=0640
   notify: restart wazuh-manager
@@ -130,7 +130,7 @@
 - name: Installing the local_decoder.xml
   template: src=var-ossec-rules-local_decoder.xml.j2
             dest=/var/ossec/etc/decoders/local_decoder.xml
-            owner=root
+            owner=ossec
             group=ossec
             mode=0640
   notify: restart wazuh-manager
@@ -142,7 +142,7 @@
 - name: Adding local decoders files
   copy: src="{{ wazuh_manager_config.ruleset.decoders_path }}"
         dest=/var/ossec/etc/decoders/
-        owner=root
+        owner=ossec
         group=ossec
         mode=0640
   notify: restart wazuh-manager
