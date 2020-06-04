@@ -1,0 +1,30 @@
+---
+filebeat_version: 7.7.0
+
+filebeat_create_config: true
+
+filebeat_output_elasticsearch_enabled: false
+filebeat_output_elasticsearch_hosts:
+  - "localhost:9200"
+
+filebeat_module_package_url: https://packages.wazuh.com/3.x/filebeat
+filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
+filebeat_module_package_path: /tmp/
+filebeat_module_destination: /usr/share/filebeat/module
+filebeat_module_folder: /usr/share/filebeat/module/wazuh
+elasticsearch_security_user: admin
+elasticsearch_security_password: changeme
+# Security plugin
+filebeat_security: true
+filebeat_security_user: admin
+filebeat_security_password: changeme
+filebeat_ssl_dir: /etc/pki/filebeat
+
+# Local path to store the generated certificates (OpenDistro security plugin)
+local_certs_path: /tmp/opendistro-nodecerts
+
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/oss-7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'

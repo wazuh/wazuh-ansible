@@ -14,7 +14,7 @@
     id: "{{ elasticrepo.key_id }}"
     state: present
 
-- name: Debian/Ubuntu | Add Filebeat repository.
+- name: Debian/Ubuntu | Add Filebeat-oss repository.
   apt_repository:
     repo: "deb {{ elasticrepo.apt }} stable main"
     state: present

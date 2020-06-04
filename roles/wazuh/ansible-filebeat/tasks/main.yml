@@ -76,7 +76,7 @@
     dest: "{{ filebeat_module_package_path }}"
   when: not filebeat_module_folder.stat.exists
 
-- name: Unpakcing Filebeat module package
+- name: Unpack Filebeat module package
   unarchive:
     src: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
     dest: "{{ filebeat_module_destination }}"

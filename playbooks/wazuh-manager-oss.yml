@@ -1,8 +1,9 @@
 ---
-- hosts: <WAZUH_MANAGER_HOST>
+- hosts: managers
   roles:
-    - role: ../roles/wazuh/ansible-wazuh-manager
-    - role: ../roles/wazuh/filebeat-oss
-      filebeat_output_elasticsearch_hosts: 172.16.0.161:9200
-
-
+#    - role: ../roles/wazuh/ansible-wazuh-manager
+    - role: ../roles/wazuh/ansible-filebeat-oss
+      filebeat_output_elasticsearch_hosts:
+      - "172.16.0.161:9200"
+      - "172.16.0.162:9200"
+      - "172.16.0.163:9200"

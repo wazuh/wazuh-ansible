@@ -14,25 +14,18 @@ setup.template.json.name: 'wazuh'
 setup.template.overwrite: true
 setup.ilm.enabled: false
 
-
 # Send events directly to Elasticsearch
 output.elasticsearch:
   hosts: {{ filebeat_output_elasticsearch_hosts | to_json }}
 
-{% if filebeat_opendistro_security %}
-  username: {{ elasticsearch_opendistro_security_user }}
-  password: {{ elasticsearch_opendistro_security_password }}
+{% if filebeat_security %}
+  username: {{ elasticsearch_security_user }}
+  password: {{ elasticsearch_security_password }}
   protocol: https
-{% if generate_CA == true %}
-  ssl.certificate_authorities: 
-    - {{node_certs_destination}}/ca.crt
-{% elif generate_CA == false %}
   ssl.certificate_authorities:
-    - {{node_certs_destination}}/{{ca_cert_name}}
-{% endif %}
-
-  ssl.certificate: "{{node_certs_destination}}/{{ filebeat_node_name }}.crt" 
-  ssl.key: "{{node_certs_destination}}/{{ filebeat_node_name }}.key"
+    - {{ filebeat_ssl_dir }}/root-ca.pem
+  ssl.certificate: "{{ filebeat_ssl_dir }}/{{ inventory_hostname }}.pem"
+  ssl.key: "{{ filebeat_ssl_dir }}/{{ inventory_hostname }}.key"
 {% endif %}
 
 # Optional. Send events to Logstash instead of Elasticsearch

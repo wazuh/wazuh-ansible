@@ -1,6 +1,6 @@
 ---
 # The OpenDistro version
-opendistro_version: 1.6.0
+opendistro_version: 1.8.0
 elasticsearch_cluster_name: wazuh-cluster
 
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
@@ -28,7 +28,7 @@ opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_sec
 opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
 opendistro_conf_path: /etc/elasticsearch/
 es_nodes: |-
-        {% for item in groups['es-cluster'] -%}
+        {% for item in groups['es_cluster'] -%}
           {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
         {%- endfor %}
 

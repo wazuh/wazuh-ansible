@@ -1,5 +1,5 @@
 ---
-filebeat_version: 7.6.2
+filebeat_version: 7.7.0
 
 filebeat_create_config: true
 
@@ -22,10 +22,8 @@ filebeat_enable_logging: true
 filebeat_log_level: debug
 filebeat_log_dir: /var/log/mybeat
 filebeat_log_filename: mybeat.log
-
 filebeat_ssl_dir: /etc/pki/filebeat
 filebeat_ssl_certificate_file: ""
-filebeat_ssl_key_file: ""
 filebeat_ssl_insecure: "false"
 
 filebeat_module_package_url: https://packages.wazuh.com/3.x/filebeat

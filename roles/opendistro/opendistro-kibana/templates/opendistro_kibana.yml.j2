@@ -8,9 +8,9 @@ server.maxPayloadBytes: {{ kibana_max_payload_bytes }}
 server.name: {{ kibana_server_name }}
 server.host: {{ kibana_server_host }}
 {% if kibana_opendistro_security %}
-elasticsearch.hosts: "https://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
+elasticsearch.hosts: "https://{{ elasticsearch_nodes }}:{{ elasticsearch_http_port }}"
 {% else %}
-elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
+elasticsearch.hosts: "http://{{ elasticsearch_nodes }}:{{ elasticsearch_http_port }}"
 {% endif %}
 
 elasticsearch.username: {{ opendistro_kibana_user }}
