@@ -107,10 +107,15 @@
   when: wazuh_app_verify.rc == 1
   tags: install
 
-- name: Explicitly starting Kibana to generate "wazuh-"
-  service:
-    name: kibana
-    state: started
+- name: Kibana optimization (can take a while)
+  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize
+  args:
+    executable: /bin/bash
+    creates: /usr/share/kibana/optimize/wazuh/
+  become: yes
+  become_user: kibana
+  tags:
+    - skip_ansible_lint
 
 - name: Build and Install Wazuh Kibana Plugin from sources
   import_tasks: build_wazuh_plugin.yml
@@ -134,16 +139,6 @@
     - skip_ansible_lint
   when:
     - not build_from_sources
-
-- name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize
-  args:
-    executable: /bin/bash
-    creates: /usr/share/kibana/optimize/wazuh/
-  become: yes
-  become_user: kibana
-  tags:
-    - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
