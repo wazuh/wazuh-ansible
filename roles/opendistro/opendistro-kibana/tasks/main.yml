@@ -89,7 +89,7 @@
 
 - name: Select correct API protocol
   set_fact:
-    elastic_api_protocol: "{% if kibana_xpack_security %}https{% else %}http{% endif %}"
+    elastic_api_protocol: "{% if kibana_opendistro_security is defined and kibana_opendistro_security %}https{% else %}http{% endif %}"
 
 - name: Attempting to delete legacy Wazuh index if exists
   uri:
