@@ -2,7 +2,7 @@
 
 elasticsearch_http_port: 9200
 elasticsearch_nodes: |-
-        {% for item in groups['kibana'] -%}
+        {% for item in groups['es_cluster'] -%}
           {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
         {%- endfor %}
 elasticsearch_network_host: 172.16.0.161
