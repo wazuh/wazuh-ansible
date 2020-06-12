@@ -26,4 +26,3 @@
   - security
   when:
   - filebeat_security
-  - install.changed
