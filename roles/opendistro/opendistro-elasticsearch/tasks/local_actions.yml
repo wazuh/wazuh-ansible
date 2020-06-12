@@ -31,13 +31,13 @@
     template:
       src: "templates/tlsconfig.yml.j2"
       dest: "{{ local_certs_path }}/config/tlsconfig.yml"
+    register: tlsconfig_template
 
   - name: Create a directory if it does not exist
     file:
       path: "{{ local_certs_path }}/certs/"
       state: directory
       mode: '0755'
-    delegate_to: localhost
 
   - name: Local action | Check if root CA file exists
     stat:
@@ -51,7 +51,9 @@
       -ca -crt
       -t {{ local_certs_path }}/certs/
       -f -o
-    when: not root_ca_file.stat.exists
+    when:
+      - not root_ca_file.stat.exists
+      - tlsconfig_template.changed
 
   - name: Local action | Generate the node & admin certificates using an existing root CA
     command: >-
@@ -60,7 +62,9 @@
      -crt
      -t {{ local_certs_path }}/certs/
      -f
-    when: root_ca_file.stat.exists
+    when:
+      - root_ca_file.stat.exists
+      - tlsconfig_template.changed
 
   run_once: true
   delegate_to: localhost
