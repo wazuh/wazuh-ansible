@@ -14,9 +14,6 @@
   - install
   - init
 
-- include_tasks: security_actions.yml
-  when: ansible_os_family == 'RedHat'
-
 - name: Checking if Filebeat Module folder file exists
   stat:
     path: "{{ filebeat_module_folder }}"
