@@ -46,7 +46,7 @@ node_certs_destination: /etc/filebeat/certs
 
 
 # CA Generation
-master_certs_path: /es_certs
+master_certs_path: "{{ playbook_dir }}/es_certs"
 generate_CA: true
 ca_cert_name: ""
 

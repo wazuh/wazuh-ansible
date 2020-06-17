@@ -102,6 +102,7 @@
     state: directory
     mode: 0700
   delegate_to: "127.0.0.1"
+  become: no
   when:
     - node_certs_generator
 
@@ -111,6 +112,7 @@
     state: directory
     mode: 0700
   delegate_to: "127.0.0.1"
+  become: no
   when:
     - node_certs_generator
 
@@ -139,6 +141,7 @@
     src: "{{ master_certs_path }}/certs.zip"
     dest: "{{ master_certs_path }}/"
   delegate_to: "127.0.0.1"
+  become: no
   when:
     - node_certs_generator
   tags:

@@ -36,7 +36,7 @@ node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/elasticsearch/certs
 
 # CA generation
-master_certs_path: /es_certs
+master_certs_path: "{{ playbook_dir }}/es_certs"
 generate_CA: true
 ca_key_name: ""
 ca_cert_name: ""
