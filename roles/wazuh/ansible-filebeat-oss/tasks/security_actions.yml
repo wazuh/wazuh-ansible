@@ -1,0 +1,28 @@
+- block:
+
+  - name: Ensure Filebeat SSL key pair directory exists.
+    file:
+      path: "{{ filebeat_ssl_dir }}"
+      state: directory
+
+  - name: Copy the certificates from local to the Manager instance
+    copy:
+      src: "{{ local_certs_path }}/certs/{{ item }}"
+      dest: "{{ filebeat_ssl_dir }}"
+      mode: 0644
+    with_items:
+      - "{{ inventory_hostname }}.key"
+      - "{{ inventory_hostname }}.pem"
+      - "root-ca.pem"
+
+  - name: Ensuring folder & certs permissions
+    file:
+      path: "{{ filebeat_ssl_dir }}/"
+      mode: 0774
+      state: directory
+      recurse: yes
+
+  tags:
+  - security
+  when:
+  - filebeat_security

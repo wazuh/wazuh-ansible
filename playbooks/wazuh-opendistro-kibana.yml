@@ -1,0 +1,4 @@
+---
+- hosts: es1
+  roles:
+    - role: ../roles/opendistro/opendistro-kibana

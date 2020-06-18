@@ -1,7 +1,7 @@
 Ansible Role: Filebeat for Elastic Stack
 ------------------------------------
 
-An Ansible Role that installs [Filebeat](https://www.elastic.co/products/beats/filebeat), this can be used in conjunction with [ansible-wazuh-manager](https://github.com/wazuh/wazuh-ansible/ansible-wazuh-server).
+An Ansible Role that installs [Filebeat-oss](https://www.elastic.co/products/beats/filebeat), this can be used in conjunction with [ansible-wazuh-manager](https://github.com/wazuh/wazuh-ansible/ansible-wazuh-server).
 
 Requirements
 ------------

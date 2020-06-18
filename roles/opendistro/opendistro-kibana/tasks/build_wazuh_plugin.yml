@@ -1,0 +1,76 @@
+---
+  - name: Ensure the Git package is present
+    package:
+      name: git
+      state: present
+
+  - name: Modify repo url if host is in Debian family
+    set_fact:
+      node_js_repo_type: deb
+    when:
+      - ansible_os_family | lower == "debian"
+
+  - name: Download script to install Nodejs repository
+    get_url:
+      url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
+      dest: "/tmp/setup_nodejs_repo.sh"
+      mode: 0700
+
+  - name: Execute downloaded script to install Nodejs repo
+    command: /tmp/setup_nodejs_repo.sh
+    register: node_repo_installation_result
+    changed_when: false
+
+  - name: Install Nodejs
+    package:
+      name: nodejs
+      state: present
+
+  - name: Install yarn dependency to build the Wazuh Kibana Plugin
+    # Using shell due to errors when evaluating text between @ with command
+    shell: "npm install -g {{ 'yarn' }}{{ '@' }}{{ '1.10.1'}}" # noqa 305
+    register: install_yarn_result
+    changed_when: install_yarn_result == 0
+
+  - name: Remove old wazuh-kibana-app git directory
+    file:
+      path: /tmp/app
+      state: absent
+    changed_when: false
+
+  - name: Clone wazuh-kibana-app repository # Using command as git module doesn't cover single-branch nor depth
+    command: git clone https://github.com/wazuh/wazuh-kibana-app -b {{ wazuh_plugin_branch }} --single-branch --depth=1 app # noqa 303
+    register: clone_app_repo_result
+    changed_when: false
+    args:
+      chdir: "/tmp"
+
+  - name: Executing yarn to build the package
+    command: "{{ item }}"
+    with_items:
+      - "yarn"
+      - "yarn build"
+    register: yarn_execution_result
+    changed_when: false
+    args:
+      chdir: "/tmp/app/"
+
+  - name: Obtain name of generated package
+    shell: "find ./ -name 'wazuh-*.zip' -printf '%f\\n'"
+    register: wazuhapp_package_name
+    changed_when: false
+    args:
+      chdir: "/tmp/app/build"
+
+  - name: Install Wazuh Plugin (can take a while)
+    shell: NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install file:///tmp/app/build/{{ wazuhapp_package_name.stdout }}
+    args:
+      executable: /bin/bash
+      creates: /usr/share/kibana/plugins/wazuh/package.json
+      chdir: /usr/share/kibana
+    become: yes
+    become_user: kibana
+    notify: restart kibana
+    tags:
+      - install
+      - skip_ansible_lint
