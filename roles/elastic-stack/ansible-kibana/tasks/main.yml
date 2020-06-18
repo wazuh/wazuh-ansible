@@ -28,6 +28,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: kibana
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
@@ -42,6 +44,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: kibana
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
@@ -52,22 +56,14 @@
     - not generate_CA
   tags: xpack-security
 
-- name: Ensuring certificates folder owner
+- name: Ensuring certificates folder owner and permissions
   file:
     path: "{{ node_certs_destination }}/"
     state: directory
-    recurse: yes
+    recurse: no
     owner: kibana
     group: kibana
-  when:
-    - kibana_xpack_security
-  tags: xpack-security
-
-- name: Ensuring certificates folder owner
-  file:
-    path: "{{ node_certs_destination }}/"
     mode: 0770
-    recurse: yes
   when:
     - kibana_xpack_security
   notify: restart kibana
