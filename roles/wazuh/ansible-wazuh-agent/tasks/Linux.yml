@@ -50,17 +50,25 @@
     - name: Retrieving authd Credentials
       include_vars: authd_pass.yml
 
-    - name: Copy CA, SSL key and cert for authd
+    - name: Copy CA root certificate to verify authd
+      copy:
+        src: "{{ wazuh_agent_authd.ssl_agent_ca }}"
+        dest: "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
+        mode: 0644
+      when:
+        - wazuh_agent_authd.ssl_agent_ca is not none
+
+    - name: Copy TLS/SSL certificate for agent verification
       copy:
         src: "{{ item }}"
         dest: "/var/ossec/etc/{{ item | basename }}"
         mode: 0644
       with_items:
-        - "{{ wazuh_agent_authd.ssl_agent_ca }}"
         - "{{ wazuh_agent_authd.ssl_agent_cert }}"
         - "{{ wazuh_agent_authd.ssl_agent_key }}"
       when:
-        - wazuh_agent_authd.ssl_agent_ca is not none
+        - wazuh_agent_authd.ssl_agent_cert is not none
+        - wazuh_agent_authd.ssl_agent_key is not none
 
     - name: Linux | Register agent (via authd)
       shell: >
@@ -133,7 +141,7 @@
         - config
         - api
 
-    - name: Linux | Retieve new agent data via rest-API
+    - name: Linux | Retrieve new agent data via rest-API
       uri:
         url: >-
           "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address
@@ -167,7 +175,7 @@
       when:
         - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
-        - newagent_api.changed
+        - newagent_api.json.error == 0
       notify: restart wazuh-agent
 
   when:
