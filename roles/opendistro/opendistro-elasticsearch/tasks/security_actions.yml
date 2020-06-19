@@ -1,5 +1,4 @@
 - block:
-
   - name: Remove demo certs
     file:
       path: "{{ item }}"
@@ -12,7 +11,7 @@
 
   - name: Copy the node & admin certificates to Elasticsearch cluster
     copy:
-      src: "{{ local_certs_path }}/config/{{ item }}"
+      src: "{{ local_certs_path }}/certs/{{ item }}"
       dest: /etc/elasticsearch/
       mode: 0644
     with_items:
@@ -28,7 +27,7 @@
 
   - name: Copy the OpenDistro security configuration file to cluster
     blockinfile:
-      block: "{{ lookup('file', '{{ local_certs_path }}/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+      block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
       dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
       insertafter: EOF
       marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
@@ -76,5 +75,5 @@
     run_once: true
 
   tags:
-    - production_ready
+    - security
   when: install.changed
