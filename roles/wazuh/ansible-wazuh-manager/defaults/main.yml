@@ -1,21 +1,21 @@
 ---
-wazuh_manager_version: 3.12.0-1
+wazuh_manager_version: 3.12.3-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
 # Custom packages installation
 wazuh_custom_packages_installation_manager_enabled: false
-wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/deb/var/wazuh-manager_3.12.0-0.3319fimreworksqlite_amd64.deb"
-wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/rpm/var/wazuh-manager-3.12.0-0.3319fimreworksqlite.x86_64.rpm"
+wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
+wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
 wazuh_custom_packages_installation_api_enabled: false
-wazuh_custom_packages_installation_api_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/deb/var/wazuh-api_3.12.0-0.3319fimreworksqlite_amd64.deb"
-wazuh_custom_packages_installation_api_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/branches/3.12/rpm/var/wazuh-api-3.12.0-0.3319fimreworksqlite.x86_64.rpm"
+wazuh_custom_packages_installation_api_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
+wazuh_custom_packages_installation_api_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
 
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v3.12.0"
+  branch: "v3.12.3"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -40,7 +40,7 @@ wazuh_manager_sources_installation:
 
 wazuh_api_sources_installation:
   enabled: false
-  branch: "v3.12.0"
+  branch: "v3.12.3"
   update: "y"
   remove: "y"
   directory: null
@@ -152,7 +152,6 @@ wazuh_manager_config:
     frequency: 43200
     scan_on_start: 'yes'
     auto_ignore: 'no'
-    alert_new_files: 'yes'
     ignore:
       - /etc/mtab
       - /etc/hosts.deny
@@ -236,7 +235,6 @@ wazuh_manager_config:
     providers:
       - enabled: 'no'
         os:
-          - 'precise'
           - 'trusty'
           - 'xenial'
           - 'bionic'
@@ -355,6 +353,29 @@ wazuh_manager_config:
     - server: null
       port: null
       format: null
+  integrations:
+    #slack
+    - name: null
+      hook_url: '<hook_url>'
+      alert_level: 10
+      alert_format: 'json'
+      rule_id: null
+    #pagerduty
+    - name: null
+      api_key: '<api_key>'
+      alert_level: 12
+  monitor_aws:
+    disabled: 'yes'
+    interval: '10m'
+    run_on_start: 'yes'
+    skip_on_error: 'yes'
+    s3:
+      - name: null
+        bucket_type: null
+        path: null
+        only_logs_after: null
+        access_key: null
+        secret_key: null
   labels:
     enable: false
     list:
@@ -367,7 +388,6 @@ wazuh_manager_config:
   #   syscheck:
   #     frequency: 43200
   #     scan_on_start: 'yes'
-  #     alert_new_files: 'yes'
   #     ignore:
   #       - /etc/mtab
   #       - /etc/mnttab
@@ -398,7 +418,6 @@ wazuh_manager_config:
   #     frequency: 43200
   #     scan_on_start: 'yes'
   #     auto_ignore: 'no'
-  #     alert_new_files: 'yes'
   #     windows_registry:
   #       - key: 'HKEY_LOCAL_MACHINE\Software\Classes\batfile'
   #         arch: 'both'

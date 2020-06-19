@@ -134,7 +134,7 @@ It is possible to define users directly on the playbook, these must be defined o
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2017 Wazuh Inc. (License GPLv3)
+WAZUH Copyright (C) 2020 Wazuh Inc. (License GPLv3)
 
 ### Based on previous work from geerlingguy
 

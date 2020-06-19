@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 3.12.0-1
+wazuh_agent_version: 3.12.3-1
 
 
 # Custom packages installation
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v3.12.0"
+  branch: "v3.12.3"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
@@ -39,6 +39,7 @@ wazuh_managers:
     api_port: 55000
     api_proto: 'http'
     api_user: null
+wazuh_api_reachable_from_agent: false
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
 wazuh_auto_restart: 'yes'
@@ -63,9 +64,9 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
-  md5: 91efaefae4e1977670eab0c768a22a93
-wazuh_winagent_config_url: https://packages.wazuh.com/3.x/windows/wazuh-agent-3.12.0-1.msi
-wazuh_winagent_package_name: wazuh-agent-3.12.0-1.msi
+  md5: 4ae4e930d3ae9d572b07cd9e7207d783
+wazuh_winagent_config_url: https://packages.wazuh.com/3.x/windows/wazuh-agent-3.12.3-1.msi
+wazuh_winagent_package_name: wazuh-agent-3.12.3-1.msi
 wazuh_agent_config:
   repo:
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
@@ -86,7 +87,6 @@ wazuh_agent_config:
     frequency: 43200
     scan_on_start: 'yes'
     auto_ignore: 'no'
-    alert_new_files: 'yes'
     win_audit_interval: 60
     skip_nfs: 'yes'
     skip_dev: 'yes'

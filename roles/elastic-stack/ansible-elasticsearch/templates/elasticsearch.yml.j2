@@ -6,6 +6,12 @@ path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
 bootstrap.memory_lock: true
 network.host: {{ elasticsearch_network_host }}
+{% if elasticsearch_path_repo | length>0 %}
+path.repo:
+{% for item in elasticsearch_path_repo %}
+  - {{ item }}
+{% endfor %}
+{% endif %}
 
 {% if single_node %}
 discovery.type: single-node

@@ -123,7 +123,7 @@
       path: /var/ossec/api/app.js
     register: wazuh_api
     when:
-      - wazuh_manager_config.cluster.node_type == "master"
+      - wazuh_manager_config.cluster.node_type == "master" or wazuh_manager_config.cluster.node_type == "worker"
 
   - name: Install Wazuh API from sources
     block:
