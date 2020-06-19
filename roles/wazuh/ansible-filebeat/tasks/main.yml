@@ -73,7 +73,6 @@
     path: "{{ filebeat_module_folder }}"
   register: filebeat_module_folder
 
-
 - name: Download Filebeat module package
   get_url:
     url: "{{ filebeat_module_package_url }}/{{ filebeat_module_package_name }}"
