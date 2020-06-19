@@ -1,0 +1,9 @@
+---
+- name: RedHat/CentOS/Fedora/Amazon Linux | Install Filebeats repo
+  yum_repository:
+    name: elastic_oss-repo_7
+    description: Elastic repository for 7.x packages
+    baseurl: "{{ elasticrepo.yum }}"
+    gpgkey: "{{ elasticrepo.gpg }}"
+    gpgcheck: true
+  changed_when: false

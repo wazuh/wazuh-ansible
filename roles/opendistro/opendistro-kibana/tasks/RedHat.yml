@@ -1,0 +1,23 @@
+---
+- block:
+
+  - name: RedHat/CentOS/Fedora | Add OpenDistro repo
+    yum_repository:
+      file: opendistro
+      name: opendistro_repo
+      description: Opendistro yum repository
+      baseurl: "{{ package_repos.yum.opendistro.baseurl }}"
+      gpgkey: "{{ package_repos.yum.opendistro.gpg }}"
+      gpgcheck: true
+
+  - name: RedHat/CentOS/Fedora | Add Elasticsearch-oss repo
+    yum_repository:
+      file: opendistro
+      name: elasticsearch_oss_repo
+      description: Elasticsearch-oss yum repository
+      baseurl: "{{ package_repos.yum.elasticsearch_oss.baseurl }}"
+      gpgkey: "{{ package_repos.yum.elasticsearch_oss.gpg }}"
+      gpgcheck: true
+
+  tags:
+    - install

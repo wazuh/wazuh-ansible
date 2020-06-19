@@ -30,6 +30,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: root
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
@@ -44,6 +46,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: root
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
@@ -57,9 +61,9 @@
 - name: Ensuring folder & certs permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: 0774
+    mode: 0770
     state: directory
-    recurse: yes
+    recurse: no
   when:
     - filebeat_xpack_security
   tags: xpack-security

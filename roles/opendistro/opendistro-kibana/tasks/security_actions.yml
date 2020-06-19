@@ -1,0 +1,13 @@
+- block:
+
+  - name: Copy the certificates from local to the Kibana instance
+    copy:
+      src: "{{ local_certs_path }}/certs/{{ item }}"
+      dest: /usr/share/kibana
+      mode: 0644
+    with_items:
+      - "{{ inventory_hostname }}_http.key"
+      - "{{ inventory_hostname }}_http.pem"
+  tags:
+  - security
+  when: install.changed
