@@ -9,9 +9,9 @@
       mode: 0400
     notify: restart filebeat
 
-  - name: Copy Elasticsearch template.
-    template:
-      src: elasticsearch.yml.j2
+  - name: Fetch latest Wazuh alerts template
+    get_url:
+      url: https://raw.githubusercontent.com/wazuh/wazuh/master/extensions/elasticsearch/7.x/wazuh-template.json
       dest: "/etc/filebeat/wazuh-template.json"
       owner: root
       group: root
