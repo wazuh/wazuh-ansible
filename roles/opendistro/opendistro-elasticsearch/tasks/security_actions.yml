@@ -14,19 +14,19 @@
     block:
       - name: Setting node name (Elasticsearch)
         set_fact:
-          od_node_name: elasticsearch_node_name
+          od_node_name: "{{ elasticsearch_node_name }}"
         when:
           elasticsearch_node_name is defined and kibana_node_name is not defined
 
       - name: Setting node name (Kibana)
         set_fact:
-          od_node_name: kibana_node_name
+          od_node_name: "{{ kibana_node_name }}"
         when:
           kibana_node_name is defined
 
       - name: Setting node name (Filebeat)
         set_fact:
-          od_node_name: filebeat_node_name
+          od_node_name: "{{ kibana_node_name }}"
         when:
           filebeat_node_name is defined
 
