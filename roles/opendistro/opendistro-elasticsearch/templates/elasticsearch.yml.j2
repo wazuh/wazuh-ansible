@@ -2,7 +2,6 @@ cluster.name: {{ elasticsearch_cluster_name }}
 node.name: {{ elasticsearch_node_name }}
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
-bootstrap.memory_lock: true
 network.host: {{ elasticsearch_network_host }}
 
 node.master: {{ elasticsearch_node_master|lower }}
