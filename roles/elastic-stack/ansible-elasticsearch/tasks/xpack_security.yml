@@ -152,6 +152,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: elasticsearch
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
@@ -167,6 +169,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: elasticsearch
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
@@ -181,9 +185,11 @@
 - name: Ensuring folder permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: 0774
+    owner: root
+    group: elasticsearch
+    mode: 0770
     state: directory
-    recurse: yes
+    recurse: no
   when:
     - elasticsearch_xpack_security
     - generate_CA

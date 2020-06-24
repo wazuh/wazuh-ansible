@@ -1,0 +1,22 @@
+cluster.name: "{{ opendistro_cluster_name }}"
+
+node.name: "{{ inventory_hostname }}"
+
+path.data: /var/lib/elasticsearch
+
+path.logs: /var/log/elasticsearch
+
+network.host: "{{ hostvars[inventory_hostname]['ip'] }}"
+
+http.port: "{{ opendistro_http_port }}"
+
+discovery.seed_hosts: ["{{ es_nodes }}"]
+
+cluster.initial_master_nodes: ["{{ es_nodes }}"]
+
+discovery.zen.minimum_master_nodes: "{{ minimum_master_nodes }}"
+opendistro_security.allow_default_init_securityindex: true
+opendistro_security.audit.type: internal_elasticsearch
+opendistro_security.enable_snapshot_restore_privilege: true
+opendistro_security.check_snapshot_restore_write_privileges: true
+opendistro_security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]

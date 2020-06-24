@@ -1,0 +1,62 @@
+---
+
+elasticsearch_http_port: 9200
+elasticsearch_nodes: |-
+        {% for item in groups['es_cluster'] -%}
+          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+elasticsearch_network_host: 172.16.0.161
+elastic_api_protocol: https
+kibana_conf_path: /etc/kibana
+kibana_server_host: "0.0.0.0"
+kibana_server_port: "5601"
+kibana_server_name: "kibana"
+kibana_max_payload_bytes: 1048576
+elastic_stack_version: 7.7.1
+wazuh_version: 3.13.0
+wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
+
+# The OpenDistro package repository
+package_repos:
+  yum:
+    opendistro:
+      baseurl: 'https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/'
+      gpg: 'https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch'
+    elasticsearch_oss:
+      baseurl: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
+      gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+
+
+# API credentials
+wazuh_api_credentials:
+  - id: "default"
+    url: "http://localhost"
+    port: 55000
+    user: "foo"
+    password: "bar"
+
+# opendistro Security
+kibana_opendistro_security: true
+kibana_newsfeed_enabled: "false"
+kibana_telemetry_optin: "false"
+kibana_telemetry_enabled: "false"
+
+opendistro_security_user: elastic
+opendistro_admin_password: changeme
+opendistro_kibana_user: kibanaserver
+opendistro_kibana_password: changeme
+local_certs_path: /tmp/opendistro-nodecerts
+
+# Nodejs
+nodejs:
+  repo_dict:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_10.x"
+
+# Build from sources
+build_from_sources: false
+wazuh_plugin_branch: 3.13-7.7
+
+#Nodejs NODE_OPTIONS
+node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536

@@ -1,0 +1,6 @@
+---
+- name: RedHat/CentOS/Fedora | Remove Elasticsearch repository (and clean up left-over metadata)
+  yum_repository:
+    name: opendistro_repo
+    state: absent
+  changed_when: false

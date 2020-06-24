@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.13.0_7.7.1]
+
+### Added
+
+- Update to Wazuh v3.13.0
+- Open Distro-Kibana and Filebeat-oss roles ([@manuasir](https://github.com/manuasir)) [PR#424](https://github.com/wazuh/wazuh-ansible/pull/424)
+
+### Changed
+
+- Fetch ES template from wazuh/wazuh repository ([@Zenidd](https://github.com/Zenidd)) [PR#435](https://github.com/wazuh/wazuh-ansible/pull/435)
+
+### Fixed
+
+- Use local path while generating xpack certificates ([@xr09](https://github.com/xr09)) [PR#432](https://github.com/wazuh/wazuh-ansible/pull/432)
 
 ## [v3.12.3_7.6.2]
 
