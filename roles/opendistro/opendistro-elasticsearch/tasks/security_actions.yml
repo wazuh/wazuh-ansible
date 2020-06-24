@@ -9,6 +9,28 @@
       - "{{ opendistro_conf_path }}/esnode.pem"
       - "{{ opendistro_conf_path }}/esnode-key.pem"
 
+
+  - name: Configure node name
+    block:
+      - name: Setting node name (Elasticsearch)
+        set_fact:
+          od_node_name: elasticsearch_node_name
+        when:
+          elasticsearch_node_name is defined and kibana_node_name is not defined
+
+      - name: Setting node name (Kibana)
+        set_fact:
+          od_node_name: kibana_node_name
+        when:
+          kibana_node_name is defined
+
+      - name: Setting node name (Filebeat)
+        set_fact:
+          od_node_name: filebeat_node_name
+        when:
+          filebeat_node_name is defined
+
+
   - name: Copy the node & admin certificates to Elasticsearch cluster
     copy:
       src: "{{ local_certs_path }}/certs/{{ item }}"
@@ -17,17 +39,17 @@
     with_items:
       - root-ca.pem
       - root-ca.key
-      - "{{ inventory_hostname }}.key"
-      - "{{ inventory_hostname }}.pem"
-      - "{{ inventory_hostname }}_http.key"
-      - "{{ inventory_hostname }}_http.pem"
-      - "{{ inventory_hostname }}_elasticsearch_config_snippet.yml"
+      - "{{ od_node_name }}.key"
+      - "{{ od_node_name }}.pem"
+      - "{{ od_node_name }}_http.key"
+      - "{{ od_node_name }}_http.pem"
+      - "{{ od_node_name }}_elasticsearch_config_snippet.yml"
       - admin.key
       - admin.pem
 
   - name: Copy the OpenDistro security configuration file to cluster
     blockinfile:
-      block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+      block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml') }}"
       dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
       insertafter: EOF
       marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
@@ -71,7 +93,7 @@
       -key {{ opendistro_conf_path }}/admin.key
       -cd {{ opendistro_sec_plugin_conf_path }}/
       -nhnv -icl
-      -h {{ hostvars[inventory_hostname]['ip'] }}
+      -h {{ hostvars[od_node_name]['ip'] }}
     run_once: true
 
   tags:
