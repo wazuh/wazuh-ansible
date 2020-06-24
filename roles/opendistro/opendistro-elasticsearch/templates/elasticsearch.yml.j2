@@ -10,10 +10,12 @@ node.master: {{ elasticsearch_node_master|lower }}
 cluster.initial_master_nodes:
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
+{% endfor %}
 
 discovery.seed_hosts:
 {% for item in elasticsearch_discovery_nodes %}
   - {{ item }}
+{% endfor %}
 
 {% if elasticsearch_node_data|lower == 'false' %}
 node.data: false
