@@ -67,8 +67,8 @@
         - "{{ wazuh_agent_authd.ssl_agent_cert }}"
         - "{{ wazuh_agent_authd.ssl_agent_key }}"
       when:
-        - wazuh_agent_authd.ssl_agent_cert is not none
-        - wazuh_agent_authd.ssl_agent_key is not none
+        - wazuh_agent_authd.ssl_agent_cert is defined
+        - wazuh_agent_authd.ssl_agent_key is defined
 
     - name: Linux | Register agent (via authd)
       shell: >
