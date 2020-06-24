@@ -54,5 +54,6 @@ opendistro_kibana_password: changeme
 # Cluster Settings
 single_node: true
 opendistro_cluster_name: wazuh
+elasticsearch_node_data: true
 
 local_certs_path: ../opendistro/certificates
