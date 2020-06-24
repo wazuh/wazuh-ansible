@@ -35,9 +35,9 @@
           name: amazon-linux-extras
           state: present
 
-
       - name: Install OpenJDK 11
         shell: amazon-linux-extras install java-openjdk11 -y
+
     when:
       - ansible_distribution == 'Amazon'
 
