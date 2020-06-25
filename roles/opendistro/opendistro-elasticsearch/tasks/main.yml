@@ -51,7 +51,7 @@
 
 - name: Wait for Elasticsearch API
   uri:
-    url: "https://{{ es_nodes.split(',')[0].split('\"')[0] }}:9200/_cluster/health/"
+    url: "https://{{ inventory_hostname }}:9200/_cluster/health/"
     user: "admin" # Default OpenDistro user is always "admin"
     password: "{{ opendistro_admin_password }}"
     validate_certs: no
