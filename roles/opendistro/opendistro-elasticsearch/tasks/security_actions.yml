@@ -141,7 +141,7 @@
         }
       body_format: json
       validate_certs: no
-      status_code: 200,401
+      status_code: 200,201,401
       return_content: yes
       timeout: 4
     when:
