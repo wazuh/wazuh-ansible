@@ -30,6 +30,18 @@
         when:
           filebeat_node_name is defined
 
+  - name: Configure IP (Private address)
+    set_fact:
+      target_address: "{{ hostvars[inventory_hostname]['private_ip'] }}"
+    when:
+      - hostvars[inventory_hostname]['private_ip'] is defined
+
+  - name: Configure IP (Public address)
+    set_fact:
+      target_address: "{{ inventory_hostname }}"
+    when:
+      - hostvars[inventory_hostname]['private_ip'] is not defined
+
 
   - name: Copy the node & admin certificates to Elasticsearch cluster
     copy:
@@ -113,12 +125,12 @@
       -key {{ opendistro_conf_path }}/admin.key
       -cd {{ opendistro_sec_plugin_conf_path }}/
       -nhnv -icl
-      -h {{ inventory_hostname }}
+      -h {{ target_address }}
     run_once: true
 
   - name: Create custom user
     uri:
-      url: "https://{{ inventory_hostname }}:9200/_cluster/health/"
+      url: "https://{{ target_address }}:9200/_cluster/health/"
       method: PUT
       user: "admin" # Default OpenDistro user is always "admin"
       password: "{{ opendistro_admin_password }}"
