@@ -137,8 +137,7 @@
       body: |
         {
           "password": "{{ opendistro_admin_password }}",
-          "backend_roles": ["{{ opendistro_custom_user_role }}"],
-          }
+          "backend_roles": ["{{ opendistro_custom_user_role }}"]
         }
       body_format: json
       validate_certs: no
