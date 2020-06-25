@@ -96,6 +96,26 @@
       -h {{ hostvars[od_node_name]['ip'] }}
     run_once: true
 
+  - name: Create custom user
+    uri:
+      url: "https://{{ inventory_hostname }}:9200/_cluster/health/"
+      method: PUT
+      user: "admin" # Default OpenDistro user is always "admin"
+      password: "{{ opendistro_admin_password }}"
+      body: |
+        {
+          "password": "{{ opendistro_admin_password }}",
+          "backend_roles": ["{{ opendistro_custom_user_role }}"],
+          }
+        }
+      body_format: json
+      validate_certs: no
+      status_code: 200,401
+      return_content: yes
+      timeout: 4
+    when:
+      - opendistro_custom_user != ""
+
   tags:
     - security
   when: install.changed
