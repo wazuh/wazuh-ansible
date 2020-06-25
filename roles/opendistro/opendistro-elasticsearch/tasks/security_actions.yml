@@ -93,7 +93,7 @@
       -key {{ opendistro_conf_path }}/admin.key
       -cd {{ opendistro_sec_plugin_conf_path }}/
       -nhnv -icl
-      -h {{ hostvars[od_node_name]['ip'] }}
+      -h {{ inventory_hostname }}
     run_once: true
 
   - name: Create custom user
