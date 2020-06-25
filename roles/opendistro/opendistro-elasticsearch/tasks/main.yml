@@ -63,6 +63,25 @@
   retries: 24
   delay: 5
   tags: debug
+  when:
+    - hostvars[inventory_hostname]['private_ip'] is not defined
+
+- name: Wait for Elasticsearch API (Private IP)
+  uri:
+    url: "https://{{ hostvars[inventory_hostname]['private_ip'] }}:9200/_cluster/health/"
+    user: "admin" # Default OpenDistro user is always "admin"
+    password: "{{ opendistro_admin_password }}"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until: (  _result.json is defined) and (_result.json.status == "green")
+  retries: 24
+  delay: 5
+  tags: debug
+  when:
+    - hostvars[inventory_hostname]['private_ip'] is defined and  hostvars[inventory_hostname]['private_ip'] != ""
 
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
