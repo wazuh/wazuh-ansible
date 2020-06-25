@@ -73,10 +73,30 @@
       mode: 0644
     run_once: true
 
+  - name: Hashing the custom admin password
+    shell: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}"
+    register: opendistro_admin_password_hashed
+    run_once: true
+
+  - name: Filtering hash result in case java path is not defined
+    set_fact:
+      opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[1] }}"
+    when:
+      - opendistro_admin_password_hashed.stdout_lines[1] is defined
+    run_once: true
+
+  - name: Setting admin hash result
+    set_fact:
+      opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[0] }}"
+    when:
+      - opendistro_admin_password_hashed.stdout_lines[1] is not defined
+    run_once: true
+
   - name: Set the Admin user password
-    shell: >
-      sed -i 's,{{ opendistro_admin_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }} | tail -1)','
-      {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+    replace:
+      path: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
+      regexp: '(?<=admin:\n  hash: )(.*)(?=)'
+      replace: "\"{{ opendistro_admin_password_hashed_filtered }}\""
     run_once: true
 
   - name: Set the kibanaserver role/user pasword
