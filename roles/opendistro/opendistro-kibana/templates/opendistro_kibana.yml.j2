@@ -17,7 +17,7 @@ elasticsearch.password: {{ opendistro_kibana_password }}
 elasticsearch.ssl.verificationMode: certificate
 server.ssl.enabled: true
 server.ssl.certificate: "/usr/share/kibana/{{ kibana_node_name }}_http.pem"
-server.ssl.key: "/usr/share/kibana//{{ kibana_node_name }}_http.key"
+server.ssl.key: "/usr/share/kibana/{{ kibana_node_name }}_http.key"
 
 {% else %}
 elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
