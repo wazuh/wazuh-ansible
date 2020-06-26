@@ -25,7 +25,7 @@ output.elasticsearch:
   ssl.certificate_authorities:
     - {{ filebeat_ssl_dir }}/root-ca.pem
   ssl.certificate: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem"
-  ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat/node/name }}.key"
+  ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.key"
 {% endif %}
 
 # Optional. Send events to Logstash instead of Elasticsearch
