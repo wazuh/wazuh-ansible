@@ -50,7 +50,7 @@ opendistro_security_user: elastic
 opendistro_admin_password: changeme
 opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme
-local_certs_path: ./opendistro/certificate
+local_certs_path: ./opendistro/certificates
 
 # Nodejs
 nodejs:
