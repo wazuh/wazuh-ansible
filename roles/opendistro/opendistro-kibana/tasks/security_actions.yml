@@ -6,6 +6,7 @@
       dest: /usr/share/kibana
       mode: 0644
     with_items:
+      - "root-ca.pem"
       - "{{ kibana_node_name }}_http.key"
       - "{{ kibana_node_name }}_http.pem"
   tags:
