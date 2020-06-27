@@ -100,3 +100,9 @@
   win_file:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
     state: absent
+
+
+- name: Windows | Ensure Wazuh Agent service is started and enabled
+  win_service:
+    name: OssecSvc
+    state: started
