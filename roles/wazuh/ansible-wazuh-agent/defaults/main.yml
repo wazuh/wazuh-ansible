@@ -217,6 +217,7 @@ wazuh_agent_config:
     packages: 'yes'
     ports_no: 'yes'
     processes: 'yes'
+    win_hotfixes: 'yes'
   sca:
     enabled: 'yes'
     scan_on_start: 'yes'
