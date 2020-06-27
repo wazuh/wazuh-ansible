@@ -65,6 +65,8 @@ wazuh_winagent_config:
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
   md5: d0f13c0c417c74ccbad7b45f66518513
+  keep_downloaded_package: True
+
 wazuh_winagent_config_url: https://packages.wazuh.com/3.x/windows/wazuh-agent-3.13.0-1.msi
 wazuh_winagent_package_name: wazuh-agent-3.13.0-1.msi
 wazuh_agent_config:
