@@ -11,6 +11,10 @@ opendistro_cluster_name: wazuh
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
 elasticsearch_lower_disk_requirements: false
+elasticsearch_cluster_nodes:
+  - 127.0.0.1
+elasticsearch_discovery_nodes:
+  - 127.0.0.1
 
 local_certs_path: ./opendistro/certificates
 
