@@ -4,6 +4,9 @@
     path: "{{ local_certs_path }}"
   register: certificates_folder
   delegate_to: localhost
+  tags:
+    - generate-certs
+
 
 - block:
 
