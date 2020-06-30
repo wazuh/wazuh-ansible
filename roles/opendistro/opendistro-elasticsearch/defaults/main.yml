@@ -66,3 +66,7 @@ elasticrepo:
 
 opendistro_admin_password: changeme
 opendistro_kibana_password: changeme
+
+# Deployment settings
+generate_certs: true
+perform_installation: true
