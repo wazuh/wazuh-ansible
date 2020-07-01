@@ -75,6 +75,17 @@
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.openscap.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.openscap.scan_on_start }}</scan-on-start>
+    {% if wazuh_agent_config.openscap.user_defined_content == 'yes' %}
+    {% if wazuh_agent_config.openscap.content_type == 'xccdf' %}
+    <content type="xccdf" path="{{ wazuh_agent_config.openscap.content_path }}">
+    {% for content_profile in wazuh_agent_config.openscap.content_profile %}
+      <profile>{{ content_profile.profs }}</profile>
+    {% endfor %}
+    </content>
+    {% elif wazuh_agent_config.openscap.content_type == 'oval' %}
+    <content type="oval" path="{{ wazuh_agent_config.openscap.content_path }}"/>
+    {% endif %}
+    {% elif wazuh_agent_config.openscap.user_defined_content == 'no' %}
     {% if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial' %}
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
@@ -128,6 +139,7 @@
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
+    {% endif %}
     {% endif %}
   </wodle>
   {% endif %}

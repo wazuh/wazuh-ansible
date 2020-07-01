@@ -198,6 +198,12 @@ wazuh_agent_config:
     timeout: 1800
     interval: '1d'
     scan_on_start: 'yes'
+    user_defined_content: 'no'
+    content_type: 'xccdf'
+    content_path: 'ssg-ubuntu-1604-ds.xml'
+    content_profile: 
+      - profs: 'xccdf_org.ssgproject.content_profile_common'
+      - profs: 'xccdf_org.ssgproject.content_profile_anssi_np_nt28_high'
   osquery:
     disable: 'yes'
     run_daemon: 'yes'
