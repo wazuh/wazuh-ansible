@@ -130,7 +130,7 @@
 
   - name: Create custom user
     uri:
-      url: "https://{{ target_address }}:9200/_opendistro/_security/api/internalusers/{{ opendistro_custom_user }}"
+      url: "https://{{ target_address }}:{{ opendistro_http_port }}/_opendistro/_security/api/internalusers/{{ opendistro_custom_user }}"
       method: PUT
       user: "admin" # Default OpenDistro user is always "admin"
       password: "{{ opendistro_admin_password }}"

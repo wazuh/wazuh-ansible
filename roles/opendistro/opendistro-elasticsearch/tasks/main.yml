@@ -56,7 +56,7 @@
 
   - name: Wait for Elasticsearch API
     uri:
-      url: "https://{{ inventory_hostname }}:9200/_cluster/health/"
+      url: "https://{{ inventory_hostname }}:{{ opendistro_http_port }}/_cluster/health/"
       user: "admin" # Default OpenDistro user is always "admin"
       password: "{{ opendistro_admin_password }}"
       validate_certs: no
@@ -73,7 +73,7 @@
 
   - name: Wait for Elasticsearch API (Private IP)
     uri:
-      url: "https://{{ hostvars[inventory_hostname]['private_ip'] }}:9200/_cluster/health/"
+      url: "https://{{ hostvars[inventory_hostname]['private_ip'] }}:{{ opendistro_http_port }}/_cluster/health/"
       user: "admin" # Default OpenDistro user is always "admin"
       password: "{{ opendistro_admin_password }}"
       validate_certs: no
