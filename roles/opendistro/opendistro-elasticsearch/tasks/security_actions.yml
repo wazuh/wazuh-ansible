@@ -86,7 +86,7 @@
     run_once: true
 
   - name: Hashing the custom admin password
-    shell: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}"
+    command: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}"
     register: opendistro_admin_password_hashed
     run_once: true
 
@@ -145,7 +145,7 @@
       return_content: yes
       timeout: 4
     when:
-      - opendistro_custom_user != ""
+      - opendistro_custom_user
 
   tags:
     - security
