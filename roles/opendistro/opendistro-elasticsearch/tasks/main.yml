@@ -1,68 +1,94 @@
 ---
 
 - import_tasks: local_actions.yml
+  when:
+    - generate_certs
 
-- import_tasks: RedHat.yml
-  when: ansible_os_family == 'RedHat'
+- block:
 
-- name: Install OpenDistro
-  package:
-    name: opendistroforelasticsearch-{{ opendistro_version }}
-    state: present
-  register: install
-  tags: install
+  - import_tasks: RedHat.yml
+    when: ansible_os_family == 'RedHat'
 
-- name: Remove elasticsearch configuration file
-  file:
-    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
-    state: absent
-  when: install.changed
-  tags: install
 
-- name: Copy Configuration File
-  blockinfile:
-    block: "{{ lookup('template', 'elasticsearch.yml.j2') }}"
-    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
-    create: true
-    group: elasticsearch
-    mode: 0640
-    marker: "## {mark} Opendistro general settings ##"
-  when: install.changed
-  tags: install
+  - name: Install OpenDistro
+    package:
+      name: opendistroforelasticsearch-{{ opendistro_version }}
+      state: present
+    register: install
+    tags: install
 
-- import_tasks: security_actions.yml
+  - name: Remove elasticsearch configuration file
+    file:
+      path: "{{ opendistro_conf_path }}/elasticsearch.yml"
+      state: absent
+    when: install.changed
+    tags: install
 
-- name: Configure OpenDistro Elasticsearch JVM memmory.
-  template:
-    src: "templates/jvm.options.j2"
-    dest: /etc/elasticsearch/jvm.options
-    owner: root
-    group: elasticsearch
-    mode: 0644
-    force: yes
-  notify: restart elasticsearch
-  tags: install
+  - name: Copy Configuration File
+    blockinfile:
+      block: "{{ lookup('template', 'elasticsearch.yml.j2') }}"
+      dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+      create: true
+      group: elasticsearch
+      mode: 0640
+      marker: "## {mark} Opendistro general settings ##"
+    when: install.changed
+    tags: install
 
-- name: Ensure Elasticsearch started and enabled
-  service:
-    name: elasticsearch
-    enabled: true
-    state: started
+  - import_tasks: security_actions.yml
 
-- name: Wait for Elasticsearch API
-  uri:
-    url: "https://{{ es_nodes.split(',')[0].split('\"')[0] }}:9200/_cluster/health/"
-    user: "admin" # Default OpenDistro user is always "admin"
-    password: "{{ opendistro_admin_password }}"
-    validate_certs: no
-    status_code: 200,401
-    return_content: yes
-    timeout: 4
-  register: _result
-  until: (  _result.json is defined) and (_result.json.status == "green")
-  retries: 24
-  delay: 5
-  tags: debug
+  - name: Configure OpenDistro Elasticsearch JVM memmory.
+    template:
+      src: "templates/jvm.options.j2"
+      dest: /etc/elasticsearch/jvm.options
+      owner: root
+      group: elasticsearch
+      mode: 0644
+      force: yes
+    notify: restart elasticsearch
+    tags: install
 
-- import_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
+  - name: Ensure Elasticsearch started and enabled
+    service:
+      name: elasticsearch
+      enabled: true
+      state: started
+
+  - name: Wait for Elasticsearch API
+    uri:
+      url: "https://{{ inventory_hostname }}:{{ opendistro_http_port }}/_cluster/health/"
+      user: "admin" # Default OpenDistro user is always "admin"
+      password: "{{ opendistro_admin_password }}"
+      validate_certs: no
+      status_code: 200,401
+      return_content: yes
+      timeout: 4
+    register: _result
+    until: (  _result.json is defined) and (_result.json.status == "green")
+    retries: 24
+    delay: 5
+    tags: debug
+    when:
+      - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
+
+  - name: Wait for Elasticsearch API (Private IP)
+    uri:
+      url: "https://{{ hostvars[inventory_hostname]['private_ip'] }}:{{ opendistro_http_port }}/_cluster/health/"
+      user: "admin" # Default OpenDistro user is always "admin"
+      password: "{{ opendistro_admin_password }}"
+      validate_certs: no
+      status_code: 200,401
+      return_content: yes
+      timeout: 4
+    register: _result
+    until: (  _result.json is defined) and (_result.json.status == "green")
+    retries: 24
+    delay: 5
+    tags: debug
+    when:
+      - hostvars[inventory_hostname]['private_ip'] is defined and  hostvars[inventory_hostname]['private_ip']
+
+  - import_tasks: "RMRedHat.yml"
+    when: ansible_os_family == "RedHat"
+
+  when: perform_installation

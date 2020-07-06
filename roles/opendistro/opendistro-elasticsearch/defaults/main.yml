@@ -1,14 +1,25 @@
 ---
-# The OpenDistro version
+# Cluster Settings
+es_version: "7.3.2"
+es_major_version: "7.x"
+
 opendistro_version: 1.8.0
+
 elasticsearch_cluster_name: wazuh-cluster
+single_node: true
+opendistro_cluster_name: wazuh
+elasticsearch_node_data: true
+elasticsearch_node_ingest: true
+elasticsearch_lower_disk_requirements: false
+elasticsearch_cluster_nodes:
+  - 127.0.0.1
+elasticsearch_discovery_nodes:
+  - 127.0.0.1
+
+local_certs_path: ./opendistro/certificates
 
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
 minimum_master_nodes: 2
-
-# Elasticsearch version
-es_version: "7.3.2"
-es_major_version: "7.x"
 
 # Configure hostnames for Elasticsearch nodes
 # Example es1.example.com, es2.example.com
@@ -34,12 +45,16 @@ es_nodes: |-
 
 # Security password
 opendistro_security_password: admin
+opendistro_custom_user: ""
+opendistro_cusom_user_role: "admin"
+
 # Set JVM memory limits
 opendistro_jvm_xms: null
 
 opendistro_http_port: 9200
 
 certs_gen_tool_version: 1.7
+
 # Url of Search Guard certificates generator tool
 certs_gen_tool_url: "https://releases.floragunn.com/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
 
@@ -51,8 +66,7 @@ elasticrepo:
 
 opendistro_admin_password: changeme
 opendistro_kibana_password: changeme
-# Cluster Settings
-single_node: true
-opendistro_cluster_name: wazuh
 
-local_certs_path: /tmp/opendistro-nodecerts
+# Deployment settings
+generate_certs: true
+perform_installation: true

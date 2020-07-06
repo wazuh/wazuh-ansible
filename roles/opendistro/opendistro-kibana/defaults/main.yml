@@ -1,5 +1,6 @@
 ---
 
+# Kibana configuration
 elasticsearch_http_port: 9200
 elasticsearch_nodes: |-
         {% for item in groups['es_cluster'] -%}
@@ -8,6 +9,7 @@ elasticsearch_nodes: |-
 elasticsearch_network_host: 172.16.0.161
 elastic_api_protocol: https
 kibana_conf_path: /etc/kibana
+kibana_node_name: node-1
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_server_name: "kibana"
@@ -17,6 +19,9 @@ wazuh_version: 3.13.0
 wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
 # The OpenDistro package repository
+kibana_opendistro_version: -1.8.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_package: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
+
 package_repos:
   yum:
     opendistro:
@@ -45,7 +50,7 @@ opendistro_security_user: elastic
 opendistro_admin_password: changeme
 opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme
-local_certs_path: /tmp/opendistro-nodecerts
+local_certs_path: ./opendistro/certificates
 
 # Nodejs
 nodejs:

@@ -24,28 +24,14 @@ defaults:
 # Specify the nodes of your ES cluster here
 #
 nodes:
-{% for item in groups['es_cluster'] %}
-  - name: {{ item }}
-    dn: CN={{ item }}.{{ domain_name }},OU=Ops,O={{ domain_name }}\, Inc.,DC={{ domain_name }}
-    dns: {{ item }}.{{ domain_name }}
-    ip: {{ hostvars[item]['ip'] }}
-{% endfor %}
-{% if groups['kibana'] is defined and groups['kibana']|length > 0 %}
-{% for item in groups['kibana'] %}
-  - name: {{ item }}
-    dn: CN={{ item }}.{{ domain_name }},OU=Ops,O={{ domain_name }}\, Inc.,DC={{ domain_name }}
-    dns: {{ item }}.{{ domain_name }}
-    ip: {{ hostvars[item]['ip'] }}
-{% endfor %}
+{% for (key,value) in instances.items() %}
+{% if (value.ip is defined and value.ip | length > 0) %}
+  - name: {{ value.name }}
+    dn: CN={{ value.name }}.{{ domain_name }},OU=Ops,O={{ domain_name }}\, Inc.,DC={{ domain_name }}
+    dns: {{ value.name }}.{{ domain_name }}
+    ip: {{ value.ip }}
 {% endif %}
-{% if groups['managers'] is defined and groups['managers']|length > 0 %}
-{% for item in groups['managers'] %}
-  - name: {{ item }}
-    dn: CN={{ item }}.{{ domain_name }},OU=Ops,O={{ domain_name }}\, Inc.,DC={{ domain_name }}
-    dns: {{ item }}.{{ domain_name }}
-    ip: {{ hostvars[item]['ip'] }}
 {% endfor %}
-{% endif %}
 ###
 ### Clients
 ###
