@@ -190,6 +190,10 @@ wazuh_manager_config:
     sync_max_eps: 10
   rootcheck:
     frequency: 43200
+    system_audit_enable: 'no'
+    system_audit:
+      - system_audit_rcl.txt
+      - system_audit_ssh.txt
   openscap:
     disable: 'yes'
     timeout: 1800

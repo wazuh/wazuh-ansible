@@ -193,6 +193,10 @@ wazuh_agent_config:
         type: "sregex"
   rootcheck:
     frequency: 43200
+    system_audit_enable: 'no'
+    system_audit:
+      - system_audit_rcl.txt
+      - system_audit_ssh.txt
   openscap:
     disable: 'yes'
     timeout: 1800

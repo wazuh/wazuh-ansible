@@ -132,6 +132,13 @@
     <rootkit_trojans>/var/ossec/etc/rootcheck/rootkit_trojans.txt</rootkit_trojans>
 
     <skip_nfs>yes</skip_nfs>
+
+    {% if wazuh_manager_config.rootcheck.system_audit_enable == 'yes' %}
+    {% for audit_file in wazuh_manager_config.rootcheck.system_audit %}
+    <system_audit>/var/ossec/etc/shared/default/{{ audit_file }}</system_audit>
+    {% endfor %}
+    {% endif %}
+
   </rootcheck>
 
     {% if ansible_system == "Linux" and wazuh_manager_config.openscap.disable == 'no' %}

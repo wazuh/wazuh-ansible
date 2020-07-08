@@ -65,6 +65,12 @@
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
 
+    {% if wazuh_agent_config.rootcheck.system_audit_enable == 'yes' %}
+    {% for audit_file in wazuh_agent_config.rootcheck.system_audit %}
+    <system_audit>/var/ossec/etc/shared/{{ audit_file }}</system_audit>
+    {% endfor %}
+    {% endif %}
+
   </rootcheck>
   {% endif %}
 
