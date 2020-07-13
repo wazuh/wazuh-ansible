@@ -20,7 +20,6 @@ wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
 # The OpenDistro package repository
 kibana_opendistro_version: -1.8.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
-kibana_opendistro_package: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
 
 package_repos:
   yum:

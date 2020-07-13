@@ -23,7 +23,7 @@
 
 - name: Install Kibana
   package:
-    name: "{{ kibana_opendistro_package }}"
+    name: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
     state: present
   register: install
   tags: install
