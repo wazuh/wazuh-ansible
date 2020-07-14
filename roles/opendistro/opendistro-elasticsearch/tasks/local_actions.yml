@@ -4,6 +4,7 @@
     path: "{{ local_certs_path }}"
   register: certificates_folder
   delegate_to: localhost
+  become: no
   tags:
     - generate-certs
 
@@ -77,6 +78,7 @@
 
   run_once: true
   delegate_to: localhost
+  become: no
   tags:
     - generate-certs
   when:
