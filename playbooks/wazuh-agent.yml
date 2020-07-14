@@ -10,6 +10,8 @@
         api_port: 55000
         api_proto: 'http'
         api_user: ansible
+        max_retries: 5
+        retry_interval: 5
     wazuh_agent_authd:
       registration_address: <registration IP>
       enable: true
