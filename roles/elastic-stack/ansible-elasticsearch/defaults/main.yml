@@ -4,7 +4,7 @@ elasticsearch_http_port: 9200
 elasticsearch_network_host: 127.0.0.1
 elasticsearch_reachable_host: 127.0.0.1
 elasticsearch_jvm_xms: null
-elastic_stack_version: 7.7.0
+elastic_stack_version: 7.8.0
 elasticsearch_lower_disk_requirements: false
 elasticsearch_path_repo: []
 

@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 3.13.0-1
+wazuh_manager_version: 3.13.1-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -15,7 +15,7 @@ wazuh_custom_packages_installation_api_rpm_url: "https://s3-us-west-1.amazonaws.
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v3.13.0"
+  branch: "v3.13.1"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -40,7 +40,7 @@ wazuh_manager_sources_installation:
 
 wazuh_api_sources_installation:
   enabled: false
-  branch: "v3.13.0"
+  branch: "v3.13.1"
   update: "y"
   remove: "y"
   directory: null
