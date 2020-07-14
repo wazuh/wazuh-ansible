@@ -64,7 +64,7 @@
     {{ wazuh_agent_win_auth_path }}
     -m {{ wazuh_agent_authd.registration_address }}
     -p {{ wazuh_agent_authd.port }}
-    {% if wazuh_agent_authd.agent_name is defined %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
+    {% if wazuh_agent_authd.agent_name is not none %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
     {% if authd_pass is defined %} -P {{ authd_pass }}{% endif %}
   register: agent_auth_output
   notify: Windows | Restart Wazuh Agent

@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.13.1_7.8.0]
+
+### Added
+
+- Update to Wazuh v3.13.1
+- Add support to configure path.repo option in ES. Required for backups/snapshots ([@pescobar](https://github.com/pescobar)) [PR#433](https://github.com/wazuh/wazuh-ansible/pull/433)
+
+### Changed
+
+- Update Opendistro tasks ([@jm404](https://github.com/jm404)) [PR#443](https://github.com/wazuh/wazuh-ansible/pull/443)
+- Provide ansible.cfg with merge hash_behaviour ([@xr09](https://github.com/xr09)) [PR#440](https://github.com/wazuh/wazuh-ansible/pull/440)
+
+### Fixed
+
+- Fixes for wazuh-agent registration ([@pchristos](https://github.com/pchristos)) [PR#406](https://github.com/wazuh/wazuh-ansible/pull/406)
+- Fixes for OpenDistro deployments ([@xr09](https://github.com/xr09)) [PR#445](https://github.com/wazuh/wazuh-ansible/pull/445)
+
 ## [v3.13.0_7.7.1]
 
 ### Added

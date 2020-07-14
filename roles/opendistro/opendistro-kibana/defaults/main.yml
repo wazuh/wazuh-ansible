@@ -1,5 +1,6 @@
 ---
 
+# Kibana configuration
 elasticsearch_http_port: 9200
 elasticsearch_nodes: |-
         {% for item in groups['es_cluster'] -%}
@@ -8,15 +9,18 @@ elasticsearch_nodes: |-
 elasticsearch_network_host: 172.16.0.161
 elastic_api_protocol: https
 kibana_conf_path: /etc/kibana
+kibana_node_name: node-1
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
-elastic_stack_version: 7.7.1
-wazuh_version: 3.13.0
+elastic_stack_version: 7.8.0
+wazuh_version: 3.13.1
 wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
 # The OpenDistro package repository
+kibana_opendistro_version: -1.8.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+
 package_repos:
   yum:
     opendistro:
@@ -45,7 +49,7 @@ opendistro_security_user: elastic
 opendistro_admin_password: changeme
 opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme
-local_certs_path: /tmp/opendistro-nodecerts
+local_certs_path: ./opendistro/certificates
 
 # Nodejs
 nodejs:
@@ -56,7 +60,7 @@ nodejs:
 
 # Build from sources
 build_from_sources: false
-wazuh_plugin_branch: 3.13-7.7
+wazuh_plugin_branch: 3.13-7.8
 
 #Nodejs NODE_OPTIONS
 node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536

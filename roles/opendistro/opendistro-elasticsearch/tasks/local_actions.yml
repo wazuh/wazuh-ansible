@@ -1,4 +1,14 @@
 ---
+- name: Check if certificates already exists
+  stat:
+    path: "{{ local_certs_path }}"
+  register: certificates_folder
+  delegate_to: localhost
+  become: no
+  tags:
+    - generate-certs
+
+
 - block:
 
   - name: Local action | Create local temporary directory for certificates generation
@@ -68,5 +78,8 @@
 
   run_once: true
   delegate_to: localhost
+  become: no
   tags:
-  - generate-certs
+    - generate-certs
+  when:
+    - not certificates_folder.stat.exists

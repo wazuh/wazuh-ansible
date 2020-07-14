@@ -6,8 +6,9 @@
       dest: /usr/share/kibana
       mode: 0644
     with_items:
-      - "{{ inventory_hostname }}_http.key"
-      - "{{ inventory_hostname }}_http.pem"
+      - "root-ca.pem"
+      - "{{ kibana_node_name }}_http.key"
+      - "{{ kibana_node_name }}_http.pem"
   tags:
   - security
   when: install.changed

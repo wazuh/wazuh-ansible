@@ -1,18 +1,36 @@
-cluster.name: "{{ opendistro_cluster_name }}"
-
-node.name: "{{ inventory_hostname }}"
-
+cluster.name: {{ elasticsearch_cluster_name }}
+node.name: {{ elasticsearch_node_name }}
 path.data: /var/lib/elasticsearch
-
 path.logs: /var/log/elasticsearch
+network.host: {{ elasticsearch_network_host }}
 
-network.host: "{{ hostvars[inventory_hostname]['ip'] }}"
+node.master: {{ elasticsearch_node_master|lower }}
 
-http.port: "{{ opendistro_http_port }}"
+cluster.initial_master_nodes:
+{% for item in elasticsearch_cluster_nodes %}
+  - {{ item }}
+{% endfor %}
 
-discovery.seed_hosts: ["{{ es_nodes }}"]
+discovery.seed_hosts:
+{% for item in elasticsearch_discovery_nodes %}
+  - {{ item }}
+{% endfor %}
 
-cluster.initial_master_nodes: ["{{ es_nodes }}"]
+{% if elasticsearch_node_data|lower == 'false' %}
+node.data: false
+{% endif %}
+
+{% if elasticsearch_node_ingest|lower == 'false' %}
+node.ingest: false
+{% endif %}
+
+
+{% if elasticsearch_lower_disk_requirements %}
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.flood_stage: 200mb
+cluster.routing.allocation.disk.watermark.low: 500mb
+cluster.routing.allocation.disk.watermark.high: 300mb
+{% endif %}
 
 discovery.zen.minimum_master_nodes: "{{ minimum_master_nodes }}"
 opendistro_security.allow_default_init_securityindex: true

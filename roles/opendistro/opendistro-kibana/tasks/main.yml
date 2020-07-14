@@ -23,7 +23,7 @@
 
 - name: Install Kibana
   package:
-    name: opendistroforelasticsearch-kibana
+    name: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
     state: present
   register: install
   tags: install
@@ -75,7 +75,7 @@
     - not build_from_sources
 
 - name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize
+  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
   args:
     executable: /bin/bash
   become: yes

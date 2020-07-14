@@ -11,8 +11,8 @@
       dest: "{{ filebeat_ssl_dir }}"
       mode: 0644
     with_items:
-      - "{{ inventory_hostname }}.key"
-      - "{{ inventory_hostname }}.pem"
+      - "{{ filebeat_node_name }}.key"
+      - "{{ filebeat_node_name }}.pem"
       - "root-ca.pem"
 
   - name: Ensuring folder & certs permissions

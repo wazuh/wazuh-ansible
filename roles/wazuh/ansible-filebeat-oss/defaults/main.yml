@@ -1,7 +1,7 @@
 ---
-filebeat_version: 7.7.0
+filebeat_version: 7.8.0
 
-wazuh_template_branch: v3.13.0
+wazuh_template_branch: v3.13.1
 
 filebeat_create_config: true
 
@@ -23,7 +23,7 @@ filebeat_security_password: changeme
 filebeat_ssl_dir: /etc/pki/filebeat
 
 # Local path to store the generated certificates (OpenDistro security plugin)
-local_certs_path: /tmp/opendistro-nodecerts
+local_certs_path: ./opendistro/certificates
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/oss-7.x/apt'
