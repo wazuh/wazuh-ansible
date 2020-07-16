@@ -39,6 +39,8 @@ wazuh_managers:
     api_port: 55000
     api_proto: 'http'
     api_user: null
+    max_retries: 5
+    retry_interval: 5
 wazuh_api_reachable_from_agent: false
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'

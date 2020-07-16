@@ -16,6 +16,8 @@
       {% endif %}
       {% if manager.protocol is defined %}
       <protocol>{{ manager.protocol }}</protocol>
+      {% endif %}
+      {% if manager.max_retries is defined and manager.retry_interval is defined %}
       <max_retries>{{ manager.max_retries }}</max_retries>
       <retry_interval>{{ manager.retry_interval }}</retry_interval>
       {% endif %}
