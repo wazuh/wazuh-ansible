@@ -110,6 +110,7 @@ elasticsearch.password: "{{ elasticsearch_xpack_security_password }}"
 server.ssl.enabled: true
 server.ssl.key: "{{node_certs_destination}}/{{ kibana_node_name }}.key"
 server.ssl.certificate: "{{node_certs_destination}}/{{ kibana_node_name }}.crt"
+elasticsearch.ssl.verificationMode: "{{ kibana_ssl_verification_mode }}"
 {% if generate_CA == true %}
 elasticsearch.ssl.certificateAuthorities: ["{{ node_certs_destination }}/ca.crt"]
 {% elif generate_CA == false %}
