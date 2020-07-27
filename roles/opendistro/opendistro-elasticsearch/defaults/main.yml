@@ -46,7 +46,7 @@ es_nodes: |-
 # Security password
 opendistro_security_password: admin
 opendistro_custom_user: ""
-opendistro_cusom_user_role: "admin"
+opendistro_custom_user_role: "admin"
 
 # Set JVM memory limits
 opendistro_jvm_xms: null
