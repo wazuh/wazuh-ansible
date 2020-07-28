@@ -7,6 +7,10 @@ lint:
   name: yamllint
   enabled: false
 platforms:
+  - name: ubuntu1804
+    image: ubuntu:18.04
+  - name: debian9
+    image: debian:9
   - name: manager_centos7
     image: milcom/centos7-systemd
     command: /sbin/init
