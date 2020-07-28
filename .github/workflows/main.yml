@@ -1,0 +1,13 @@
+
+name: Molecule tests for Wazuh Ansible
+
+on: [push]
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Default scenario
+      uses: './.github/actions/default'

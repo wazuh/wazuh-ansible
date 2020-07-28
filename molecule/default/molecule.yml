@@ -1,0 +1,44 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+  enabled: false
+platforms:
+  - name: manager_centos7
+    image: milcom/centos7-systemd
+    command: /sbin/init
+    ulimits:
+      - nofile:262144:262144
+    privileged: true
+    memory_reservation: 2048m
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      hash_behaviour: merge
+  env:
+    ANSIBLE_ROLES_PATH: ./roles
+  lint:
+    name: ansible-lint
+    enabled: true
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - cleanup
+    - destroy
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
+    enabled: true
