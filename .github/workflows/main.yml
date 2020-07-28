@@ -4,7 +4,7 @@ name: Molecule tests for Wazuh Ansible
 on: [push]
 
 jobs:
-  testing:
+  default:
     runs-on: ubuntu-latest
     steps:
     - name: Check out code

@@ -37,7 +37,8 @@ RUN apk add --update --no-cache ${BUILD_DEPS} ${PACKAGES} && \
 
 # CMD cd ${GITHUB_REPOSITORY}; molecule ${INPUT_MOLECULE_OPTIONS} ${INPUT_MOLECULE_COMMAND} ${INPUT_MOLECULE_ARGS}
 # Adding systemd compatibility.
-WORKDIR ${GITHUB_REPOSITORY}
+COPY . /wazuh-ansible
+WORKDIR /wazuh-ansible
 
 VOLUME [ "/sys/fs/cgroup", "/run", "/run/lock" ]
 
