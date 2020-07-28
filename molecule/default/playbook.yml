@@ -2,7 +2,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: wazuh/ansible-wazuh-manager
+    - role: ../../roles/wazuh/ansible-wazuh-manager
       vars:
         wazuh_manager_config:
             cluster:
@@ -14,6 +14,6 @@
                 port: '1516'
                 bind_addr: '0.0.0.0'
                 nodes:
-                - "manager_{{ lookup('env', 'MOL_PLATFORM') or 'centos7' }}"
+                - "manager_centos7"
                 hidden: 'no'
-    - { role: wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: "elasticsearch_{{ lookup('env', 'MOL_PLATFORM') or 'centos7' }}:9200" }
+    - { role: ../../roles/wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: "elasticsearch_centos7:9200" }

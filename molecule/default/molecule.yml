@@ -23,11 +23,10 @@ provisioner:
     ANSIBLE_ROLES_PATH: ./roles
   lint:
     name: ansible-lint
-    enabled: true
+    enabled: false
 scenario:
   name: default
   test_sequence:
-    - lint
     - dependency
     - syntax
     - create
@@ -41,4 +40,4 @@ verifier:
   name: testinfra
   lint:
     name: flake8
-    enabled: true
+    enabled: false

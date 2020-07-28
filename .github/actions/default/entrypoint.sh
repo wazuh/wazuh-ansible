@@ -1,5 +1,3 @@
-#! /usr/bin/env bash
-set -e
+#!/bin/sh -eu
 
-cd molecule
-molecule test -s default
+molecule test
