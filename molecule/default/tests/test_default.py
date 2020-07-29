@@ -27,15 +27,15 @@ def test_wazuh_services_are_running(host):
     manager = host.service("wazuh-manager")
     api = host.service("wazuh-api")
     # assert manager.is_running
-    assert manager.is_enabled
+    assert manager.is_running
     # assert api.is_running
-    assert api.is_enabled
+    assert api.is_running
 
 @pytest.mark.parametrize("wazuh_file, wazuh_owner, wazuh_group, wazuh_mode", [
     ("/var/ossec/etc/sslmanager.cert", "root", "root", 0o640),
     ("/var/ossec/etc/sslmanager.key", "root", "root", 0o640),
-    ("/var/ossec/etc/rules/local_rules.xml", "ossec", "root", 0o640),
-    ("/var/ossec/etc/lists/audit-keys", "ossec", "root", 0o640),
+    ("/var/ossec/etc/rules/local_rules.xml", "ossec", "ossec", 0o640),
+    ("/var/ossec/etc/lists/audit-keys", "ossec", "ossec", 0o660),
 ])
 
 def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
@@ -44,11 +44,6 @@ def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
     assert wazuh_file_host.user == wazuh_owner
     assert wazuh_file_host.group == wazuh_group
     assert wazuh_file_host.mode == wazuh_mode
-
-def test_open_ports(host):
-    """Test if the main port is open and the agent-auth is not open."""
-    assert host.socket("tcp://1515").is_listening
-    assert host.socket("tcp://1514").is_listening
 
 def test_filebeat_is_installed(host):
     """Test if the elasticsearch package is installed."""
