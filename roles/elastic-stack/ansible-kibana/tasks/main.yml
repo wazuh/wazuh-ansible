@@ -14,16 +14,6 @@
 - import_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Reload systemd
-  systemd:
-    daemon_reload: true
-  ignore_errors: true
-  when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_version == "(Karoo)")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
-
 - name: Copying node's certificate from master
   copy:
     src: "{{ item }}"
@@ -175,10 +165,6 @@
     group: kibana
     mode: 0751
   changed_when: False
-
-- name: Reload systemd configuration
-  systemd:
-    daemon_reload: true
 
 - name: Ensure Kibana is started and enabled
   service:
