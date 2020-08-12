@@ -175,7 +175,6 @@
   notify: restart wazuh-api
   when:
     - wazuh_manager_config.cluster.node_type == "master"
-
   tags:
     - init
     - config

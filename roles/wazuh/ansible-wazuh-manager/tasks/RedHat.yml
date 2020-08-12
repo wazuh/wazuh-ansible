@@ -10,8 +10,8 @@
   when:
     - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
   register: repo_v5_manager_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
@@ -24,8 +24,8 @@
   changed_when: false
   when:
     - repo_v5_manager_installed is skipped
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
@@ -105,27 +105,9 @@
   tags:
     - init
 
-- include_tasks: "../tasks/installation_from_sources.yml"
-  when:
-    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
-
 - include_tasks: "../tasks/installation_from_custom_packages.yml"
   when:
-    - wazuh_custom_packages_installation_manager_enabled or wazuh_custom_packages_installation_api_enabled
-
-- name: CentOS/RedHat/Amazon | Install wazuh-api
-  package:
-    name: "wazuh-api-{{ wazuh_manager_version }}"
-    state: "{{ wazuh_manager_package_state }}"
-  register: wazuh_api_main_packages_installed
-  until: wazuh_api_main_packages_installed is succeeded
-  when:
-    - ansible_os_family|lower == "redhat"
-    - not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_api_enabled
-    - wazuh_manager_config.cluster.node_type == "master"
-  tags:
-    - init
+    - wazuh_custom_packages_installation_manager_enabled
 
 - name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
   replace:
