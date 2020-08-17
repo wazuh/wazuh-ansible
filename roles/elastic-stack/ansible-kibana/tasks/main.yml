@@ -156,6 +156,7 @@
     password: "{{ elasticsearch_xpack_security_password }}"
     validate_certs: no
     status_code: 200, 404
+    force_basic_auth: yes
 
 - name: Create wazuh plugin config directory
   file:
