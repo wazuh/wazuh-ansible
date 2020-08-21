@@ -23,8 +23,8 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
   apt_key:
@@ -32,8 +32,8 @@
     id: "{{ wazuh_manager_config.repo.key_id }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -43,8 +43,8 @@
     update_cache: true
   changed_when: false
   when:
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_manager_sources_installation.enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
@@ -113,4 +113,4 @@
 
 - include_tasks: "installation_from_custom_packages.yml"
   when:
-    - wazuh_custom_packages_installation_manager_enabled or wazuh_custom_packages_installation_api_enabled
+    - wazuh_custom_packages_installation_manager_enabled
