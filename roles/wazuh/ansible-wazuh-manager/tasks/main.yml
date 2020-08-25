@@ -166,12 +166,12 @@
   when:
     - shared_agent_config is defined
 
-- name: Installing the config.js (api configuration)
-  template: src=var-ossec-api-configuration-config.js.j2
-            dest=/var/ossec/api/configuration/config.js
+- name: Installing the api.yaml (api configuration)
+  template: src=api.yaml.j2
+            dest=/var/ossec/api/configuration/api.yaml
             owner=root
             group=ossec
-            mode=0740
+            mode=0640
   notify: restart wazuh-api
   when:
     - wazuh_manager_config.cluster.node_type == "master"
@@ -301,20 +301,73 @@
   tags:
     - config
 
-- name: Wazuh-API User
-  template:
-    src: api_user.j2
-    dest: "/var/ossec/api/configuration/auth/user"
-    owner: root
-    group: root
-    mode: 0750
-  no_log: true
-  notify: restart wazuh-api
-  when:
-    - wazuh_api_user is defined
-    - wazuh_manager_config.cluster.node_type == "master"
-  tags:
-    - config
+# - name: Get API auth token
+#   uri:
+#     url: "https://{{ inventory_hostname }}:55000/security/user/authenticate?raw=true"
+#     method: GET
+#     user: wazuh
+#     password: wazuh
+#     validate_certs: no
+#     force_basic_auth: yes
+#     return_content: yes
+#     status_code: 200
+#   retries: 10
+#   delay: 5
+#   until: token.status == 200
+#   register: token
+#   tags: 
+#     - config_api_users
+#   when:
+#     - wazuh_api_users is defined
+#     - wazuh_manager_config.cluster.node_type == "master"
+
+# - name: Create Wazuh-API Users
+#   block:
+#     - name: Create new user
+#       uri:
+#         url: "https://{{ inventory_hostname }}:55000/security/users"
+#         method: POST
+#         body_format: json
+#         body:
+#           username: "{{ item.username }}"
+#           password: "{{ item.password }}"
+#         validate_certs: no
+#         status_code: 200
+#         headers: 
+#           Authorization: "Bearer {{ token.content }}"
+#       with_items:
+#         - "{{ wazuh_api_users }}"
+#       register: user_creation
+
+#     - name: Get new users IDs
+#       uri:
+#         url: "https://{{ inventory_hostname }}:5500/security/users"
+#         method: GET
+#         validate_certs: no
+#         status_code: 200
+#         headers: 
+#           Authorization: "Bearer {{ token.content }}"
+#       register: new_users_id
+
+    # - name: Join new users into administrator role
+    #   uri:
+    #     url: "https://{{ inventory_hostname }}:55000/security/users/3/roles"
+    #     method: POST
+    #     force_basic_auth: yes
+    #     body_format: form-urlencoded
+    #     body: "role_ids=1"
+    #     validate_certs: no
+    #     status_code: 200
+    #     headers: 
+    #       Authorization: "Bearer {{ token.content }}"
+    #   with_items:
+    #     - "{{ wazuh_api_users }}"
+    #   register: user_creation
+  # tags: 
+  #   - config_api_users
+  # when:
+  #   - wazuh_api_users is defined
+  #   - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Agentless Hosts & Passwd
   template:

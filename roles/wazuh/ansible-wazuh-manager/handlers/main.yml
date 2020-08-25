@@ -4,3 +4,9 @@
     name: wazuh-manager
     state: restarted
     enabled: true
+
+- name: restart wazuh-api
+  service:
+    name: wazuh-api
+    state: restarted
+    enabled: true

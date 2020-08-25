@@ -19,10 +19,10 @@ elasticrepo:
 # API credentials
 wazuh_api_credentials:
   - id: "default"
-    url: "http://localhost"
+    url: "https://localhost"
     port: 55000
-    user: "foo"
-    password: "bar"
+    username: "wazuh"
+    password: "wazuh"
 
 # Xpack Security
 kibana_xpack_security: false
