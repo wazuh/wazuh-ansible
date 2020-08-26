@@ -338,33 +338,6 @@
 #       with_items:
 #         - "{{ wazuh_api_users }}"
 #       register: user_creation
-
-#     - name: Get new users IDs
-#       uri:
-#         url: "https://{{ inventory_hostname }}:5500/security/users"
-#         method: GET
-#         validate_certs: no
-#         status_code: 200
-#         headers: 
-#           Authorization: "Bearer {{ token.content }}"
-#       register: new_users_id
-
-    # - name: Join new users into administrator role
-    #   uri:
-    #     url: "https://{{ inventory_hostname }}:55000/security/users/3/roles"
-    #     method: POST
-    #     force_basic_auth: yes
-    #     body_format: form-urlencoded
-    #     body: "role_ids=1"
-    #     validate_certs: no
-    #     status_code: 200
-    #     headers: 
-    #       Authorization: "Bearer {{ token.content }}"
-    #   with_items:
-    #     - "{{ wazuh_api_users }}"
-    #   register: user_creation
-  # tags: 
-  #   - config_api_users
   # when:
   #   - wazuh_api_users is defined
   #   - wazuh_manager_config.cluster.node_type == "master"
