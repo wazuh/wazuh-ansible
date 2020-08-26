@@ -35,26 +35,10 @@ wazuh_manager_sources_installation:
   user_ca_store: null
   threads: "2"
 
-wazuh_api_sources_installation:
-  enabled: false
-  branch: "v3.13.1"
-  update: "y"
-  remove: "y"
-  directory: null
-  port: 55000
-  https: "n"
-  authd: null
-  proxy: null
-  country: null
-  state: null
-  locality: null
-  org_name: null
-  org_unit: null
-  common_name: null
-  password: null
-
-wazuh_api_user:
-  - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
+# wazuh_api_users:
+#   - username: custom_user5
+#     password: Custom_password0
+#     role: administrator
 
 wazuh_manager_config:
   repo:
@@ -68,29 +52,29 @@ wazuh_manager_config:
   logall_json: 'no'
   log_format: 'plain'
   api:
-    bind_addr: '0.0.0.0'
+    bind_addr: 0.0.0.0
     port: 55000
-    behind_proxy_server: 'no'
-    https: 'yes'
-    https_key: 'api/configuration/ssl/server.key'
-    https_cert: 'api/configuration/ssl/server.crt'
-    https_use_ca: 'False'
-    https_ca: 'api/configuration/ssl/ca.crt'
-    logging_level: 'info'
-    logging_path: 'logs/api.log'
-    cors: 'no'
-    cors_source_route: '*'
-    cors_expose_headers: '*'
-    cors_allow_headers: '*'
-    cors_allow_credentials: 'no'
-    cache: 'yes'
+    behind_proxy_server: no
+    https: yes
+    https_key: "api/configuration/ssl/server.key"
+    https_cert: "api/configuration/ssl/server.crt"
+    https_use_ca: False
+    https_ca: "api/configuration/ssl/ca.crt"
+    logging_level: "info"
+    logging_path: "logs/api.log"
+    cors: no
+    cors_source_route: "*"
+    cors_expose_headers: "*"
+    cors_allow_headers: "*"
+    cors_allow_credentials: no
+    cache: yes
     cache_time: 0.750
     access_max_login_attempts: 5
     access_block_time: 300
     access_max_request_per_minute: 300
-    use_only_authd: 'no'
-    drop_privileges: 'yes'
-    experimental_features: 'no'
+    use_only_authd: no
+    drop_privileges: yes
+    experimental_features: no
   cluster:
     disable: 'yes'
     name: 'wazuh'
