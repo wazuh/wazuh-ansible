@@ -1,4 +1,9 @@
 ---
+- name: Retrieving authd Credentials
+  include_vars: authd_pass.yml
+  tags:
+    - config
+
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
@@ -42,6 +47,7 @@
 - name: Linux | Check if client.keys exists
   stat: path=/var/ossec/etc/client.keys
   register: check_keys
+  when: wazuh_agent_config.enrollment.enabled == 'yes'
   tags:
     - config
 
@@ -108,7 +114,9 @@
         - not check_keys.stat.exists or check_keys.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
-  when: wazuh_agent_authd.enable
+  when:
+    - wazuh_agent_authd.enable
+    - not wazuh_agent_config.enrollment.enabled | length > 0 or wazuh_agent_config.enrollment.enabled == 'no'
   tags:
     - config
     - authd
@@ -181,6 +189,7 @@
 
   when:
     - not wazuh_agent_authd.enable
+    - not wazuh_agent_config.enrollment.enabled | length > 0 or wazuh_agent_config.enrollment.enabled == 'no'
   tags:
     - config
     - api
@@ -218,6 +227,19 @@
   notify: restart wazuh-agent
   tags:
     - init
+    - config
+
+- name: Create auto-enrollment password file
+  template:
+    src: authd_pass.j2
+    dest: "/var/ossec/etc/authd.pass"
+    owner: ossec
+    group: ossec
+    mode: 0640
+  when:
+    - wazuh_agent_config.enrollment.enabled == 'yes'
+    - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
+  tags:
     - config
 
 - name: Linux | Ensure Wazuh Agent service is started and enabled

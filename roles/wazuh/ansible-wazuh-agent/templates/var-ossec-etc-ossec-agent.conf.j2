@@ -36,6 +36,49 @@
     {% endif %}
     <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
     <crypto_method>{{ wazuh_crypto_method }}</crypto_method>
+
+  {% if wazuh_agent_config.enrollment.enabled | length > 0 %}
+    <enrollment>
+      <enabled>{{ wazuh_agent_config.enrollment.enabled }}</enabled>
+      {% if wazuh_agent_config.enrollment.manager_address | length > 0 %}
+      <manager_address>{{ wazuh_agent_config.enrollment.manager_address }}</manager_address>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_name | length > 0 %}
+      <agent_name>{{ wazuh_agent_config.enrollment.agent_name }}</agent_name>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.port is defined > 0 %}
+      <port>{{ wazuh_agent_config.enrollment.port }}</port>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.groups | length > 0 %}
+      <groups>{{ wazuh_agent_config.enrollment.groups }}</groups>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_address | length > 0 %}
+      <agent_address>{{ wazuh_agent_config.enrollment.agent_address }}</agent_address>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.server_ca_path | length > 0 %}
+      <server_ca_path>{{ wazuh_agent_config.enrollment.server_ca_path }}</server_ca_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_certificate_path | length > 0 %}
+      <agent_certificate_path>{{ wazuh_agent_config.enrollment.agent_certificate_path }}</agent_certificate_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_key_path | length > 0 %}
+      <agent_key_path>{{ wazuh_agent_config.enrollment.agent_key_path }}</agent_key_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 %}
+      <authorization_pass>{{ wazuh_agent_config.enrollment.authorization_pass_path }}</authorization_pass>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.auto_method | length > 0 %}
+      <auto_method>{{ wazuh_agent_config.enrollment.auto_method }}</auto_method>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.delay_after_enrollment is defined > 0 %}
+      <delay_after_enrollment>{{ wazuh_agent_config.enrollment.delay_after_enrollment }}</delay_after_enrollment>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.use_source_ip | length > 0 %}
+      <use_source_ip>{{ wazuh_agent_config.enrollment.use_source_ip }}</use_source_ip>
+      {% endif %}
+    </enrollment>
+  {% endif %}
+
   </client>
 
   <client_buffer>
@@ -44,26 +87,6 @@
     <queue_size>{{ wazuh_agent_config.client_buffer.queue_size }}</queue_size>
     <events_per_second>{{ wazuh_agent_config.client_buffer.events_per_sec }}</events_per_second>
   </client_buffer>
-
-  {% if wazuh_agent_config.enrollment is defined and wazuh_agent_config.enrollment.enabled == 'yes' %}
-    <enrollment>
-      <enabled>{{ wazuh_agent_config.enrollment.enabled }}</enabled>
-      <manager_address>{{ wazuh_agent_config.enrollment.manager_address }}</manager_address>
-      <port>{{ wazuh_agent_config.enrollment.port }}</port>
-      <agent_name>{{ wazuh_agent_config.enrollment.agent_name }}</agent_name>
-      <groups>{{ wazuh_agent_config.enrollment.groups }}</groups>
-      <agent_address>{{ wazuh_agent_config.enrollment.agent_address }}</agent_address>
-      <ssl_cipher>{{ wazuh_agent_config.enrollment.ssl_cipher }}</ssl_cipher>
-      <server_ca_path>{{ wazuh_agent_config.enrollment.server_ca_path }}</server_ca_path>
-      <agent_certificate_path>{{ wazuh_agent_config.enrollment.agent_certificate_path }}</agent_certificate_path>
-      <agent_key_path>{{ wazuh_agent_config.enrollment.agent_key_path }}</agent_key_path>
-      <authorization_pass>{{ wazuh_agent_config.enrollment.authorization_pass }}</authorization_pass>
-      <auto_method>{{ wazuh_agent_config.enrollment.auto_method }}</auto_method>
-      <delay_after_enrollment>{{ wazuh_agent_config.enrollment.delay_after_enrollment }}</delay_after_enrollment>
-      <use_source_ip>{{ wazuh_agent_config.enrollment.use_source_ip }}</use_source_ip>
-    </enrollment>
-  {% endif %}
-
 
   {% if wazuh_agent_config.rootcheck is defined %}
   <rootcheck>

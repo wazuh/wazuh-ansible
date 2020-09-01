@@ -1,10 +1,10 @@
 ---
-- hosts: <your wazuh agents hosts>
+- hosts: agents
   roles:
     - ../roles/wazuh/ansible-wazuh-agent
   vars:
     wazuh_managers:
-      - address: <your manager IP>
+      - address: 172.16.0.111
         port: 1514
         protocol: tcp
         api_port: 55000
@@ -12,9 +12,3 @@
         api_user: ansible
         max_retries: 5
         retry_interval: 5
-    wazuh_agent_authd:
-      registration_address: <registration IP>
-      enable: true
-      port: 1515
-      ssl_agent_ca: null
-      ssl_auto_negotiate: 'no'

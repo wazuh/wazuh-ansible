@@ -4,9 +4,9 @@ wazuh_agent_version: 3.13.1-1
 
 # Custom packages installation
 
-wazuh_custom_packages_installation_agent_enabled: false
+wazuh_custom_packages_installation_agent_enabled: true
 wazuh_custom_packages_installation_agent_deb_url: ""
-wazuh_custom_packages_installation_agent_rpm_url: ""
+wazuh_custom_packages_installation_agent_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/staging/yum/wazuh-agent-4.0.0-0.40000.20200901.x86_64.rpm"
 
 # Sources installation
 
@@ -295,18 +295,18 @@ wazuh_agent_config:
       - key: Env
         value: Production
   enrollment:
-    enabled: no
+    enabled: ''
     manager_address: ''
     port: 1515
-    agent_name: ''
+    agent_name: 'testname'
     groups: ''
     agent_address: ''
     ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
     server_ca_path: ''
     agent_certificate_path: ''
     agent_key_path: ''
-    authorization_pass: ChangeMe
-    auto_method: no
+    authorization_pass_path : /var/ossec/etc/authd.pass
+    auto_method: 'no'
     delay_after_enrollment: 20
-    use_source_ip: no
+    use_source_ip: 'no'
 wazuh_agent_nat: false

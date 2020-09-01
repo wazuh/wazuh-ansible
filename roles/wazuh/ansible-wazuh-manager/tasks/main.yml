@@ -29,17 +29,6 @@
     - not node_service_status.stat.exists
     - wazuh_manager_config.cluster.node_type == "master"
 
-- name: Installing NodeJS
-  package:
-    name: nodejs
-    state: present
-  register: nodejs_service_is_installed
-  until: nodejs_service_is_installed is succeeded
-  when:
-    - wazuh_manager_config.cluster.node_type == "master"
-
-  tags: init
-
 - include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
@@ -199,7 +188,6 @@
   include_vars: authd_pass.yml
   tags:
     - config
-
 
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
@@ -365,15 +353,6 @@
     name: "wazuh-manager"
     enabled: true
     state: started
-  tags:
-    - config
-
-- name: Ensure Wazuh API service is started and enabled.
-  service:
-    name: "wazuh-api"
-    enabled: true
-    state: started
-  when: wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
 
