@@ -11,16 +11,6 @@
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- name: Reload systemd
-  systemd:
-    daemon_reload: true
-  ignore_errors: true
-  when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_version == "(Karoo)")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
-
 - name: Install Kibana
   package:
     name: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
@@ -118,10 +108,6 @@
     group: kibana
     mode: 0751
   changed_when: False
-
-- name: Reload systemd configuration
-  systemd:
-    daemon_reload: true
 
 - name: Ensure Kibana started and enabled
   service:
