@@ -105,8 +105,8 @@
   tags:
     - init
 
-- include_tasks: "../tasks/installation_from_sources.yml"	
-  when:	
+- include_tasks: "../tasks/installation_from_sources.yml"
+  when:
     - wazuh_manager_sources_installation.enabled
 
 - include_tasks: "../tasks/installation_from_custom_packages.yml"
