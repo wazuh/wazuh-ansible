@@ -107,8 +107,8 @@
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
-- include_tasks: "installation_from_sources.yml"	
-  when:	
+- include_tasks: "installation_from_sources.yml"
+  when:
     - wazuh_manager_sources_installation.enabled
 
 - include_tasks: "installation_from_custom_packages.yml"
