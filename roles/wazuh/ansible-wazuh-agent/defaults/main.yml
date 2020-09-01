@@ -294,4 +294,19 @@ wazuh_agent_config:
     list:
       - key: Env
         value: Production
+  enrollment:
+    enabled: no
+    manager_address: ''
+    port: 1515
+    agent_name: ''
+    groups: ''
+    agent_address: ''
+    ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
+    server_ca_path: ''
+    agent_certificate_path: ''
+    agent_key_path: ''
+    authorization_pass: ChangeMe
+    auto_method: no
+    delay_after_enrollment: 20
+    use_source_ip: no
 wazuh_agent_nat: false

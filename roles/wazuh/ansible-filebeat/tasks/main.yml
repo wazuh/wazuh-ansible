@@ -111,15 +111,6 @@
   when: filebeat_create_config
   notify: restart filebeat
 
-- name: Reload systemd
-  systemd: daemon_reload=yes
-  ignore_errors: true
-  when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
-
 - name: Ensure Filebeat is started and enabled at boot.
   service:
     name: filebeat

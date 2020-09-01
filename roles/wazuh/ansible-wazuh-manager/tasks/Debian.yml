@@ -102,10 +102,6 @@
     name:
       - "wazuh-manager={{ wazuh_manager_version }}"
     state: present
-    cache_valid_time: 3600
-    install_recommends: false
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
   tags: init
   when:
     - not wazuh_manager_sources_installation.enabled
