@@ -44,6 +44,7 @@ wazuh_managers:
 wazuh_api_reachable_from_agent: false
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
+wazuh_profile_debian: 'debian, debian10'
 wazuh_auto_restart: 'yes'
 wazuh_agent_authd:
   registration_address: 127.0.0.1
@@ -86,6 +87,7 @@ wazuh_agent_config:
     queue_size: '5000'
     events_per_sec: '500'
   syscheck:
+    disable: 'no'
     frequency: 43200
     scan_on_start: 'yes'
     auto_ignore: 'no'
@@ -194,6 +196,7 @@ wazuh_agent_config:
       - key: '\Enum$'
         type: "sregex"
   rootcheck:
+    disable: 'no'
     frequency: 43200
   openscap:
     disable: 'yes'

@@ -8,7 +8,7 @@
 
 <ossec_config>
   <client>
-    {% for manager in wazuh_managers  %}
+    {% for manager in wazuh_managers %}
     <server>
       <address>{{ manager.address }}</address>
       {% if manager.port is defined %}
@@ -23,13 +23,17 @@
       {% endif %}
     </server>
     {% endfor %}
+
     {% if wazuh_profile_centos is not none or wazuh_profile_ubuntu is not none %}
-    {% if ansible_distribution == 'CentOS' %}
+    {% if ansible_distribution == "CentOS" %}
     <config-profile>{{ wazuh_profile_centos }}</config-profile>
     {% elif ansible_distribution == "Ubuntu" %}
     <config-profile>{{ wazuh_profile_ubuntu }}</config-profile>
+    {% elif ansible_distribution == "Debian" %}
+    <config-profile>{{ wazuh_profile_debian }}</config-profile>
     {% endif %}
     {% endif %}
+
     {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
@@ -45,9 +49,9 @@
     <events_per_second>{{ wazuh_agent_config.client_buffer.events_per_sec }}</events_per_second>
   </client_buffer>
 
-  {% if wazuh_agent_config.rootcheck is defined %}
+  <!-- Policy monitoring -->
   <rootcheck>
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.rootcheck.disable }}</disabled>
     {% if ansible_system == "Linux" %}
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
@@ -62,76 +66,47 @@
 
     <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
-    <skip_nfs>yes</skip_nfs>
-    {% endif %}
-    {% if ansible_os_family == "Windows" %}
+    {% elif ansible_os_family == "Windows" %}
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
-
+    <skip_nfs>yes</skip_nfs>
   </rootcheck>
-  {% endif %}
 
-
-  {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
+  {% if ansible_system == "Linux" %}
   <wodle name="open-scap">
     <disabled>{{ wazuh_agent_config.openscap.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.openscap.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.openscap.scan_on_start }}</scan-on-start>
-    {% if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial' %}
+
+    {% if ansible_distribution == "Ubuntu" and ansible_distribution_release == "xenial" %}
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
-    {% elif ansible_distribution == 'Debian' %}
-    {% if ansible_distribution_release == 'jessie' %}
-    {% if openscap_version_valid.stdout == "0" %}
-    <content type="xccdf" path="ssg-debian-8-ds.xml">
+    {% elif ansible_distribution == "Debian" and ansible_distribution_major_version in ["8", "9"] %}
+    {% if ansible_distribution_major_version in ["8"] and openscap_version_valid.stdout == "0" %}
+    <content type="xccdf" path="ssg-debian-{{ ansible_distribution_major_version }}-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
-    <content type="oval" path="cve-debian-8-oval.xml"/>
     {% endif %}
-    {% elif ansible_distribution_release == 'stretch' %}
-    <content type="oval" path="cve-debian-9-oval.xml"/>
-    {% endif %}
-    {% elif ansible_distribution == 'CentOS' %}
-      {% if ansible_distribution_major_version == '8' %}
-        {# Policy not available #}
-      {% elif ansible_distribution_major_version == '7' %}
-      <content type="xccdf" path="ssg-centos-7-ds.xml">
-        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-        <profile>xccdf_org.ssgproject.content_profile_common</profile>
-      </content>
-      {% elif ansible_distribution_major_version == '6' %}
-      <content type="xccdf" path="ssg-centos-6-ds.xml">
-        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-        <profile>xccdf_org.ssgproject.content_profile_common</profile>
-      </content>
-      {% endif %}
-    {% elif ansible_distribution == 'RedHat' %}
-      {% if ansible_distribution_major_version == '8' %}
-        {# Policy not available #}
-      {% elif ansible_distribution_major_version == '7' %}
-      <content type="xccdf" path="ssg-rhel-7-ds.xml">
-        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-        <profile>xccdf_org.ssgproject.content_profile_common</profile>
-      </content>
-      {% elif ansible_distribution_major_version == '6' %}
-      <content type="xccdf" path="ssg-rhel-6-ds.xml">
-        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-        <profile>xccdf_org.ssgproject.content_profile_common</profile>
-      </content>
-      {% endif %}
-      {% if ansible_distribution_major_version == '7' %}
-      <content type="oval" path="cve-redhat-7-ds.xml"/>
-      {% elif ansible_distribution_major_version == '6' %}
-      <content type="oval" path="cve-redhat-6-ds.xml"/>
-      {% endif %}
-    {% elif ansible_distribution == 'Fedora' %}
-      <content type="xccdf" path="ssg-fedora-ds.xml">
-        <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
-        <profile>xccdf_org.ssgproject.content_profile_common</profile>
-      </content>
+    <content type="oval" path="cve-debian-{{ ansible_distribution_major_version }}-oval.xml"/>
+    {% elif ansible_distribution == "CentOS" and ansible_distribution_major_version in ["6", "7"] %}
+    <content type="xccdf" path="ssg-centos-{{ ansible_distribution_major_version }}-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+    {% elif ansible_distribution == "RedHat" and ansible_distribution_major_version in ["6", "7"] %}
+    <content type="xccdf" path="ssg-rhel-{{ ansible_distribution_major_version }}-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
+    <content type="oval" path="cve-redhat-{{ ansible_distribution_major_version }}-ds.xml"/>
+    {% elif ansible_distribution == "Fedora" %}
+    <content type="xccdf" path="ssg-fedora-ds.xml">
+      <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
+      <profile>xccdf_org.ssgproject.content_profile_common</profile>
+    </content>
     {% endif %}
   </wodle>
   {% endif %}
@@ -141,12 +116,15 @@
     <timeout>{{ wazuh_agent_config.cis_cat.timeout }}</timeout>
     <interval>{{ wazuh_agent_config.cis_cat.interval }}</interval>
     <scan-on-start>{{ wazuh_agent_config.cis_cat.scan_on_start }}</scan-on-start>
-    {% if wazuh_agent_config.cis_cat.install_java == 'yes' and ansible_system == "Linux" %}
+
+    {% if wazuh_agent_config.cis_cat.install_java == 'yes' %}
+    {% if ansible_system == "Linux" %}
     <java_path>/usr/bin</java_path>
     {% elif ansible_os_family == "Windows" %}
     <java_path>{{ wazuh_agent_config.cis_cat.java_path_win }}</java_path>
     {% else %}
     <java_path>{{ wazuh_agent_config.cis_cat.java_path }}</java_path>
+    {% endif %}
     {% endif %}
     <ciscat_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.cis_cat.ciscat_path_win }}{% else %}{{ wazuh_agent_config.cis_cat.ciscat_path }}{% endif %}</ciscat_path>
   </wodle>
@@ -177,73 +155,51 @@
   </wodle>
 
   <sca>
-  {% if wazuh_agent_config.sca.enabled | length > 0 %}
     <enabled>{{ wazuh_agent_config.sca.enabled }}</enabled>
-  {% endif %}
-  {% if wazuh_agent_config.sca.scan_on_start | length > 0 %}
     <scan_on_start>{{ wazuh_agent_config.sca.scan_on_start }}</scan_on_start>
-  {% endif %}
-  {% if wazuh_agent_config.sca.interval | length > 0 %}
     <interval>{{ wazuh_agent_config.sca.interval }}</interval>
-  {% endif %}
-  {% if wazuh_agent_config.sca.skip_nfs | length > 0 %}
     <skip_nfs>yes</skip_nfs>
-  {% endif %}
-  {% if wazuh_agent_config.sca.day | length > 0 %}
+    {% if wazuh_agent_config.sca.day | length > 0 %}
     <day>yes</day>
-  {% endif %}
-  {% if wazuh_agent_config.sca.wday | length > 0 %}
+    {% elif wazuh_agent_config.sca.wday | length > 0 %}
     <wday>yes</wday>
-  {% endif %}
-  {% if wazuh_agent_config.sca.time | length > 0 %}
+    {% endif %}
+    {% if wazuh_agent_config.sca.time | length > 0 %}
     <time>yes</time>
-  {% endif %}
+    {% endif %}
   </sca>
 
-
-  <!-- Directories to check  (perform all possible verifications) -->
-  {% if wazuh_agent_config.syscheck is defined %}
+  <!-- File integrity monitoring -->
   <syscheck>
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.syscheck.disable }}</disabled>
+
+    <!-- Frequency that syscheck is executed default every 12 hours -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
+
     {% if ansible_system == "Linux" %}
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
-    <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
+
+    {% if wazuh_agent_config.syscheck.directories is defined %}
+    <!-- Directories to check (perform all possible verifications) -->
     {% for directory in wazuh_agent_config.syscheck.directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
     {% endif %}
-    {% endif %}
 
-    <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
-    {% for directory in wazuh_agent_config.syscheck.win_directories %}
-    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
-    {% endfor %}
-    {% endif %}
-
+    {% if wazuh_agent_config.syscheck.ignore is defined %}
     <!-- Files/directories to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Linux" %}
     {% for ignore in wazuh_agent_config.syscheck.ignore %}
     <ignore>{{ ignore }}</ignore>
     {% endfor %}
     {% endif %}
 
-    <!-- File types to ignore -->
     {% if wazuh_agent_config.syscheck.ignore_linux_type is defined %}
+    <!-- File types to ignore -->
     {% for ignore in wazuh_agent_config.syscheck.ignore_linux_type %}
     <ignore type="sregex">{{ ignore }}</ignore>
     {% endfor %}
     {% endif %}
 
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
-    {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
-    <ignore type="sregex">{{ ignore }}</ignore>
-    {% endfor %}
-    {% endif %}
-
-    {% if ansible_system == "Linux" %}
     <!-- Files no diff -->
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
@@ -256,6 +212,21 @@
     {% endif %}
 
     {% if ansible_os_family == "Windows" %}
+    {% if wazuh_agent_config.syscheck.win_directories is defined %}
+    <!-- Directories to check (perform all possible verifications) -->
+    {% for directory in wazuh_agent_config.syscheck.win_directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
+    {% endfor %}
+    {% endif %}
+
+    {% if wazuh_agent_config.syscheck.ignore %}
+    <!-- Files/directories to ignore -->
+    {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
+    <ignore type="sregex">{{ ignore }}</ignore>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Windows registry entries to monitor. -->
     {% for registry_key in wazuh_agent_config.syscheck.windows_registry %}
     {% if registry_key.arch is defined %}
     <windows_registry arch="{{ registry_key.arch }}">{{ registry_key.key }}</windows_registry>
@@ -263,9 +234,8 @@
     <windows_registry>{{ registry_key.key }}</windows_registry>
     {% endif %}
     {% endfor %}
-    {% endif %}
 
-    {% if ansible_os_family == "Windows" %}
+    <!-- Windows registry entries to ignore. -->
     {% for registry_key in wazuh_agent_config.syscheck.windows_registry_ignore %}
     {% if registry_key.type is defined %}
     <registry_ignore type="{{ registry_key.type }}">{{ registry_key.key }}</registry_ignore>
@@ -273,14 +243,12 @@
     <registry_ignore>{{ registry_key.key }}</registry_ignore>
     {% endif %}
     {% endfor %}
-    {% endif %}
 
-    {% if ansible_os_family == "Windows" %}
     <!-- Frequency for ACL checking (seconds) -->
     <windows_audit_interval>{{ wazuh_agent_config.syscheck.win_audit_interval }}</windows_audit_interval>
     {% endif %}
 
-      <!-- Nice value for Syscheck module -->
+    <!-- Nice value for Syscheck module -->
     <process_priority>{{ wazuh_agent_config.syscheck.process_priority }}</process_priority>
 
     <!-- Maximum output throughput -->
@@ -294,92 +262,55 @@
       <max_eps>{{ wazuh_agent_config.syscheck.sync_max_eps }}</max_eps>
     </synchronization>
   </syscheck>
-  {% endif %}
 
   <!-- Files to monitor (localfiles) -->
+  {% if ansible_os_family == "Debian" %}
+  {% set localfiles = wazuh_agent_config.localfiles.debian %}
+  {% elif ansible_os_family == "RedHat" %}
+  {% set localfiles = wazuh_agent_config.localfiles.centos %}
+  {% elif ansible_os_family == "Windows" %}
+  {% set localfiles = wazuh_agent_config.localfiles.windows %}
+  {% else %}
+  {% set localfiles = [] %}
+  {% endif %}
   {% if ansible_system == "Linux" %}
-  {% for localfile in wazuh_agent_config.localfiles.linux %}
-
+  {% set localfiles = localfiles + wazuh_agent_config.localfiles.linux %}
+  {% endif %}
+  {% for localfile in localfiles %}
   <localfile>
     <log_format>{{ localfile.format }}</log_format>
-    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+    {% if localfile.format in ["command", "full_command"] %}
     <command>{{ localfile.command }}</command>
     <frequency>{{ localfile.frequency }}</frequency>
     {% if localfile.alias is defined %}
     <alias>{{ localfile.alias }}</alias>
     {% endif %}
-  {% else %}
+    {% elif localfile.format == "eventchannel" %}
+    <location>{{ localfile.location }}</location>
+    <query>{{ localfile.query}}</query>
+    {% else %}
     <location>{{ localfile.location }}</location>
     {% endif %}
   </localfile>
+
   {% endfor %}
-  {% endif %}
-
-  {% if ansible_os_family == "Debian" %}
-  {% for localfile in wazuh_agent_config.localfiles.debian %}
-
-  <localfile>
-      <log_format>{{ localfile.format }}</log_format>
-    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-      <command>{{ localfile.command }}</command>
-      <frequency>{{ localfile.frequency }}</frequency>
-    {% if localfile.alias is defined %}
-      <alias>{{ localfile.alias }}</alias>
-      {% endif %}
-  {% else %}
-      <location>{{ localfile.location }}</location>
-  {% endif %}
-  </localfile>
-  {% endfor %}
-  {% endif %}
-
-  {% if ansible_os_family == "RedHat" %}
-  {% for localfile in wazuh_agent_config.localfiles.centos %}
-
-  <localfile>
-      <log_format>{{ localfile.format }}</log_format>
-    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-      <command>{{ localfile.command }}</command>
-      <frequency>{{ localfile.frequency }}</frequency>
-      {% if localfile.alias is defined %}
-      <alias>{{ localfile.alias }}</alias>
-      {% endif %}
-    {% else %}
-      <location>{{ localfile.location }}</location>
-  {% endif %}
-  </localfile>
-  {% endfor %}
-  {% endif %}
-
-  {% if ansible_os_family == "Windows" %}
-  {% for localfile in wazuh_agent_config.localfiles.windows %}
-
-  <localfile>
-      <log_format>{{ localfile.format }}</log_format>
-  {% if localfile.format == 'eventchannel' %}
-      <location>{{ localfile.location }}</location>
-      <query>{{ localfile.query}}</query>
-  {% else %}
-      <location>{{ localfile.location }}</location>
-  {% endif %}
-  </localfile>
-  {% endfor %}
-  {% endif %}
-
-{% if wazuh_agent_config.labels.enable == true %}
+  <!-- User-defined labels to be included in alerts -->
+  {% if wazuh_agent_config.labels.enable == true %}
   <labels>
   {% for label in wazuh_agent_config.labels.list %}
     <label key="{{ label.key }}"{% if label.hidden is defined %} hidden="{{ label.hidden }}"{% endif %}>{{ label.value }}</label>
   {% endfor %}
   </labels>
-{% endif %}
+  {% endif %}
 
+  <!-- Active response -->
   <active-response>
     <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
     <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
     <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
   </active-response>
 
+  <!-- Choose between "plain", "json", or "plain,json" for the format of internal logs -->
   <logging>
     <log_format>{{ wazuh_agent_config.log_format }}</log_format>
   </logging>
