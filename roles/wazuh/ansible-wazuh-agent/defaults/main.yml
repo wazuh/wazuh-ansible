@@ -295,7 +295,7 @@ wazuh_agent_config:
       - key: Env
         value: Production
   enrollment:
-    enabled: ''
+    enabled: 'yes'
     manager_address: ''
     port: 1515
     agent_name: 'testname'
