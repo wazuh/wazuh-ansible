@@ -239,6 +239,7 @@
   when:
     - wazuh_agent_config.enrollment.enabled == 'yes'
     - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
+    - ( authd_pass is defined) and ( authd_pass|length > 0)
   tags:
     - config
 

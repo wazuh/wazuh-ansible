@@ -285,6 +285,7 @@
   when:
     - wazuh_manager_config.authd.use_password is defined
     - wazuh_manager_config.authd.use_password == 'yes'
+    - ( authd_pass is defined) and ( authd_pass|length > 0)
   tags:
     - config
 
