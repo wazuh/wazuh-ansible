@@ -85,12 +85,10 @@
     </content>
     {% elif ansible_distribution == 'Debian' %}
     {% if ansible_distribution_release == 'jessie' %}
-    {% if openscap_version_valid.stdout == "0" %}
     <content type="xccdf" path="ssg-debian-8-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
     <content type="oval" path="cve-debian-8-oval.xml"/>
-    {% endif %}
     {% elif ansible_distribution_release == 'stretch' %}
     <content type="oval" path="cve-debian-9-oval.xml"/>
     {% endif %}
