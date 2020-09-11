@@ -114,6 +114,19 @@
     - build_from_sources is defined
     - build_from_sources
 
+- name: Ensure kibana as owner
+  shell: "chown -R kibana:root ."
+  args:
+    chdir: /usr/share/kibana
+  become: yes
+  become_user: root
+  notify: restart kibana
+  tags:
+    - install
+    - skip_ansible_lint
+  when:
+    - not build_from_sources
+
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
     NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
