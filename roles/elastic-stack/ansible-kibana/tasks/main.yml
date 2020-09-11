@@ -116,14 +116,14 @@
 
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
-    NODE_OPTIONS="{{ node_options }}" su -s /bin/bash -c "/usr/share/kibana/bin/kibana-plugin install
-    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip" kibana
+    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip --allow-root
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
     chdir: /usr/share/kibana
   become: yes
-  become_user: kibana
+  become_user: root
   notify: restart kibana
   tags:
     - install
