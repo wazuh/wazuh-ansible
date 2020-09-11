@@ -132,12 +132,12 @@
     - not build_from_sources
 
 - name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
+  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml --allow-root
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/optimize/wazuh/
   become: yes
-  become_user: kibana
+  become_user: root
   tags:
     - skip_ansible_lint
 
