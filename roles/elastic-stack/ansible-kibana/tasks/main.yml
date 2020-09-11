@@ -154,8 +154,8 @@
   tags:
     - skip_ansible_lint
 
-- name: Wait for Elasticsearch port
-  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
+# - name: Wait for Elasticsearch port
+#   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
 
 - name: Select correct API protocol
   set_fact:
