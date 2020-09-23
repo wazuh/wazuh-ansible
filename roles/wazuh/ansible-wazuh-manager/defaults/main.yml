@@ -5,9 +5,9 @@ wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
 # Custom packages installation
-wazuh_custom_packages_installation_manager_enabled: false
-wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/apt/pool/main/w/wazuh-manager/wazuh-manager_4.0.0-1_amd64.deb"
-wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/wazuh-manager-4.0.0-1.x86_64.rpm"
+wazuh_custom_packages_installation_manager_enabled: true
+wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/test/4.0/deb/var/wazuh-manager_4.0.0-0.0.0.master.fim.int_amd64.deb"
+wazuh_custom_packages_installation_manager_rpm_url: "https://packages-dev.wazuh.com/warehouse/test/4.0/rpm/var/wazuh-manager-4.0.0-0.0.0.master.fim.int.x86_64.rpm"
 
 # Sources installation
 wazuh_manager_sources_installation:
