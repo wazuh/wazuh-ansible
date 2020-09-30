@@ -7,7 +7,7 @@
 
 - name: Install Filebeat
   package:
-    name: filebeat
+    name: filebeat-{{ filebeat_version }}
     state: present
   register: install
   tags:
