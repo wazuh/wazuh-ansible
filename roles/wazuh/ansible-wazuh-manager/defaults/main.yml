@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://packages-dev.wazuh.
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v3.13.1"
+  branch: "v3.13.2"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"

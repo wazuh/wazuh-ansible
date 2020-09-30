@@ -1,9 +1,9 @@
 ---
 # Cluster Settings
-es_version: "7.3.2"
+es_version: "7.8.0"
 es_major_version: "7.x"
 
-opendistro_version: 1.8.0
+opendistro_version: 1.9.0
 
 elasticsearch_cluster_name: wazuh-cluster
 single_node: true

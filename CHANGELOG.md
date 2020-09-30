@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v3.13.2]
+
+### Added
+
+- Update to Wazuh v3.13.2
+- Add kibana extra ssl option ([@xr09](https://github.com/xr09)) [PR#451](https://github.com/wazuh/wazuh-ansible/pull/451)
+- Force basic auth ([@xr09](https://github.com/xr09)) [PR#456](https://github.com/wazuh/wazuh-ansible/pull/456)
+
+### Fixed
+
+- Fix check_mode condition ([@manuasir](https://github.com/manuasir)) [PR#452](https://github.com/wazuh/wazuh-ansible/pull/452)
+- Fixes for opendistro role ([@xr09](https://github.com/xr09)) [PR#453](https://github.com/wazuh/wazuh-ansible/pull/453)
+
 ## [v3.13.1_7.8.0]
 
 ### Added
