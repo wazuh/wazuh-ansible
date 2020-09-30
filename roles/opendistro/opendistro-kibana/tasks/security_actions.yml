@@ -11,4 +11,4 @@
       - "{{ kibana_node_name }}_http.pem"
   tags:
   - security
-  when: install.changed
+  when: install.changed or opendistro_standalone_installation
