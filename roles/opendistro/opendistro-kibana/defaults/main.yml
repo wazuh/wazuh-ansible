@@ -1,6 +1,11 @@
 ---
 
 # Kibana configuration
+opendistro_standalone_installation: false
+opendistro_kibana_plugin_version: 1.10.1.0
+opendistro_kibana_plugin_url: https://d3g5vo6xdbdb9a.cloudfront.net/downloads/kibana-plugins/opendistro-security/opendistro_security_kibana_plugin-{{ opendistro_kibana_plugin_version }}.zip
+kibana_oss_version: 7.9.1
+
 elasticsearch_http_port: 9200
 elasticsearch_nodes: |-
         {% for item in groups['es_cluster'] -%}

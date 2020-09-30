@@ -1,9 +1,12 @@
 ---
-# Cluster Settings
-es_version: "7.3.2"
+es_version: "7.9.1"
 es_major_version: "7.x"
 
-opendistro_version: 1.8.0
+# Package installation (RPM/deb) options
+opendistro_version: 1.10.0.0
+# Stand-alone plugin installation
+opendistro_standalone_installation: false
+opendistro_security_plugin_url: https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-security/opendistro_security-{{ opendistro_version }}.zip
 
 elasticsearch_cluster_name: wazuh-cluster
 single_node: true

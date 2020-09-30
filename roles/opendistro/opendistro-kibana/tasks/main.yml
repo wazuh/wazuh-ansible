@@ -1,13 +1,5 @@
 ---
 
-- name: Stopping early, trying to compile Wazuh Kibana Plugin on Debian 10 is not possible
-  fail:
-    msg: "It's not possible to compile the Wazuh Kibana plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
-  when:
-    - build_from_sources
-    - ansible_distribution == "Debian"
-    - ansible_distribution_major_version == "10"
-
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
@@ -23,17 +15,31 @@
 
 - name: Install Kibana
   package:
-    name: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
+    name: "opendistroforelasticsearch-kibana-{{ kibana_opendistro_version }}"
     state: present
   register: install
   tags: install
+  when: not opendistro_standalone_installation
+
+- name: Install Kibana-oss
+  package:
+    name: "kibana-oss-{{ kibana_oss_version }}"
+    state: present
+  register: install
+  tags: install
+  when: opendistro_standalone_installation
+
+- name: Install Kibana-ODFE plugin
+  command: /usr/share/kibana/bin/kibana-plugin install {{ opendistro_kibana_plugin_url }} -b
+  tags: install
+  when: opendistro_standalone_installation
 
 - name: Remove Kibana configuration file
   file:
     path: "{{ kibana_conf_path }}/kibana.yml"
     state: absent
   when: install.changed
-  tags: install
+  tags: install or opendistro_standalone_installation
 
 - import_tasks: security_actions.yml
 
