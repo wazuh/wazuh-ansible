@@ -3,7 +3,7 @@ es_version: "7.9.1"
 es_major_version: "7.x"
 
 # Package installation (RPM/deb) options
-opendistro_version: 1.10.0.0
+opendistro_version: 1.10.1.0
 # Stand-alone plugin installation
 opendistro_standalone_installation: false
 opendistro_security_plugin_url: https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-security/opendistro_security-{{ opendistro_version }}.zip
