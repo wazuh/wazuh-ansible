@@ -1,10 +1,10 @@
 ---
-- hosts: agents
+- hosts: <your wazuh agents hosts>
   roles:
     - ../roles/wazuh/ansible-wazuh-agent
   vars:
     wazuh_managers:
-      - address: 172.16.0.111
+      - address: <your manager IP>
         port: 1514
         protocol: tcp
         api_port: 55000
