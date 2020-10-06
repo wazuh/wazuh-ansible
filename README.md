@@ -19,9 +19,14 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
     │ │ ├── elastic-stack 
     │ │ │ ├── ansible-elasticsearch        
     │ │ │ ├── ansible-kibana
-    │ │
+    │ │     
+    │ │ ├── opendistro                
+    │ │ │ ├── opendistro-elasticsearch
+    │ │ │ ├── opendistro-kibana
+    │ │ 
     │ │ ├── wazuh                
     │ │ │ ├── ansible-filebeat
+    │ │ │ ├── ansible-filebeat-oss
     │ │ │ ├── ansible-wazuh-manager
     │ │ │ ├── ansible-wazuh-agent
     │ │
@@ -35,6 +40,9 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
     │ │ ├── wazuh-elastic_stack-single.yml
     │ │ ├── wazuh-kibana.yml
     │ │ ├── wazuh-manager.yml
+    │ │ ├── wazuh-manager-oss.yml
+    │ │ ├── wazuh-opendistro.yml
+    │ │ ├── wazuh-opendistro-kibana.yml
     │
     │ ├── README.md
     │ ├── VERSION
