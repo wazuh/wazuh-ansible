@@ -104,6 +104,14 @@
     - build_from_sources is defined
     - build_from_sources
 
+- name: Ensuring Kibana directory owner
+  file:
+    path: "/usr/share/kibana"
+    state: directory
+    owner: kibana
+    group: kibana
+    recurse: yes
+
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
     NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
