@@ -272,6 +272,8 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ansible-playbook wazuh-odfe-production-ready.yml -i inventory
 ```
 
+After the playbook execution, Wazuh UI should be reachable through `https://<kibana_host>:5601`
+
 ## Example: single-host environment
 
 ### Playbook
@@ -322,7 +324,7 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ansible-playbook wazuh-odfe-single.yml -i inventory
 ```
 
-After the playbooks execution
+After the playbook execution, Wazuh UI should be reachable through `https://<your server host>:5601`
 
 ## Branches
 * `master` branch on correspond to the last Wazuh-Ansible stable version.
