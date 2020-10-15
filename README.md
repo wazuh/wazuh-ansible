@@ -278,7 +278,42 @@ ansible-playbook wazuh-odfe-production-ready.yml -i inventory
 The hereunder example playbook uses the `wazuh-ansible` role to provision a single-host Wazuh environment. This architecture includes all the Wazuh and ODFE components in a single node.
 
 ```yaml
+---
+# Single node
+    - hosts: server
+      become: yes
+      become_user: root
+      roles:
+        - role: ../roles/opendistro/opendistro-elasticsearch
+        - role: "../roles/wazuh/ansible-wazuh-manager"
+        - role: "../roles/wazuh/ansible-filebeat-oss"
+        - role: "../roles/opendistro/opendistro-kibana"
+      vars:
+        single_node: true
+        minimum_master_nodes: 1
+        elasticsearch_node_master: true
+        elasticsearch_network_host: <your server host>  
+        filebeat_node_name: node-1
+        filebeat_output_elasticsearch_hosts: <your server host>
+        ansible_ssh_user: vagrant
+        ansible_ssh_private_key_file: /path/to/ssh/key.pem
+        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+        instances:
+          node1:
+            name: node-1       # Important: must be equal to elasticsearch_node_name.
+            ip: <your server host>
+```
 
+### Inventory file
+
+```ini
+[server]
+<your server host>
+
+[all:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file=/path/to/ssh/key.pem
+ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ```
 
 ### Launching playbook
@@ -287,6 +322,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
 ansible-playbook wazuh-odfe-single.yml -i inventory
 ```
 
+After the playbooks execution
 
 ## Branches
 * `master` branch on correspond to the last Wazuh-Ansible stable version.
