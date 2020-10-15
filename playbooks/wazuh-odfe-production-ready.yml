@@ -1,5 +1,5 @@
 ---
-  # Certificates generation
+# Certificates generation
     - hosts: es1
       roles:
         - role: ../roles/opendistro/opendistro-elasticsearch
@@ -16,15 +16,7 @@
       become: yes
       become_user: root
       vars:
-        opendistro_standalone_installation: false
-        ansible_ssh_user: centos
-        ansible_ssh_private_key_file: /home/zenid/.ssh/core-dev-nv.pem
-        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
         elasticsearch_node_master: true
-        elasticsearch_cluster_name: wazuh
-        opendistro_version: 1.10.1
-        opendistro_admin_password: T3stP4ssw0rd
-        certs_gen_tool_url: https://wazuh-demo.s3-us-west-1.amazonaws.com/search-guard-tlstool-1.7.zip
         instances:
           node1:
             name: node-1       # Important: must be equal to elasticsearch_node_name.
@@ -47,7 +39,7 @@
       tags:
         - generate-certs
     
-  #ODFE Cluster   
+#ODFE Cluster
     - hosts: odfe_cluster
       strategy: free
       roles:
@@ -64,16 +56,7 @@
           - "{{ hostvars.es1.private_ip }}"
           - "{{ hostvars.es2.private_ip }}"
           - "{{ hostvars.es3.private_ip }}"
-        opendistro_standalone_installation: false
-        ansible_ssh_user: centos
-        ansible_ssh_private_key_file: /home/zenid/.ssh/core-dev-nv.pem
-        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
         elasticsearch_node_master: true
-        elasticsearch_cluster_name: wazuh
-        opendistro_version: 1.10.1
-        opendistro_admin_password: T3stP4ssw0rd
-        opendistro_custom_user_role: admin
-        certs_gen_tool_url: https://wazuh-demo.s3-us-west-1.amazonaws.com/search-guard-tlstool-1.7.zip
         instances:
           node1:
             name: node-1       # Important: must be equal to elasticsearch_node_name.
@@ -103,34 +86,21 @@
       become: yes
       become_user: root
       vars:
-        ansible_ssh_user: "centos"
-        ansible_ssh_private_key_file: /home/zenid/.ssh/core-dev-nv.pem
-        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-        wazuh_manager_version: 3.13.2
         wazuh_manager_config:
-            connection:
-            - type: 'secure'
-              port: '1514'
-              protocol: 'tcp'
-              queue_size: 131072
-            api:
-              port: "55000"
+          connection:
+              - type: 'secure'
+                port: '1514'
+                protocol: 'tcp'
+                queue_size: 131072
+          api:
               https: 'yes'
-            cluster:
+          cluster:
               disable: 'no'
-              name: 'wazuh'
               node_name: 'master'
               node_type: 'master'
-              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
-              port: '1516'
-              bind_addr: '0.0.0.0'
               nodes:
                   - '"{{ hostvars.manager.private_ip }}"'
               hidden: 'no'
-        filebeat_version: 7.9.1
-        filebeat_security: true
-        elasticsearch_security_user: wazuh
-        elasticsearch_security_password: T3stP4ssw0rd
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
@@ -145,48 +115,21 @@
       become_user: root
       vars:
         wazuh_manager_config:
-          authd:
-              enable: false
-              port: 1515
-              use_source_ip: 'no'
-              force_insert: 'yes'
-              force_time: 0
-              purge: 'yes'
-              use_password: 'no'
-              limit_maxagents: 'yes'
-              ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
-              ssl_agent_ca: null
-              ssl_verify_host: 'no'
-              ssl_manager_cert: 'sslmanager.cert'
-              ssl_manager_key: 'sslmanager.key'
-              ssl_auto_negotiate: 'no'
           connection:
               - type: 'secure'
                 port: '1514'
                 protocol: 'tcp'
                 queue_size: 131072
           api:
-              port: "55000"
               https: 'yes'
           cluster:
               disable: 'no'
-              name: 'wazuh'
               node_name: 'worker_01'
               node_type: 'worker'
               key: 'c98b62a9b6169ac5f67dae55ae4a9088'
-              port: '1516'
-              bind_addr: '0.0.0.0'
               nodes:
                   - '"{{ hostvars.manager.private_ip }}"'
               hidden: 'no'
-        ansible_ssh_user: centos
-        ansible_ssh_private_key_file: /home/zenid/.ssh/core-dev-nv.pem
-        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-        wazuh_manager_version: 3.13.2
-        filebeat_version: 7.9.1
-        filebeat_security: true
-        elasticsearch_security_user: wazuh
-        elasticsearch_security_password: T3stP4ssw0rd
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
@@ -200,11 +143,8 @@
       become: yes
       become_user: root
       vars:
-        elasticsearch_jvm_xms: 2560
         elasticsearch_network_host: "{{ hostvars.kibana.private_ip }}"
         elasticsearch_node_name: node-6
-        opendistro_kibana_user: wazuh
-        opendistro_kibana_password: T3stP4ssw0rd
         elasticsearch_node_master: false
         elasticsearch_node_ingest: false
         elasticsearch_node_data: false
@@ -217,21 +157,6 @@
             - "{{ hostvars.es2.private_ip }}"
             - "{{ hostvars.es3.private_ip }}"
         kibana_node_name: node-6
-        opendistro_standalone_installation: false
-        ansible_ssh_user: centos
-        ansible_ssh_private_key_file: /home/zenid/.ssh/core-dev-nv.pem
-        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-        wazuh_version: 3.13.2
-        elastic_stack_version: 7.9.1
-        opendistro_version: 1.10.1
-        kibana_opendistro_version: -1.10.1-1
-        elasticsearch_cluster_name: wazuh
-        kibana_opendistro_security: true
-        opendistro_admin_password: T3stP4ssw0rd
-        opendistro_custom_user: wazuh
-        opendistro_custom_user_role: admin
-        node_options: "--max-old-space-size=2048"
-        certs_gen_tool_url: https://wazuh-demo.s3-us-west-1.amazonaws.com/search-guard-tlstool-1.7.zip
         wazuh_api_credentials:
           - id: default
             url: https://{{ hostvars.manager.private_ip }}
