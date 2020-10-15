@@ -1,4 +1,4 @@
-cluster.name: {{ elasticsearch_cluster_name }}
+cluster.name: {{ opendistro_cluster_name }}
 node.name: {{ elasticsearch_node_name }}
 path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
@@ -6,6 +6,9 @@ network.host: {{ elasticsearch_network_host }}
 
 node.master: {{ elasticsearch_node_master|lower }}
 
+{% if single_node == true %}
+discovery.type: single-node
+{% else %}
 cluster.initial_master_nodes:
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
@@ -15,6 +18,7 @@ discovery.seed_hosts:
 {% for item in elasticsearch_discovery_nodes %}
   - {{ item }}
 {% endfor %}
+{% endif %}
 
 {% if elasticsearch_node_data|lower == 'false' %}
 node.data: false
