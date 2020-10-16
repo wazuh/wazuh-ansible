@@ -7,6 +7,10 @@
 
 These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
+## Branches
+* `master` branch corresponds to the latest Wazuh Ansible changes. It might be unstable.
+* `3.13` branch on correspond to the last Wazuh Ansible stable version.
+
 ## Documentation
 
 * [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
@@ -326,9 +330,6 @@ ansible-playbook wazuh-odfe-single.yml -i inventory
 ```
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<your server host>:5601`
-
-## Branches
-* `master` branch on correspond to the last Wazuh-Ansible stable version.
 
 ## Contribute
 
