@@ -267,7 +267,7 @@ ansible_ssh_private_key_file=/path/to/ssh/key.pem
 ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ```
 
-### Launching playbook
+### Launching the playbook
 
 ```bash
 ansible-playbook wazuh-odfe-production-ready.yml -i inventory
@@ -319,7 +319,7 @@ ansible_ssh_private_key_file=/path/to/ssh/key.pem
 ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ```
 
-### Launching playbook
+### Launching the playbook
 
 ```bash
 ansible-playbook wazuh-odfe-single.yml -i inventory
