@@ -245,7 +245,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 
 The inventory file sets the public and private address of each node. The public addresses are used to gather facts and provision the instances while the private addresses are used for the cluster communications.
 
-The ssh credentials used by Ansible during the provision can be specified in this file too. Another option is including them directly on the playbook.
+The SSH credentials used by Ansible during the provision can be specified in this file too. Another option is to include them directly in the playbook.
 
 ```ini
 es1 ansible_host=<es1_ec2_public_ip> private_ip=<es1_ec2_private_ip> elasticsearch_node_name=node-1
