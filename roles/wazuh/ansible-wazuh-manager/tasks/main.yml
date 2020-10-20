@@ -250,19 +250,6 @@
     - init
     - config
 
-- name: Linux | Vuls integration deploy (runs in background, can take a while)
-  command: /var/ossec/wodles/vuls/deploy_vuls.sh {{ ansible_distribution|lower }} {{ ansible_distribution_major_version|int }}
-  args:
-    creates: /var/ossec/wodles/vuls/config.toml
-  async: 3600
-  poll: 0
-  when:
-    - wazuh_manager_config.vuls.disable != 'yes'
-    - ansible_distribution in ['Redhat', 'CentOS', 'Ubuntu', 'Debian', 'Oracle', 'Amazon']
-    - not ansible_check_mode
-  tags:
-    - init
-
 - name: Configure ossec.conf
   template: src=var-ossec-etc-ossec-server.conf.j2
             dest=/var/ossec/etc/ossec.conf

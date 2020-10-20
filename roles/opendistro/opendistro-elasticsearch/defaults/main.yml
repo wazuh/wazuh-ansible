@@ -1,12 +1,12 @@
 ---
 # Cluster Settings
-es_version: "7.3.2"
+es_version: "7.8.0"
 es_major_version: "7.x"
 
-opendistro_version: 1.8.0
+opendistro_version: 1.10.1
 
-elasticsearch_cluster_name: wazuh-cluster
-single_node: true
+single_node: false
+elasticsearch_node_name: node-1
 opendistro_cluster_name: wazuh
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
@@ -56,7 +56,7 @@ opendistro_http_port: 9200
 certs_gen_tool_version: 1.8
 
 # Url of Search Guard certificates generator tool
-certs_gen_tool_url: "https://maven.search-guard.com/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'

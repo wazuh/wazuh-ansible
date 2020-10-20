@@ -374,17 +374,6 @@
   </command>
 {% endfor %}
 
-{% if ansible_system == "Linux" and wazuh_manager_config.vuls.disable == 'no' %}
-  <wodle name="command">
-    <disabled>no</disabled>
-    <tag>Wazuh-VULS</tag>
-    <command>/usr/bin/python /var/ossec/wodles/vuls/vuls.py{% for arg in wazuh_manager_config.vuls.args %} --{{ arg }}{% endfor %}</command>
-    <interval>{{ wazuh_manager_config.vuls.interval }}</interval>
-    <ignore_output>yes</ignore_output>
-    <run_on_start>{{ wazuh_manager_config.vuls.run_on_start }}</run_on_start>
-  </wodle>
-{% endif -%}
-
 {% if agentless_creds is defined %}
 {% for agentless in agentless_creds %}
   <agentless>

@@ -98,6 +98,14 @@
     name: kibana
     state: started
 
+- name: Ensuring Kibana directory owner
+  file:
+    path: "/usr/share/kibana"
+    state: directory
+    owner: kibana
+    group: kibana
+    recurse: yes
+
 - name: Build and Install Wazuh Kibana Plugin from sources
   import_tasks: build_wazuh_plugin.yml
   when:
@@ -146,6 +154,7 @@
     password: "{{ elasticsearch_xpack_security_password }}"
     validate_certs: no
     status_code: 200, 404
+    force_basic_auth: yes
 
 - name: Create wazuh plugin config directory
   file:

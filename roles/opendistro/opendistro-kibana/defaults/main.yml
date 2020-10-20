@@ -6,7 +6,6 @@ elasticsearch_nodes: |-
         {% for item in groups['es_cluster'] -%}
           {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
         {%- endfor %}
-elasticsearch_network_host: 172.16.0.161
 elastic_api_protocol: https
 kibana_conf_path: /etc/kibana
 kibana_node_name: node-1

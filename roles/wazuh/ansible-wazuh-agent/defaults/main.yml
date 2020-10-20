@@ -237,16 +237,6 @@ wazuh_agent_config:
     java_path_win: '\\server\jre\bin\java.exe'
     ciscat_path: 'wodles/ciscat'
     ciscat_path_win: 'C:\cis-cat'
-  vuls:
-    disable: 'yes'
-    interval: '1d'
-    run_on_start: 'yes'
-    args:
-      - 'mincvss 5'
-      - 'antiquity-limit 20'
-      - 'updatenvd'
-      - 'nvd-year 2016'
-      - 'autoupdate'
   localfiles:
     debian:
       - format: 'syslog'

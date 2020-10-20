@@ -244,16 +244,6 @@ wazuh_manager_config:
         update_from_year: '2010'
         update_interval: '1h'
         name: '"nvd"'
-  vuls:
-    disable: 'yes'
-    interval: '1d'
-    run_on_start: 'yes'
-    args:
-      - 'mincvss 5'
-      - 'antiquity-limit 20'
-      - 'updatenvd'
-      - 'nvd-year 2016'
-      - 'autoupdate'
   log_level: 3
   email_level: 12
   localfiles:
