@@ -1,18 +1,18 @@
 ---
-wazuh_manager_version: 3.13.1-1
+wazuh_manager_version: 4.0.0-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
 # Custom packages installation
 wazuh_custom_packages_installation_manager_enabled: false
-wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
-wazuh_custom_packages_installation_manager_rpm_url: " +´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+wazuh_custom_packages_installation_manager_deb_url: ""
+wazuh_custom_packages_installation_manager_rpm_url: ""
 
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v3.13.1"
+  branch: "v4.0.0"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -36,9 +36,8 @@ wazuh_manager_sources_installation:
   threads: "2"
 
 # wazuh_api_users:
-#   - username: custom_user5
-#     password: Custom_password0
-#     role: administrator
+#   - username: custom_user
+#     password: changeme
 
 wazuh_manager_config:
   repo:

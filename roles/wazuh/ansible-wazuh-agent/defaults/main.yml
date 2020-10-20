@@ -1,18 +1,18 @@
 ---
-wazuh_agent_version: 3.13.1-1
+wazuh_agent_version: 4.0.0-1
 
 
 # Custom packages installation
 
-wazuh_custom_packages_installation_agent_enabled: true
-wazuh_custom_packages_installation_agent_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/apt/pool/main/w/wazuh-agent/wazuh-agent_4.0.0-1_amd64.deb"
-wazuh_custom_packages_installation_agent_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/wazuh-agent-4.0.0-1.x86_64.rpm"
+wazuh_custom_packages_installation_agent_enabled: false
+wazuh_custom_packages_installation_agent_deb_url: ""
+wazuh_custom_packages_installation_agent_rpm_url: ""
 
 # Sources installation
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v3.13.1"
+  branch: "v4.0.0"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
@@ -67,8 +67,8 @@ wazuh_winagent_config:
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
   md5: d0f13c0c417c74ccbad7b45f66518513
-wazuh_winagent_config_url: https://packages.wazuh.com/3.x/windows/wazuh-agent-3.13.1-1.msi
-wazuh_winagent_package_name: wazuh-agent-3.13.1-1.msi
+wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.0.0-1.msi
+wazuh_winagent_package_name: wazuh-agent-4.0.0-1.msi
 wazuh_agent_config:
   repo:
     apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'

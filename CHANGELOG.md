@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.0]
+
+### Added
+
+- Update to Wazuh v4.0.0
+
 ## [v3.13.1_7.8.0]
 
 ### Added
