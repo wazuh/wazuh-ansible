@@ -47,6 +47,14 @@
     - install
     - configure
 
+- name: Ensuring Kibana directory owner
+  file:
+    path: "/usr/share/kibana"
+    state: directory
+    owner: kibana
+    group: kibana
+    recurse: yes
+
 - name: Build and Install Wazuh Kibana Plugin from sources
   import_tasks: build_wazuh_plugin.yml
   when:
