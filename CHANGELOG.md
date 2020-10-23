@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 
 - Update to Wazuh v4.0.0
 
+### Fixed
+
+- Ensure recursive /usr/share/kibana permissions before installing WUI ([@Zenidd](https://github.com/Zenidd)) [PR#471](https://github.com/wazuh/wazuh-ansible/pull/471)
+- Remove vuls integration ([@manuasir](https://github.com/manuasir)) [PR#469](https://github.com/wazuh/wazuh-ansible/pull/469)
+
+### Added
+
+- New example playbooks on README ([@Zenidd](https://github.com/Zenidd)) [PR#468](https://github.com/wazuh/wazuh-ansible/pull/468)
+
 ## [v3.13.2]
 
 ### Added
