@@ -48,8 +48,8 @@
 
 ## GC configuration
 -XX:+UseG1GC
--XX:G1ReservePercent=25
--XX:InitiatingHeapOccupancyPercent=30
+-XX:CMSInitiatingOccupancyFraction=75
+-XX:+UseCMSInitiatingOccupancyOnly
 
 ## optimizations
 
