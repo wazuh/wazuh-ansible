@@ -161,7 +161,7 @@
             owner=root
             group=ossec
             mode=0640
-  notify: restart wazuh-api
+  notify: restart wazuh-manager
   when:
     - wazuh_manager_config.cluster.node_type == "master"
   tags:
