@@ -16,7 +16,7 @@ elasticsearch_cluster_nodes:
 elasticsearch_discovery_nodes:
   - 127.0.0.1
 
-local_certs_path: ./opendistro/certificates
+local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
 
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
 minimum_master_nodes: 2
