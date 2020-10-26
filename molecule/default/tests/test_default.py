@@ -6,18 +6,18 @@ import re
 testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
+
 def get_wazuh_version():
     """This return the version of Wazuh."""
     return "4.0.0"
 
+
 def test_wazuh_packages_are_installed(host):
     """Test the main packages are installed."""
     manager = host.package("wazuh-manager")
-    api = host.package("wazuh-api")
     assert manager.is_installed
     assert manager.version.startswith(get_wazuh_version())
-    assert api.is_installed
-    assert api.version.startswith(get_wazuh_version())
+
 
 def test_wazuh_services_are_running(host):
     """Test the services are enabled and running.
