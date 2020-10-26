@@ -38,7 +38,7 @@
             ip: "{{ hostvars.kibana.private_ip }}"
       tags:
         - generate-certs
-    
+
 #ODFE Cluster
     - hosts: odfe_cluster
       strategy: free
@@ -76,7 +76,7 @@
           node6:
             name: node-6
             ip: "{{ hostvars.kibana.private_ip }}"
-  
+
   #Wazuh cluster
     - hosts: manager
       roles:
@@ -105,7 +105,7 @@
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
-  
+
     - hosts: worker
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
@@ -134,7 +134,7 @@
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
-  
+
   #ODFE+Kibana node
     - hosts: kibana
       roles:
@@ -161,7 +161,7 @@
           - id: default
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
-            user: foo
+            username: foo
             password: bar
         instances:
           node1:
