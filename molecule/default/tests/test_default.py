@@ -30,7 +30,9 @@ def test_wazuh_services_are_running(host):
     # api = host.service("wazuh-api")
     # assert manager.is_running
     # assert api.is_running
-    output = host.check_output('ps aux | grep ossec | tr -s " " | cut -d" " -f11')
+    output = host.check_output(
+        'ps aux | grep ossec | tr -s " " | cut -d" " -f11'
+        )
     assert 'ossec-authd' in output
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output
@@ -48,13 +50,13 @@ def test_wazuh_services_are_running(host):
     ("/var/ossec/etc/rules/local_rules.xml", "ossec", "ossec", 0o640),
     ("/var/ossec/etc/lists/audit-keys", "ossec", "ossec", 0o660),
 ])
-
 def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
     """Test Wazuh related files exist and have proper owners and mode."""
     wazuh_file_host = host.file(wazuh_file)
     assert wazuh_file_host.user == wazuh_owner
     assert wazuh_file_host.group == wazuh_group
     assert wazuh_file_host.mode == wazuh_mode
+
 
 def test_filebeat_is_installed(host):
     """Test the elasticsearch package is installed."""
