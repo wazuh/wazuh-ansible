@@ -167,7 +167,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               node_type: 'master'
               key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
-                  - '"{{ hostvars.manager.private_ip }}"'
+                  - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
@@ -196,7 +196,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               node_type: 'worker'
               key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
-                  - '"{{ hostvars.manager.private_ip }}"'
+                  - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
