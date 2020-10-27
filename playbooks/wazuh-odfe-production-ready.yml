@@ -38,7 +38,7 @@
             ip: "{{ hostvars.kibana.private_ip }}"
       tags:
         - generate-certs
-    
+
 #ODFE Cluster
     - hosts: odfe_cluster
       strategy: free
@@ -76,7 +76,7 @@
           node6:
             name: node-6
             ip: "{{ hostvars.kibana.private_ip }}"
-  
+
   #Wazuh cluster
     - hosts: manager
       roles:
@@ -98,14 +98,18 @@
               disable: 'no'
               node_name: 'master'
               node_type: 'master'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
-                  - '"{{ hostvars.manager.private_ip }}"'
+                  - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
+        wazuh_api_users:
+          - username: custom-user
+            password: .S3cur3Pa55w0rd*-
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
-  
+
     - hosts: worker
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
@@ -128,13 +132,13 @@
               node_type: 'worker'
               key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
-                  - '"{{ hostvars.manager.private_ip }}"'
+                  - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
-  
+
   #ODFE+Kibana node
     - hosts: kibana
       roles:
@@ -161,8 +165,8 @@
           - id: default
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
-            user: foo
-            password: bar
+            username: custom-user
+            password: .S3cur3Pa55w0rd*-
         instances:
           node1:
             name: node-1       # Important: must be equal to elasticsearch_node_name.

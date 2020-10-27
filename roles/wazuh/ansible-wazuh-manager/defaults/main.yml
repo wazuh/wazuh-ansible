@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 3.13.2-1
+wazuh_manager_version: 4.0.0-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -8,14 +8,11 @@ wazuh_manager_package_state: present
 wazuh_custom_packages_installation_manager_enabled: false
 wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
 wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
-wazuh_custom_packages_installation_api_enabled: false
-wazuh_custom_packages_installation_api_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
-wazuh_custom_packages_installation_api_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
 
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v3.13.2"
+  branch: "v4.0.0"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -38,31 +35,14 @@ wazuh_manager_sources_installation:
   user_ca_store: null
   threads: "2"
 
-wazuh_api_sources_installation:
-  enabled: false
-  branch: "v3.13.2"
-  update: "y"
-  remove: "y"
-  directory: null
-  port: 55000
-  https: "n"
-  authd: null
-  proxy: null
-  country: null
-  state: null
-  locality: null
-  org_name: null
-  org_unit: null
-  common_name: null
-  password: null
-
-wazuh_api_user:
-  - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
+# wazuh_api_users:
+#   - username: custom-user
+#     password: .S3cur3Pa55w0rd*- # Must comply with requirements (8+ length, uppercase, lowercase, specials chars)
 
 wazuh_manager_config:
   repo:
-    apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
-    yum: 'https://packages.wazuh.com/3.x/yum/'
+    apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/4.x/yum/'
     gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
     key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
   json_output: 'yes'
@@ -71,21 +51,29 @@ wazuh_manager_config:
   logall_json: 'no'
   log_format: 'plain'
   api:
-    bind_addr: '0.0.0.0'
+    bind_addr: 0.0.0.0
     port: 55000
-    https: 'no'
-    basic_auth: 'yes'
-    behind_proxy_server: 'no'
-    https_cert: '/var/ossec/etc/sslmanager.cert'
-    https_key: '/var/ossec/etc/sslmanager.key'
-    https_use_ca: 'no'
-    https_ca: ''
-    use_only_authd: 'false'
-    drop_privileges: 'true'
-    experimental_features: 'false'
-    secure_protocol: 'TLSv1_2_method'
-    honor_cipher_order: 'true'
-    ciphers: ''
+    behind_proxy_server: no
+    https: yes
+    https_key: "api/configuration/ssl/server.key"
+    https_cert: "api/configuration/ssl/server.crt"
+    https_use_ca: False
+    https_ca: "api/configuration/ssl/ca.crt"
+    logging_level: "info"
+    logging_path: "logs/api.log"
+    cors: no
+    cors_source_route: "*"
+    cors_expose_headers: "*"
+    cors_allow_headers: "*"
+    cors_allow_credentials: no
+    cache: yes
+    cache_time: 0.750
+    access_max_login_attempts: 5
+    access_block_time: 300
+    access_max_request_per_minute: 300
+    use_only_authd: no
+    drop_privileges: yes
+    experimental_features: no
   cluster:
     disable: 'yes'
     name: 'wazuh'
@@ -100,7 +88,7 @@ wazuh_manager_config:
   connection:
     - type: 'secure'
       port: '1514'
-      protocol: 'udp'
+      protocol: 'tcp'
       queue_size: 131072
   authd:
     enable: true

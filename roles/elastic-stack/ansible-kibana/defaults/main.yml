@@ -6,9 +6,9 @@ elasticsearch_network_host: "127.0.0.1"
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_conf_path: /etc/kibana
-elastic_stack_version: 7.9.1
-wazuh_version: 3.13.2
-wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
+elastic_stack_version: 7.9.2
+wazuh_version: 4.0.0
+wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'
@@ -19,10 +19,10 @@ elasticrepo:
 # API credentials
 wazuh_api_credentials:
   - id: "default"
-    url: "http://localhost"
+    url: "https://localhost"
     port: 55000
-    user: "foo"
-    password: "bar"
+    username: "wazuh"
+    password: "wazuh"
 
 # Xpack Security
 kibana_xpack_security: false
@@ -49,7 +49,7 @@ nodejs:
 
 # Build from sources
 build_from_sources: false
-wazuh_plugin_branch: 3.13-7.9
+wazuh_plugin_branch: 4.0-7.9
 
 #Nodejs NODE_OPTIONS
 node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536

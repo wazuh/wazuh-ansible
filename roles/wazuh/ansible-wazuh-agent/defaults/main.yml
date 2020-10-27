@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 3.13.2-1
+wazuh_agent_version: 4.0.0-1
 
 
 # Custom packages installation
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v3.13.2"
+  branch: "v4.0.0"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
@@ -35,7 +35,7 @@ wazuh_agent_sources_installation:
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
-    protocol: udp
+    protocol: tcp
     api_port: 55000
     api_proto: 'http'
     api_user: null
@@ -66,13 +66,13 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
-  md5: 101917472eef112270d83aa077b75670
-wazuh_winagent_config_url: https://packages.wazuh.com/3.x/windows/wazuh-agent-3.13.2-1.msi
-wazuh_winagent_package_name: wazuh-agent-3.13.2-1.msi
+  md5: f9737cbd7df7104c1bee9f3e8b9ca26e
+wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.0.0-1.msi
+wazuh_winagent_package_name: wazuh-agent-4.0.0-1.msi
 wazuh_agent_config:
   repo:
-    apt: 'deb https://packages.wazuh.com/3.x/apt/ stable main'
-    yum: 'https://packages.wazuh.com/3.x/yum/'
+    apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/4.x/yum/'
     gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
     key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
   active_response:
@@ -284,4 +284,19 @@ wazuh_agent_config:
     list:
       - key: Env
         value: Production
+  enrollment:
+    enabled: ''
+    manager_address: ''
+    port: 1515
+    agent_name: 'testname'
+    groups: ''
+    agent_address: ''
+    ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
+    server_ca_path: ''
+    agent_certificate_path: ''
+    agent_key_path: ''
+    authorization_pass_path : /var/ossec/etc/authd.pass
+    auto_method: 'no'
+    delay_after_enrollment: 20
+    use_source_ip: 'no'
 wazuh_agent_nat: false

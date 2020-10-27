@@ -1,7 +1,7 @@
 ---
 filebeat_version: 7.9.1
 
-wazuh_template_branch: v3.13.2
+wazuh_template_branch: v4.0.0
 
 filebeat_create_config: true
 
@@ -9,7 +9,7 @@ filebeat_output_elasticsearch_enabled: false
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
 
-filebeat_module_package_url: https://packages.wazuh.com/3.x/filebeat
+filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
 filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
 filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module

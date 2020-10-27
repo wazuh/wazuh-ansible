@@ -29,7 +29,7 @@
 
   - name: Local action | Extract the certificates generation tool
     unarchive:
-      src: "{{ local_certs_path }}/search-guard-tlstool-1.7.zip"
+      src: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
       dest: "{{ local_certs_path }}/"
 
   - name: Local action | Add the execution bit to the binary

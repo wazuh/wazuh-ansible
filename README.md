@@ -1,4 +1,4 @@
-# Wazuh-Ansible 
+# Wazuh-Ansible
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
 [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
@@ -11,6 +11,12 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 * `master` branch corresponds to the latest Wazuh Ansible changes. It might be unstable.
 * `3.13` branch on correspond to the last Wazuh Ansible stable version.
 
+## Compatibility Matrix
+
+| Wazuh version | Elastic | ODFE   |
+|---------------|---------|--------|
+| v4.0.0        | 7.9.2   | 1.10.1 |
+
 ## Documentation
 
 * [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
@@ -20,15 +26,15 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
     ├── wazuh-ansible
     │ ├── roles
-    │ │ ├── elastic-stack 
-    │ │ │ ├── ansible-elasticsearch        
+    │ │ ├── elastic-stack
+    │ │ │ ├── ansible-elasticsearch
     │ │ │ ├── ansible-kibana
-    │ │     
-    │ │ ├── opendistro                
+    │ │
+    │ │ ├── opendistro
     │ │ │ ├── opendistro-elasticsearch
     │ │ │ ├── opendistro-kibana
-    │ │ 
-    │ │ ├── wazuh                
+    │ │
+    │ │ ├── wazuh
     │ │ │ ├── ansible-filebeat
     │ │ │ ├── ansible-filebeat-oss
     │ │ │ ├── ansible-wazuh-manager
@@ -99,7 +105,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
             ip: "{{ hostvars.kibana.private_ip }}"
       tags:
         - generate-certs
-    
+
 #ODFE Cluster
     - hosts: odfe_cluster
       strategy: free
@@ -137,7 +143,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
           node6:
             name: node-6
             ip: "{{ hostvars.kibana.private_ip }}"
-  
+
   #Wazuh cluster
     - hosts: manager
       roles:
@@ -159,14 +165,15 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               disable: 'no'
               node_name: 'master'
               node_type: 'master'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
-                  - '"{{ hostvars.manager.private_ip }}"'
+                  - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
-  
+
     - hosts: worker
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
@@ -189,13 +196,13 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               node_type: 'worker'
               key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
-                  - '"{{ hostvars.manager.private_ip }}"'
+                  - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
         filebeat_output_elasticsearch_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
-  
+
   #ODFE+Kibana node
     - hosts: kibana
       roles:
@@ -247,9 +254,9 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 
 ### Inventory file
 
-- The `ansible_host` variable should contain the `address/FQDN` used to gather facts and provision each node. 
+- The `ansible_host` variable should contain the `address/FQDN` used to gather facts and provision each node.
 - The `private_ip` variable should contain the `address/FQDN` used for the internal cluster communications.
-- Whether the environment is located in a local subnet, `ansible_host` and `private_ip` variables should match. 
+- Whether the environment is located in a local subnet, `ansible_host` and `private_ip` variables should match.
 - The ssh credentials used by Ansible during the provision can be specified in this file too. Another option is including them directly on the playbook.
 
 ```ini
@@ -299,7 +306,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
         single_node: true
         minimum_master_nodes: 1
         elasticsearch_node_master: true
-        elasticsearch_network_host: <your server host>  
+        elasticsearch_network_host: <your server host>
         filebeat_node_name: node-1
         filebeat_output_elasticsearch_hosts: <your server host>
         ansible_ssh_user: vagrant
@@ -335,7 +342,7 @@ After the playbook execution, the Wazuh UI should be reachable through `https://
 
 If you want to contribute to our repository, please fork our Github repository and submit a pull request.
 
-If you are not familiar with Github, you can also share them through [our users mailing list](https://groups.google.com/d/forum/wazuh), to which you can subscribe by sending an email to `wazuh+subscribe@googlegroups.com`. 
+If you are not familiar with Github, you can also share them through [our users mailing list](https://groups.google.com/d/forum/wazuh), to which you can subscribe by sending an email to `wazuh+subscribe@googlegroups.com`.
 
 ### Modified by Wazuh
 

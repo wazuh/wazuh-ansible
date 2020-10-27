@@ -29,17 +29,6 @@
     - not node_service_status.stat.exists
     - wazuh_manager_config.cluster.node_type == "master"
 
-- name: Installing NodeJS
-  package:
-    name: nodejs
-    state: present
-  register: nodejs_service_is_installed
-  until: nodejs_service_is_installed is succeeded
-  when:
-    - wazuh_manager_config.cluster.node_type == "master"
-
-  tags: init
-
 - include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
@@ -166,16 +155,15 @@
   when:
     - shared_agent_config is defined
 
-- name: Installing the config.js (api configuration)
-  template: src=var-ossec-api-configuration-config.js.j2
-            dest=/var/ossec/api/configuration/config.js
+- name: Installing the api.yaml (api configuration)
+  template: src=api.yaml.j2
+            dest=/var/ossec/api/configuration/api.yaml
             owner=root
             group=ossec
-            mode=0740
-  notify: restart wazuh-api
+            mode=0640
+  notify: restart wazuh-manager
   when:
     - wazuh_manager_config.cluster.node_type == "master"
-
   tags:
     - init
     - config
@@ -200,7 +188,6 @@
   include_vars: authd_pass.yml
   tags:
     - config
-
 
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
@@ -264,11 +251,12 @@
     - config
 
 - name: Configure ossec.conf
-  template: src=var-ossec-etc-ossec-server.conf.j2
-            dest=/var/ossec/etc/ossec.conf
-            owner=root
-            group=ossec
-            mode=0644
+  template:
+    src: var-ossec-etc-ossec-server.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: 0644
   notify: restart wazuh-manager
   tags:
     - init
@@ -289,20 +277,29 @@
   tags:
     - config
 
-- name: Wazuh-API User
-  template:
-    src: api_user.j2
-    dest: "/var/ossec/api/configuration/auth/user"
-    owner: root
-    group: root
-    mode: 0750
-  no_log: true
-  notify: restart wazuh-api
-  when:
-    - wazuh_api_user is defined
-    - wazuh_manager_config.cluster.node_type == "master"
+- name: Create custom API user
+  block:
+    - name: Copy create_user script
+      copy:
+        src: create_user.py
+        dest: /var/ossec/framework/scripts/create_user.py
+        owner: root
+        group: ossec
+        mode: 0644
+
+    - name: Execute create_user script
+      script:
+        chdir: /var/ossec/framework/scripts/
+        cmd: create_user.py --username "{{ item.username }}" --password "{{ item.password }}"
+        executable: /var/ossec/framework/python/bin/python3
+      with_items:
+        - "{{ wazuh_api_users }}"
+
   tags:
-    - config
+    - config_api_users
+  when:
+    - wazuh_api_users is defined
+    - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Agentless Hosts & Passwd
   template:
@@ -327,15 +324,6 @@
     name: "wazuh-manager"
     enabled: true
     state: started
-  tags:
-    - config
-
-- name: Ensure Wazuh API service is started and enabled.
-  service:
-    name: "wazuh-api"
-    enabled: true
-    state: started
-  when: wazuh_manager_config.cluster.node_type == "master"
   tags:
     - config
 

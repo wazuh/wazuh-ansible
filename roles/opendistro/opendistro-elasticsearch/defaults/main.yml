@@ -16,7 +16,7 @@ elasticsearch_cluster_nodes:
 elasticsearch_discovery_nodes:
   - 127.0.0.1
 
-local_certs_path: ./opendistro/certificates
+local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
 
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
 minimum_master_nodes: 2
@@ -53,7 +53,7 @@ opendistro_jvm_xms: null
 
 opendistro_http_port: 9200
 
-certs_gen_tool_version: 1.7
+certs_gen_tool_version: 1.8
 
 # Url of Search Guard certificates generator tool
 certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
