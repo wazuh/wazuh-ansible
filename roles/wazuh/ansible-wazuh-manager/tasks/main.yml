@@ -251,11 +251,12 @@
     - config
 
 - name: Configure ossec.conf
-  template: src=var-ossec-etc-ossec-server.conf.j2
-            dest=/var/ossec/etc/ossec.conf
-            owner=root
-            group=ossec
-            mode=0644
+  template:
+    src: var-ossec-etc-ossec-server.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: 0644
   notify: restart wazuh-manager
   tags:
     - init
