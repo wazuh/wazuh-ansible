@@ -7,28 +7,6 @@
       - tar
     state: present
 
-- name: Check if NodeJS service exists
-  stat:
-    path: /usr/bin/node
-  register: node_service_status
-
-- name: Install NodeJS repository
-  block:
-    - name: Download NodeJS repository script
-      get_url:
-        url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
-        dest: /etc/nodejs.sh
-        mode: 0775
-      changed_when: false
-
-    - name: Run NodeJS bash script
-      command: sh /etc/nodejs.sh
-      register: nodejs_script
-      changed_when: nodejs_script.rc == 0
-  when:
-    - not node_service_status.stat.exists
-    - wazuh_manager_config.cluster.node_type == "master"
-
 - include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
@@ -42,15 +20,6 @@
   when:
     - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6)
   tags: init
-
-- name: Generate SSL files for authd
-  command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{ wazuh_manager_fqdn }}/"
-  args:
-    creates: sslmanager.cert
-    chdir: /var/ossec/etc/
-  tags:
-    - config
-  when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Copy CA, SSL key and cert for authd
   copy:

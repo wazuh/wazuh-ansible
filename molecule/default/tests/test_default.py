@@ -27,9 +27,7 @@ def test_wazuh_services_are_running(host):
     """
     # This currently doesn't work with out current Docker base images
     # manager = host.service("wazuh-manager")
-    # api = host.service("wazuh-api")
     # assert manager.is_running
-    # assert api.is_running
     output = host.check_output(
         'ps aux | grep ossec | tr -s " " | cut -d" " -f11'
         )
