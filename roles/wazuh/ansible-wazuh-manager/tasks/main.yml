@@ -277,46 +277,29 @@
   tags:
     - config
 
-# - name: Get API auth token
-#   uri:
-#     url: "https://{{ inventory_hostname }}:55000/security/user/authenticate?raw=true"
-#     method: GET
-#     user: wazuh
-#     password: wazuh
-#     validate_certs: no
-#     force_basic_auth: yes
-#     return_content: yes
-#     status_code: 200
-#   retries: 10
-#   delay: 5
-#   until: token.status == 200
-#   register: token
-#   tags: 
-#     - config_api_users
-#   when:
-#     - wazuh_api_users is defined
-#     - wazuh_manager_config.cluster.node_type == "master"
+- name: Create custom API user
+  block:
+    - name: Copy create_user script
+      copy:
+        src: create_user.py
+        dest: /var/ossec/framework/scripts/create_user.py
+        owner: root
+        group: ossec
+        mode: 0644
 
-# - name: Create Wazuh-API Users
-#   block:
-#     - name: Create new user
-#       uri:
-#         url: "https://{{ inventory_hostname }}:55000/security/users"
-#         method: POST
-#         body_format: json
-#         body:
-#           username: "{{ item.username }}"
-#           password: "{{ item.password }}"
-#         validate_certs: no
-#         status_code: 200
-#         headers: 
-#           Authorization: "Bearer {{ token.content }}"
-#       with_items:
-#         - "{{ wazuh_api_users }}"
-#       register: user_creation
-  # when:
-  #   - wazuh_api_users is defined
-  #   - wazuh_manager_config.cluster.node_type == "master"
+    - name: Execute create_user script
+      script:
+        chdir: /var/ossec/framework/scripts/
+        cmd: create_user.py --username "{{ item.username }}" --password "{{ item.password }}"
+        executable: /var/ossec/framework/python/bin/python3
+      with_items:
+        - "{{ wazuh_api_users }}"
+
+  tags:
+    - config_api_users
+  when:
+    - wazuh_api_users is defined
+    - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Agentless Hosts & Passwd
   template:
