@@ -60,4 +60,4 @@ def test_filebeat_is_installed(host):
     """Test the elasticsearch package is installed."""
     filebeat = host.package("filebeat")
     assert filebeat.is_installed
-    assert filebeat.version.startswith('7.9.1')
+    assert filebeat.version.startswith('7.9.2')
