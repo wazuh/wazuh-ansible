@@ -33,19 +33,30 @@
 
 - import_tasks: security_actions.yml
 
+# - name: Copy Configuration File
+#   blockinfile:
+#     block: "{{ lookup('template', 'opendistro_kibana.yml.j2') }}"
+#     dest: "{{ kibana_conf_path }}/kibana.yml"
+#     create: true
+#     group: kibana
+#     owner: kibana
+#     mode: 0640
+#     marker: "## {mark} Kibana general settings ##"
+#   notify: restart kibana
+#   tags:
+#     - install
+#     - configure
+
+
 - name: Copy Configuration File
-  blockinfile:
-    block: "{{ lookup('template', 'opendistro_kibana.yml.j2') }}"
+  template:
+    src: opendistro_kibana.yml.j2
     dest: "{{ kibana_conf_path }}/kibana.yml"
-    create: true
-    group: kibana
     owner: kibana
+    group: kibana
     mode: 0640
-    marker: "## {mark} Kibana general settings ##"
   notify: restart kibana
-  tags:
-    - install
-    - configure
+  tags: configure
 
 - name: Ensuring Kibana directory owner
   file:
