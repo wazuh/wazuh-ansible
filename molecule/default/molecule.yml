@@ -43,7 +43,7 @@ scenario:
     - prepare
     - converge
     #- idempotence
-    - verify
+    #- verify
     - cleanup
     - destroy
 verifier:
