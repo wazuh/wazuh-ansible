@@ -66,6 +66,14 @@
     group: kibana
     recurse: yes
 
+- name: Ensuring Kibana directory owner
+  file:
+    path: "/usr/share/kibana"
+    state: directory
+    owner: kibana
+    group: kibana
+    recurse: yes
+
 - name: Build and Install Wazuh Kibana Plugin from sources
   import_tasks: build_wazuh_plugin.yml
   when:
@@ -75,7 +83,7 @@
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
     NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
-    https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-4.0.0_7.9.1-1.zip
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}-1.zip
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json

@@ -6,18 +6,18 @@ import re
 testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
+
 def get_wazuh_version():
-    """This returns the version of Wazuh."""
-    return "3.13.2"
+    """This return the version of Wazuh."""
+    return "4.0.0"
+
 
 def test_wazuh_packages_are_installed(host):
     """Test the main packages are installed."""
     manager = host.package("wazuh-manager")
-    api = host.package("wazuh-api")
     assert manager.is_installed
     assert manager.version.startswith(get_wazuh_version())
-    assert api.is_installed
-    assert api.version.startswith(get_wazuh_version())
+
 
 def test_wazuh_services_are_running(host):
     """Test the services are enabled and running.
@@ -30,7 +30,9 @@ def test_wazuh_services_are_running(host):
     # api = host.service("wazuh-api")
     # assert manager.is_running
     # assert api.is_running
-    output = host.check_output('ps aux | grep ossec | tr -s " " | cut -d" " -f11')
+    output = host.check_output(
+        'ps aux | grep ossec | tr -s " " | cut -d" " -f11'
+        )
     assert 'ossec-authd' in output
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output
@@ -48,13 +50,13 @@ def test_wazuh_services_are_running(host):
     ("/var/ossec/etc/rules/local_rules.xml", "ossec", "ossec", 0o640),
     ("/var/ossec/etc/lists/audit-keys", "ossec", "ossec", 0o660),
 ])
-
 def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
     """Test Wazuh related files exist and have proper owners and mode."""
     wazuh_file_host = host.file(wazuh_file)
     assert wazuh_file_host.user == wazuh_owner
     assert wazuh_file_host.group == wazuh_group
     assert wazuh_file_host.mode == wazuh_mode
+
 
 def test_filebeat_is_installed(host):
     """Test the elasticsearch package is installed."""

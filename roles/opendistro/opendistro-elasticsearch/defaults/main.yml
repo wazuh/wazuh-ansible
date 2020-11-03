@@ -1,15 +1,12 @@
 ---
+# Cluster Settings
 es_version: "7.9.1"
 es_major_version: "7.x"
 
-# Package installation (RPM/deb) options
-opendistro_version: 1.10.1.0
-# Stand-alone plugin installation
-opendistro_standalone_installation: false
-opendistro_security_plugin_url: https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-security/opendistro_security-{{ opendistro_version }}.zip
+opendistro_version: 1.10.1
 
-elasticsearch_cluster_name: wazuh-cluster
-single_node: true
+single_node: false
+elasticsearch_node_name: node-1
 opendistro_cluster_name: wazuh
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
@@ -19,7 +16,7 @@ elasticsearch_cluster_nodes:
 elasticsearch_discovery_nodes:
   - 127.0.0.1
 
-local_certs_path: ./opendistro/certificates
+local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
 
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
 minimum_master_nodes: 2
@@ -59,7 +56,7 @@ opendistro_http_port: 9200
 certs_gen_tool_version: 1.8
 
 # Url of Search Guard certificates generator tool
-certs_gen_tool_url: "https://maven.search-guard.com/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'

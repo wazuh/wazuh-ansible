@@ -83,6 +83,7 @@
     tags: debug
     when:
       - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
+      - single_node == false
 
   - name: Wait for Elasticsearch API (Private IP)
     uri:
@@ -99,7 +100,8 @@
     delay: 5
     tags: debug
     when:
-      - hostvars[inventory_hostname]['private_ip'] is defined and  hostvars[inventory_hostname]['private_ip']
+      - hostvars[inventory_hostname]['private_ip'] is defined and hostvars[inventory_hostname]['private_ip']
+      - single_node == false
 
   - import_tasks: "RMRedHat.yml"
     when: ansible_os_family == "RedHat"

@@ -4,9 +4,9 @@ wazuh_agent_version: 4.0.0-1
 
 # Custom packages installation
 
-wazuh_custom_packages_installation_agent_enabled: true
-wazuh_custom_packages_installation_agent_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/apt/pool/main/w/wazuh-agent/wazuh-agent_4.0.0-1_amd64.deb"
-wazuh_custom_packages_installation_agent_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/wazuh-agent-4.0.0-1.x86_64.rpm"
+wazuh_custom_packages_installation_agent_enabled: false
+wazuh_custom_packages_installation_agent_deb_url: ""
+wazuh_custom_packages_installation_agent_rpm_url: ""
 
 # Sources installation
 
@@ -66,6 +66,7 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
+<<<<<<< HEAD
   md5: ef29ab436cca0d7e0ea913350bcef6ee
 wazuh_winagent_config_url: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/staging/windows/wazuh-agent-4.0.0-0.40000.20200904.msi
 wazuh_winagent_package_name: wazuh-agent-4.0.0-0.40000.20200904.msi
@@ -73,6 +74,15 @@ wazuh_agent_config:
   repo:
     apt: 'deb https://packages-dev.wazuh.com/pre-release/apt/ stable main'
     yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
+=======
+  md5: f9737cbd7df7104c1bee9f3e8b9ca26e
+wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.0.0-1.msi
+wazuh_winagent_package_name: wazuh-agent-4.0.0-1.msi
+wazuh_agent_config:
+  repo:
+    apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+    yum: 'https://packages.wazuh.com/4.x/yum/'
+>>>>>>> master
     gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
     key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
   active_response:
@@ -237,16 +247,6 @@ wazuh_agent_config:
     java_path_win: '\\server\jre\bin\java.exe'
     ciscat_path: 'wodles/ciscat'
     ciscat_path_win: 'C:\cis-cat'
-  vuls:
-    disable: 'yes'
-    interval: '1d'
-    run_on_start: 'yes'
-    args:
-      - 'mincvss 5'
-      - 'antiquity-limit 20'
-      - 'updatenvd'
-      - 'nvd-year 2016'
-      - 'autoupdate'
   localfiles:
     debian:
       - format: 'syslog'
