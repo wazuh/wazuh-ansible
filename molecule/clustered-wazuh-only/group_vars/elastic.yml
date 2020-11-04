@@ -4,8 +4,6 @@ single_node: false
 elasticsearch_node_master: true
 minimum_master_nodes: 1
 
-# ansible_default_ipv4.address
-private_ip: '{{ ansible_host }}'
 elasticsearch_network_host: '{{ private_ip }}'
 elasticsearch_node_name: '{{ ansible_hostname }}'
 
