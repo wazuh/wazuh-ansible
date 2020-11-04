@@ -9,32 +9,18 @@
   - import_tasks: RedHat.yml
     when: ansible_os_family == 'RedHat'
 
-  - name: Install Elasticsearch-oss
-    package:
-      name: elasticsearch-oss-{{ es_version }}
-      state: present
-    register: install
-    tags: install
-    when: opendistro_standalone_installation
-
-  - name: Install ODFE security plugin
-    command: /usr/share/elasticsearch/bin/elasticsearch-plugin install {{ opendistro_security_plugin_url }} -b
-    tags: install
-    when: opendistro_standalone_installation
-
   - name: Install OpenDistro
     package:
       name: opendistroforelasticsearch-{{ opendistro_version }}
       state: present
     register: install
     tags: install
-    when: not opendistro_standalone_installation
 
   - name: Remove elasticsearch configuration file
     file:
       path: "{{ opendistro_conf_path }}/elasticsearch.yml"
       state: absent
-    when: install.changed or opendistro_standalone_installation
+    when: install.changed
     tags: install
 
   - name: Copy Configuration File
@@ -45,7 +31,7 @@
       group: elasticsearch
       mode: 0640
       marker: "## {mark} Opendistro general settings ##"
-    when: install.changed or opendistro_standalone_installation
+    when: install.changed
     tags: install
 
   - import_tasks: security_actions.yml

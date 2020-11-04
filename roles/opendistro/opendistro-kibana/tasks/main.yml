@@ -9,27 +9,13 @@
     state: present
   register: install
   tags: install
-  when: not opendistro_standalone_installation
-
-- name: Install Kibana-oss
-  package:
-    name: "kibana-oss-{{ kibana_oss_version }}"
-    state: present
-  register: install
-  tags: install
-  when: opendistro_standalone_installation
-
-- name: Install Kibana-ODFE plugin
-  command: /usr/share/kibana/bin/kibana-plugin install {{ opendistro_kibana_plugin_url }} -b
-  tags: install
-  when: opendistro_standalone_installation
 
 - name: Remove Kibana configuration file
   file:
     path: "{{ kibana_conf_path }}/kibana.yml"
     state: absent
   when: install.changed
-  tags: install or opendistro_standalone_installation
+  tags: install
 
 - import_tasks: security_actions.yml
 
