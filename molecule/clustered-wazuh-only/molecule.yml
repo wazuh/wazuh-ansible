@@ -1,0 +1,130 @@
+---
+# Distributed scenario: clustered manager scenario + connected agents
+# 2-core CPU
+# 7 GB of RAM memory
+# 14 GB of SSD disk space
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+#lint:
+#  name: yamllint
+#  enabled: false
+platforms:
+
+  ################################################
+  # Wazuh Managers
+  ################################################
+  - name: wazuh_manager_centos7
+    hostname: wazuh-mgr01
+    image: geerlingguy/docker-centos7-ansible
+    pre_build_image: true
+    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
+    groups:
+      - managers
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: wazuh_manager_ubuntu2004
+    hostname: wazuh-mgr02
+    image: geerlingguy/docker-ubuntu2004-ansible
+    pre_build_image: true
+    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
+    groups:
+      - managers
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: wazuh_manager_debian9
+    hostname: wazuh-mgr03
+    image: geerlingguy/docker-debian9-ansible
+    pre_build_image: true
+    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
+    groups:
+      - managers
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  ################################################
+  # Elastic Cluster
+  ################################################
+  - name: wazuh_elasticsearch_centos7
+    hostname: wazuh-es01
+    image: geerlingguy/docker-centos7-ansible
+    pre_build_image: true
+    privileged: true
+    memory: 4096m
+    memory_reservation: 2048m
+    env:
+      ES_JAVA_OPTS: '-Xms1g -Xmx1g'
+    groups:
+      - elastic
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: wazuh_elasticsearch_debian9
+    hostname: wazuh-es03
+    image: geerlingguy/docker-debian9-ansible
+    pre_build_image: true
+    privileged: true
+    memory: 4096m
+    memory_reservation: 2048m
+    env:
+      ES_JAVA_OPTS: '-Xms1g -Xmx1g'
+    groups:
+      - elastic
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      group_vars: group_vars
+      #host_vars: ../../../inventory/host_vars/
+  playbooks:
+    create: create.yml
+    converge: converge.yml
+    #destroy: destroy.yml
+  config_options:
+    defaults:
+      hash_behaviour: merge
+  env:
+    ANSIBLE_ROLES_PATH: ./roles
+  lint:
+    name: ansible-lint
+    enabled: false
+scenario:
+  name: clustered-wazuh-only
+  test_sequence:
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    #- idempotence
+    #- verify
+    - cleanup
+    - destroy
+verifier:
+  name: testinfra
+#  lint:
+#    name: flake8
+#    enabled: false

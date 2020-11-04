@@ -1,0 +1,23 @@
+---
+
+- name: Converge
+  hosts: all
+  become: true
+  become_user: root
+  roles:
+    - role: ../../roles/elastic-stack/ansible-elasticsearch
+      when: inventory_hostname in groups['elastic']
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      when: inventory_hostname in groups['managers']
+    - role: ../../roles/wazuh/ansible-filebeat
+      when: inventory_hostname in groups['managers']
+  pre_tasks:
+    - debug:
+        msg: |
+          -----------------------------------------
+          managers: {{ managers_hostvars | length }}
+          addresses: {{  manager_addresses }}
+          -----------------------------------------
+          elastic: {{ elastic_hostvars | length }}
+          addresses: {{  elastic_addresses }}
+          -----------------------------------------

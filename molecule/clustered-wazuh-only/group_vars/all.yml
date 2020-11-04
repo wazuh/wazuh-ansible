@@ -1,0 +1,11 @@
+---
+
+########################################################
+# Helper variables
+private_ip: '{{ ansible_default_ipv4.address }}'
+
+managers_hostvars: "{{ groups['managers'] | map('extract', hostvars)  | list }}"
+elastic_hostvars: "{{ groups['elastic'] | map('extract', hostvars)  | list }}"
+
+manager_addresses: "{{ managers_hostvars | map(attribute='private_ip') | list }}"
+elastic_addresses: "{{ elastic_hostvars | map(attribute='private_ip') | list }}"
