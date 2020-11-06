@@ -1,0 +1,75 @@
+---
+
+- name: Build Facts
+  hosts: all
+  become: true
+  become_user: root
+  vars:
+    endpoints_hostvars: '{{ managers_hostvars | union(elastic_hostvars) | union(kibana_hostvars)  }}'
+    wazuh_managers_common:
+      port: 1514
+      protocol: tcp
+      api_port: 55000
+      api_proto: 'http'
+      api_user: ansible
+      max_retries: 5
+      retry_interval: 5
+  pre_tasks:
+    - name: (converge) build instances list dynamically for cert generator consumption
+      set_fact:
+        odfe_endpoint_list: "{{ odfe_endpoint_list | default({}) | combine({ instance_hostname: instance_item }) }}"
+      vars:
+        instance_hostname: '{{ item.ansible_facts.hostname }}'
+        instance_item:
+          name: '{{ instance_hostname }}'
+          ip: '{{ item.private_ip }}'
+      loop: '{{ endpoints_hostvars }}'
+      no_log: true
+
+    - name: (converge) build wazuh_managers list dynamically for agents to consume
+      set_fact:
+        wazuh_managers_list: '{{ wazuh_managers_list | default([]) | union([manager_item]) }}'
+      vars:
+        manager_item: '{{ wazuh_managers_common | combine({"address": item})  }}'
+      loop: '{{ manager_addresses }}'
+
+    - name: overview of cert configuration
+      debug:
+        var: odfe_endpoint_list
+
+- name: Generate certificates prior to converging
+  hosts: molecule_odfe_elasticsearch_centos7
+  become: true
+  become_user: root
+  roles:
+    - role: ../../roles/opendistro/opendistro-elasticsearch
+      vars:
+        generate_certs: true
+        perform_installation: false
+        instances: '{{ odfe_endpoint_list }}'
+  pre_tasks:
+    - name: overview of cert configuration
+      debug:
+        var: odfe_endpoint_list
+
+- name: Converge
+  hosts: all
+  become: true
+  become_user: root
+  roles:
+    # 1. Elasticsearch
+    - role: ../../roles/opendistro/opendistro-elasticsearch
+      when: inventory_hostname in groups['elastic']
+    # 2. Managers
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      when: inventory_hostname in groups['managers']
+    - role: ../../roles/wazuh/ansible-filebeat-oss
+      when: inventory_hostname in groups['managers']
+    # 3. Kibana
+    - role: ../../roles/opendistro/opendistro-kibana
+      when: inventory_hostname in groups['kibana']
+    # 4. Agents:
+    - role: ../../roles/wazuh/ansible-wazuh-agent
+      vars:
+        wazuh_managers: '{{ wazuh_managers_list }}'
+      when: inventory_hostname in groups['agents']
