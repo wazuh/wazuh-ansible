@@ -1,0 +1,17 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      vars:
+    - { role: ../../roles/wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: "elasticsearch_centos7:9200" }
+  vars:
+  pre_tasks:
+    - name: (converge) fix missing packages in cloud images
+      apt:
+        name:
+          - unzip
+          - gpg-agent
+        state: present
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
