@@ -1,0 +1,60 @@
+---
+
+- name: Converge
+  hosts: all
+  become: true
+  become_user: root
+  vars:
+    # arguments common to all managers
+    wazuh_managers_common:
+      port: 1514
+      protocol: tcp
+      api_port: 55000
+      api_proto: 'http'
+      api_user: ansible
+      max_retries: 5
+      retry_interval: 5
+  roles:
+    # 1. Elasticsearch
+    - role: ../../roles/elastic-stack/ansible-elasticsearch
+      when: inventory_hostname in groups['elastic']
+    # 2. Managers
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      when: inventory_hostname in groups['managers']
+    - role: ../../roles/wazuh/ansible-filebeat
+      when: inventory_hostname in groups['managers']
+    # 3. Kibana
+    - role: ../../roles/elastic-stack/ansible-kibana
+      when: inventory_hostname in groups['kibana']
+    # 4. Agents:
+    - role: ../../roles/wazuh/ansible-wazuh-agent
+      vars:
+        wazuh_managers: '{{ wazuh_managers_list }}'
+      when: inventory_hostname in groups['agents']
+  pre_tasks:
+
+    - name: (converge) build wazuh_managers list dynamically for agents to consume
+      set_fact:
+        wazuh_managers_list: '{{ wazuh_managers_list | default([]) | union([merged_dict]) }}'
+      vars:
+        merged_dict: '{{ wazuh_managers_common | combine({"address": item})  }}'
+      loop: '{{ manager_addresses }}'
+
+    - name: (converge) fix ubuntu repository key task in thin images where gpg-agent is missing
+      apt:
+        name: gpg-agent
+        state: present
+        update_cache: yes
+      when:
+        - ansible_distribution == "Ubuntu"
+        - inventory_hostname in groups['agents']
+
+    - debug:
+        msg: |
+          -----------------------------------------
+          managers: {{ managers_hostvars | length }}
+          addresses: {{  manager_addresses }}
+          -----------------------------------------
+          elastic: {{ elastic_hostvars | length }}
+          addresses: {{  elastic_addresses }}
+          -----------------------------------------
