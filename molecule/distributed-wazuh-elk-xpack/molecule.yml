@@ -1,0 +1,162 @@
+---
+# Distributed scenario: clustered manager scenario + connected agents
+# 2-core CPU
+# 7 GB of RAM memory
+# 14 GB of SSD disk space
+#
+# Source: https://docs.github.com/en/free-pro-team@latest/actions/reference/specifications-for-github-hosted-runners
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint: |
+  yamllint .
+  ansible-lint roles
+  flake8 molecule
+platforms:
+  ################################################
+  # Wazuh Managers
+  ################################################
+  - name: molecule_xpack_manager_centos7
+    hostname: wazuh-mgr01
+    image: geerlingguy/docker-centos7-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
+    groups:
+      - managers
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: molecule_xpack_manager_debian9
+    hostname: wazuh-mgr02
+    image: geerlingguy/docker-debian9-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
+    groups:
+      - managers
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  ################################################
+  # Elastic Cluster
+  ################################################
+  - name: molecule_xpack_elasticsearch_centos7
+    hostname: wazuh-es01
+    image: geerlingguy/docker-centos7-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory: 4096m
+    memory_reservation: 2048m
+    groups:
+      - elastic
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: molecule_xpack_elasticsearch_debian9
+    hostname: wazuh-es02
+    image: geerlingguy/docker-debian9-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory: 4096m
+    memory_reservation: 2048m
+    groups:
+      - elastic
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  ################################################
+  # Wazuh Agents
+  ################################################
+  - name: molecule_xpack_agent_centos7
+    hostname: wazuh-agent01
+    image: geerlingguy/docker-centos7-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory: 1024m
+    memory_reservation: 512m
+    groups:
+      - agents
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: molecule_xpack_agent_debian9
+    hostname: wazuh-agent02
+    image: geerlingguy/docker-debian9-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory: 1024m
+    memory_reservation: 512m
+    groups:
+      - agents
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  ################################################
+  # Kibana
+  ################################################
+
+  - name: molecule_xpack_kibana_centos7
+    hostname: wazuh-kib01
+    image: geerlingguy/docker-centos7-ansible
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory: 2048m
+    memory_reservation: 512m
+    groups:
+      - kibana
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+provisioner:
+  name: ansible
+  ansible_args:
+    - -vv
+  inventory:
+    links:
+      group_vars: group_vars
+  playbooks:
+    create: create.yml
+    converge: converge.yml
+    #destroy: destroy.yml
+  config_options:
+    defaults:
+      hash_behaviour: merge
+  env:
+    ANSIBLE_ROLES_PATH: ./roles
+  lint:
+    name: ansible-lint
+    enabled: false
+scenario:
+  name: distributed-wazuh-elk-xpack
+  test_sequence:
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    #- idempotence
+    #- verify
+    - cleanup
+    - destroy
+verifier:
+  name: testinfra

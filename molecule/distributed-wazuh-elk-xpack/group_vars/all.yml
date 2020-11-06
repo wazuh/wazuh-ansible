@@ -1,0 +1,27 @@
+---
+
+########################################################
+# Helper variables
+private_ip: '{{ ansible_default_ipv4.address }}'
+
+managers_hostvars: "{{ groups['managers'] | map('extract', hostvars)  | list }}"
+elastic_hostvars: "{{ groups['elastic'] | map('extract', hostvars)  | list }}"
+kibana_hostvars: "{{ groups['kibana'] | map('extract', hostvars)  | list }}"
+
+manager_addresses: "{{ managers_hostvars | map(attribute='private_ip') | list }}"
+elastic_addresses: "{{ elastic_hostvars | map(attribute='private_ip') | list }}"
+kibana_addresses: "{{ kibana_hostvars | map(attribute='private_ip') | list }}"
+
+########################################################
+# General ELK stack variables
+
+# Xpack Security: autogenerate CA
+generate_CA: true
+filebeat_xpack_security: true
+kibana_xpack_security: true
+elasticsearch_xpack_security: true
+elasticsearch_xpack_security_user: elastic
+elasticsearch_xpack_security_password: elastic_pass
+
+elastic_stack_version: 7.9.1
+filebeat_version: 7.9.1
