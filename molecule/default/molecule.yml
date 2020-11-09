@@ -1,34 +1,53 @@
 ---
+# Smoke test: basic manager run
 dependency:
   name: galaxy
 driver:
   name: docker
-lint:
-  name: yamllint
-  enabled: false
+lint: |
+  yamllint .
+  ansible-lint roles
+  flake8 molecule
 platforms:
-
-  - name: manager_centos7
-    image: milcom/centos7-systemd
+  - name: wazuh_manager_centos7
+    hostname: wazuh-mgr01
+    image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
     ulimits:
       - nofile:262144:262144
-    privileged: true
-    memory_reservation: 2048m
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: ubuntu20
-    image: jrei/systemd-ubuntu:20.04
+  - name: wazuh_manager_debian9
+    hostname: wazuh-mgr02
+    image: geerlingguy/docker-debian9-ansible
+    command: /sbin/init
+    pre_build_image: true
     privileged: true
-
-  - name: debian9
-    image: jrei/systemd-debian:9
-    privileged: true
+    memory_reservation: 512m
+    memory: 1024m
+    groups:
+      - managers
+    ulimits:
+      - nofile:262144:262144
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
 provisioner:
   name: ansible
+  ansible_args:
+    - -vv
   config_options:
     defaults:
       hash_behaviour: merge
+  playbooks:
+    create: create.yml
+    converge: converge.yml
+    #destroy: destroy.yml
   env:
     ANSIBLE_ROLES_PATH: ./roles
   lint:
@@ -43,11 +62,8 @@ scenario:
     - prepare
     - converge
     #- idempotence
-    - verify
+    #- verify
     - cleanup
     - destroy
 verifier:
   name: testinfra
-  lint:
-    name: flake8
-    enabled: false

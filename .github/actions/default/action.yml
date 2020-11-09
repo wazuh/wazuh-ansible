@@ -1,6 +1,0 @@
-name: molecule-test
-description: Molecule tests for Wazuh Ansible
-runs:
-  using: docker
-  image: 'Dockerfile'
-    

@@ -1,0 +1,21 @@
+---
+
+wazuh_manager_fqdn: '{{ ansible_hostname }}'
+
+filebeat_node_name: '{{ private_ip }}'
+filebeat_output_elasticsearch_hosts: '{{ elastic_addresses }}'
+
+wazuh_manager_config:
+  connection:
+    - type: 'secure'
+      port: '1514'
+      protocol: 'tcp'
+      queue_size: 131072
+  api:
+    https: 'yes'
+  cluster:
+    disable: 'no'
+    node_name: '{{ ansible_hostname }}'
+    node_type: "{{ 'master' if ansible_hostname == 'wazuh-mgr01' else 'worker' }}"
+    nodes: '{{ manager_addresses }}'
+    hidden: 'no'

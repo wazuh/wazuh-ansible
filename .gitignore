@@ -6,5 +6,8 @@ wazuh-elastic.yml
 wazuh-kibana.yml
 wazuh-manager.yml
 *.pyc
+.mypy_cache
 Pipfile.lock
 *.swp
+molecule/**/es_certs/
+molecule/**/opendistro/
