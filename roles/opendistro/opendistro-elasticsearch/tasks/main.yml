@@ -64,7 +64,7 @@
       return_content: yes
       timeout: 4
     register: _result
-    until: (  _result.json is defined) and (_result.json.status == "green")
+    until: (  _result.json is defined) and (_result.json.status == "green" or _result.json.status == "yellow" )
     retries: 24
     delay: 5
     tags: debug
@@ -82,7 +82,7 @@
       return_content: yes
       timeout: 4
     register: _result
-    until: (  _result.json is defined) and (_result.json.status == "green")
+    until: (  _result.json is defined) and (_result.json.status == "green" or _result.json.status == "yellow" )
     retries: 24
     delay: 5
     tags: debug
