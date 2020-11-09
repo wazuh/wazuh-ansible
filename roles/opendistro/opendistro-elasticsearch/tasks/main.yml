@@ -64,13 +64,12 @@
       return_content: yes
       timeout: 4
     register: _result
-    until: (  _result.json is defined) and (_result.json.status == "green" or _result.json.status == "yellow" )
+    until: (  _result.json is defined) and (_result.json.status == "green" or ( _result.json.status == "yellow" and single_node ) )
     retries: 24
     delay: 5
     tags: debug
     when:
       - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
-      - single_node == false
 
   - name: Wait for Elasticsearch API (Private IP)
     uri:
@@ -82,13 +81,12 @@
       return_content: yes
       timeout: 4
     register: _result
-    until: (  _result.json is defined) and (_result.json.status == "green" or _result.json.status == "yellow" )
+    until: (  _result.json is defined) and (_result.json.status == "green" or ( _result.json.status == "yellow" and single_node ) )
     retries: 24
     delay: 5
     tags: debug
     when:
       - hostvars[inventory_hostname]['private_ip'] is defined and hostvars[inventory_hostname]['private_ip']
-      - single_node == false
 
   - import_tasks: "RMRedHat.yml"
     when: ansible_os_family == "RedHat"
