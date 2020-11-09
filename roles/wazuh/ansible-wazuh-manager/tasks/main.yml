@@ -1,4 +1,12 @@
 ---
+
+- name: Overlay wazuh_manager_config on top of defaults
+  set_fact:
+    wazuh_manager_config: '{{ wazuh_manager_config_defaults | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ wazuh_manager_config | default({}) }}'
+  when: wazuh_manager_config_overlay | bool
+
 - name: "Install dependencies"
   package:
     name:

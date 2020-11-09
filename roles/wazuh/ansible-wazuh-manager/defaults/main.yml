@@ -421,8 +421,17 @@ wazuh_manager_api:
 #   - username: custom-user
 #     password: .S3cur3Pa55w0rd*- # Must comply with requirements (8+ length, uppercase, lowercase, specials chars)
 
+# NOTE: As wazuh_manager_config is built dynamically per playbooks and ansible.cfg provided in the repo,
+# we should also cover the case for partial settings in inventory variables overlayed on top of role's
+# defaults with merge hash_behaviour. If you do a full replace instead of the hash_behaviour, set this to false.
+#
+# Please do notice this behaviour is deprecated in 2.13 and role will move away from it in future versions:
+# https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-hash-behaviour
+#
+wazuh_manager_config_overlay: true
+
 ## Other/Wrappers
-wazuh_manager_config:
+wazuh_manager_config_defaults:
   repo: '{{ wazuh_manager_repo }}'
   json_output: '{{ wazuh_manager_json_output }}'
   alerts_log: '{{ wazuh_manager_alerts_log }}'
@@ -435,7 +444,6 @@ wazuh_manager_config:
   authd: '{{ wazuh_manager_authd }}'
   email_notification: '{{ wazuh_manager_email_notification }}'
   mail_to: '{{ wazuh_manager_mailto }}'
-
   mail_smtp_server: '{{ wazuh_manager_email_smtp_server }}'
   mail_from: '{{ wazuh_manager_email_from }}'
   mail_maxperhour: '{{ wazuh_manager_email_maxperhour }}'
@@ -443,33 +451,24 @@ wazuh_manager_config:
   email_log_source: '{{ wazuh_manager_email_log_source }}'
   extra_emails: '{{ wazuh_manager_extra_emails }}'
   reports: '{{ wazuh_manager_reports}}'
-
   syscheck: '{{ wazuh_manager_syscheck }}'
   rootcheck: '{{ wazuh_manager_rootcheck }}'
-
-
   openscap: '{{ wazuh_manager_openscap }}'
   cis_cat: '{{ wazuh_manager_ciscat }}'
-
   osquery: '{{ wazuh_manager_osquery }}'
   syscollector: '{{ wazuh_manager_syscollector }}'
   sca: '{{ wazuh_manager_sca }}'
   vulnerability_detector: '{{ wazuh_manager_vulnerability_detector }}'
-
   log_level: '{{ wazuh_manager_log_level }}'
   email_level: '{{ wazuh_manager_email_level }}'
   localfiles: '{{ wazuh_manager_localfiles }}'
-
   globals: '{{ wazuh_manager_globals }}'
   commands: '{{ wazuh_manager_commands }}'
   ruleset: '{{ wazuh_manager_ruleset }}'
-
   rule_exclude: '{{ wazuh_manager_rule_exclude }}'
   syslog_outputs: '{{ wazuh_manager_syslog_outputs }}'
   integrations: '{{ wazuh_manager_integrations }}'
-
   monitor_aws: '{{ wazuh_manager_monitor_aws }}'
-
   labels: '{{ wazuh_manager_labels }}'
 
 # shared-agent.conf
