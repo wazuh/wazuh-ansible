@@ -1,152 +1,149 @@
-- block:
-  - name: Remove demo certs
-    file:
-      path: "{{ item }}"
-      state: absent
-    with_items:
-      - "{{ opendistro_conf_path }}/kirk.pem"
-      - "{{ opendistro_conf_path }}/kirk-key.pem"
-      - "{{ opendistro_conf_path }}/esnode.pem"
-      - "{{ opendistro_conf_path }}/esnode-key.pem"
+- name: Remove demo certs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ opendistro_conf_path }}/kirk.pem"
+    - "{{ opendistro_conf_path }}/kirk-key.pem"
+    - "{{ opendistro_conf_path }}/esnode.pem"
+    - "{{ opendistro_conf_path }}/esnode-key.pem"
 
 
-  - name: Configure node name
-    block:
-      - name: Setting node name (Elasticsearch)
-        set_fact:
-          od_node_name: "{{ elasticsearch_node_name }}"
-        when:
-          elasticsearch_node_name is defined and kibana_node_name is not defined
+- name: Configure node name
+  block:
+    - name: Setting node name (Elasticsearch)
+      set_fact:
+        od_node_name: "{{ elasticsearch_node_name }}"
+      when:
+        elasticsearch_node_name is defined and kibana_node_name is not defined
 
-      - name: Setting node name (Kibana)
-        set_fact:
-          od_node_name: "{{ kibana_node_name }}"
-        when:
-          kibana_node_name is defined
+    - name: Setting node name (Kibana)
+      set_fact:
+        od_node_name: "{{ kibana_node_name }}"
+      when:
+        kibana_node_name is defined
 
-      - name: Setting node name (Filebeat)
-        set_fact:
-          od_node_name: "{{ kibana_node_name }}"
-        when:
-          filebeat_node_name is defined
+    - name: Setting node name (Filebeat)
+      set_fact:
+        od_node_name: "{{ kibana_node_name }}"
+      when:
+        filebeat_node_name is defined
 
-  - name: Configure IP (Private address)
-    set_fact:
-      target_address: "{{ hostvars[inventory_hostname]['private_ip'] }}"
-    when:
-      - hostvars[inventory_hostname]['private_ip'] is defined
+- name: Configure IP (Private address)
+  set_fact:
+    target_address: "{{ hostvars[inventory_hostname]['private_ip'] }}"
+  when:
+    - hostvars[inventory_hostname]['private_ip'] is defined
 
-  - name: Configure IP (Public address)
-    set_fact:
-      target_address: "{{ inventory_hostname }}"
-    when:
-      - hostvars[inventory_hostname]['private_ip'] is not defined
+- name: Configure IP (Public address)
+  set_fact:
+    target_address: "{{ inventory_hostname }}"
+  when:
+    - hostvars[inventory_hostname]['private_ip'] is not defined
 
 
-  - name: Copy the node & admin certificates to Elasticsearch cluster
-    copy:
-      src: "{{ local_certs_path }}/certs/{{ item }}"
-      dest: /etc/elasticsearch/
-      mode: 0644
-    with_items:
-      - root-ca.pem
-      - root-ca.key
-      - "{{ od_node_name }}.key"
-      - "{{ od_node_name }}.pem"
-      - "{{ od_node_name }}_http.key"
-      - "{{ od_node_name }}_http.pem"
-      - "{{ od_node_name }}_elasticsearch_config_snippet.yml"
-      - admin.key
-      - admin.pem
+- name: Copy the node & admin certificates to Elasticsearch cluster
+  copy:
+    src: "{{ local_certs_path }}/certs/{{ item }}"
+    dest: /etc/elasticsearch/
+    mode: 0644
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ od_node_name }}.key"
+    - "{{ od_node_name }}.pem"
+    - "{{ od_node_name }}_http.key"
+    - "{{ od_node_name }}_http.pem"
+    - "{{ od_node_name }}_elasticsearch_config_snippet.yml"
+    - admin.key
+    - admin.pem
 
-  - name: Copy the OpenDistro security configuration file to cluster
-    blockinfile:
-      block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml') }}"
-      dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
-      insertafter: EOF
-      marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+- name: Copy the OpenDistro security configuration file to cluster
+  blockinfile:
+    block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml') }}"
+    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    insertafter: EOF
+    marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
 
-  - name: Prepare the OpenDistro security configuration file
-    replace:
-      path: "{{ opendistro_conf_path }}/elasticsearch.yml"
-      regexp: 'searchguard'
-      replace: 'opendistro_security'
-    tags: local
+- name: Prepare the OpenDistro security configuration file
+  replace:
+    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
+    regexp: 'searchguard'
+    replace: 'opendistro_security'
+  tags: local
 
-  - name: Restart elasticsearch with security configuration
-    systemd:
-      name: elasticsearch
-      state: restarted
+- name: Restart elasticsearch with security configuration
+  systemd:
+    name: elasticsearch
+    state: restarted
 
-  - name: Copy the OpenDistro security internal users template
-    template:
-      src: "templates/internal_users.yml.j2"
-      dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
-      mode: 0644
-    run_once: true
+- name: Copy the OpenDistro security internal users template
+  template:
+    src: "templates/internal_users.yml.j2"
+    dest: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
+    mode: 0644
+  run_once: true
 
-  - name: Hashing the custom admin password
-    command: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}"
-    register: opendistro_admin_password_hashed
-    run_once: true
+- name: Hashing the custom admin password
+  command: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}"
+  register: opendistro_admin_password_hashed
+  run_once: true
 
-  - name: Filtering hash result in case java path is not defined
-    set_fact:
-      opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[1] }}"
-    when:
-      - opendistro_admin_password_hashed.stdout_lines[1] is defined
-    run_once: true
+- name: Filtering hash result in case java path is not defined
+  set_fact:
+    opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[1] }}"
+  when:
+    - opendistro_admin_password_hashed.stdout_lines[1] is defined
+  run_once: true
 
-  - name: Setting admin hash result
-    set_fact:
-      opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[0] }}"
-    when:
-      - opendistro_admin_password_hashed.stdout_lines[1] is not defined
-    run_once: true
+- name: Setting admin hash result
+  set_fact:
+    opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[0] }}"
+  when:
+    - opendistro_admin_password_hashed.stdout_lines[1] is not defined
+  run_once: true
 
-  - name: Set the Admin user password
-    replace:
-      path: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
-      regexp: '(?<=admin:\n  hash: )(.*)(?=)'
-      replace: "\"{{ opendistro_admin_password_hashed_filtered }}\""
-    run_once: true
+- name: Set the Admin user password
+  replace:
+    path: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
+    regexp: '(?<=admin:\n  hash: )(.*)(?=)'
+    replace: "\"{{ opendistro_admin_password_hashed_filtered }}\""
+  run_once: true
 
-  - name: Set the kibanaserver role/user pasword
-    shell: >
-      sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
-      {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
-    run_once: true
+- name: Set the kibanaserver role/user pasword
+  shell: >
+    sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
+    {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+  run_once: true
 
-  - name: Initialize the OpenDistro security index in elasticsearch
-    command: >
-      {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
-      -cacert {{ opendistro_conf_path }}/root-ca.pem
-      -cert {{ opendistro_conf_path }}/admin.pem
-      -key {{ opendistro_conf_path }}/admin.key
-      -cd {{ opendistro_sec_plugin_conf_path }}/
-      -nhnv -icl
-      -h {{ target_address }}
-    run_once: true
+- name: Initialize the OpenDistro security index in elasticsearch
+  command: >
+    {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
+    -cacert {{ opendistro_conf_path }}/root-ca.pem
+    -cert {{ opendistro_conf_path }}/admin.pem
+    -key {{ opendistro_conf_path }}/admin.key
+    -cd {{ opendistro_sec_plugin_conf_path }}/
+    -nhnv -icl
+    -h {{ target_address }}
+  run_once: true
 
-  - name: Create custom user
-    uri:
-      url: "https://{{ target_address }}:{{ opendistro_http_port }}/_opendistro/_security/api/internalusers/{{ opendistro_custom_user }}"
-      method: PUT
-      user: "admin" # Default OpenDistro user is always "admin"
-      password: "{{ opendistro_admin_password }}"
-      body: |
-        {
-          "password": "{{ opendistro_admin_password }}",
-          "backend_roles": ["{{ opendistro_custom_user_role }}"]
-        }
-      body_format: json
-      validate_certs: no
-      status_code: 200,201,401
-      return_content: yes
-      timeout: 4
-    when:
-      - opendistro_custom_user is defined and opendistro_custom_user
+- name: Create custom user
+  uri:
+    url: "https://{{ target_address }}:{{ opendistro_http_port }}/_opendistro/_security/api/internalusers/{{ opendistro_custom_user }}"
+    method: PUT
+    user: "admin" # Default OpenDistro user is always "admin"
+    password: "{{ opendistro_admin_password }}"
+    body: |
+      {
+        "password": "{{ opendistro_admin_password }}",
+        "backend_roles": ["{{ opendistro_custom_user_role }}"]
+      }
+    body_format: json
+    validate_certs: no
+    status_code: 200,201,401
+    return_content: yes
+    timeout: 4
+  when:
+    - opendistro_custom_user is defined and opendistro_custom_user
 
-  tags:
-    - security
-  when: install.changed
+
