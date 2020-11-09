@@ -4,12 +4,6 @@ wazuh_manager_version: 4.0.0-1
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
-nodejs:
-  repo_dict:
-    debian: "deb"
-    redhat: "rpm"
-  repo_url_ext: "nodesource.com/setup_10.x"
-
 # Custom packages installation
 wazuh_custom_packages_installation_manager_enabled: false
 wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
