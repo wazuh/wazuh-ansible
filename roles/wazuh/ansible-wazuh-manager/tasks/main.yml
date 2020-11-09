@@ -321,12 +321,6 @@
     - ( agent_groups is defined) and ( agent_groups|length > 0)
   tags: molecule-idempotence-notest
 
-- include_tasks: "RMRedHat.yml"
-  when:
-    - ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
-    - not wazuh_manager_sources_installation.enabled
-
-- include_tasks: "RMDebian.yml"
-  when:
-    - ansible_os_family == "Debian"
-    - not wazuh_manager_sources_installation.enabled
+- name: Run uninstall tasks
+  include_tasks: uninstall.yml
+  when: not wazuh_manager_sources_installation.enabled

@@ -1,6 +1,0 @@
----
-- name: Debian/Ubuntu | Remove Wazuh repository.
-  apt_repository:
-    repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
-    state: absent
-  changed_when: false
