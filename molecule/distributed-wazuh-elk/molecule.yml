@@ -18,7 +18,7 @@ platforms:
   ################################################
   # Wazuh Managers
   ################################################
-  - name: wazuh_manager_centos7
+  - name: molecule_elk_manager_centos7
     hostname: wazuh-mgr01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -33,7 +33,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: wazuh_manager_debian9
+  - name: molecule_elk_manager_debian9
     hostname: wazuh-mgr02
     image: geerlingguy/docker-debian9-ansible
     command: /sbin/init
@@ -51,7 +51,7 @@ platforms:
   ################################################
   # Elastic Cluster
   ################################################
-  - name: wazuh_elasticsearch_centos7
+  - name: molecule_elk_elasticsearch_centos7
     hostname: wazuh-es01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -66,7 +66,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: wazuh_elasticsearch_debian9
+  - name: molecule_elk_elasticsearch_debian9
     hostname: wazuh-es02
     image: geerlingguy/docker-debian9-ansible
     command: /sbin/init
@@ -84,7 +84,7 @@ platforms:
   ################################################
   # Wazuh Agents
   ################################################
-  - name: wazuh_agent_centos7
+  - name: molecule_elk_agent_centos7
     hostname: wazuh-agent01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -97,8 +97,8 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: wazuh_agent_debian9
-    hostname: wazuh-agent01
+  - name: molecule_elk_agent_debian9
+    hostname: wazuh-agent02
     image: geerlingguy/docker-debian9-ansible
     command: /sbin/init
     pre_build_image: true
@@ -114,7 +114,7 @@ platforms:
   # Kibana
   ################################################
 
-  - name: wazuh_kibana_centos7
+  - name: molecule_elk_kibana_centos7
     hostname: wazuh-kib01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -134,7 +134,6 @@ provisioner:
   inventory:
     links:
       group_vars: group_vars
-      host_vars: host_vars
   playbooks:
     create: create.yml
     converge: converge.yml
