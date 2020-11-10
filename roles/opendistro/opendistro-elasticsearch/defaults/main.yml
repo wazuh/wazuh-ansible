@@ -1,8 +1,5 @@
 ---
 # Cluster Settings
-es_version: "7.9.1"
-es_major_version: "7.x"
-
 opendistro_version: 1.10.1
 
 single_node: false
@@ -44,7 +41,6 @@ es_nodes: |-
         {%- endfor %}
 
 # Security password
-opendistro_security_password: admin
 opendistro_custom_user: ""
 opendistro_custom_user_role: "admin"
 
