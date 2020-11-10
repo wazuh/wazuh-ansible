@@ -5,14 +5,25 @@
 - include_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Install Filebeat
+- name: Install Filebeat | Redhat
   package:
-    name: filebeat
+    name: "filebeat-{{ filebeat_version }}"
     state: present
   register: install
   tags:
   - install
   - init
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Filebeat | Debian
+  package:
+    name: "filebeat={{ filebeat_version }}"
+    state: present
+  register: install
+  tags:
+  - install
+  - init
+  when: ansible_os_family == 'Debian'
 
 - name: Checking if Filebeat Module folder file exists
   stat:
