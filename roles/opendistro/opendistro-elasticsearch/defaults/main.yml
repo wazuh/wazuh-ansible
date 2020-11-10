@@ -35,10 +35,6 @@ package_repos:
 opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
 opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
 opendistro_conf_path: /etc/elasticsearch/
-es_nodes: |-
-        {% for item in groups['es_cluster'] -%}
-          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
-        {%- endfor %}
 
 # Security password
 opendistro_custom_user: ""
