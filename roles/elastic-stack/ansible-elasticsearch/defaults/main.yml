@@ -27,9 +27,8 @@ elasticsearch_discovery_nodes:
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
 
-# X-Pack Security 
+# X-Pack Security
 elasticsearch_xpack_security: false
-elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
 
 node_certs_generator: false
