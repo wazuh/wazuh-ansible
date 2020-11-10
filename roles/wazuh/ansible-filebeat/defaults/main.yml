@@ -24,10 +24,7 @@ filebeat_xpack_security: false
 elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
 
-node_certs_generator: false
-node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/filebeat/certs
-
 
 # CA Generation
 master_certs_path: "{{ playbook_dir }}/es_certs"
