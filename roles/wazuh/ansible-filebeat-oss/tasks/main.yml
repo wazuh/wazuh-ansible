@@ -6,7 +6,7 @@
   when: ansible_os_family == 'Debian'
 
 - name: Install Filebeat | Redhat
-  package:
+  apt:
     name: "filebeat-{{ filebeat_version }}"
     state: present
   register: install
@@ -16,7 +16,7 @@
   when: ansible_os_family == 'RedHat'
 
 - name: Install Filebeat | Debian
-  package:
+  yum:
     name: "filebeat={{ filebeat_version }}"
     state: present
   register: install
