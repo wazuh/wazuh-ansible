@@ -58,3 +58,14 @@
           elastic: {{ elastic_hostvars | length }}
           addresses: {{  elastic_addresses }}
           -----------------------------------------
+  tasks:
+    - meta: flush_handlers
+    - name: Wait for services to come online before moving on to verifier
+      wait_for:
+        host: '{{ kibana_addresses | random }}'
+        port: 5601
+        connect_timeout: 5
+        sleep: 5
+        timeout: 60
+      when: inventory_hostname in groups['kibana']
+# Kibana server is not ready yet
