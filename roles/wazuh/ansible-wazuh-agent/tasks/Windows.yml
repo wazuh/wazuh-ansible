@@ -81,7 +81,7 @@
     state: directory
 
 - name: Windows | Installing agent configuration (ossec.conf)
-  template:
+  template: # noqa 208
     src: var-ossec-etc-ossec-agent.conf.j2
     dest: "{{ wazuh_agent_win_path }}ossec.conf"
   notify: Windows | Restart Wazuh Agent
