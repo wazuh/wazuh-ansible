@@ -60,10 +60,12 @@
 
 - name: Copy the OpenDistro security configuration file to cluster
   blockinfile:
-    block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml') }}"
+    block: "{{ lookup('file', snippet_path ) }}"
     dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
     insertafter: EOF
     marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+  vars:
+    snippet_path: '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml'
 
 - name: Prepare the OpenDistro security configuration file
   replace:
@@ -85,35 +87,34 @@
   run_once: true
 
 - name: Hashing the custom admin password
-  command: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}"
+  command: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_admin_password }}" # noqa 301
   register: opendistro_admin_password_hashed
-  run_once: true
-
-- name: Filtering hash result in case java path is not defined
-  set_fact:
-    opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[1] }}"
-  when:
-    - opendistro_admin_password_hashed.stdout_lines[1] is defined
-  run_once: true
-
-- name: Setting admin hash result
-  set_fact:
-    opendistro_admin_password_hashed_filtered: "{{ opendistro_admin_password_hashed.stdout_lines[0] }}"
-  when:
-    - opendistro_admin_password_hashed.stdout_lines[1] is not defined
+  no_log: '{{ opendistro_nolog_sensible | bool }}'
   run_once: true
 
 - name: Set the Admin user password
   replace:
     path: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
     regexp: '(?<=admin:\n  hash: )(.*)(?=)'
-    replace: "\"{{ opendistro_admin_password_hashed_filtered }}\""
+    replace: "{{ odfe_password_hash | quote }}"
+  vars:
+    odfe_password_hash: "{{ opendistro_admin_password_hashed.stdout_lines | last }}"
   run_once: true
 
-- name: Set the kibanaserver role/user pasword
-  shell: >
-    sed -i 's,{{ opendistro_kibana_password }},'$(sh {{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }} | tail -1)','
-    {{ opendistro_sec_plugin_conf_path }}/internal_users.yml
+# this can also be achieved with password_hash, but it requires dependencies on the controller
+- name: Hash the kibanaserver role/user pasword
+  command: "{{ opendistro_sec_plugin_tools_path }}/hash.sh -p {{ opendistro_kibana_password }}" # noqa 301
+  register: opendistro_kibanaserver_password_hashed
+  no_log: '{{ opendistro_nolog_sensible | bool }}'
+  run_once: true
+
+- name: Set the kibanaserver user password
+  replace:
+    path: "{{ opendistro_sec_plugin_conf_path }}/internal_users.yml"
+    regexp: '(?<=kibanaserver:\n  hash: )(.*)(?=)'
+    replace: "{{ odfe_password_hash | quote }}"
+  vars:
+    odfe_password_hash: "{{ opendistro_kibanaserver_password_hashed.stdout_lines | last }}"
   run_once: true
 
 - name: Initialize the OpenDistro security index in elasticsearch
@@ -125,7 +126,7 @@
     -cd {{ opendistro_sec_plugin_conf_path }}/
     -nhnv -icl
     -h {{ target_address }}
-  run_once: true
+  run_once: true # noqa 301
 
 - name: Create custom user
   uri:
