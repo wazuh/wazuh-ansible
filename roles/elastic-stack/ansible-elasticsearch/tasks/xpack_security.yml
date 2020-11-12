@@ -8,6 +8,9 @@
   template:
     src: instances.yml.j2
     dest: "{{ node_certs_source }}/instances.yml"
+    owner: root
+    group: root
+    mode: 0644
     force: no
   register: instances_file_exists
   tags:
