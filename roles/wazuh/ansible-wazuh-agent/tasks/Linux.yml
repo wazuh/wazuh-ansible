@@ -40,7 +40,8 @@
     - init
 
 - name: Linux | Check if client.keys exists
-  stat: path=/var/ossec/etc/client.keys
+  stat:
+    path: /var/ossec/etc/client.keys
   register: check_keys
   when: wazuh_agent_config.enrollment.enabled == 'yes'
   tags:
@@ -184,22 +185,24 @@
     - api
 
 - name: Linux | Installing agent configuration (ossec.conf)
-  template: src=var-ossec-etc-ossec-agent.conf.j2
-            dest=/var/ossec/etc/ossec.conf
-            owner=root
-            group=ossec
-            mode=0644
+  template:
+    src: var-ossec-etc-ossec-agent.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: 0644
   notify: restart wazuh-agent
   tags:
     - init
     - config
 
 - name: Linux | Installing local_internal_options.conf
-  template: src=var-ossec-etc-local-internal-options.conf.j2
-            dest=/var/ossec/etc/local_internal_options.conf
-            owner=root
-            group=ossec
-            mode=0640
+  template:
+    src: var-ossec-etc-local-internal-options.conf.j2
+    dest: /var/ossec/etc/local_internal_options.conf
+    owner: root
+    group: ossec
+    mode: 0640
   notify: restart wazuh-agent
   tags:
     - init
