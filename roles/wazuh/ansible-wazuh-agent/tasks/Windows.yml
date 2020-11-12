@@ -54,11 +54,6 @@
   tags:
     - config
 
-- name: Retrieving authd Credentials
-  include_vars: authd_pass.yml
-  tags:
-    - config
-
 - name: Windows | Register agent
   win_shell: >
     {{ wazuh_agent_win_auth_path }}
