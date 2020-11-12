@@ -20,6 +20,7 @@
 
 - name: Remove Kibana configuration file
   file:
+    # noqa 503
     path: "{{ kibana_conf_path }}/kibana.yml"
     state: absent
   when: install.changed
