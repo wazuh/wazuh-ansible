@@ -33,7 +33,7 @@ wazuh_agent_sources_installation:
   user_ca_store: "/var/ossec/wpk_root.pem"
 
 # We recommend the use of ansible-vault to protect Wazuh, api, agentless and authd credentials.
-# api_pass: 'changeme'
+api_pass: 'changeme'
 authd_pass: ''
 
 wazuh_managers:
