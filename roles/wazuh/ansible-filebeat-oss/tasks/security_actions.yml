@@ -4,11 +4,16 @@
     file:
       path: "{{ filebeat_ssl_dir }}"
       state: directory
+      owner: root
+      group: root
+      mode: 0774
 
   - name: Copy the certificates from local to the Manager instance
     copy:
       src: "{{ local_certs_path }}/certs/{{ item }}"
       dest: "{{ filebeat_ssl_dir }}"
+      owner: root
+      group: root
       mode: 0644
     with_items:
       - "{{ filebeat_node_name }}.key"
