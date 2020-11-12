@@ -20,13 +20,6 @@
       - "{{ filebeat_node_name }}.pem"
       - "root-ca.pem"
 
-  - name: Ensuring folder & certs permissions
-    file:
-      path: "{{ filebeat_ssl_dir }}/"
-      mode: 0774
-      state: directory
-      recurse: yes
-
   tags:
   - security
   when:
