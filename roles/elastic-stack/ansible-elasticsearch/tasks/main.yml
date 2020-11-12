@@ -6,7 +6,12 @@
   when: ansible_os_family == "Debian"
 
 - name: Create elasticsearch.service.d folder.
-  file: path=/etc/systemd/system/elasticsearch.service.d/ state=directory
+  file:
+    path: /etc/systemd/system/elasticsearch.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
   when:
     - ansible_service_mgr == "systemd"
 
