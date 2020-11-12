@@ -69,7 +69,7 @@
   register: agent_auth_output
   notify: Windows | Restart Wazuh Agent
   when:
-    - wazuh_agent_authd.enable == true
+    - wazuh_agent_authd.enable | bool
     - not check_windows_key.stat.exists or check_windows_key.stat.size == 0
     - wazuh_agent_authd.registration_address is not none
   tags:
