@@ -83,7 +83,7 @@
   tags: configure
 
 - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
-  lineinfile:
+  lineinfile: # noqa 208
     path: /etc/security/limits.conf
     line: elasticsearch - memlock unlimited
     create: yes
