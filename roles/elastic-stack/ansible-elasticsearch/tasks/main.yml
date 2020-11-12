@@ -97,6 +97,9 @@
   lineinfile:
     path: /etc/security/limits.d/elasticsearch.conf
     line: elasticsearch - memlock unlimited
+    owner: root
+    group: root
+    mode: 0644
     create: yes
   become: true
   changed_when: false
