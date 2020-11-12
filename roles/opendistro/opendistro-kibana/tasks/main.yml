@@ -44,6 +44,7 @@
 
 - name: Ensuring Kibana directory owner
   file:
+    # noqa 208
     path: "/usr/share/kibana"
     state: directory
     owner: kibana
