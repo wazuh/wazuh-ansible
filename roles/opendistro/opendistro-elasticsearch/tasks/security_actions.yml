@@ -60,10 +60,12 @@
 
 - name: Copy the OpenDistro security configuration file to cluster
   blockinfile:
-    block: "{{ lookup('file', '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml') }}"
+    block: "{{ lookup('file', snippet_path ) }}"
     dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
     insertafter: EOF
     marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+  vars:
+    snippet_path: '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml'
 
 - name: Prepare the OpenDistro security configuration file
   replace:
