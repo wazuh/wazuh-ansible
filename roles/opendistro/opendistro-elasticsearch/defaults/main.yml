@@ -70,3 +70,5 @@ opendistro_kibana_password: changeme
 # Deployment settings
 generate_certs: true
 perform_installation: true
+
+opendistro_nolog_sensible: true
