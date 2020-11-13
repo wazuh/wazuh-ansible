@@ -19,7 +19,6 @@ Role Variables
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
 ```
-  filebeat_output_elasticsearch_enabled: false
   filebeat_output_elasticsearch_hosts:
     - "localhost:9200"
 

@@ -3,9 +3,6 @@ filebeat_version: 7.9.1
 
 wazuh_template_branch: v4.0.0
 
-filebeat_create_config: true
-
-filebeat_output_elasticsearch_enabled: false
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
 
@@ -18,8 +15,6 @@ elasticsearch_security_user: admin
 elasticsearch_security_password: changeme
 # Security plugin
 filebeat_security: true
-filebeat_security_user: admin
-filebeat_security_password: changeme
 filebeat_ssl_dir: /etc/pki/filebeat
 
 # Local path to store the generated certificates (OpenDistro security plugin)
