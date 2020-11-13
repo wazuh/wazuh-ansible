@@ -71,7 +71,7 @@ wazuh_agent_repo:
 wazuh_agent_nat: false
 
 ##########################################
-### Wazuh-OSSEC
+### Wazuh
 ##########################################
 
 wazuh_agent_config_overlay: yes
