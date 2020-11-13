@@ -1,20 +1,42 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.1]
+
+### Added
+
+- Update to Wazuh v4.0.1
+- Allow installing fixed Filebeat-oss version ([@Zenidd](https://github.com/Zenidd)) [PR#486](https://github.com/wazuh/wazuh-ansible/pull/486)
+- Feature adapt molecule tests ([@neonmei](https://github.com/neonmei)) [PR#477](https://github.com/wazuh/wazuh-ansible/pull/477)
+
+### Fixed
+
+- Improve linting history ([@neonmei](https://github.com/neonmei))
+  - Fix lint opendistro kibana [PR#468](https://github.com/wazuh/wazuh-ansible/pull/468)
+  - Feature lint roles configurations [PR#496](https://github.com/wazuh/wazuh-ansible/pull/496)
+  - Feature lint role wazuh agent [PR#495](https://github.com/wazuh/wazuh-ansible/pull/495)
+  - Feature lint role filebeat oss [PR#494](https://github.com/wazuh/wazuh-ansible/pull/494)
+  - Lint role wazuh-manager [PR#493](https://github.com/wazuh/wazuh-ansible/pull/493)
+  - Feature lint role elasticsearch [PR#492](https://github.com/wazuh/wazuh-ansible/pull/492)
+  - Feature lint role opendistro-elasticsearch [PR#491](https://github.com/wazuh/wazuh-ansible/pull/491)
+- Remove unnecesary nodejs dependency ([@neonmei](https://github.com/neonmei)) [PR#482](https://github.com/wazuh/wazuh-ansible/pull/482)
+- Feature manager configuration unnest ([@neonmei](https://github.com/neonmei)) [PR#481](https://github.com/wazuh/wazuh-ansible/pull/481)
+- Elastic API check fix ([@Zenidd](https://github.com/Zenidd)) [PR#480](https://github.com/wazuh/wazuh-ansible/pull/480)
+- Improve handling of run_once at opendistro-elasticsearch role ([@neonmei](https://github.com/neonmei)) [PR#478](https://github.com/wazuh/wazuh-ansible/pull/478)
+
+
 ## [v4.0.0]
 
 ### Added
 
 - Update to Wazuh v4.0.0
+- New example playbooks on README ([@Zenidd](https://github.com/Zenidd)) [PR#468](https://github.com/wazuh/wazuh-ansible/pull/468)
 
 ### Fixed
 
 - Ensure recursive /usr/share/kibana permissions before installing WUI ([@Zenidd](https://github.com/Zenidd)) [PR#471](https://github.com/wazuh/wazuh-ansible/pull/471)
 - Remove vuls integration ([@manuasir](https://github.com/manuasir)) [PR#469](https://github.com/wazuh/wazuh-ansible/pull/469)
 
-### Added
-
-- New example playbooks on README ([@Zenidd](https://github.com/Zenidd)) [PR#468](https://github.com/wazuh/wazuh-ansible/pull/468)
 
 ## [v3.13.2]
 
