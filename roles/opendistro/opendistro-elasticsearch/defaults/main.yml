@@ -1,8 +1,5 @@
 ---
 # Cluster Settings
-es_version: "7.9.1"
-es_major_version: "7.x"
-
 opendistro_version: 1.11.0
 
 single_node: false
@@ -38,13 +35,8 @@ package_repos:
 opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
 opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
 opendistro_conf_path: /etc/elasticsearch/
-es_nodes: |-
-        {% for item in groups['es_cluster'] -%}
-          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
-        {%- endfor %}
 
 # Security password
-opendistro_security_password: admin
 opendistro_custom_user: ""
 opendistro_custom_user_role: "admin"
 
@@ -58,11 +50,6 @@ certs_gen_tool_version: 1.8
 # Url of Search Guard certificates generator tool
 certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
 
-elasticrepo:
-  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
-  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
-  gpg: 'https://artifacts.elastic.co/GPG-KEY-opendistro'
-  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
 
 opendistro_admin_password: changeme
 opendistro_kibana_password: changeme

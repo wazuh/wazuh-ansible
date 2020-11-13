@@ -2,10 +2,6 @@
 
 # Kibana configuration
 elasticsearch_http_port: 9200
-elasticsearch_nodes: |-
-        {% for item in groups['es_cluster'] -%}
-          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
-        {%- endfor %}
 elastic_api_protocol: https
 kibana_conf_path: /etc/kibana
 kibana_node_name: node-1
@@ -44,7 +40,6 @@ kibana_newsfeed_enabled: "false"
 kibana_telemetry_optin: "false"
 kibana_telemetry_enabled: "false"
 
-opendistro_security_user: elastic
 opendistro_admin_password: changeme
 opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme

@@ -31,8 +31,6 @@ kibana_ssl_verification_mode: "full"
 elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
 
-node_certs_generator: false
-node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/kibana/certs
 
 # CA Generation
