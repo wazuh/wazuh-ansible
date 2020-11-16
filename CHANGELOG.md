@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Roles/elastic-stack: update jvm.options template per upstream updates ([@neonmei](https://github.com/neonmei)) [PR#501](https://github.com/wazuh/wazuh-ansible/pull/501)
 - Improve linting history ([@neonmei](https://github.com/neonmei))
   - Fix lint opendistro kibana [PR#497](https://github.com/wazuh/wazuh-ansible/pull/497) 
   - Feature lint roles configurations [PR#496](https://github.com/wazuh/wazuh-ansible/pull/496)
@@ -21,7 +22,6 @@ All notable changes to this project will be documented in this file.
   - Feature lint role opendistro-elasticsearch [PR#491](https://github.com/wazuh/wazuh-ansible/pull/491)
   - Feature lint remove unused variables [PR#487](https://github.com/wazuh/wazuh-ansible/pull/487)
   - Feature agent default vars depth reduction [PR#485](https://github.com/wazuh/wazuh-ansible/pull/485)
-
 - Remove unnecesary nodejs dependency ([@neonmei](https://github.com/neonmei)) [PR#482](https://github.com/wazuh/wazuh-ansible/pull/482)
 - Feature manager configuration unnest ([@neonmei](https://github.com/neonmei)) [PR#481](https://github.com/wazuh/wazuh-ansible/pull/481)
 - Elastic API check fix ([@Zenidd](https://github.com/Zenidd)) [PR#480](https://github.com/wazuh/wazuh-ansible/pull/480)
