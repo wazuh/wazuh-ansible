@@ -1,0 +1,94 @@
+---
+
+
+- name: Generate certificates prior to converging
+  hosts: all
+  become: true
+  become_user: root
+  vars:
+    endpoints_hostvars: '{{ managers_hostvars | union(elastic_hostvars) | union(kibana_hostvars)  }}'
+  roles:
+    - role: ../../roles/elastic-stack/ansible-elasticsearch
+      vars:
+        node_certs_generator: true
+        instances: '{{ elk_endpoint_list }}'
+      when:
+        - inventory_hostname in groups['elastic']
+        - ansible_hostname == 'wazuh-es01'
+  pre_tasks:
+    - name: (converge) build instances list dynamically for cert generator consumption
+      set_fact:
+        elk_endpoint_list: "{{ elk_endpoint_list | default({}) | combine({ instance_hostname: instance_item }) }}"
+      vars:
+        instance_hostname: '{{ item.ansible_facts.hostname }}'
+        instance_item:
+          name: '{{ item.private_ip}}'
+          ip: '{{ item.private_ip }}'
+      loop: '{{ endpoints_hostvars }}'
+      no_log: true
+    - name: overview of cert configuration
+      debug:
+        var: elk_endpoint_list
+
+- name: Converge
+  hosts: all
+  become: true
+  become_user: root
+  vars:
+    endpoints_hostvars: '{{ managers_hostvars | union(elastic_hostvars) | union(kibana_hostvars)  }}'
+    # arguments common to all managers
+    wazuh_managers_common:
+      port: 1514
+      protocol: tcp
+      api_port: 55000
+      api_proto: 'http'
+      api_user: ansible
+      max_retries: 5
+      retry_interval: 5
+  roles:
+    # 1. Elasticsearch
+    - role: ../../roles/elastic-stack/ansible-elasticsearch
+      vars:
+        instances: '{{ elk_endpoint_list }}'
+      when: inventory_hostname in groups['elastic']
+    # 2. Managers
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      when: inventory_hostname in groups['managers']
+    - role: ../../roles/wazuh/ansible-filebeat
+      when: inventory_hostname in groups['managers']
+    # 3. Kibana
+    - role: ../../roles/elastic-stack/ansible-kibana
+      when: inventory_hostname in groups['kibana']
+    # 4. Agents:
+    - role: ../../roles/wazuh/ansible-wazuh-agent
+      vars:
+        wazuh_managers: '{{ wazuh_managers_list }}'
+      when: inventory_hostname in groups['agents']
+  pre_tasks:
+
+    - name: (converge) build wazuh_managers list dynamically for agents to consume
+      set_fact:
+        wazuh_managers_list: '{{ wazuh_managers_list | default([]) | union([manager_item]) }}'
+      vars:
+        manager_item: '{{ wazuh_managers_common | combine({"address": item})  }}'
+      loop: '{{ manager_addresses }}'
+
+    - name: (converge) build instances list dynamically for cert generator consumption
+      set_fact:
+        elk_endpoint_list: "{{ elk_endpoint_list | default({}) | combine({ instance_hostname: instance_item }) }}"
+      vars:
+        instance_hostname: '{{ item.ansible_facts.hostname }}'
+        instance_item:
+          name: '{{ item.private_ip}}'
+          ip: '{{ item.private_ip }}'
+      loop: '{{ endpoints_hostvars }}'
+      no_log: true
+
+    - name: (converge) fix ubuntu repository key task in thin images where gpg-agent is missing
+      apt:
+        name: gpg-agent
+        state: present
+        update_cache: yes
+      when:
+        - ansible_distribution == "Ubuntu"
+        - inventory_hostname in groups['agents']

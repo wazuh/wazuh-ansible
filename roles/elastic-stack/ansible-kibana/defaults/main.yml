@@ -6,8 +6,8 @@ elasticsearch_network_host: "127.0.0.1"
 kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_conf_path: /etc/kibana
-elastic_stack_version: 7.9.2
-wazuh_version: 4.0.0
+elastic_stack_version: 7.9.3
+wazuh_version: 4.0.1
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 elasticrepo:
@@ -31,8 +31,6 @@ kibana_ssl_verification_mode: "full"
 elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
 
-node_certs_generator: false
-node_certs_source: /usr/share/elasticsearch
 node_certs_destination: /etc/kibana/certs
 
 # CA Generation

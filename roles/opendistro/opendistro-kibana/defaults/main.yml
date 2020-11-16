@@ -2,10 +2,6 @@
 
 # Kibana configuration
 elasticsearch_http_port: 9200
-elasticsearch_nodes: |-
-        {% for item in groups['es_cluster'] -%}
-          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
-        {%- endfor %}
 elastic_api_protocol: https
 kibana_conf_path: /etc/kibana
 kibana_node_name: node-1
@@ -14,11 +10,11 @@ kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
 elastic_stack_version: 7.9.1
-wazuh_version: 4.0.0
+wazuh_version: 4.0.1
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
-kibana_opendistro_version: -1.10.1-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_version: -1.11.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 
 package_repos:
   yum:
@@ -44,7 +40,6 @@ kibana_newsfeed_enabled: "false"
 kibana_telemetry_optin: "false"
 kibana_telemetry_enabled: "false"
 
-opendistro_security_user: elastic
 opendistro_admin_password: changeme
 opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme

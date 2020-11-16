@@ -46,6 +46,7 @@
   - name: Create folder to extract Wazuh branch
     file:
       path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+      mode: 0755
       state: directory
     changed_when: false
 

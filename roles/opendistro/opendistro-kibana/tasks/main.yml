@@ -20,6 +20,7 @@
 
 - name: Remove Kibana configuration file
   file:
+    # noqa 503
     path: "{{ kibana_conf_path }}/kibana.yml"
     state: absent
   when: install.changed
@@ -43,6 +44,7 @@
 
 - name: Ensuring Kibana directory owner
   file:
+    # noqa 208
     path: "/usr/share/kibana"
     state: directory
     owner: kibana

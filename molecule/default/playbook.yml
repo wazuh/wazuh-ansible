@@ -1,7 +1,0 @@
----
-- name: Converge
-  hosts: all
-  roles:
-    - role: ../../roles/wazuh/ansible-wazuh-manager
-      vars:
-    - { role: ../../roles/wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: "elasticsearch_centos7:9200" }

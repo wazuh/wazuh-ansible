@@ -58,6 +58,9 @@
       - name: Create folder to extract Wazuh branch
         file:
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          owner: root
+          group: root
+          mode: 0644
           state: directory
 
     # When downloading "v3.11.0" extracted folder name is 3.11.0.

@@ -1,0 +1,17 @@
+---
+
+single_node: false
+elasticsearch_node_master: true
+minimum_master_nodes: 1
+
+elasticsearch_network_host: '{{ private_ip }}'
+elasticsearch_node_name: '{{ private_ip }}'
+
+elasticsearch_reachable_host: '{{ private_ip }}'
+elasticsearch_http_port: 9200
+
+elasticsearch_bootstrap_node: true
+elasticsearch_cluster_nodes: '{{ elastic_addresses }}'
+elasticsearch_discovery_nodes: '{{ elastic_addresses }}'
+
+elasticsearch_jvm_xms: 1024

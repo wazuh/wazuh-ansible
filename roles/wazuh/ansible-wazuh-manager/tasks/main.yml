@@ -1,4 +1,12 @@
 ---
+
+- name: Overlay wazuh_manager_config on top of defaults
+  set_fact:
+    wazuh_manager_config: '{{ wazuh_manager_config_defaults | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ wazuh_manager_config | default({}) }}'
+  when: wazuh_manager_config_overlay | bool
+
 - name: "Install dependencies"
   package:
     name:
@@ -6,28 +14,6 @@
       - openssl
       - tar
     state: present
-
-- name: Check if NodeJS service exists
-  stat:
-    path: /usr/bin/node
-  register: node_service_status
-
-- name: Install NodeJS repository
-  block:
-    - name: Download NodeJS repository script
-      get_url:
-        url: "https://{{ nodejs['repo_dict'][ansible_os_family|lower] }}.{{ nodejs['repo_url_ext'] }}"
-        dest: /etc/nodejs.sh
-        mode: 0775
-      changed_when: false
-
-    - name: Run NodeJS bash script
-      command: sh /etc/nodejs.sh
-      register: nodejs_script
-      changed_when: nodejs_script.rc == 0
-  when:
-    - not node_service_status.stat.exists
-    - wazuh_manager_config.cluster.node_type == "master"
 
 - include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
@@ -335,12 +321,6 @@
     - ( agent_groups is defined) and ( agent_groups|length > 0)
   tags: molecule-idempotence-notest
 
-- include_tasks: "RMRedHat.yml"
-  when:
-    - ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
-    - not wazuh_manager_sources_installation.enabled
-
-- include_tasks: "RMDebian.yml"
-  when:
-    - ansible_os_family == "Debian"
-    - not wazuh_manager_sources_installation.enabled
+- name: Run uninstall tasks
+  include_tasks: uninstall.yml
+  when: not wazuh_manager_sources_installation.enabled
