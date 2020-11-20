@@ -74,8 +74,8 @@
         - "{{ wazuh_agent_authd.ssl_agent_cert }}"
         - "{{ wazuh_agent_authd.ssl_agent_key }}"
       when:
-        - wazuh_agent_authd.ssl_agent_cert is not none
-        - wazuh_agent_authd.ssl_agent_key is not none
+        - wazuh_agent_authd.ssl_agent_cert is defined
+        - wazuh_agent_authd.ssl_agent_key is defined
 
     - name: Linux | Register agent (via authd)
       shell: >
@@ -105,13 +105,13 @@
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
+        - check_keys.stat.exists is not defined or check_keys.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
     - name: Linux | Verify agent registration
       shell: echo {{ agent_auth_output }} | grep "Valid key created"
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
+        - check_keys.stat.exists is not defined or check_keys.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
   when:
