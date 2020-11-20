@@ -30,6 +30,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: root
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
@@ -44,6 +46,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: root
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ filebeat_node_name }}/{{ filebeat_node_name }}.key"
@@ -57,9 +61,9 @@
 - name: Ensuring folder & certs permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: 0774
+    mode: 0770
     state: directory
-    recurse: yes
+    recurse: no
   when:
     - filebeat_xpack_security
   tags: xpack-security
@@ -67,25 +71,29 @@
 - name: Checking if Filebeat Module folder file exists
   stat:
     path: "{{ filebeat_module_folder }}"
-  register: filebeat_module_folder
+  register: filebeat_module_folder_info
 
+- name: Download, uncompress and apply permissions for Filebeat
+  block:
 
-- name: Download Filebeat module package
-  get_url:
-    url: "{{ filebeat_module_package_url }}/{{ filebeat_module_package_name }}"
-    dest: "{{ filebeat_module_package_path }}"
-  when: not filebeat_module_folder.stat.exists
+    - name: Download Filebeat module package
+      get_url:
+        url: "{{ filebeat_module_package_url }}/{{ filebeat_module_package_name }}"
+        dest: "{{ filebeat_module_package_path }}"
 
-- name: Unpakcing Filebeat module package
-  unarchive:
-    src: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
-    dest: "{{ filebeat_module_destination }}"
-    remote_src: yes
-  when: not filebeat_module_folder.stat.exists
+    - name: Unpacking Filebeat module package
+      unarchive:
+        src: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
+        dest: "{{ filebeat_module_destination }}"
+        remote_src: yes
 
-- name: Setting 0755 permission for Filebeat module folder
-  file: dest={{ filebeat_module_folder }} mode=u=rwX,g=rwX,o=rwX recurse=yes
-  when: not filebeat_module_folder.stat.exists
+    - name: Setting 0755 permission for Filebeat module folder
+      file:
+        path: "{{ filebeat_module_folder }}"
+        mode: 0755
+        recurse: yes
+
+  when: not filebeat_module_folder_info.stat.exists
 
 - name: Checking if Filebeat Module package file exists
   stat:
@@ -102,15 +110,6 @@
 - import_tasks: config.yml
   when: filebeat_create_config
   notify: restart filebeat
-
-- name: Reload systemd
-  systemd: daemon_reload=yes
-  ignore_errors: true
-  when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
 
 - name: Ensure Filebeat is started and enabled at boot.
   service:

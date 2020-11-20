@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+# Description:
+# Default Kibana configuration for Open Distro.
+server.port: {{ kibana_server_port }}
+
+#server.basePath: ""
+server.maxPayloadBytes: {{ kibana_max_payload_bytes }}
+server.name: {{ kibana_server_name }}
+server.host: {{ kibana_server_host }}
+
+
+{% if kibana_opendistro_security %}
+
+elasticsearch.hosts: "https://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
+elasticsearch.username: {{ opendistro_kibana_user }}
+elasticsearch.password: {{ opendistro_kibana_password }}
+server.ssl.enabled: true
+server.ssl.certificate: "/usr/share/kibana/{{ kibana_node_name }}_http.pem"
+server.ssl.key: "/usr/share/kibana/{{ kibana_node_name }}_http.key"
+elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/root-ca.pem"]
+elasticsearch.ssl.verificationMode: full
+
+{% else %}
+elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
+{% endif %}
+
+elasticsearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
+opendistro_security.multitenancy.enabled: false # FIXME: should be enabled starting with Wazuh App v3.13
+opendistro_security.multitenancy.tenants.preferred: ["Private", "Global"]
+opendistro_security.readonly_mode.roles: ["kibana_read_only"]
+
+newsfeed.enabled: {{ kibana_newsfeed_enabled }}
+telemetry.optIn: {{ kibana_telemetry_optin }}
+telemetry.enabled: {{ kibana_telemetry_enabled }}
+
+

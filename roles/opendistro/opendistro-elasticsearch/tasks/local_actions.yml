@@ -1,0 +1,87 @@
+---
+- name: Check if certificates already exists
+  stat:
+    path: "{{ local_certs_path }}"
+  register: certificates_folder
+  delegate_to: localhost
+  become: no
+  tags:
+    - generate-certs
+
+
+- block:
+
+  - name: Local action | Create local temporary directory for certificates generation
+    file:
+      path: "{{ local_certs_path }}"
+      mode: 0755
+      state: directory
+
+  - name: Local action | Check that the generation tool exists
+    stat:
+      path: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+    register: tool_package
+
+  - name: Local action | Download certificates generation tool
+    get_url:
+      url: "{{ certs_gen_tool_url }}"
+      dest: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+    when: not tool_package.stat.exists
+
+  - name: Local action | Extract the certificates generation tool
+    unarchive:
+      src: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+      dest: "{{ local_certs_path }}/"
+
+  - name: Local action | Add the execution bit to the binary
+    file:
+      dest: "{{ local_certs_path }}/tools/sgtlstool.sh"
+      mode: a+x
+
+  - name: Local action | Prepare the certificates generation template file
+    template:
+      src: "templates/tlsconfig.yml.j2"
+      dest: "{{ local_certs_path }}/config/tlsconfig.yml"
+      mode: 0644
+    register: tlsconfig_template
+
+  - name: Create a directory if it does not exist
+    file:
+      path: "{{ local_certs_path }}/certs/"
+      state: directory
+      mode: '0755'
+
+  - name: Local action | Check if root CA file exists
+    stat:
+      path: "{{ local_certs_path }}/certs/root-ca.key"
+    register: root_ca_file
+
+  - name: Local action | Generate the node & admin certificates in local
+    command: >-
+      {{ local_certs_path }}/tools/sgtlstool.sh
+      -c {{ local_certs_path }}/config/tlsconfig.yml
+      -ca -crt
+      -t {{ local_certs_path }}/certs/
+      -f -o
+    when:
+      - not root_ca_file.stat.exists
+      - tlsconfig_template.changed
+
+  - name: Local action | Generate the node & admin certificates using an existing root CA
+    command: >-
+     {{ local_certs_path }}/tools/sgtlstool.sh
+     -c {{ local_certs_path }}/config/tlsconfig.yml
+     -crt
+     -t {{ local_certs_path }}/certs/
+     -f
+    when:
+      - root_ca_file.stat.exists
+      - tlsconfig_template.changed
+
+  run_once: true
+  delegate_to: localhost
+  become: no
+  tags:
+    - generate-certs
+  when:
+    - not certificates_folder.stat.exists

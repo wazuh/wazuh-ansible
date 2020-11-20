@@ -1,0 +1,53 @@
+---
+- block:
+
+  - name: RedHat/CentOS/Fedora | Add OpenDistro repo
+    yum_repository:
+      file: opendistro
+      name: opendistro_repo
+      description: Opendistro yum repository
+      baseurl: "{{ package_repos.yum.opendistro.baseurl }}"
+      gpgkey: "{{ package_repos.yum.opendistro.gpg }}"
+      gpgcheck: true
+    changed_when: false
+
+  - name: RedHat/CentOS/Fedora | Add Elasticsearch-oss repo
+    yum_repository:
+      file: opendistro
+      name: elasticsearch_oss_repo
+      description: Elasticsearch-oss yum repository
+      baseurl: "{{ package_repos.yum.elasticsearch_oss.baseurl }}"
+      gpgkey: "{{ package_repos.yum.elasticsearch_oss.gpg }}"
+      gpgcheck: true
+    changed_when: false
+
+  - name: RedHat/CentOS/Fedora | Install OpenJDK 11
+    yum:
+      name: java-11-openjdk-devel
+      state: present
+    when:
+      - ansible_distribution != 'Amazon'
+
+  - name: Amazon Linux | Install OpenJDK 11
+    block:
+      - name: Install Amazon extras
+        yum:
+          name: amazon-linux-extras
+          state: present
+
+      - name: Install OpenJDK 11
+        shell: amazon-linux-extras install java-openjdk11 -y
+
+    when:
+      - ansible_distribution == 'Amazon'
+
+  - name: RedHat/CentOS/Fedora | Install OpenDistro dependencies
+    yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - wget
+      - unzip
+
+  tags:
+  - install

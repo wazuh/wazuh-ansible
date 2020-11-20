@@ -17,6 +17,10 @@
       {% if manager.protocol is defined %}
       <protocol>{{ manager.protocol }}</protocol>
       {% endif %}
+      {% if manager.max_retries is defined and manager.retry_interval is defined %}
+      <max_retries>{{ manager.max_retries }}</max_retries>
+      <retry_interval>{{ manager.retry_interval }}</retry_interval>
+      {% endif %}
     </server>
     {% endfor %}
     {% if wazuh_profile_centos is not none or wazuh_profile_ubuntu is not none %}
@@ -32,6 +36,49 @@
     {% endif %}
     <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
     <crypto_method>{{ wazuh_crypto_method }}</crypto_method>
+
+  {% if wazuh_agent_config.enrollment.enabled | length > 0 %}
+    <enrollment>
+      <enabled>{{ wazuh_agent_config.enrollment.enabled }}</enabled>
+      {% if wazuh_agent_config.enrollment.manager_address | length > 0 %}
+      <manager_address>{{ wazuh_agent_config.enrollment.manager_address }}</manager_address>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_name | length > 0 %}
+      <agent_name>{{ wazuh_agent_config.enrollment.agent_name }}</agent_name>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.port is defined > 0 %}
+      <port>{{ wazuh_agent_config.enrollment.port }}</port>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.groups | length > 0 %}
+      <groups>{{ wazuh_agent_config.enrollment.groups }}</groups>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_address | length > 0 %}
+      <agent_address>{{ wazuh_agent_config.enrollment.agent_address }}</agent_address>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.server_ca_path | length > 0 %}
+      <server_ca_path>{{ wazuh_agent_config.enrollment.server_ca_path }}</server_ca_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_certificate_path | length > 0 %}
+      <agent_certificate_path>{{ wazuh_agent_config.enrollment.agent_certificate_path }}</agent_certificate_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_key_path | length > 0 %}
+      <agent_key_path>{{ wazuh_agent_config.enrollment.agent_key_path }}</agent_key_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 %}
+      <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path }}</authorization_pass_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.auto_method | length > 0 %}
+      <auto_method>{{ wazuh_agent_config.enrollment.auto_method }}</auto_method>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.delay_after_enrollment is defined > 0 %}
+      <delay_after_enrollment>{{ wazuh_agent_config.enrollment.delay_after_enrollment }}</delay_after_enrollment>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.use_source_ip | length > 0 %}
+      <use_source_ip>{{ wazuh_agent_config.enrollment.use_source_ip }}</use_source_ip>
+      {% endif %}
+    </enrollment>
+  {% endif %}
+
   </client>
 
   <client_buffer>
@@ -69,7 +116,7 @@
   {% endif %}
 
 
-  {% if ansible_system == "Linux" %}
+  {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
     <disabled>{{ wazuh_agent_config.openscap.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.openscap.timeout }}</timeout>
@@ -199,7 +246,6 @@
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
-  <!-- <alert_new_files>{{ wazuh_agent_config.syscheck.alert_new_files }}</alert_new_files> -->
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     {% if ansible_system == "Linux" %}
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
@@ -289,18 +335,6 @@
       <max_eps>{{ wazuh_agent_config.syscheck.sync_max_eps }}</max_eps>
     </synchronization>
   </syscheck>
-  {% endif %}
-
-
-  {% if ansible_system == "Linux" and wazuh_agent_config.vuls.disable == 'no' %}
-  <wodle name="command">
-    <disabled>no</disabled>
-    <tag>Wazuh-VULS</tag>
-    <command>/usr/bin/python /var/ossec/wodles/vuls/vuls.py{% for arg in wazuh_agent_config.vuls.args %} --{{ arg }}{% endfor %}</command>
-    <interval>{{ wazuh_agent_config.vuls.interval }}</interval>
-    <ignore_output>yes</ignore_output>
-    <run_on_start>{{ wazuh_agent_config.vuls.run_on_start }}</run_on_start>
-  </wodle>
   {% endif %}
 
   <!-- Files to monitor (localfiles) -->

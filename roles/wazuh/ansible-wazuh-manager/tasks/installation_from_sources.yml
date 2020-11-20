@@ -58,6 +58,9 @@
       - name: Create folder to extract Wazuh branch
         file:
           path: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+          owner: root
+          group: root
+          mode: 0644
           state: directory
 
     # When downloading "v3.11.0" extracted folder name is 3.11.0.
@@ -115,71 +118,3 @@
       - wazuh_manager_sources_installation.enabled
     tags:
       - manager
-
-# Wazuh API
-
-  - name: Check if Wazuh API is already installed
-    stat:
-      path: /var/ossec/api/app.js
-    register: wazuh_api
-    when:
-      - wazuh_manager_config.cluster.node_type == "master"
-
-  - name: Install Wazuh API from sources
-    block:
-      - name: Install dependencies to build Wazuh packages
-        package:
-          name:
-            - make
-            - gcc
-            - automake
-            - autoconf
-            - libtool
-            - tar
-          state: present
-
-      - name: Explicitly installing npm for Debian hosts
-        package:
-          name: npm
-          state: present
-        when:
-          - ansible_distribution == "Debian"
-
-      - name: Ensure Git is present in the host
-        package:
-          name: git
-          state: present
-
-      - name: Remove old repository folder
-        file:
-          path: /tmp/wazuh-api
-          state: absent
-
-      - name: Download the Wazuh API repository
-        git:
-          repo: 'https://github.com/wazuh/wazuh-api.git'
-          version: "{{ wazuh_api_sources_installation.branch }}"
-          dest: /tmp/wazuh-api
-
-      - name: Configure Wazuh API installation
-        template:
-          src: "templates/preloaded_vars_api.conf.j2"
-          dest: "/tmp/wazuh-api/configuration/preloaded_vars.conf"
-          owner: root
-          group: root
-          mode: 0644
-
-      - name: Execute Wazuh API installation script
-        shell: ./install_api.sh > /tmp/build_wazuh_api_log.txt
-        register: install_api
-        changed_when: install_api.rc == 0
-        args:
-          chdir: "/tmp/wazuh-api"
-        notify:
-          - restart wazuh-api
-    when:
-      - not wazuh_api.stat.exists
-      - wazuh_api_sources_installation.enabled
-      - wazuh_manager_config.cluster.node_type == "master"
-    tags:
-      - api

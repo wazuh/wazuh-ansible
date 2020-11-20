@@ -1,0 +1,19 @@
+---
+
+kibana_node_name: '{{ ansible_hostname }}'
+kibana_server_name: '{{ ansible_hostname }}'
+
+elasticsearch_network_host: "{{ elastic_addresses | random }}"
+#elasticsearch_http_port: 9200
+
+elasticsearch_node_master: false
+elasticsearch_node_ingest: false
+elasticsearch_node_data: false
+
+wazuh_api_credentials:
+  - id: default
+    url: 'https://{{ manager_addresses[0] }}'
+    port: 55000
+    #port: 1514
+    username: wazuh
+    password: wazuh

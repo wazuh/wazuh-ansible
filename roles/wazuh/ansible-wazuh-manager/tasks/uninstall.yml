@@ -1,0 +1,15 @@
+---
+
+- name: Debian/Ubuntu | Remove Wazuh repository.
+  apt_repository:
+    repo: deb https://packages.wazuh.com/apt {{ ansible_distribution_release }} main
+    state: absent
+  changed_when: false
+  when: ansible_os_family == "Debian"
+
+- name: RedHat/CentOS/Fedora | Remove Wazuh repository (and clean up left-over metadata)
+  yum_repository:
+    name: wazuh_repo
+    state: absent
+  changed_when: false
+  when: ansible_os_family == "RedHat" or ansible_os_family == "Amazon"

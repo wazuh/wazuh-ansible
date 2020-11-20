@@ -1,0 +1,78 @@
+---
+- include_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Install Filebeat | Redhat
+  yum:
+    name: "filebeat-{{ filebeat_version }}"
+    state: present
+  register: install
+  tags:
+  - install
+  - init
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Filebeat | Debian
+  apt:
+    name: "filebeat={{ filebeat_version }}"
+    state: present
+  register: install
+  tags:
+  - install
+  - init
+  when: ansible_os_family == 'Debian'
+
+- name: Checking if Filebeat Module folder file exists
+  stat:
+    path: "{{ filebeat_module_folder }}"
+  register: filebeat_module_folder
+
+- name: Download Filebeat module package
+  get_url:
+    url: "{{ filebeat_module_package_url }}/{{ filebeat_module_package_name }}"
+    dest: "{{ filebeat_module_package_path }}"
+  when: not filebeat_module_folder.stat.exists
+
+- name: Unpack Filebeat module package
+  unarchive:
+    src: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
+    dest: "{{ filebeat_module_destination }}"
+    remote_src: yes
+  when: not filebeat_module_folder.stat.exists
+
+- name: Setting 0755 permission for Filebeat module folder
+  file: dest={{ filebeat_module_folder }} mode=u=rwX,g=rwX,o=rwX recurse=yes
+  when: not filebeat_module_folder.stat.exists
+
+- name: Checking if Filebeat Module package file exists
+  stat:
+    path: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
+  register: filebeat_module_package
+  when: filebeat_module_package is not defined
+
+- name: Delete Filebeat module package file
+  file:
+    state: absent
+    path: "{{ filebeat_module_package_path }}/{{ filebeat_module_package_name }}"
+  when: filebeat_module_package.stat.exists
+
+- import_tasks: config.yml
+  notify: restart filebeat
+
+- include_tasks: security_actions.yml
+  when: filebeat_security
+
+- name: Ensure Filebeat is started and enabled at boot.
+  service:
+    name: filebeat
+    state: started
+    enabled: true
+
+- include_tasks: "RMRedHat.yml"
+  when: ansible_os_family == "RedHat"
+
+- include_tasks: "RMDebian.yml"
+  when: ansible_os_family == "Debian"

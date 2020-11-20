@@ -1,0 +1,61 @@
+---
+# Cluster Settings
+opendistro_version: 1.11.0
+
+single_node: false
+elasticsearch_node_name: node-1
+opendistro_cluster_name: wazuh
+elasticsearch_node_data: true
+elasticsearch_node_ingest: true
+elasticsearch_lower_disk_requirements: false
+elasticsearch_cluster_nodes:
+  - 127.0.0.1
+elasticsearch_discovery_nodes:
+  - 127.0.0.1
+
+local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
+
+# Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
+minimum_master_nodes: 2
+
+# Configure hostnames for Elasticsearch nodes
+# Example es1.example.com, es2.example.com
+domain_name: wazuh.com
+
+# The OpenDistro package repository
+package_repos:
+  yum:
+    opendistro:
+      baseurl: 'https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/'
+      gpg: 'https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch'
+    elasticsearch_oss:
+      baseurl: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
+      gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+
+opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
+opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
+opendistro_conf_path: /etc/elasticsearch/
+
+# Security password
+opendistro_custom_user: ""
+opendistro_custom_user_role: "admin"
+
+# Set JVM memory limits
+opendistro_jvm_xms: null
+
+opendistro_http_port: 9200
+
+certs_gen_tool_version: 1.8
+
+# Url of Search Guard certificates generator tool
+certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+
+
+opendistro_admin_password: changeme
+opendistro_kibana_password: changeme
+
+# Deployment settings
+generate_certs: true
+perform_installation: true
+
+opendistro_nolog_sensible: true

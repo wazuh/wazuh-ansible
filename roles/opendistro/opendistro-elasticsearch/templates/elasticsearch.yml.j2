@@ -1,0 +1,44 @@
+cluster.name: {{ opendistro_cluster_name }}
+node.name: {{ elasticsearch_node_name }}
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+network.host: {{ elasticsearch_network_host }}
+
+node.master: {{ elasticsearch_node_master|lower }}
+
+{% if single_node == true %}
+discovery.type: single-node
+{% else %}
+cluster.initial_master_nodes:
+{% for item in elasticsearch_cluster_nodes %}
+  - {{ item }}
+{% endfor %}
+
+discovery.seed_hosts:
+{% for item in elasticsearch_discovery_nodes %}
+  - {{ item }}
+{% endfor %}
+{% endif %}
+
+{% if elasticsearch_node_data|lower == 'false' %}
+node.data: false
+{% endif %}
+
+{% if elasticsearch_node_ingest|lower == 'false' %}
+node.ingest: false
+{% endif %}
+
+
+{% if elasticsearch_lower_disk_requirements %}
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.flood_stage: 200mb
+cluster.routing.allocation.disk.watermark.low: 500mb
+cluster.routing.allocation.disk.watermark.high: 300mb
+{% endif %}
+
+discovery.zen.minimum_master_nodes: "{{ minimum_master_nodes }}"
+opendistro_security.allow_default_init_securityindex: true
+opendistro_security.audit.type: internal_elasticsearch
+opendistro_security.enable_snapshot_restore_privilege: true
+opendistro_security.check_snapshot_restore_write_privileges: true
+opendistro_security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]

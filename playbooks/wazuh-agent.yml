@@ -6,13 +6,9 @@
     wazuh_managers:
       - address: <your manager IP>
         port: 1514
-        protocol: udp
+        protocol: tcp
         api_port: 55000
         api_proto: 'http'
         api_user: ansible
-    wazuh_agent_authd:
-      registration_address: <registration IP>
-      enable: true
-      port: 1515
-      ssl_agent_ca: null
-      ssl_auto_negotiate: 'no'
+        max_retries: 5
+        retry_interval: 5

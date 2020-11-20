@@ -1,6 +1,103 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.1]
+
+### Added
+
+- Update to Wazuh v4.0.1
+- Allow installing fixed Filebeat-oss version ([@Zenidd](https://github.com/Zenidd)) [PR#486](https://github.com/wazuh/wazuh-ansible/pull/486)
+- Feature adapt molecule tests ([@neonmei](https://github.com/neonmei)) [PR#477](https://github.com/wazuh/wazuh-ansible/pull/477)
+
+### Fixed
+
+- Roles/elastic-stack: update jvm.options template per upstream updates ([@neonmei](https://github.com/neonmei)) [PR#501](https://github.com/wazuh/wazuh-ansible/pull/501)
+- Improve linting history ([@neonmei](https://github.com/neonmei))
+  - Fix lint opendistro kibana [PR#497](https://github.com/wazuh/wazuh-ansible/pull/497) 
+  - Feature lint roles configurations [PR#496](https://github.com/wazuh/wazuh-ansible/pull/496)
+  - Feature lint role wazuh agent [PR#495](https://github.com/wazuh/wazuh-ansible/pull/495)
+  - Feature lint role filebeat oss [PR#494](https://github.com/wazuh/wazuh-ansible/pull/494)
+  - Lint role wazuh-manager [PR#493](https://github.com/wazuh/wazuh-ansible/pull/493)
+  - Feature lint role elasticsearch [PR#492](https://github.com/wazuh/wazuh-ansible/pull/492)
+  - Feature lint role opendistro-elasticsearch [PR#491](https://github.com/wazuh/wazuh-ansible/pull/491)
+  - Feature lint remove unused variables [PR#487](https://github.com/wazuh/wazuh-ansible/pull/487)
+  - Feature agent default vars depth reduction [PR#485](https://github.com/wazuh/wazuh-ansible/pull/485)
+- Remove unnecesary nodejs dependency ([@neonmei](https://github.com/neonmei)) [PR#482](https://github.com/wazuh/wazuh-ansible/pull/482)
+- Feature manager configuration unnest ([@neonmei](https://github.com/neonmei)) [PR#481](https://github.com/wazuh/wazuh-ansible/pull/481)
+- Elastic API check fix ([@Zenidd](https://github.com/Zenidd)) [PR#480](https://github.com/wazuh/wazuh-ansible/pull/480)
+- Improve handling of run_once at opendistro-elasticsearch role ([@neonmei](https://github.com/neonmei)) [PR#478](https://github.com/wazuh/wazuh-ansible/pull/478)
+
+
+## [v4.0.0]
+
+### Added
+
+- Update to Wazuh v4.0.0
+- New example playbooks on README ([@Zenidd](https://github.com/Zenidd)) [PR#468](https://github.com/wazuh/wazuh-ansible/pull/468)
+
+### Fixed
+
+- Ensure recursive /usr/share/kibana permissions before installing WUI ([@Zenidd](https://github.com/Zenidd)) [PR#471](https://github.com/wazuh/wazuh-ansible/pull/471)
+- Remove vuls integration ([@manuasir](https://github.com/manuasir)) [PR#469](https://github.com/wazuh/wazuh-ansible/pull/469)
+
+
+## [v3.13.2]
+
+### Added
+
+- Update to Wazuh v3.13.2
+- Add kibana extra ssl option ([@xr09](https://github.com/xr09)) [PR#451](https://github.com/wazuh/wazuh-ansible/pull/451)
+- Force basic auth ([@xr09](https://github.com/xr09)) [PR#456](https://github.com/wazuh/wazuh-ansible/pull/456)
+
+### Fixed
+
+- Fix check_mode condition ([@manuasir](https://github.com/manuasir)) [PR#452](https://github.com/wazuh/wazuh-ansible/pull/452)
+- Fixes for opendistro role ([@xr09](https://github.com/xr09)) [PR#453](https://github.com/wazuh/wazuh-ansible/pull/453)
+
+## [v3.13.1_7.8.0]
+
+### Added
+
+- Update to Wazuh v3.13.1
+- Add support to configure path.repo option in ES. Required for backups/snapshots ([@pescobar](https://github.com/pescobar)) [PR#433](https://github.com/wazuh/wazuh-ansible/pull/433)
+
+### Changed
+
+- Update Opendistro tasks ([@jm404](https://github.com/jm404)) [PR#443](https://github.com/wazuh/wazuh-ansible/pull/443)
+- Provide ansible.cfg with merge hash_behaviour ([@xr09](https://github.com/xr09)) [PR#440](https://github.com/wazuh/wazuh-ansible/pull/440)
+
+### Fixed
+
+- Fixes for wazuh-agent registration ([@pchristos](https://github.com/pchristos)) [PR#406](https://github.com/wazuh/wazuh-ansible/pull/406)
+- Fixes for OpenDistro deployments ([@xr09](https://github.com/xr09)) [PR#445](https://github.com/wazuh/wazuh-ansible/pull/445)
+
+## [v3.13.0_7.7.1]
+
+### Added
+
+- Update to Wazuh v3.13.0
+- Open Distro-Kibana and Filebeat-oss roles ([@manuasir](https://github.com/manuasir)) [PR#424](https://github.com/wazuh/wazuh-ansible/pull/424)
+
+### Changed
+
+- Fetch ES template from wazuh/wazuh repository ([@Zenidd](https://github.com/Zenidd)) [PR#435](https://github.com/wazuh/wazuh-ansible/pull/435)
+
+### Fixed
+
+- Use local path while generating xpack certificates ([@xr09](https://github.com/xr09)) [PR#432](https://github.com/wazuh/wazuh-ansible/pull/432)
+
+## [v3.12.3_7.6.2]
+
+### Added
+
+- Update to Wazuh v3.12.2
+- AWS S3 block to template ([@limitup](https://github.com/limitup)) [PR#404](https://github.com/wazuh/wazuh-ansible/pull/413)
+
+### Changed
+
+- Update Kibana optimize task parameters and command ([@jm404](https://github.com/jm404)) [PR#404](https://github.com/wazuh/wazuh-ansible/pull/412)
+- Update Kibana optimize folder and owner ([@jm404](https://github.com/jm404)) [PR#404](https://github.com/wazuh/wazuh-ansible/pull/410)
+
 ## [v3.12.2_7.6.2]
 
 ### Added

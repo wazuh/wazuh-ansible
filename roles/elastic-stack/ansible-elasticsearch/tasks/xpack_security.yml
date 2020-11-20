@@ -8,6 +8,9 @@
   template:
     src: instances.yml.j2
     dest: "{{ node_certs_source }}/instances.yml"
+    owner: root
+    group: root
+    mode: 0644
     force: no
   register: instances_file_exists
   tags:
@@ -102,6 +105,7 @@
     state: directory
     mode: 0700
   delegate_to: "127.0.0.1"
+  become: no
   when:
     - node_certs_generator
 
@@ -111,6 +115,7 @@
     state: directory
     mode: 0700
   delegate_to: "127.0.0.1"
+  become: no
   when:
     - node_certs_generator
 
@@ -139,6 +144,7 @@
     src: "{{ master_certs_path }}/certs.zip"
     dest: "{{ master_certs_path }}/"
   delegate_to: "127.0.0.1"
+  become: no
   when:
     - node_certs_generator
   tags:
@@ -149,6 +155,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: elasticsearch
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
@@ -164,6 +172,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: elasticsearch
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key"
@@ -178,9 +188,11 @@
 - name: Ensuring folder permissions
   file:
     path: "{{ node_certs_destination }}/"
-    mode: 0774
+    owner: root
+    group: elasticsearch
+    mode: 0770
     state: directory
-    recurse: yes
+    recurse: no
   when:
     - elasticsearch_xpack_security
     - generate_CA

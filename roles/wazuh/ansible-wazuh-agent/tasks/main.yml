@@ -1,4 +1,12 @@
 ---
+
+- name: Overlay wazuh_agent_config on top of defaults
+  set_fact:
+    wazuh_agent_config: '{{ wazuh_agent_config_defaults | combine(config_layer, recursive=True) }}'
+  vars:
+    config_layer: '{{ wazuh_agent_config | default({}) }}'
+  when: wazuh_agent_config_overlay | bool
+
 - include_tasks: "Windows.yml"
   when: ansible_os_family == "Windows"
 

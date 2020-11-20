@@ -1,0 +1,127 @@
+---
+name: Molecule tests for Wazuh Ansible
+on: [pull_request, workflow_dispatch, release]
+
+jobs:
+
+  scenario-default:
+    name: Default scenario (smoke)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Hack to get setup-python to work on act. See act issue 251
+        run: |
+          # Hack to get setup-python to work on act
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install poetry
+        run: pip3 install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run Molecule tests.
+        run: poetry run molecule test -s default
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+
+  scenario-distributed-wazuh-elk:
+    name: Distributed ELK + Wazuh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Hack to get setup-python to work on act. See act issue 251
+        run: |
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install poetry
+        run: pip3 install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+
+      - name: Run Molecule tests.
+        run: poetry run molecule test -s distributed-wazuh-elk
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+
+  scenario-distributed-wazuh-elk-xpack:
+    name: Distributed ELK + XPack + Wazuh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Hack to get setup-python to work on act. See act issue 251
+        run: |
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install poetry
+        run: pip3 install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run Molecule tests.
+        run: poetry run molecule test -s distributed-wazuh-elk-xpack
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+
+  scenario-distributed-wazuh-odfe:
+    name: Distributed ODFE + Wazuh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Hack to get setup-python to work on act. See act issue 251
+        run: |
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install poetry
+        run: pip3 install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run Molecule tests.
+        run: poetry run molecule test -s distributed-wazuh-odfe
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'

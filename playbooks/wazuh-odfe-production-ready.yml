@@ -1,0 +1,188 @@
+---
+# Certificates generation
+    - hosts: es1
+      roles:
+        - role: ../roles/opendistro/opendistro-elasticsearch
+          elasticsearch_network_host: "{{ private_ip }}"
+          elasticsearch_cluster_nodes:
+            - "{{ hostvars.es1.private_ip }}"
+            - "{{ hostvars.es2.private_ip }}"
+            - "{{ hostvars.es3.private_ip }}"
+          elasticsearch_discovery_nodes:
+            - "{{ hostvars.es1.private_ip }}"
+            - "{{ hostvars.es2.private_ip }}"
+            - "{{ hostvars.es3.private_ip }}"
+          perform_installation: false
+      become: yes
+      become_user: root
+      vars:
+        elasticsearch_node_master: true
+        instances:
+          node1:
+            name: node-1       # Important: must be equal to elasticsearch_node_name.
+            ip: "{{ hostvars.es1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+          node2:
+            name: node-2
+            ip: "{{ hostvars.es2.private_ip }}"
+          node3:
+            name: node-3
+            ip: "{{ hostvars.es3.private_ip }}"
+          node4:
+            name: node-4
+            ip: "{{ hostvars.manager.private_ip }}"
+          node5:
+            name: node-5
+            ip: "{{ hostvars.worker.private_ip }}"
+          node6:
+            name: node-6
+            ip: "{{ hostvars.kibana.private_ip }}"
+      tags:
+        - generate-certs
+
+#ODFE Cluster
+    - hosts: odfe_cluster
+      strategy: free
+      roles:
+        - role: ../roles/opendistro/opendistro-elasticsearch
+          elasticsearch_network_host: "{{ private_ip }}"
+      become: yes
+      become_user: root
+      vars:
+        elasticsearch_cluster_nodes:
+          - "{{ hostvars.es1.private_ip }}"
+          - "{{ hostvars.es2.private_ip }}"
+          - "{{ hostvars.es3.private_ip }}"
+        elasticsearch_discovery_nodes:
+          - "{{ hostvars.es1.private_ip }}"
+          - "{{ hostvars.es2.private_ip }}"
+          - "{{ hostvars.es3.private_ip }}"
+        elasticsearch_node_master: true
+        instances:
+          node1:
+            name: node-1       # Important: must be equal to elasticsearch_node_name.
+            ip: "{{ hostvars.es1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+          node2:
+            name: node-2
+            ip: "{{ hostvars.es2.private_ip }}"
+          node3:
+            name: node-3
+            ip: "{{ hostvars.es3.private_ip }}"
+          node4:
+            name: node-4
+            ip: "{{ hostvars.manager.private_ip }}"
+          node5:
+            name: node-5
+            ip: "{{ hostvars.worker.private_ip }}"
+          node6:
+            name: node-6
+            ip: "{{ hostvars.kibana.private_ip }}"
+
+  #Wazuh cluster
+    - hosts: manager
+      roles:
+        - role: "../roles/wazuh/ansible-wazuh-manager"
+        - role: "../roles/wazuh/ansible-filebeat-oss"
+          filebeat_node_name: node-4
+      become: yes
+      become_user: root
+      vars:
+        wazuh_manager_config:
+          connection:
+              - type: 'secure'
+                port: '1514'
+                protocol: 'tcp'
+                queue_size: 131072
+          api:
+              https: 'yes'
+          cluster:
+              disable: 'no'
+              node_name: 'master'
+              node_type: 'master'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
+              nodes:
+                  - "{{ hostvars.manager.private_ip }}"
+              hidden: 'no'
+        wazuh_api_users:
+          - username: custom-user
+            password: .S3cur3Pa55w0rd*-
+        filebeat_output_elasticsearch_hosts:
+                - "{{ hostvars.es1.private_ip }}"
+                - "{{ hostvars.es2.private_ip }}"
+                - "{{ hostvars.es3.private_ip }}"
+
+    - hosts: worker
+      roles:
+        - role: "../roles/wazuh/ansible-wazuh-manager"
+        - role: "../roles/wazuh/ansible-filebeat-oss"
+          filebeat_node_name: node-5
+      become: yes
+      become_user: root
+      vars:
+        wazuh_manager_config:
+          connection:
+              - type: 'secure'
+                port: '1514'
+                protocol: 'tcp'
+                queue_size: 131072
+          api:
+              https: 'yes'
+          cluster:
+              disable: 'no'
+              node_name: 'worker_01'
+              node_type: 'worker'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
+              nodes:
+                  - "{{ hostvars.manager.private_ip }}"
+              hidden: 'no'
+        filebeat_output_elasticsearch_hosts:
+                - "{{ hostvars.es1.private_ip }}"
+                - "{{ hostvars.es2.private_ip }}"
+                - "{{ hostvars.es3.private_ip }}"
+
+  #ODFE+Kibana node
+    - hosts: kibana
+      roles:
+        - role: "../roles/opendistro/opendistro-elasticsearch"
+        - role: "../roles/opendistro/opendistro-kibana"
+      become: yes
+      become_user: root
+      vars:
+        elasticsearch_network_host: "{{ hostvars.kibana.private_ip }}"
+        elasticsearch_node_name: node-6
+        elasticsearch_node_master: false
+        elasticsearch_node_ingest: false
+        elasticsearch_node_data: false
+        elasticsearch_cluster_nodes:
+            - "{{ hostvars.es1.private_ip }}"
+            - "{{ hostvars.es2.private_ip }}"
+            - "{{ hostvars.es3.private_ip }}"
+        elasticsearch_discovery_nodes:
+            - "{{ hostvars.es1.private_ip }}"
+            - "{{ hostvars.es2.private_ip }}"
+            - "{{ hostvars.es3.private_ip }}"
+        kibana_node_name: node-6
+        wazuh_api_credentials:
+          - id: default
+            url: https://{{ hostvars.manager.private_ip }}
+            port: 55000
+            username: custom-user
+            password: .S3cur3Pa55w0rd*-
+        instances:
+          node1:
+            name: node-1       # Important: must be equal to elasticsearch_node_name.
+            ip: "{{ hostvars.es1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+          node2:
+            name: node-2
+            ip: "{{ hostvars.es2.private_ip }}"
+          node3:
+            name: node-3
+            ip: "{{ hostvars.es3.private_ip }}"
+          node4:
+            name: node-4
+            ip: "{{ hostvars.manager.private_ip }}"
+          node5:
+            name: node-5
+            ip: "{{ hostvars.worker.private_ip }}"
+          node6:
+            name: node-6
+            ip: "{{ hostvars.kibana.private_ip }}"

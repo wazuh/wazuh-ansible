@@ -1,0 +1,7 @@
+---
+wazuh_agent_authd:
+  registration_address: '{{ manager_addresses | random }}'
+  enable: true
+  port: 1515
+  ssl_agent_ca: null
+  ssl_auto_negotiate: 'no'

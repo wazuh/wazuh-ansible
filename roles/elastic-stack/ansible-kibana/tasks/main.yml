@@ -14,20 +14,12 @@
 - import_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Reload systemd
-  systemd:
-    daemon_reload: true
-  ignore_errors: true
-  when:
-    - not (ansible_distribution == "Amazon" and ansible_distribution_version == "(Karoo)")
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_version is version('15.04', '<'))
-    - not (ansible_distribution == "Debian" and ansible_distribution_version is version('8', '<'))
-    - not (ansible_os_family == "RedHat" and ansible_distribution_version is version('7', '<'))
-
 - name: Copying node's certificate from master
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: kibana
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
@@ -42,6 +34,8 @@
   copy:
     src: "{{ item }}"
     dest: "{{ node_certs_destination }}/"
+    owner: root
+    group: kibana
     mode: 0440
   with_items:
     - "{{ master_certs_path }}/{{ kibana_node_name }}/{{ kibana_node_name }}.key"
@@ -52,22 +46,14 @@
     - not generate_CA
   tags: xpack-security
 
-- name: Ensuring certificates folder owner
+- name: Ensuring certificates folder owner and permissions
   file:
     path: "{{ node_certs_destination }}/"
     state: directory
-    recurse: yes
+    recurse: no
     owner: kibana
     group: kibana
-  when:
-    - kibana_xpack_security
-  tags: xpack-security
-
-- name: Ensuring certificates folder owner
-  file:
-    path: "{{ node_certs_destination }}/"
     mode: 0770
-    recurse: yes
   when:
     - kibana_xpack_security
   notify: restart kibana
@@ -112,6 +98,15 @@
     name: kibana
     state: started
 
+- name: Ensuring Kibana directory owner
+  file:
+    # noqa 208
+    path: "/usr/share/kibana"
+    state: directory
+    owner: kibana
+    group: kibana
+    recurse: yes
+
 - name: Build and Install Wazuh Kibana Plugin from sources
   import_tasks: build_wazuh_plugin.yml
   when:
@@ -121,7 +116,7 @@
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
     NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
-    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}.zip
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}-1.zip
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json
@@ -136,12 +131,12 @@
     - not build_from_sources
 
 - name: Kibana optimization (can take a while)
-  shell: NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana --optimize
+  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
   args:
     executable: /bin/bash
+    creates: /usr/share/kibana/optimize/wazuh/
   become: yes
   become_user: kibana
-  changed_when: false
   tags:
     - skip_ansible_lint
 
@@ -160,6 +155,7 @@
     password: "{{ elasticsearch_xpack_security_password }}"
     validate_certs: no
     status_code: 200, 404
+    force_basic_auth: yes
 
 - name: Create wazuh plugin config directory
   file:
@@ -179,10 +175,6 @@
     group: kibana
     mode: 0751
   changed_when: False
-
-- name: Reload systemd configuration
-  systemd:
-    daemon_reload: true
 
 - name: Ensure Kibana is started and enabled
   service:

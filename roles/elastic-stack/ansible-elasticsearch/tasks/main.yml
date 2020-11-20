@@ -6,7 +6,12 @@
   when: ansible_os_family == "Debian"
 
 - name: Create elasticsearch.service.d folder.
-  file: path=/etc/systemd/system/elasticsearch.service.d/ state=directory
+  file:
+    path: /etc/systemd/system/elasticsearch.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
   when:
     - ansible_service_mgr == "systemd"
 
@@ -78,7 +83,7 @@
   tags: configure
 
 - name: Trusty | set MAX_LOCKED_MEMORY=unlimited in Elasticsearch in /etc/security/limits.conf
-  lineinfile:
+  lineinfile: # noqa 208
     path: /etc/security/limits.conf
     line: elasticsearch - memlock unlimited
     create: yes
@@ -92,6 +97,9 @@
   lineinfile:
     path: /etc/security/limits.d/elasticsearch.conf
     line: elasticsearch - memlock unlimited
+    owner: root
+    group: root
+    mode: 0644
     create: yes
   become: true
   changed_when: false
@@ -128,6 +136,7 @@
     validate_certs: no
     status_code: 200,401
     return_content: yes
+    force_basic_auth: yes
     timeout: 4
   register: _result
   until: (  _result.json is defined) and (_result.json.status == "green")
@@ -145,6 +154,7 @@
     password: "{{ elasticsearch_xpack_security_password }}"
     body: '{ "password" : "{{ item.value["password"] }}", "roles" : {{ item.value["roles"] }} }'
     validate_certs: no
+    force_basic_auth: yes
   loop: "{{ elasticsearch_xpack_users|default({})|dict2items }}"
   register: http_response
   failed_when: http_response.status != 200

@@ -1,0 +1,25 @@
+---
+
+wazuh_agent_config:
+  enrollment:
+    enabled: 'yes'
+    #manager_address: ''
+    #port: 1515
+    agent_name: '{{ ansible_hostname }}'
+    #groups: ''
+    #agent_address: ''
+    #ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
+    #server_ca_path: ''
+    #agent_certificate_path: ''
+    #agent_key_path: ''
+    #authorization_pass_path : /var/ossec/etc/authd.pass
+    #auto_method: 'no'
+    #delay_after_enrollment: 20
+    #use_source_ip: 'no'
+
+wazuh_agent_authd:
+  registration_address: '{{ manager_addresses[0] }}'
+  enable: true
+  port: 1515
+  ssl_agent_ca: null
+  ssl_auto_negotiate: 'no'

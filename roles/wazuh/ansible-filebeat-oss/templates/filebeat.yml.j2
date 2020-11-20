@@ -1,0 +1,32 @@
+# Wazuh - Filebeat configuration file
+
+# Wazuh - Filebeat configuration file
+filebeat.modules:
+  - module: wazuh
+    alerts:
+      enabled: true
+    archives:
+      enabled: false
+
+setup.template.json.enabled: true
+setup.template.json.path: '/etc/filebeat/wazuh-template.json'
+setup.template.json.name: 'wazuh'
+setup.template.overwrite: true
+setup.ilm.enabled: false
+
+# Send events directly to Elasticsearch
+output.elasticsearch:
+  hosts: {{ filebeat_output_elasticsearch_hosts | to_json }}
+
+{% if filebeat_security %}
+  username: {{ elasticsearch_security_user }}
+  password: {{ elasticsearch_security_password }}
+  protocol: https
+  ssl.certificate_authorities:
+    - {{ filebeat_ssl_dir }}/root-ca.pem
+  ssl.certificate: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem"
+  ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.key"
+{% endif %}
+
+# Optional. Send events to Logstash instead of Elasticsearch
+#output.logstash.hosts: ["YOUR_LOGSTASH_SERVER_IP:5000"]

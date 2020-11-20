@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "wazuh-ansible"
+version = "4.0.1"
+description = ""
+authors = ["neonmei <neonmei@pm.me>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+# Pin ansible version to that currently present on awx
+ansible = "==2.9.5"
+jinja2 = "^2.11.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+ansible-lint = "^4.3.5"
+flake8 = "^3.8.4"
+selinux = "^0.2.1"
+yamllint = "^1.25.0"
+
+# minimum version is 3.0.3, because we need docker memory limitation
+# https://github.com/ansible-community/molecule/pull/2615
+molecule = {extras = ["docker"], version = "==3.0.8"}
+testinfra = "^5.3.1"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

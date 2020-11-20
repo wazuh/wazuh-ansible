@@ -64,12 +64,12 @@
     {{ wazuh_agent_win_auth_path }}
     -m {{ wazuh_agent_authd.registration_address }}
     -p {{ wazuh_agent_authd.port }}
-    {% if wazuh_agent_authd.agent_name is defined %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
+    {% if wazuh_agent_authd.agent_name is not none %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
     {% if authd_pass is defined %} -P {{ authd_pass }}{% endif %}
   register: agent_auth_output
   notify: Windows | Restart Wazuh Agent
   when:
-    - wazuh_agent_authd.enable
+    - wazuh_agent_authd.enable | bool
     - not check_windows_key.stat.exists or check_windows_key.stat.size == 0
     - wazuh_agent_authd.registration_address is not none
   tags:
@@ -81,7 +81,7 @@
     state: directory
 
 - name: Windows | Installing agent configuration (ossec.conf)
-  template:
+  template: # noqa 208
     src: var-ossec-etc-ossec-agent.conf.j2
     dest: "{{ wazuh_agent_win_path }}ossec.conf"
   notify: Windows | Restart Wazuh Agent

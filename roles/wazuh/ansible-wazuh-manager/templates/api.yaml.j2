@@ -1,0 +1,44 @@
+# USE THIS FILE AS A TEMPLATE. UNCOMMENT LINES TO APPLY CUSTOM CONFIGURATION
+
+ host: {{ wazuh_manager_config.api.bind_addr }}
+ port: {{ wazuh_manager_config.api.port }}
+
+# Set this option to "yes" in case the API is running behind a proxy server. Values: yes, no
+
+ behind_proxy_server: {{ wazuh_manager_config.api.behind_proxy_server }}
+#Advanced configuration
+
+ https:
+  enabled: {{ wazuh_manager_config.api.https }}
+  key: "{{ wazuh_manager_config.api.https_key }}"
+  cert: "{{ wazuh_manager_config.api.https_cert }}"
+  use_ca: {{ wazuh_manager_config.api.https_use_ca }}
+  ca: "{{ wazuh_manager_config.api.https_ca }}"
+
+# Logging configuration
+# Values for API log level: disabled, info, warning, error, debug, debug2 (each level includes the previous level).
+ logs:
+  level: "{{ wazuh_manager_config.api.logging_level }}"
+  path: "{{ wazuh_manager_config.api.logging_path }}"
+# Cross-origin resource sharing: https://github.com/aio-libs/aiohttp-cors#usage
+ cors:
+  enabled: {{ wazuh_manager_config.api.cors }}
+  source_route: "{{ wazuh_manager_config.api.cors_source_route }}"
+  expose_headers: "{{ wazuh_manager_config.api.cors_expose_headers }}"
+  allow_headers: "{{ wazuh_manager_config.api.cors_allow_headers }}"
+  allow_credentials: {{ wazuh_manager_config.api.cors_allow_credentials }}
+# Cache (time in seconds)
+ cache:
+  enabled: {{ wazuh_manager_config.api.cache }}
+  time: {{ wazuh_manager_config.api.cache_time }}
+# Access parameters
+ access:
+  max_login_attempts: {{ wazuh_manager_config.api.access_max_login_attempts }}
+  block_time: {{ wazuh_manager_config.api.access_block_time }}
+  max_request_per_minute: {{ wazuh_manager_config.api.access_max_request_per_minute }}
+# Force the use of authd when adding and removing agents. Values: yes, no
+ use_only_authd: {{ wazuh_manager_config.api.use_only_authd }}
+# Drop privileges (Run as ossec user)
+ drop_privileges: {{ wazuh_manager_config.api.drop_privileges }}
+# Enable features under development
+ experimental_features: {{ wazuh_manager_config.api.experimental_features }}

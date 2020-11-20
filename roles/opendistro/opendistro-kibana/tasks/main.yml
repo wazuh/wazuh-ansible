@@ -1,0 +1,129 @@
+---
+
+- name: Stopping early, trying to compile Wazuh Kibana Plugin on Debian 10 is not possible
+  fail:
+    msg: "It's not possible to compile the Wazuh Kibana plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
+  when:
+    - build_from_sources
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "10"
+
+- import_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Kibana
+  package:
+    name: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
+    state: present
+  register: install
+  tags: install
+
+- name: Remove Kibana configuration file
+  file:
+    # noqa 503
+    path: "{{ kibana_conf_path }}/kibana.yml"
+    state: absent
+  when: install.changed
+  tags: install
+
+- import_tasks: security_actions.yml
+
+- name: Copy Configuration File
+  blockinfile:
+    block: "{{ lookup('template', 'opendistro_kibana.yml.j2') }}"
+    dest: "{{ kibana_conf_path }}/kibana.yml"
+    create: true
+    group: kibana
+    owner: kibana
+    mode: 0640
+    marker: "## {mark} Kibana general settings ##"
+  notify: restart kibana
+  tags:
+    - install
+    - configure
+
+- name: Ensuring Kibana directory owner
+  file:
+    # noqa 208
+    path: "/usr/share/kibana"
+    state: directory
+    owner: kibana
+    group: kibana
+    recurse: yes
+
+- name: Build and Install Wazuh Kibana Plugin from sources
+  import_tasks: build_wazuh_plugin.yml
+  when:
+    - build_from_sources is defined
+    - build_from_sources
+
+- name: Install Wazuh Plugin (can take a while)
+  shell: >-
+    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
+    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}-1.zip
+  args:
+    executable: /bin/bash
+    creates: /usr/share/kibana/plugins/wazuh/package.json
+    chdir: /usr/share/kibana
+  become: yes
+  become_user: kibana
+  notify: restart kibana
+  tags:
+    - install
+    - skip_ansible_lint
+  when:
+    - not build_from_sources
+
+- name: Kibana optimization (can take a while)
+  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: kibana
+  changed_when: false
+  tags:
+    - skip_ansible_lint
+
+- name: Wait for Elasticsearch port
+  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
+
+- name: Select correct API protocol
+  set_fact:
+    elastic_api_protocol: "{% if kibana_opendistro_security is defined and kibana_opendistro_security %}https{% else %}http{% endif %}"
+
+- name: Attempting to delete legacy Wazuh index if exists
+  uri:
+    url: "{{ elastic_api_protocol }}://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}/.wazuh"
+    method: DELETE
+    user: "admin"
+    password: "{{ opendistro_admin_password }}"
+    validate_certs: no
+    status_code: 200, 404
+
+- name: Create wazuh plugin config directory
+  file:
+    path: /usr/share/kibana/optimize/wazuh/config/
+    state: directory
+    recurse: yes
+    owner: kibana
+    group: kibana
+    mode: 0751
+  changed_when: False
+
+- name: Configure Wazuh Kibana Plugin
+  template:
+    src: wazuh.yml.j2
+    dest: /usr/share/kibana/optimize/wazuh/config/wazuh.yml
+    owner: kibana
+    group: kibana
+    mode: 0751
+  changed_when: False
+
+- name: Ensure Kibana started and enabled
+  service:
+    name: kibana
+    enabled: true
+    state: started
+
+- import_tasks: RMRedHat.yml
+  when: ansible_os_family == 'RedHat'
