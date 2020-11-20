@@ -1,9 +1,4 @@
 ---
-- name: Retrieving authd Credentials
-  include_vars: authd_pass.yml
-  tags:
-    - config
-
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
@@ -44,7 +39,8 @@
     - init
 
 - name: Linux | Check if client.keys exists
-  stat: path=/var/ossec/etc/client.keys
+  stat:
+    path: /var/ossec/etc/client.keys
   register: check_keys
   when: wazuh_agent_config.enrollment.enabled == 'yes'
   tags:
@@ -52,9 +48,6 @@
 
 - name: Linux | Agent registration via authd
   block:
-
-    - name: Retrieving authd Credentials
-      include_vars: authd_pass.yml
 
     - name: Copy CA root certificate to verify authd
       copy:
@@ -85,7 +78,7 @@
         -m {{ wazuh_agent_authd.registration_address }}
         -p {{ wazuh_agent_authd.port }}
         {% if wazuh_agent_nat %} -I "any" {% endif %}
-        {% if authd_pass is defined %} -P {{ authd_pass }} {% endif %}
+        {% if authd_pass | length > 0 %} -P {{ authd_pass }} {% endif %}
         {% if wazuh_agent_authd.ssl_agent_ca is defined and wazuh_agent_authd.ssl_agent_ca != None %}
         -v "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
         {% endif %}
@@ -122,9 +115,6 @@
 
 - name: Linux | Agent registration via rest-API
   block:
-
-    - name: Retrieving rest-API Credentials
-      include_vars: api_pass.yml
 
     - name: Linux | Create the agent key via rest-API
       uri:
@@ -194,22 +184,24 @@
     - api
 
 - name: Linux | Installing agent configuration (ossec.conf)
-  template: src=var-ossec-etc-ossec-agent.conf.j2
-            dest=/var/ossec/etc/ossec.conf
-            owner=root
-            group=ossec
-            mode=0644
+  template:
+    src: var-ossec-etc-ossec-agent.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: 0644
   notify: restart wazuh-agent
   tags:
     - init
     - config
 
 - name: Linux | Installing local_internal_options.conf
-  template: src=var-ossec-etc-local-internal-options.conf.j2
-            dest=/var/ossec/etc/local_internal_options.conf
-            owner=root
-            group=ossec
-            mode=0640
+  template:
+    src: var-ossec-etc-local-internal-options.conf.j2
+    dest: /var/ossec/etc/local_internal_options.conf
+    owner: root
+    group: ossec
+    mode: 0640
   notify: restart wazuh-agent
   tags:
     - init
@@ -225,7 +217,7 @@
   when:
     - wazuh_agent_config.enrollment.enabled == 'yes'
     - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
-    - ( authd_pass is defined) and ( authd_pass|length > 0)
+    - authd_pass | length > 0
   tags:
     - config
 
