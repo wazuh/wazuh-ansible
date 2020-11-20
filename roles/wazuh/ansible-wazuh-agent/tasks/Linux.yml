@@ -22,8 +22,7 @@
   yum:
     name: wazuh-agent-{{ wazuh_agent_version }}
     state: present
-  async: 90
-  poll: 30
+    lock_timeout: '{{ wazuh_agent_yum_lock_timeout }}'
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_agent_sources_installation.enabled
