@@ -38,15 +38,6 @@ wazuh_agent_yum_lock_timeout: 30
 api_pass: wazuh
 authd_pass: ''
 
-wazuh_managers:
-  - address: 127.0.0.1
-    port: 1514
-    protocol: tcp
-    api_port: 55000
-    api_proto: 'http'
-    api_user: wazuh
-    max_retries: 5
-    retry_interval: 5
 wazuh_api_reachable_from_agent: false
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
@@ -98,7 +89,7 @@ wazuh_managers:
     protocol: tcp
     api_port: 55000
     api_proto: 'http'
-    api_user: null
+    api_user: wazuh
     max_retries: 5
     retry_interval: 5
 
