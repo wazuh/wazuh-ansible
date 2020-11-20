@@ -19,7 +19,7 @@
     - wazuh_custom_packages_installation_agent_enabled
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
-  package:
+  yum:
     name: wazuh-agent-{{ wazuh_agent_version }}
     state: present
   async: 90
