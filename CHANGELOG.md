@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.2]
+
+- Update to Wazuh v4.0.2
+
+### Added
+
+### Fixed
+
 ## [v4.0.1]
 
 ### Added
@@ -13,7 +21,7 @@ All notable changes to this project will be documented in this file.
 
 - Roles/elastic-stack: update jvm.options template per upstream updates ([@neonmei](https://github.com/neonmei)) [PR#501](https://github.com/wazuh/wazuh-ansible/pull/501)
 - Improve linting history ([@neonmei](https://github.com/neonmei))
-  - Fix lint opendistro kibana [PR#497](https://github.com/wazuh/wazuh-ansible/pull/497) 
+  - Fix lint opendistro kibana [PR#497](https://github.com/wazuh/wazuh-ansible/pull/497)
   - Feature lint roles configurations [PR#496](https://github.com/wazuh/wazuh-ansible/pull/496)
   - Feature lint role wazuh agent [PR#495](https://github.com/wazuh/wazuh-ansible/pull/495)
   - Feature lint role filebeat oss [PR#494](https://github.com/wazuh/wazuh-ansible/pull/494)
