@@ -92,6 +92,7 @@ wazuh_managers:
     api_user: wazuh
     max_retries: 5
     retry_interval: 5
+    register: yes
 
 ## Enrollment
 wazuh_agent_enrollment:

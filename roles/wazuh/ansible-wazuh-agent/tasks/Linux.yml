@@ -116,6 +116,13 @@
 - name: Linux | Agent registration via rest-API
   block:
 
+    - name: Establish target Wazuh Manager for registration task
+      set_fact:
+        target_manager: '{{ manager_primary | length | ternary(manager_primary, manager_fallback) | first }}'
+      vars:
+        manager_primary: "{{ wazuh_managers | selectattr('register','true') | list }}"
+        manager_fallback: "{{ wazuh_managers | list }}"
+
     - name: Linux | Create the agent key via rest-API
       uri:
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/"
