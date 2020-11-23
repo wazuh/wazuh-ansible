@@ -168,23 +168,27 @@
         - config
         - api
 
-    - name: Linux | Retrieve new agent data via rest-API
+    - name: Linux | Validate registered agent key matches manager record
       uri:
-        url: >-
-          "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address
-          }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
-        validate_certs: false
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/agents/{{ agent_id }}/key'
         method: GET
-        return_content: true
-        user: "{{ wazuh_managers.0.api_user }}"
-        password: "{{ api_pass }}"
-      when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_agent_authd.registration_address is not none
-        - newagent_api.json.error == 0
-      register: newagentdata_api
-      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+        headers:
+          Authorization: 'Bearer {{ jwt_token }}'
+        status_code: 200
+        return_content: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       become: no
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      register: api_agent_validation
+      vars:
+        agent_id: '{{ api_agent_post.json.data.id }}'
+        agent_key: '{{ api_agent_post.json.data.key }}'
+        jwt_token: '{{ api_jwt_result.json.data.token }}'
+      failed_when: api_agent_validation.json.data.affected_items[0].key != agent_key
+      when:
+      - wazuh_agent_api_validate | bool
+      - api_agent_post.json.error == 0
       tags:
         - config
         - api
