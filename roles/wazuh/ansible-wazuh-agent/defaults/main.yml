@@ -32,6 +32,12 @@ wazuh_agent_sources_installation:
   user_agent_config_profile: null
   user_ca_store: "/var/ossec/wpk_root.pem"
 
+wazuh_agent_yum_lock_timeout: 30
+
+# We recommend the use of ansible-vault to protect Wazuh, api, agentless and authd credentials.
+api_pass: wazuh
+authd_pass: ''
+
 wazuh_api_reachable_from_agent: false
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
@@ -83,7 +89,7 @@ wazuh_managers:
     protocol: tcp
     api_port: 55000
     api_proto: 'http'
-    api_user: null
+    api_user: wazuh
     max_retries: 5
     retry_interval: 5
 
