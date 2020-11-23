@@ -43,16 +43,6 @@ wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
 wazuh_auto_restart: 'yes'
 
-wazuh_agent_authd:
-  registration_address: 127.0.0.1
-  enable: false
-  port: 1515
-  agent_name: null
-  groups: []
-  ssl_agent_ca: null
-  ssl_agent_cert: null
-  ssl_agent_key: null
-  ssl_auto_negotiate: 'no'
 wazuh_notify_time: '10'
 wazuh_time_reconnect: '60'
 wazuh_crypto_method: 'aes'
@@ -74,26 +64,38 @@ wazuh_agent_repo:
   gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 
+# This is deprecated, see: wazuh_agent_address
 wazuh_agent_nat: false
 
 ##########################################
 ### Wazuh
 ##########################################
 
+wazuh_agent_nolog_sensible: yes
 wazuh_agent_config_overlay: yes
 
-## Client
+# This is a middle ground between breaking existing uses of wazuh_agent_nat
+# and allow working with agents having several network interfaces
+wazuh_agent_address: '{{ "any" if wazuh_agent_nat else ansible_default_ipv4.address }}'
+
+# List of managers. The first one with register variable declared *and* set to true
+# is the one used to register the agent. Otherwise, the first one in the list will be used.
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
     protocol: tcp
     api_port: 55000
-    api_proto: 'http'
+    api_proto: https
     api_user: wazuh
     max_retries: 5
     retry_interval: 5
+    register: yes
 
-## Enrollment
+## Authentication Method: Enrollment section (4.x)
+
+# For more information see:
+# * https://documentation.wazuh.com/4.0/user-manual/reference/ossec-conf/client.html#enrollment
+
 wazuh_agent_enrollment:
   enabled: 'yes'
   manager_address: ''
@@ -109,6 +111,28 @@ wazuh_agent_enrollment:
   auto_method: 'no'
   delay_after_enrollment: 20
   use_source_ip: 'no'
+
+## Authentication Method: invoking agent-auth
+
+# For more information see:
+# * https://documentation.wazuh.com/4.0/user-manual/registering/password-authorization-registration.html
+
+wazuh_agent_authd:
+  registration_address: 127.0.0.1
+  enable: false
+  port: 1515
+  agent_name: null
+  groups: []
+  ssl_agent_ca: null
+  ssl_agent_cert: null
+  ssl_agent_key: null
+  ssl_auto_negotiate: 'no'
+
+## Authentication Method: REST API
+
+# For more information see:
+# * https://documentation.wazuh.com/4.0/user-manual/registering/restful-api-registration.html
+wazuh_agent_api_validate: yes
 
 ## Client buffer
 wazuh_agent_client_buffer:
