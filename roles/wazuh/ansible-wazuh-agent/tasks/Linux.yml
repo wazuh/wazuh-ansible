@@ -123,6 +123,25 @@
         manager_primary: "{{ wazuh_managers | selectattr('register','true') | list }}"
         manager_fallback: "{{ wazuh_managers | list }}"
 
+    - name: Linux | Obtain JWT Token
+      uri:
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/security/user/authenticate'
+        method: GET
+        url_username: '{{ target_manager.api_user }}'
+        url_password: '{{ api_pass }}'
+        status_code: 200
+        return_content: yes
+        force_basic_auth: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: '{{ ansible_host if wazuh_api_reachable_from_agent else "localhost"  }}'
+      changed_when: api_jwt_result.json.error == 0
+      register: api_jwt_result
+      become: no
+      tags:
+        - config
+        - api
+
     - name: Linux | Create the agent key via rest-API
       uri:
         url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/"
