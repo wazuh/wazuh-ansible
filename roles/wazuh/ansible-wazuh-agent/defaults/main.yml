@@ -98,7 +98,7 @@ wazuh_agent_enrollment:
   enabled: 'yes'
   manager_address: ''
   port: 1515
-  agent_name: 'testname'
+  agent_name: ''
   groups: ''
   agent_address: ''
   ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
