@@ -144,23 +144,26 @@
 
     - name: Linux | Create the agent key via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/"
-        validate_certs: false
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/agents'
         method: POST
-        body: '{"name":"{{ agent_name }}"}'
         body_format: json
-        status_code: 200
+        body:
+          name: '{{ agent_name }}'
+          ip: '{{ wazuh_agent_address }}'
+          force_time: 1
         headers:
-          Content-Type: "application/json"
-        user: "{{ wazuh_managers.0.api_user }}"
-        password: "{{ api_pass }}"
-      register: newagent_api
-      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+          Authorization: 'Bearer {{ jwt_token }}'
+        status_code: 200
+        return_content: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       become: no
-      changed_when: newagent_api.json.error == 0
-      when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      changed_when: api_agent_post.json.error == 0
+      register: api_agent_post
+      vars:
+        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
+        jwt_token: '{{ api_jwt_result.json.data.token }}'
       tags:
         - config
         - api
@@ -201,10 +204,10 @@
         - wazuh_agent_authd.registration_address is not none
         - newagent_api.json.error == 0
       notify: restart wazuh-agent
-
   when:
-    - not wazuh_agent_authd.enable
-    - not wazuh_agent_config.enrollment.enabled | length > 0 or wazuh_agent_config.enrollment.enabled == 'no'
+    - not ( wazuh_agent_authd.enable | bool )
+    - wazuh_agent_config.enrollment.enabled != 'yes'
+    - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
   tags:
     - config
     - api

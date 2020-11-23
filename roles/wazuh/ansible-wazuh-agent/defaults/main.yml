@@ -83,7 +83,10 @@ wazuh_agent_nat: false
 wazuh_agent_nolog_sensible: yes
 wazuh_agent_config_overlay: yes
 
-## Client
+# This is a middle ground between breaking existing uses of wazuh_agent_nat
+# and allow working with agents having several network interfaces
+wazuh_agent_address: '{{ "any" if wazuh_agent_nat else ansible_default_ipv4.address }}'
+
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
