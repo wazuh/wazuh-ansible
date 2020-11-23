@@ -37,7 +37,7 @@
     <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
     <crypto_method>{{ wazuh_crypto_method }}</crypto_method>
 
-  {% if wazuh_agent_config.enrollment.enabled | length > 0 %}
+  {% if wazuh_agent_config.enrollment.enabled == 'yes' %}
     <enrollment>
       <enabled>{{ wazuh_agent_config.enrollment.enabled }}</enabled>
       {% if wazuh_agent_config.enrollment.manager_address | length > 0 %}
