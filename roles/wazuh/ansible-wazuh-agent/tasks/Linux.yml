@@ -41,8 +41,7 @@
 - name: Linux | Check if client.keys exists
   stat:
     path: /var/ossec/etc/client.keys
-  register: check_keys
-  when: wazuh_agent_config.enrollment.enabled == 'yes'
+  register: client_keys_file
   tags:
     - config
 
@@ -97,18 +96,18 @@
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
+        - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
     - name: Linux | Verify agent registration
-      shell: echo {{ agent_auth_output }} | grep "Valid key created"
+      shell: echo {{ agent_auth_output }} | grep "Valid key received"
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
+        - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
   when:
-    - wazuh_agent_authd.enable
-    - not wazuh_agent_config.enrollment.enabled | length > 0 or wazuh_agent_config.enrollment.enabled == 'no'
+    - wazuh_agent_authd.enable | bool
+    - wazuh_agent_config.enrollment.enabled != 'yes'
   tags:
     - config
     - authd
