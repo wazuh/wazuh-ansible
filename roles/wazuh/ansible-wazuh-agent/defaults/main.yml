@@ -80,6 +80,7 @@ wazuh_agent_nat: false
 ### Wazuh
 ##########################################
 
+wazuh_agent_nolog_sensible: yes
 wazuh_agent_config_overlay: yes
 
 ## Client
