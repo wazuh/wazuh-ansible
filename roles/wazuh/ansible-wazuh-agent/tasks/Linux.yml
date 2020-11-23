@@ -213,6 +213,11 @@
     - config
     - api
 
+- name: Linux | Agent registration via auto-enrollment
+  debug:
+    msg: Agent registration will be performed through enrollment option in templated ossec.conf
+  when:  wazuh_agent_config.enrollment.enabled == 'yes'
+
 - name: Linux | Installing agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
