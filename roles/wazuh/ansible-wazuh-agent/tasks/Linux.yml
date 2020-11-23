@@ -193,20 +193,18 @@
         - config
         - api
 
-    - name: Linux | Register agent (via rest-API)
+    - name: Linux | Import Key (via rest-API)
       command: /var/ossec/bin/manage_agents
       environment:
         OSSEC_ACTION: i
-        OSSEC_AGENT_NAME: '{{ newagentdata_api.json.data.name }}'
-        OSSEC_AGENT_IP: '{% if wazuh_agent_nat %}any{% else %}{{ newagentdata_api.json.data.ip }}{% endif %}'
-        OSSEC_AGENT_ID: '{{ newagent_api.json.data.id }}'
-        OSSEC_AGENT_KEY: '{{ newagent_api.json.data.key }}'
+        OSSEC_AGENT_NAME: '{{ agent_name }}'
+        OSSEC_AGENT_IP: '{{ wazuh_agent_address }}'
+        OSSEC_AGENT_ID: '{{ api_agent_post.json.data.id }}'
+        OSSEC_AGENT_KEY: '{{ api_agent_post.json.data.key }}'
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
-      when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_agent_authd.registration_address is not none
-        - newagent_api.json.error == 0
+      vars:
+        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
       notify: restart wazuh-agent
   when:
     - not ( wazuh_agent_authd.enable | bool )
