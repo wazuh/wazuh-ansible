@@ -115,6 +115,12 @@ wazuh_agent_enrollment:
   delay_after_enrollment: 20
   use_source_ip: 'no'
 
+## Authentication Method: REST API
+
+# For more information see:
+# * https://documentation.wazuh.com/4.0/user-manual/registering/restful-api-registration.html
+wazuh_agent_api_validate: yes
+
 ## Client buffer
 wazuh_agent_client_buffer:
   disable: 'no'
