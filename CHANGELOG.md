@@ -3,11 +3,21 @@ All notable changes to this project will be documented in this file.
 
 ## [v4.0.2]
 
-- Update to Wazuh v4.0.2
-
 ### Added
 
+- Update to Wazuh v4.0.2
+
+### Changed
+
+- New role variables have been introduced (e.g: `wazuh_agent_api_validate`), see documentation or PRs listed here for details.
+- Some variables have been deprecated (e.g: `wazuh_agent_nat`) in favour of other ones, see documentation or PRs listed here for details.
+
 ### Fixed
+
+- Fix agent enrollment default value. Fix authd registration. [PR#505](https://github.com/wazuh/wazuh-ansible/issues/505)
+- Remove async clause causing agent install timeout on resource-constrained Centos installations [PR#507](https://github.com/wazuh/wazuh-ansible/issues/507)
+- Fix REST registration method for agents [PR#509](https://github.com/wazuh/wazuh-ansible/issues/509)
+- `authd_pass` and `api_pass` [precedence](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable) too high, lower to role defaults [PR#488](https://github.com/wazuh/wazuh-ansible/issues/488)
 
 ## [v4.0.1]
 
