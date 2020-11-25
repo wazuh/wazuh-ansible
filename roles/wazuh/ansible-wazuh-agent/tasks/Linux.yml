@@ -1,9 +1,4 @@
 ---
-- name: Retrieving authd Credentials
-  include_vars: authd_pass.yml
-  tags:
-    - config
-
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
@@ -19,11 +14,10 @@
     - wazuh_custom_packages_installation_agent_enabled
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
-  package:
+  yum:
     name: wazuh-agent-{{ wazuh_agent_version }}
     state: present
-  async: 90
-  poll: 30
+    lock_timeout: '{{ wazuh_agent_yum_lock_timeout }}'
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_agent_sources_installation.enabled
@@ -45,17 +39,14 @@
     - init
 
 - name: Linux | Check if client.keys exists
-  stat: path=/var/ossec/etc/client.keys
-  register: check_keys
-  when: wazuh_agent_config.enrollment.enabled == 'yes'
+  stat:
+    path: /var/ossec/etc/client.keys
+  register: client_keys_file
   tags:
     - config
 
 - name: Linux | Agent registration via authd
   block:
-
-    - name: Retrieving authd Credentials
-      include_vars: authd_pass.yml
 
     - name: Copy CA root certificate to verify authd
       copy:
@@ -86,7 +77,7 @@
         -m {{ wazuh_agent_authd.registration_address }}
         -p {{ wazuh_agent_authd.port }}
         {% if wazuh_agent_nat %} -I "any" {% endif %}
-        {% if authd_pass is defined %} -P {{ authd_pass }} {% endif %}
+        {% if authd_pass | length > 0 %} -P {{ authd_pass }} {% endif %}
         {% if wazuh_agent_authd.ssl_agent_ca is defined and wazuh_agent_authd.ssl_agent_ca != None %}
         -v "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
         {% endif %}
@@ -105,18 +96,18 @@
       vars:
         agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
+        - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
     - name: Linux | Verify agent registration
-      shell: echo {{ agent_auth_output }} | grep "Valid key created"
+      shell: echo {{ agent_auth_output }} | grep "Valid key received"
       when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
+        - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
   when:
-    - wazuh_agent_authd.enable
-    - not wazuh_agent_config.enrollment.enabled | length > 0 or wazuh_agent_config.enrollment.enabled == 'no'
+    - wazuh_agent_authd.enable | bool
+    - wazuh_agent_config.enrollment.enabled != 'yes'
   tags:
     - config
     - authd
@@ -124,93 +115,128 @@
 - name: Linux | Agent registration via rest-API
   block:
 
-    - name: Retrieving rest-API Credentials
-      include_vars: api_pass.yml
+    - name: Establish target Wazuh Manager for registration task
+      set_fact:
+        target_manager: '{{ manager_primary | length | ternary(manager_primary, manager_fallback) | first }}'
+      vars:
+        manager_primary: "{{ wazuh_managers | selectattr('register','true') | list }}"
+        manager_fallback: "{{ wazuh_managers | list }}"
+
+    - name: Linux | Obtain JWT Token
+      uri:
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/security/user/authenticate'
+        method: GET
+        url_username: '{{ target_manager.api_user }}'
+        url_password: '{{ api_pass }}'
+        status_code: 200
+        return_content: yes
+        force_basic_auth: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: '{{ ansible_host if wazuh_api_reachable_from_agent else "localhost"  }}'
+      changed_when: api_jwt_result.json.error == 0
+      register: api_jwt_result
+      become: no
+      tags:
+        - config
+        - api
 
     - name: Linux | Create the agent key via rest-API
       uri:
-        url: "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address }}:{{ wazuh_managers.0.api_port }}/agents/"
-        validate_certs: false
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/agents'
         method: POST
-        body: '{"name":"{{ agent_name }}"}'
         body_format: json
-        status_code: 200
+        body:
+          name: '{{ agent_name }}'
+          ip: '{{ wazuh_agent_address }}'
+          force_time: 1
         headers:
-          Content-Type: "application/json"
-        user: "{{ wazuh_managers.0.api_user }}"
-        password: "{{ api_pass }}"
-      register: newagent_api
-      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+          Authorization: 'Bearer {{ jwt_token }}'
+        status_code: 200
+        return_content: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       become: no
-      changed_when: newagent_api.json.error == 0
-      when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_managers.0.address is not none
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      changed_when: api_agent_post.json.error == 0
+      register: api_agent_post
+      vars:
+        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
+        jwt_token: '{{ api_jwt_result.json.data.token }}'
       tags:
         - config
         - api
 
-    - name: Linux | Retrieve new agent data via rest-API
+    - name: Linux | Validate registered agent key matches manager record
       uri:
-        url: >-
-          "{{ wazuh_managers.0.api_proto }}://{{ wazuh_agent_authd.registration_address
-          }}:{{ wazuh_managers.0.api_port }}/agents/{{ newagent_api.json.data.id }}"
-        validate_certs: false
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/agents/{{ agent_id }}/key'
         method: GET
-        return_content: true
-        user: "{{ wazuh_managers.0.api_user }}"
-        password: "{{ api_pass }}"
-      when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_agent_authd.registration_address is not none
-        - newagent_api.json.error == 0
-      register: newagentdata_api
-      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+        headers:
+          Authorization: 'Bearer {{ jwt_token }}'
+        status_code: 200
+        return_content: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       become: no
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      register: api_agent_validation
+      vars:
+        agent_id: '{{ api_agent_post.json.data.id }}'
+        agent_key: '{{ api_agent_post.json.data.key }}'
+        jwt_token: '{{ api_jwt_result.json.data.token }}'
+      failed_when: api_agent_validation.json.data.affected_items[0].key != agent_key
+      when:
+      - wazuh_agent_api_validate | bool
+      - api_agent_post.json.error == 0
       tags:
         - config
         - api
 
-    - name: Linux | Register agent (via rest-API)
+    - name: Linux | Import Key (via rest-API)
       command: /var/ossec/bin/manage_agents
       environment:
         OSSEC_ACTION: i
-        OSSEC_AGENT_NAME: '{{ newagentdata_api.json.data.name }}'
-        OSSEC_AGENT_IP: '{% if wazuh_agent_nat %}any{% else %}{{ newagentdata_api.json.data.ip }}{% endif %}'
-        OSSEC_AGENT_ID: '{{ newagent_api.json.data.id }}'
-        OSSEC_AGENT_KEY: '{{ newagent_api.json.data.key }}'
+        OSSEC_AGENT_NAME: '{{ agent_name }}'
+        OSSEC_AGENT_IP: '{{ wazuh_agent_address }}'
+        OSSEC_AGENT_ID: '{{ api_agent_post.json.data.id }}'
+        OSSEC_AGENT_KEY: '{{ api_agent_post.json.data.key }}'
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
-      when:
-        - not check_keys.stat.exists or check_keys.stat.size == 0
-        - wazuh_agent_authd.registration_address is not none
-        - newagent_api.json.error == 0
+      vars:
+        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
       notify: restart wazuh-agent
-
   when:
-    - not wazuh_agent_authd.enable
-    - not wazuh_agent_config.enrollment.enabled | length > 0 or wazuh_agent_config.enrollment.enabled == 'no'
+    - not ( wazuh_agent_authd.enable | bool )
+    - wazuh_agent_config.enrollment.enabled != 'yes'
+    - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
   tags:
     - config
     - api
 
+- name: Linux | Agent registration via auto-enrollment
+  debug:
+    msg: Agent registration will be performed through enrollment option in templated ossec.conf
+  when:  wazuh_agent_config.enrollment.enabled == 'yes'
+
 - name: Linux | Installing agent configuration (ossec.conf)
-  template: src=var-ossec-etc-ossec-agent.conf.j2
-            dest=/var/ossec/etc/ossec.conf
-            owner=root
-            group=ossec
-            mode=0644
+  template:
+    src: var-ossec-etc-ossec-agent.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: 0644
   notify: restart wazuh-agent
   tags:
     - init
     - config
 
 - name: Linux | Installing local_internal_options.conf
-  template: src=var-ossec-etc-local-internal-options.conf.j2
-            dest=/var/ossec/etc/local_internal_options.conf
-            owner=root
-            group=ossec
-            mode=0640
+  template:
+    src: var-ossec-etc-local-internal-options.conf.j2
+    dest: /var/ossec/etc/local_internal_options.conf
+    owner: root
+    group: ossec
+    mode: 0640
   notify: restart wazuh-agent
   tags:
     - init
@@ -226,7 +252,7 @@
   when:
     - wazuh_agent_config.enrollment.enabled == 'yes'
     - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
-    - ( authd_pass is defined) and ( authd_pass|length > 0)
+    - authd_pass | length > 0
   tags:
     - config
 

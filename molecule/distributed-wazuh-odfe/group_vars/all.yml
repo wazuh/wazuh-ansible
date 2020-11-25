@@ -15,12 +15,6 @@ kibana_addresses: "{{ kibana_hostvars | map(attribute='private_ip') | list }}"
 ########################################################
 # General ELK stack variables
 
-# Cluster Settings
-#es_version: "7.9.1"
-#es_major_version: "7.x"
-#opendistro_version: 1.10.1
-filebeat_version: 7.9.1
-
 # OpenDistro
 kibana_opendistro_security: true
 
@@ -35,3 +29,19 @@ opendistro_admin_password: changeme
 elasticsearch_node_name: '{{ ansible_hostname }}'
 kibana_node_name: '{{ ansible_hostname }}'
 filebeat_node_name: '{{ ansible_hostname }}'
+
+########################################################
+# Versions
+# See: https://opendistro.github.io/for-elasticsearch-docs/version-history/
+
+elastic_stack_version: 7.9.1
+opendistro_version: 1.11.0
+filebeat_version: 7.9.1
+kibana_opendistro_version: -1.11.0-1
+
+# Debian packages need the ${VERSION}-1
+wazuh_manager_version: 4.0.2-1
+wazuh_agent_version: 4.0.2-1
+
+# Kibana role appends it automatically.
+wazuh_version: 4.0.2
