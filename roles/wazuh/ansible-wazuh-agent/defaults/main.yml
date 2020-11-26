@@ -38,7 +38,7 @@ wazuh_agent_yum_lock_timeout: 30
 api_pass: wazuh
 authd_pass: ''
 
-wazuh_api_reachable_from_agent: false
+wazuh_api_reachable_from_agent: yes
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
 wazuh_auto_restart: 'yes'
