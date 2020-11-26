@@ -157,7 +157,7 @@
         validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       become: no
       no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
-      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      delegate_to: '{{ inventory_hostname if wazuh_api_reachable_from_agent else "localhost" }}'
       changed_when: api_agent_post.json.error == 0
       register: api_agent_post
       vars:
@@ -178,7 +178,7 @@
         validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       become: no
       no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
-      delegate_to: "{{ 'localhost' if not wazuh_api_reachable_from_agent else inventory_hostname }}"
+      delegate_to: '{{ inventory_hostname if wazuh_api_reachable_from_agent else "localhost" }}'
       register: api_agent_validation
       vars:
         agent_id: '{{ api_agent_post.json.data.id }}'
