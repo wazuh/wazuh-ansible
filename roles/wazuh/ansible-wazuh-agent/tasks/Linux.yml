@@ -133,7 +133,7 @@
         force_basic_auth: yes
         validate_certs: '{{ target_manager.validate_certs | default(false) }}'
       no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
-      delegate_to: '{{ ansible_host if wazuh_api_reachable_from_agent else "localhost"  }}'
+      delegate_to: '{{ inventory_hostname if wazuh_api_reachable_from_agent else "localhost" }}'
       changed_when: api_jwt_result.json.error == 0
       register: api_jwt_result
       become: no
