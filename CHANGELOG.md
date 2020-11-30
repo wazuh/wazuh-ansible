@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.3]
+
+### Added
+
+- Update to Wazuh v4.0.3
+
+### Fixed
+
+- Fix wrong `delegate_to` in task added by PR#488, hotfixed in `v4.0.2` in [PR#511](https://github.com/wazuh/wazuh-ansible/pull/511)
+
 ## [v4.0.2]
 
 ### Added
