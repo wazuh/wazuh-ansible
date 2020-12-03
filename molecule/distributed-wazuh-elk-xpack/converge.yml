@@ -22,7 +22,7 @@
       vars:
         instance_hostname: '{{ item.ansible_facts.hostname }}'
         instance_item:
-          name: '{{ item.private_ip}}'
+          name: '{{ instance_hostname }}'
           ip: '{{ item.private_ip }}'
       loop: '{{ endpoints_hostvars }}'
       no_log: true
@@ -79,7 +79,7 @@
       vars:
         instance_hostname: '{{ item.ansible_facts.hostname }}'
         instance_item:
-          name: '{{ item.private_ip}}'
+          name: '{{ instance_hostname }}'
           ip: '{{ item.private_ip }}'
       loop: '{{ endpoints_hostvars }}'
       no_log: true

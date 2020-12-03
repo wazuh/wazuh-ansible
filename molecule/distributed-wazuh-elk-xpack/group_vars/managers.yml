@@ -2,7 +2,7 @@
 
 wazuh_manager_fqdn: '{{ ansible_hostname }}'
 
-filebeat_node_name: '{{ private_ip }}'
+filebeat_node_name: '{{ ansible_hostname }}'
 filebeat_output_elasticsearch_hosts: '{{ elastic_addresses }}'
 
 wazuh_manager_config:
