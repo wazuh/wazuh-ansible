@@ -1,0 +1,122 @@
+---
+
+- name: (ssl) create CA dir
+  file:
+    path: '{{ elasticsearch_ssl_ca_dir }}'
+    state: directory
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+
+- name: (ssl) create certificates dir
+  file:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ item }}'
+    state: directory
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  loop: '{{ instances.keys() | list }}'
+
+- name: (ssl:ca) create CA key
+  openssl_privatekey:
+    path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+    mode: 0700
+    type: '{{ elasticsearch_ssl_ca_type }}'
+    size: '{{ elasticsearch_ssl_ca_size | int }}'
+    backup: '{{ elasticsearch_ssl_ca_backup | bool }}'
+    select_crypto_backend: '{{ elasticsearch_ssl_cert_backend }}'
+    force: '{{ elasticsearch_ssl_ca_force | bool }}'
+    passphrase: '{{ elasticsearch_ssl_ca_pass | default(omit) }}'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  register: ca_key
+
+- name: (ssl:ca) create certificate signing request
+  openssl_csr:
+    path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.csr'
+    privatekey_path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+    common_name: '{{ elasticsearch_ssl_ca_cn }}'
+    basic_constraints: '{{ elasticsearch_ssl_ca_constraints }}'
+    backup: '{{ elasticsearch_ssl_ca_backup | bool }}'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+
+
+- name: (ssl:ca) generate certificate
+  openssl_certificate:
+    csr_path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.csr'
+    privatekey_path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+    path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.crt'
+    backup: '{{ elasticsearch_ssl_ca_backup | bool }}'
+    provider: selfsigned
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+
+- name: (ssl:certs) generate hosts private keys
+  openssl_privatekey:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ item.key }}/{{ item.key }}.key'
+    type: '{{ item.value.type | default(elasticsearch_ssl_default_type) }}'
+    size: '{{ item.value.size | default(elasticsearch_ssl_default_size) | int }}'
+    backup: '{{ item.value.backup | default(elasticsearch_ssl_default_backup) | bool }}'
+    force: '{{ item.value.regenerate | default(elasticsearch_ssl_default_regenerate) | bool }}'
+    select_crypto_backend: '{{ elasticsearch_ssl_cert_backend }}'
+    mode: 0700
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  loop: '{{ instances | dict2items }}'
+  register: cert_key
+
+- name: (ssl:certs) generate hosts CSRs
+  openssl_csr:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ item.key }}/{{ item.key }}.csr'
+    backup: '{{ item.value.backup | default(elasticsearch_ssl_default_backup) | bool }}'
+    privatekey_path: '{{ elasticsearch_ssl_cert_dir }}/{{ item.key }}/{{ item.key }}.key'
+    common_name: '{{ item.key }}'
+    subject_alt_name: '{{ (altnames | length > 0) | ternary(altnames, omit)  }}'
+    basic_constraints: '{{ elasticsearch_ssl_default_constraints }}'
+  vars:
+    value_ip: '{{ item.value.ip is defined | ternary([item.value.ip], []) | flatten }}'
+    value_dns: '{{ item.value.dns is defined | ternary([item.value.ip], []) | flatten }}'
+    altnames_ip: '{{ value_ip | map("regex_replace", "^(.*)$", "IP:\1") | list }}'
+    altnames_dns: '{{ value_dns | map("regex_replace", "^(.*)$", "DNS:\1") | list }}'
+    altnames: '{{ altnames_ip | union(altnames_dns) }}'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  loop: '{{ instances | dict2items }}'
+  register: cert_csr
+
+- name: (ssl:certs) expend hosts certificates
+  openssl_certificate:
+    provider: ownca
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ item.key }}/{{ item.key }}.crt'
+    backup: '{{ item.value.backup | default(elasticsearch_ssl_default_backup) | bool }}'
+    csr_path: '{{ elasticsearch_ssl_cert_dir }}/{{ item.key }}/{{ item.key }}.csr'
+    ownca_path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.crt'
+    ownca_privatekey_path: '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  loop: '{{ instances | dict2items }}'
+  register: cert_crt
+
+# falta notify
+- name: (ssl:copy) copy host keypairs and public CA
+  copy:
+    src: '{{ item }}'
+    dest: '{{ node_certs_destination }}/'
+    owner: root
+    group: elasticsearch
+    mode: 0440
+    #mode: 0777
+  notify: restart elasticsearch
+  loop:
+    - '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.crt'
+    - '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_node_name }}/{{ elasticsearch_node_name }}.key'
+    - '{{ elasticsearch_ssl_ca_dir }}/{{ elasticsearch_ssl_ca_name }}.crt'
+
+- name: Set elasticsearch bootstrap password
+  shell: |
+    set -o pipefail
+    echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
+  args:
+    executable: /bin/bash
+  when:
+    - node_certs_generator
+  tags: molecule-idempotence-notest
