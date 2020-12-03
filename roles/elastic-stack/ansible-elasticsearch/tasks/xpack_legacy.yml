@@ -1,8 +1,4 @@
-
-- name: Check if certificate exists locally
-  stat:
-    path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"
-  register: certificate_file_exists
+---
 
 - name: Write the instances.yml file in the selected node (force = no)
   template:
