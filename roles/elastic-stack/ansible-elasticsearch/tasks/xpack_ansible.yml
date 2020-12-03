@@ -4,6 +4,7 @@
   file:
     path: '{{ elasticsearch_ssl_ca_dir }}'
     state: directory
+    mode: 0700
   delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
   become: '{{ elasticsearch_ssl_cert_become | bool }}'
 
@@ -11,6 +12,7 @@
   file:
     path: '{{ elasticsearch_ssl_cert_dir }}/{{ item }}'
     state: directory
+    mode: 0700
   delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
   become: '{{ elasticsearch_ssl_cert_become | bool }}'
   loop: '{{ instances.keys() | list }}'
