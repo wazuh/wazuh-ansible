@@ -134,6 +134,7 @@ provisioner:
   inventory:
     links:
       group_vars: group_vars
+      host_vars: host_vars
   playbooks:
     create: create.yml
     converge: converge.yml
