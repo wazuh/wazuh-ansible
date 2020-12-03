@@ -74,8 +74,19 @@
   register: certificate_file_exists
   when: elasticsearch_xpack_security | bool
 
+- name: run elasticsearch security tasks with legacy method
+  include_tasks: xpack_legacy.yml
   when:
-    - elasticsearch_xpack_security
+    - elasticsearch_xpack_security | bool
+    - elasticsearch_ssl_method | lower == 'legacy'
+    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
+
+- name: run elasticsearch security tasks with ansible method
+  include_tasks: xpack_ansible.yml
+  when:
+    - elasticsearch_xpack_security | bool
+    - elasticsearch_ssl_method | lower == 'ansible'
+    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
 
 - name: Configure Elasticsearch.
   template:
