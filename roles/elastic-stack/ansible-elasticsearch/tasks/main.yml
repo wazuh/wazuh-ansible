@@ -68,7 +68,12 @@
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- import_tasks: "xpack_security.yml"
+- name: check if certificate exists on target node
+  stat:
+    path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"
+  register: certificate_file_exists
+  when: elasticsearch_xpack_security | bool
+
   when:
     - elasticsearch_xpack_security
 
