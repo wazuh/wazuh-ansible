@@ -62,3 +62,7 @@
       when:
         - ansible_distribution == "Ubuntu"
         - inventory_hostname in groups['agents']
+
+    - name: overview of cert configuration
+      debug:
+        var: elk_endpoint_list
