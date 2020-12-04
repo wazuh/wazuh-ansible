@@ -48,7 +48,7 @@ elasticsearch_xpack_security_password: elastic_pass
 #            so it doesn't require multiple runs of the role.
 #
 
-elasticsearch_ssl_method: legacy
+elasticsearch_ssl_method: ansible
 
 node_certs_generator: false
 node_certs_source: /usr/share/elasticsearch
