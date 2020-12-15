@@ -213,7 +213,7 @@
   notify: restart wazuh-manager
   when:
     - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
-    - agentless_creds is defined
+    - wazuh_manager_agentless | length > 0
   tags:
     - config
 
