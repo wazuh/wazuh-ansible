@@ -248,7 +248,7 @@
     - init
     - config
 
-- name: Ossec-authd password
+- name: wazuh-authd password
   template:
     src: authd_pass.j2
     dest: "/var/ossec/etc/authd.pass"
