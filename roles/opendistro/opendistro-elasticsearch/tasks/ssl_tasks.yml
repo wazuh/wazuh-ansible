@@ -1,0 +1,80 @@
+---
+
+- name: SSL | Check if certificates already exists
+  stat:
+    path: '{{ local_certs_path }}'
+  register: certificates_folder
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  tags:
+    - generate-certs
+
+- name: SSL Legacy | generate cert chain with searchguard
+  include_tasks: ssl_legacy.yml
+  when:
+   - elasticsearch_ssl_method == 'legacy'
+   - not (elasticsearch_ssl_cert_skip_deployed and certificates_folder.stat.exists )
+
+- name: SSL | generate cert chain with ansible
+  block:
+    - name: SSL | ensure certificates dir
+      file:
+        path: '{{ elasticsearch_ssl_cert_dir }}'
+        state: directory
+        mode: 0700
+      delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+      become: '{{ elasticsearch_ssl_cert_become | bool }}'
+
+    - name: SSL | generate CA
+      include_tasks: ssl_ca.yml
+
+    # For compatibility reasons, we can't use the openssl_privatekey format parameter just yet:
+    # https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html#parameter-format
+
+    - name: SSL Certs | ensure pkcs1 to pkcs2 conversion script
+      copy:
+        src: files/pkcs1_to_pkcs8.py
+        dest: '{{ elasticsearch_ssl_pkcs_script }}'
+        mode: 0700
+      delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+      become: '{{ elasticsearch_ssl_cert_become | bool }}'
+
+    - name: SSL | generate certificates
+      include_tasks: ssl_certs.yml
+      vars:
+        cert_name: '{{ node.0.key }}'
+        cert_domain: '{{ domain_name | regex_replace("^\.*(.+)$", ".\1") }}'
+        cert_suffix: '{{ node.1 }}'
+        cert_full: '{{ cert_name }}{{ cert_suffix }}'
+        cert_entry: '{{ node.0.value }}'
+        keys_suffixes: '{{ [""] | union(elasticsearch_ssl_cert_extras) }}'
+      loop: '{{ instances | dict2items | product(keys_suffixes) | list }}'
+      loop_control:
+        loop_var: node
+
+    - name: SSL | generate admin certs
+      include_tasks: ssl_certs.yml
+      vars:
+        cert_name: '{{ node.name }}'
+        cert_domain: '{{ domain_name | regex_replace("^\.*(.+)$", ".\1") }}'
+        cert_full: '{{ node.name }}'
+        cert_entry: '{{ node }}'
+        keys_suffixes: '{{ [""] }}'
+      loop: '{{ elasticsearch_ssl_admins }}'
+      loop_control:
+        loop_var: node
+
+    - name: SSL | generate elastic configuration snippets
+      template:
+        src: snippets/opendistro_ssl.yml.j2
+        dest: '{{ elasticsearch_ssl_cert_dir }}/{{ node.key }}_elasticsearch_config_snippet.yml'
+        mode: 0700
+      delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+      become: '{{ elasticsearch_ssl_cert_become | bool }}'
+      loop: '{{ instances | dict2items }}'
+      loop_control:
+        loop_var: node
+
+  when:
+    - elasticsearch_ssl_method == 'ansible'
+    - not (elasticsearch_ssl_cert_skip_deployed and certificates_folder.stat.exists )
