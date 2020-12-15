@@ -23,37 +23,6 @@ wazuh_manager_config: []
 shared_agent_config: []
 ```
 
-Vault variables
-----------------
-
-### vars/agentless_creds.yml
-This file has the agenless credentials.
-```
----
- agentless_creds:
- - type: ssh_integrity_check_linux
-   frequency: 3600
-   host: root@example.net
-   state: periodic
-   arguments: '/bin /etc/ /sbin'
-   passwd: qwerty
-```
-
-### vars/wazuh_api_creds.yml
-This file has user and password created in httpasswd format.
-```
----
-wazuh_api_user:
-  - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
-```
-
-### vars/authd_pass.yml
-This file has the password to be used for the authd daemon.
-```
----
-authd_pass: foobar
-```
-
 Default config
 --------------
 
