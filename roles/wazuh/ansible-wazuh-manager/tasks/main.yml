@@ -278,20 +278,14 @@
     - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Agentless Hosts & Passwd
-  template:
-    src: agentless.j2
-    dest: "/var/ossec/agentless/.passlist_tmp"
+  copy:
+    content: "{{ lookup('template', 'templates/agentless.j2') | b64encode }}"
+    dest: /var/ossec/agentless/.passlist
     owner: root
     group: root
     mode: 0644
   no_log: true
-  when: agentless_creds is defined
-  tags:
-    - config
-
-- name: Encode the secret
-  shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
-  when: agentless_creds is defined
+  when: wazuh_manager_agentless | length > 0
   tags:
     - config
 
