@@ -165,16 +165,6 @@
     - init
     - config
 
-- name: Retrieving Agentless Credentials
-  include_vars: agentless_creds.yml
-  tags:
-    - config
-
-- name: Retrieving authd Credentials
-  include_vars: authd_pass.yml
-  tags:
-    - config
-
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
   when: item.server is not none
