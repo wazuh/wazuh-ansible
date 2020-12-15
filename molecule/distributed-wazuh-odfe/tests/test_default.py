@@ -36,7 +36,7 @@ def test_wazuh_services_are_running(host):
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output
     assert 'wazuh-execd' in output
-    assert 'ossec-monitord' in output
+    assert 'wazuh-monitord' in output
     assert 'ossec-remoted' in output
     assert 'wazuh-logcollector' in output
     assert 'wazuh-analysisd' in output
