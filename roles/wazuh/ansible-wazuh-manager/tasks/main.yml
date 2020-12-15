@@ -186,7 +186,7 @@
 - name: Check if client-syslog is enabled
   shell: |
     set -o pipefail
-    "grep -c 'ossec-csyslogd' /var/ossec/bin/.process_list | xargs echo"
+    "grep -c 'wazuh-csyslogd' /var/ossec/bin/.process_list | xargs echo"
   args:
     removes: /var/ossec/bin/.process_list
     executable: /bin/bash
