@@ -205,16 +205,16 @@
   tags:
     - config
 
-- name: Check if ossec-agentlessd is enabled
+- name: Check if wazuh-agentlessd is enabled
   shell: |
     set -o pipefail
-    "grep -c 'ossec-agentlessd' /var/ossec/bin/.process_list | xargs echo"
+    "grep -c 'wazuh-agentlessd' /var/ossec/bin/.process_list | xargs echo"
   args:
     removes: /var/ossec/bin/.process_list
     executable: /bin/bash
   changed_when: false
   check_mode: false
-  register: agentlessd_enabled
+  register: wazuh_agentlessd_enabled
   tags:
     - config
 
@@ -222,7 +222,7 @@
   command: /var/ossec/bin/ossec-control enable agentless
   notify: restart wazuh-manager
   when:
-    - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
+    - wazuh_agentlessd_enabled.stdout == '0' or "skipped" in wazuh_agentlessd_enabled.stdout
     - agentless_creds is defined
   tags:
     - config
