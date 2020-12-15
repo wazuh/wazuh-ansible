@@ -1,0 +1,62 @@
+---
+
+- name: SSL Certs | ensure private key {{ cert_full }}.key
+  openssl_privatekey:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ cert_full }}.pkcs1.key'
+    type: '{{ cert_entry.key_type | default(elasticsearch_ssl_default_type) }}'
+    size: '{{ cert_entry.key_size | default(elasticsearch_ssl_default_size) | int }}'
+    backup: '{{ cert_entry.key_backup | default(elasticsearch_ssl_default_backup) | bool }}'
+    force: '{{ cert_entry.key_regenerate | default(elasticsearch_ssl_default_regenerate) | bool }}'
+    select_crypto_backend: '{{ elasticsearch_ssl_cert_backend }}'
+    mode: 0700
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  register: cert_key
+
+- name: SSL Certs | Convert {{ cert_full }}.pkcs1.key to PKCS#8
+  command:
+      # noqa 503
+      argv:
+        - '{{ elasticsearch_ssl_pkcs_script }}'
+        - '{{ cert_key.filename }}'
+        - '{{ pkcs8_key }}'
+        - 600
+      # cmd: openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in {{ cert_key.filename }} -out {{ pkcs8_key }}
+      # chdir: '{{ elasticsearch_ssl_cert_dir }}'
+  vars:
+    pkcs8_key: '{{ elasticsearch_ssl_cert_dir }}/{{ cert_full }}.key'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  when: cert_key.changed
+
+- name: SSL Certs | ensure CSR for {{ cert_full }}.csr
+  openssl_csr:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ cert_full }}.csr'
+    privatekey_path: '{{ elasticsearch_ssl_cert_dir }}/{{ cert_full }}.key'
+    common_name: '{{ cert_name }}{{ cert_domain }}'
+    organization_name: '{{ elasticsearch_ssl_default_org }}'
+    organizational_unit_name: '{{ elasticsearch_ssl_default_org_unit }}'
+    subject_alt_name: '{{ (altnames_all | length > 0) | ternary(altnames_all, omit)  }}'
+    basic_constraints: '{{ elasticsearch_ssl_default_constraints }}'
+  vars:
+    # This is to accomodate indicating ip/dns as list or string
+    value_ip: '{{ cert_entry.ip is defined | ternary([cert_entry.ip], []) | flatten }}'
+    value_dns: '{{ cert_entry.dns is defined | ternary([cert_entry.ip], []) | flatten }}'
+    # Prepend each IP and DNS entry with string required by module, have results in a single list
+    altnames_ip: '{{ value_ip | map("regex_replace", "^(.*)$", "IP:\1") | list }}'
+    altnames_dns: '{{ value_dns | map("regex_replace", "^(.*)$", "DNS:\1") | list }}'
+    altnames_all: '{{ altnames_ip | union(altnames_dns) }}'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  register: cert_csr
+
+- name: SSL Certs | ensure certificate {{ cert_full }}.pem
+  openssl_certificate:
+    provider: ownca
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ cert_full }}.pem'
+    csr_path: '{{ elasticsearch_ssl_cert_dir }}/{{ cert_full }}.csr'
+    ownca_path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.pem'
+    ownca_privatekey_path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  register: cert_crt
