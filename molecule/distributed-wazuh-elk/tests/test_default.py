@@ -40,7 +40,7 @@ def test_wazuh_services_are_running(host):
     assert 'wazuh-remoted' in output
     assert 'wazuh-logcollector' in output
     assert 'wazuh-analysisd' in output
-    assert 'ossec-syscheckd' in output
+    assert 'wazuh-syscheckd' in output
 
 
 @pytest.mark.parametrize("wazuh_file, wazuh_owner, wazuh_group, wazuh_mode", [
