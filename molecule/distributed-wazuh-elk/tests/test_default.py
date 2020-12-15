@@ -32,10 +32,10 @@ def test_wazuh_services_are_running(host):
     output = host.check_output(
         'ps aux | grep ossec | tr -s " " | cut -d" " -f11'
         )
-    assert 'ossec-authd' in output
+    assert 'wazuh-authd' in output
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output
-    assert 'ossec-execd' in output
+    assert 'wazuh-execd' in output
     assert 'ossec-monitord' in output
     assert 'ossec-remoted' in output
     assert 'ossec-logcollector' in output
