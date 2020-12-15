@@ -13,8 +13,6 @@ elasticsearch_cluster_nodes:
 elasticsearch_discovery_nodes:
   - 127.0.0.1
 
-local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
-
 # Minimum master nodes in cluster, 2 for 3 nodes elasticsearch cluster
 minimum_master_nodes: 2
 
@@ -45,17 +43,85 @@ opendistro_jvm_xms: null
 
 opendistro_http_port: 9200
 
+opendistro_admin_password: changeme
+opendistro_kibana_password: changeme
+opendistro_nolog_sensible: true
+
+#####################################
+# SSL for OpenDistro security
+#
+# These variables are shared between elasticsearch and OpenDistro role.
+# Eventually they will be moved to their own independant role so they
+# can be reused for both elasticsearch and opendistro deployments.
+#
+# elasticsearch_ssl_method can be one of these:
+#
+# * legacy: use floragunncom/search-guard-tlstool method invoking the tool on bootstrap elastic node.
+#             deprecated, as it requires two stages to avoid overwriting certs.
+#
+# * ansible: newer method for generating certificate chain with ansible, it's idempotent
+#            so it doesn't require multiple runs of the role.
+#
+
+elasticsearch_ssl_method: ansible
+
+generate_certs: true
+perform_installation: true
+
+#####################################
+# SSL Method: legacy
+
+# This uses the external tool search-guard-tlstool:
+# * https://github.com/floragunncom/search-guard-tlstool/
+
 certs_gen_tool_version: 1.8
 
 # Url of Search Guard certificates generator tool
 certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
+local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
+remote_certs_path: "/etc/elasticsearch"
 
+#####################################
+# SSL Method: ansible
 
-opendistro_admin_password: changeme
-opendistro_kibana_password: changeme
+# General settings
+elasticsearch_ssl_cert_dir: '{{ local_certs_path }}/certs'
+elasticsearch_ssl_cert_backend: cryptography
+elasticsearch_ssl_cert_delegate: localhost
+elasticsearch_ssl_cert_become: no
+elasticsearch_ssl_cert_extras: ['_http']
 
-# Deployment settings
-generate_certs: true
-perform_installation: true
+elasticsearch_ssl_pkcs_script: '{{ elasticsearch_ssl_cert_dir }}/pkcs1_to_pkcs8.py'
 
-opendistro_nolog_sensible: true
+# If hosts already has certificates in certs folder, skip all cert tasks
+elasticsearch_ssl_cert_skip_deployed: yes
+
+# CA settings
+elasticsearch_ssl_ca_cn: 'root.{{ domain_name }}'
+elasticsearch_ssl_ca_name: root-ca
+elasticsearch_ssl_ca_type: RSA
+elasticsearch_ssl_ca_size: 2048
+elasticsearch_ssl_ca_backup: yes
+elasticsearch_ssl_ca_force: no
+#elasticsearch_ssl_ca_pass: ''
+
+# TrustAnchors is needed for Java, for details see JDK-8230318:
+#  * https://www.oracle.com/java/technologies/javase/8u241-relnotes.html
+
+elasticsearch_ssl_ca_constraints:
+  - 'CA:TRUE'
+
+# Hosts certificate defaults
+elasticsearch_ssl_default_type: RSA
+elasticsearch_ssl_default_size: 2048
+elasticsearch_ssl_default_backup: yes
+elasticsearch_ssl_default_regenerate: no
+elasticsearch_ssl_default_constraints:
+  - 'CA:FALSE'
+
+elasticsearch_ssl_default_org: Wazuh Inc.
+elasticsearch_ssl_default_org_unit: Ops
+
+elasticsearch_ssl_admins:
+  - name: admin
+    domain: '{{ domain_name }}'
