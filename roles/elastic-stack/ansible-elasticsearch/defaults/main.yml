@@ -75,7 +75,7 @@ elasticsearch_ssl_cert_backend: cryptography
 elasticsearch_ssl_cert_delegate: localhost
 elasticsearch_ssl_cert_become: no
 
-# If hosts already has certificates in destination folder, skip all cert tasks
+# If hosts already has certificates in certs folder, skip all cert tasks
 elasticsearch_ssl_cert_skip_deployed: yes
 
 # CA settings
@@ -101,3 +101,6 @@ elasticsearch_ssl_default_backup: yes
 elasticsearch_ssl_default_regenerate: no
 elasticsearch_ssl_default_constraints:
   - 'CA:FALSE'
+
+elasticsearch_ssl_default_org: Wazuh Inc.
+elasticsearch_ssl_default_org_unit: Ops

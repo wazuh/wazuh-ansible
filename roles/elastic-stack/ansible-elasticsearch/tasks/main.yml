@@ -68,25 +68,10 @@
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- name: check if certificate exists on target node
-  stat:
-    path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"
-  register: certificate_file_exists
+- name: SSL | Execute cert chain tasks
+  include_tasks: ssl_tasks.yml
   when: elasticsearch_xpack_security | bool
 
-- name: run elasticsearch security tasks with legacy method
-  include_tasks: xpack_legacy.yml
-  when:
-    - elasticsearch_xpack_security | bool
-    - elasticsearch_ssl_method | lower == 'legacy'
-    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
-
-- name: run elasticsearch security tasks with ansible method
-  include_tasks: xpack_ansible.yml
-  when:
-    - elasticsearch_xpack_security | bool
-    - elasticsearch_ssl_method | lower == 'ansible'
-    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
 
 - name: Configure Elasticsearch.
   template:
