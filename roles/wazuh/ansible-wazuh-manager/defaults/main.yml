@@ -42,8 +42,11 @@ wazuh_manager_repo:
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 
 # We recommend the use of ansible-vault to protect Wazuh, api, agentless and authd credentials.
+
+# Deprecated, see wazuh_manager_authd
 authd_pass: foobar
 
+# Deprecated, see wazuh_manager_agentless
 agentless_creds: []
 # - type: ssh_integrity_check_linux
 #   frequency: 3600
@@ -374,6 +377,7 @@ wazuh_manager_authd:
   force_insert: 'yes'
   force_time: 0
   purge: 'yes'
+  password: '{{ authd_pass }}'
   use_password: 'no'
   limit_maxagents: 'yes'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
@@ -382,6 +386,9 @@ wazuh_manager_authd:
   ssl_manager_cert: 'sslmanager.cert'
   ssl_manager_key: 'sslmanager.key'
   ssl_auto_negotiate: 'no'
+
+# Agentless
+wazuh_manager_agentless: '{{ agentless_creds }}'
 
 ## Cluster
 wazuh_manager_cluster:
