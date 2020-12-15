@@ -1,0 +1,35 @@
+---
+
+- name: SSL CA | create CA key
+  openssl_privatekey:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+    mode: 0700
+    type: '{{ elasticsearch_ssl_ca_type }}'
+    size: '{{ elasticsearch_ssl_ca_size | int }}'
+    backup: '{{ elasticsearch_ssl_ca_backup | bool }}'
+    select_crypto_backend: '{{ elasticsearch_ssl_cert_backend }}'
+    force: '{{ elasticsearch_ssl_ca_force | bool }}'
+    passphrase: '{{ elasticsearch_ssl_ca_pass | default(omit) }}'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+  register: ca_key
+
+- name: SSL CA | create certificate signing request
+  openssl_csr:
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.csr'
+    privatekey_path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+    common_name: '{{ elasticsearch_ssl_ca_cn }}'
+    organization_name: '{{ elasticsearch_ssl_default_org }}'
+    organizational_unit_name: '{{ elasticsearch_ssl_default_org_unit }}'
+    basic_constraints: '{{ elasticsearch_ssl_ca_constraints }}'
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
+
+- name: SSL CA | generate certificate
+  openssl_certificate:
+    csr_path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.csr'
+    privatekey_path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.key'
+    path: '{{ elasticsearch_ssl_cert_dir }}/{{ elasticsearch_ssl_ca_name }}.pem'
+    provider: selfsigned
+  delegate_to: '{{ elasticsearch_ssl_cert_delegate }}'
+  become: '{{ elasticsearch_ssl_cert_become | bool }}'
