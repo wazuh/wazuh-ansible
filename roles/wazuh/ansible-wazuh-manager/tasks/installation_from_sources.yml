@@ -2,8 +2,8 @@
 # Wazuh Manager
   - name: Check if Wazuh Manager is already installed
     stat:
-      path: /var/ossec/bin/ossec-control
-    register: wazuh_ossec_control
+      path: /var/ossec/bin/wazuh-control
+    register: wazuh_control_path
 
   - name: Installing Wazuh Manager from sources
     block:
@@ -114,7 +114,7 @@
           state: absent
 
     when:
-      - not wazuh_ossec_control.stat.exists
+      - not wazuh_control_path.stat.exists
       - wazuh_manager_sources_installation.enabled
     tags:
       - manager
