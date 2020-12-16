@@ -1,0 +1,35 @@
+---
+
+- name: Converge
+  hosts: all
+  become: true
+  become_user: root
+  vars:
+    wazuh_manager_agentless_common:
+      type: ssh_integrity_check_linux
+      # We want to quickly start firing events
+      frequency: 15
+      #host: root@example.net
+      state: periodic
+      arguments: '/bin /etc/ /sbin'
+      passwd: testie
+  roles:
+    # 1. Managers
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      vars:
+        wazuh_manager_agentless: '{{ wazuh_agents_list }}'
+      when: inventory_hostname in groups['managers']
+  pre_tasks:
+
+    - name: (converge) build agent list dynamically for managers to consume
+      set_fact:
+        wazuh_agents_list: '{{ wazuh_agents_list | default([]) | union([agent_item]) }}'
+      vars:
+        agent_item: '{{ wazuh_manager_agentless_common | combine({"host": "root@" ~ item})  }}'
+      loop: '{{ agent_addresses }}'
+      when: inventory_hostname in groups['managers']
+
+    - name: overview of agentless configuration
+      debug:
+        var: wazuh_agents_list
+      when: inventory_hostname in groups['managers']

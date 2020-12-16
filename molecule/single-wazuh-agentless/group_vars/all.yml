@@ -1,0 +1,18 @@
+---
+
+########################################################
+# Helper variables
+private_ip: '{{ ansible_default_ipv4.address }}'
+
+agents_hostvars: "{{ groups['agents'] | map('extract', hostvars)  | list }}"
+managers_hostvars: "{{ groups['managers'] | map('extract', hostvars)  | list }}"
+
+agent_addresses: "{{ agents_hostvars | map(attribute='private_ip') | list }}"
+manager_addresses: "{{ managers_hostvars | map(attribute='private_ip') | list }}"
+
+########################################################
+# Versions
+
+# Debian packages need the ${VERSION}-1
+wazuh_manager_version: 4.0.3-1
+wazuh_agent_version: 4.0.3-1

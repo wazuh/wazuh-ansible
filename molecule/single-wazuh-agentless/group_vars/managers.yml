@@ -1,0 +1,18 @@
+---
+
+wazuh_manager_fqdn: '{{ ansible_hostname }}'
+
+wazuh_manager_config:
+  connection:
+    - type: 'secure'
+      port: '1514'
+      protocol: 'tcp'
+      queue_size: 131072
+  api:
+    https: 'yes'
+  cluster:
+    disable: 'no'
+    node_name: '{{ ansible_hostname }}'
+    node_type: master
+    nodes: '{{ private_ip }}'
+    hidden: 'no'

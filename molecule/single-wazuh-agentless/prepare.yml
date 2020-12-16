@@ -1,0 +1,39 @@
+---
+- name: Prepare managers for agentless
+  hosts: [managers]
+  become: true
+  become_user: root
+  tasks:
+    - name: Base | Install OpenSSH Client
+      package:
+        name: openssh-clients
+        state: present
+
+- name: Prepare agents for agentless
+  hosts: [agents]
+  become: true
+  become_user: root
+  strategy: free
+  tasks:
+    - name: Base | Install OpenSSH
+      package:
+        name: openssh-server
+        state: present
+
+    - name: SSH | Update root user
+      user:
+        name: root
+        password: '$6$Hc4RIHoiq2XMp.LY$3JMUPutIKM/iAg4rF.VtCq80ow2wOaRoP3ETaDgcoHYDLcwdJspGQvI/TelBLjK6uEyNymUxy5ZxBqP5UnL0X.'
+        state: present
+
+    - name: SSH | Allow Root Login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^[\s\#]*PermitRootLogin.*'
+        line: PermitRootLogin yes
+
+    - name: SSH | Start service
+      service:
+        name: sshd
+        state: started
+        enabled: yes
