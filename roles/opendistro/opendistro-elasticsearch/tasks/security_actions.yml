@@ -25,7 +25,7 @@
 
     - name: Setting node name (Filebeat)
       set_fact:
-        od_node_name: "{{ kibana_node_name }}"
+        od_node_name: "{{ filebeat_node_name }}"
       when:
         filebeat_node_name is defined
 
