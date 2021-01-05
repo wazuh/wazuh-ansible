@@ -657,6 +657,13 @@
   </auth>
 {% endif %}
 
+	  <rule_test>
+	    <enabled>{{ wazuh_manager_rule_test.enabled | bool | ternary('yes', 'no') }}</enabled>
+	    <threads>{{ wazuh_manager_rule_test.threads }}</threads>
+	    <max_sessions>{{ wazuh_manager_rule_test.max_sessions}}</max_sessions>
+	    <session_timeout>{{ wazuh_manager_rule_test.session_timeout }}</session_timeout>
+	  </rule_test>
+
   <cluster>
     <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
     <name>{{ wazuh_manager_config.cluster.name }}</name>
