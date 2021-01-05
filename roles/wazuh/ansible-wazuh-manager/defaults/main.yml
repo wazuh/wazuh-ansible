@@ -70,6 +70,10 @@ wazuh_manager_globals:
   - '^localhost.localdomain$'
   - '127.0.0.53'
 
+# Time for an agent to be considered disconnected and alert on it
+wazuh_manager_agent_disconnection_time: 20s
+wazuh_manager_agent_disconnection_alert_time: 100s
+
 ## Alerts
 wazuh_manager_log_level: 3
 wazuh_manager_email_level: 12
