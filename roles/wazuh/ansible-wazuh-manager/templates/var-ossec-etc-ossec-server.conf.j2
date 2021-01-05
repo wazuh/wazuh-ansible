@@ -20,7 +20,8 @@
     <email_maxperhour>{{ wazuh_manager_config.mail_maxperhour }}</email_maxperhour>
     <email_log_source>{{ wazuh_manager_config.email_log_source }}</email_log_source>
   </global>
-
+  <agents_disconnection_time>{{ wazuh_manager_agent_disconnection_time }}</agents_disconnection_time>
+  <agents_disconnection_alert_time>{{ wazuh_manager_agent_disconnection_alert_time }}</agents_disconnection_alert_time>
   <alerts>
     <log_alert_level>{{ wazuh_manager_config.log_level }}</log_alert_level>
     <email_alert_level>{{ wazuh_manager_config.email_level }}</email_alert_level>
