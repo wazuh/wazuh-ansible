@@ -389,6 +389,13 @@ wazuh_manager_cluster:
     - 'manager'
   hidden: 'no'
 
+## Configuration for wazuh-logtest soluion
+wazuh_manager_rule_test:
+  enabled: true
+  threads: 1
+  max_sessions: 64
+  session_timeout: 15m
+
 ## Wazuh API setup
 wazuh_manager_api:
   bind_addr: 0.0.0.0
