@@ -634,9 +634,6 @@
     {% if wazuh_manager_config.authd.use_password is not none %}
     <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
     {% endif %}
-    {% if wazuh_manager_config.authd.limit_maxagents is not none %}
-    <limit_maxagents>{{wazuh_manager_config.authd.limit_maxagents}}</limit_maxagents>
-    {% endif %}
     {% if wazuh_manager_config.authd.ciphers is not none %}
     <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
     {% endif %}
