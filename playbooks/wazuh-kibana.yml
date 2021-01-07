@@ -1,5 +1,6 @@
 ---
 - hosts: <KIBANA_HOST>
+  become: yes
   roles:
     - role: ../roles/elastic-stack/ansible-kibana
       elasticsearch_network_host: <YOUR_ELASTICSEARCH_IP>
