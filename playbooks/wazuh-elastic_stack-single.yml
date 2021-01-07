@@ -1,5 +1,6 @@
 ---
 - hosts: <your server host>
+  become: yes
   roles:
     - {role: ../roles/wazuh/ansible-wazuh-manager}
     - role: ../roles/wazuh/ansible-filebeat
