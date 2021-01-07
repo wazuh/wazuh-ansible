@@ -1,4 +1,5 @@
 ---
 - hosts: es1
+  become: yes
   roles:
     - role: ../roles/opendistro/opendistro-kibana
