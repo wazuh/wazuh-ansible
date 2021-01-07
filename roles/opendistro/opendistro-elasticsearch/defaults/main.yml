@@ -5,8 +5,11 @@ opendistro_version: 1.11.0
 single_node: false
 elasticsearch_node_name: node-1
 opendistro_cluster_name: wazuh
+
+elasticsearch_node_master: true
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
+
 elasticsearch_lower_disk_requirements: false
 elasticsearch_cluster_nodes:
   - 127.0.0.1
