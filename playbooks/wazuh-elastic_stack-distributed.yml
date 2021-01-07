@@ -1,6 +1,7 @@
 ---
 
 - hosts: <node-1 IP>
+  become: yes
   roles:
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-1 IP>
@@ -32,6 +33,7 @@
         ip: <node-3 IP>
 
 - hosts: <node-2 IP>
+  become: yes
   roles:
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-2 IP>
@@ -45,6 +47,7 @@
         - <node-3 IP>
 
 - hosts: <node-3 IP>
+  become: yes
   roles:
     - role: ../roles/elastic-stack/ansible-elasticsearch
       elasticsearch_network_host: <node-3 IP>
