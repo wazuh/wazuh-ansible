@@ -165,16 +165,6 @@
     - init
     - config
 
-- name: Retrieving Agentless Credentials
-  include_vars: agentless_creds.yml
-  tags:
-    - config
-
-- name: Retrieving authd Credentials
-  include_vars: authd_pass.yml
-  tags:
-    - config
-
 - name: Check if syslog output is enabled
   set_fact: syslog_output=true
   when: item.server is not none
@@ -223,7 +213,7 @@
   notify: restart wazuh-manager
   when:
     - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
-    - agentless_creds is defined
+    - wazuh_manager_agentless | length > 0
   tags:
     - config
 
@@ -288,20 +278,14 @@
     - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Agentless Hosts & Passwd
-  template:
-    src: agentless.j2
-    dest: "/var/ossec/agentless/.passlist_tmp"
+  copy:
+    content: "{{ lookup('template', 'templates/agentless.j2') | b64encode }}"
+    dest: /var/ossec/agentless/.passlist
     owner: root
     group: root
     mode: 0644
   no_log: true
-  when: agentless_creds is defined
-  tags:
-    - config
-
-- name: Encode the secret
-  shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
-  when: agentless_creds is defined
+  when: wazuh_manager_agentless | length > 0
   tags:
     - config
 

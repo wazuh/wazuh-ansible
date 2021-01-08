@@ -374,8 +374,7 @@
   </command>
 {% endfor %}
 
-{% if agentless_creds is defined %}
-{% for agentless in agentless_creds %}
+{% for agentless in wazuh_manager_agentless %}
   <agentless>
     <type>{{ agentless.type }}</type>
     <frequency>{{ agentless.frequency }}</frequency>
@@ -386,7 +385,6 @@
     {% endif %}
   </agentless>
 {% endfor %}
-{% endif -%}
 
 {% if wazuh_manager_config.active_responses is defined %}
   {% for response in wazuh_manager_config.active_responses %}
