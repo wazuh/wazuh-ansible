@@ -1,91 +1,90 @@
 ---
 
-- hosts: <node-1 IP>
+- name: Generate certificates for distributed elastic+security
+  hosts: es-node01
+  become: yes
   roles:
-    - role: ../roles/elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: <node-1 IP>
-      elasticsearch_node_name: node-1
-      elasticsearch_bootstrap_node: true
-      elasticsearch_cluster_nodes:
-        - <node-1 IP>
-        - <node-2 IP>
-        - <node-3 IP>
-      elasticsearch_discovery_nodes:
-        - <node-1 IP>
-        - <node-2 IP>
-        - <node-3 IP>
-      elasticsearch_xpack_security: true
-      node_certs_generator: true
-      elasticsearch_xpack_security_password: elastic_pass
-      single_node: false
+    - role: elastic-stack/ansible-elasticsearch
+      vars:
+        single_node: false
+        node_certs_generator: true
+        elasticsearch_bootstrap_node: true
+        elasticsearch_xpack_security: true
+        elasticsearch_xpack_security_password: elastic_pass
+        elasticsearch_jvm_xms: 1024
+        elasticsearch_network_host: 0.0.0.0
+        elasticsearch_node_name: es-node01
+        # These might use hostname or IP
+        elasticsearch_cluster_nodes:
+          - es-node01
+          - es-node02
+          - es-node03
+        elasticsearch_discovery_nodes:
+          - es-node01
+          - es-node02
+          - es-node03
+        # Important: name must be equal to elasticsearch_node_name.
+        # When unzipping, the node will search for its node name folder to get the cert.
+        # Also notice, instead of dns key you might use ip.
+        instances:
+          node1:
+            name: es-node01
+            dns: es-node01
+          node2:
+            name: es-node02
+            dns: es-node02
+          node3:
+            name: es-node03
+            dns: es-node03
+          kibana:
+            name: es-kib01
+            dns: es-kib01
+          wazuh:
+            name: wz-mgr01
+            dns: wz-mgr01
 
-  vars:
-    instances:
-      node1:
-        name: node-1       # Important: must be equal to elasticsearch_node_name.
-        ip: <node-1 IP>   # When unzipping, the node will search for its node name folder to get the cert.
-      node2:
-        name: node-2
-        ip: <node-2 IP>
-      node3:
-        name: node-3
-        ip: <node-3 IP>
-
-- hosts: <node-2 IP>
+- name: Deploy the rest of the distributed Elastic cluster
+  hosts: all:!es-node01
+  strategy: free
   roles:
-    - role: ../roles/elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: <node-2 IP>
-      elasticsearch_node_name: node-2
-      single_node: false
-      elasticsearch_xpack_security: true
-      elasticsearch_master_candidate: true
-      elasticsearch_discovery_nodes:
-        - <node-1 IP>
-        - <node-2 IP>
-        - <node-3 IP>
+    - role: elastic-stack/ansible-elasticsearch
+      vars:
+        single_node: false
+        elasticsearch_xpack_security: true
+        elasticsearch_node_master: true
+        elasticsearch_jvm_xms: 1024
+        elasticsearch_network_host: 0.0.0.0
+        # This should be es-node01 and es-node02 for each respective host
+        elasticsearch_node_name: '{{ inventory_hostname }}'
+        elasticsearch_discovery_nodes:
+          - es-node01
+          - es-node02
+          - es-node03
 
-- hosts: <node-3 IP>
+- name: Deploy a single Wazuh Manager
+  hosts: wz-mgr01
   roles:
-    - role: ../roles/elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: <node-3 IP>
-      elasticsearch_node_name: node-3
-      single_node: false
-      elasticsearch_xpack_security: true
-      elasticsearch_master_candidate: true
-      elasticsearch_discovery_nodes:
-        - <node-1 IP>
-        - <node-2 IP>
-        - <node-3 IP>
+    - role: wazuh/ansible-wazuh-manager
+    - role: wazuh/ansible-filebeat
+      vars:
+        filebeat_output_elasticsearch_hosts: es-node01:9200
+        filebeat_xpack_security: true
+        filebeat_node_name: wz-mgr01
+        node_certs_generator: false
+        elasticsearch_xpack_security_password: elastic_pass
 
-
-# - hosts: 172.16.0.162
-#   roles:
-#     - role: ../roles/wazuh/ansible-wazuh-manager
-
-#     - role: ../roles/wazuh/ansible-filebeat
-#       filebeat_output_elasticsearch_hosts: 172.16.0.161:9200
-#       filebeat_xpack_security: true
-#       filebeat_node_name: node-2
-#       node_certs_generator: false
-#       elasticsearch_xpack_security_password: elastic_pass
-
-#     - role: ../roles/elastic-stack/ansible-elasticsearch
-#       elasticsearch_network_host: 172.16.0.162
-#       node_name: node-2
-#       elasticsearch_bootstrap_node: false
-#       elasticsearch_master_candidate: true
-#       elasticsearch_discovery_nodes:
-#         - 172.16.0.161
-#         - 172.16.0.162
-#       elasticsearch_xpack_security: true
-#       node_certs_generator: false
-
-
-# - hosts: 172.16.0.163
-#   roles:
-#     - role: ../roles/elastic-stack/ansible-kibana
-#       kibana_xpack_security: true
-#       kibana_node_name: node-3
-#       elasticsearch_network_host: 172.16.0.161
-#       node_certs_generator: false
-#       elasticsearch_xpack_security_password: elastic_pass
+- name: Deploy a single Kibana
+  hosts: es-kib01
+  roles:
+    - role: elastic-stack/ansible-kibana
+      vars:
+        kibana_xpack_security: true
+        kibana_node_name: es-kib01
+        elasticsearch_network_host: es-node01
+        elasticsearch_xpack_security_password: elastic_pass
+        wazuh_api_credentials:
+          - id: default
+            url: https://wz-mgr01
+            port: 55000
+            username: wazuh
+            password: wazuh
