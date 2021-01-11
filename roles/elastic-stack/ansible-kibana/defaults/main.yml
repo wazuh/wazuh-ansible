@@ -7,7 +7,7 @@ kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_conf_path: /etc/kibana
 elastic_stack_version: 7.9.3
-wazuh_version: 4.0.3
+wazuh_version: 4.0.4
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 elasticrepo:
