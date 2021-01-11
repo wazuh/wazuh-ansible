@@ -1,7 +1,7 @@
 ---
 
 kibana_server_name: '{{ ansible_hostname }}'
-kibana_node_name: '{{ private_ip }}'
+kibana_node_name: '{{ ansible_hostname }}'
 
 elasticsearch_network_host: "{{ elastic_addresses[0] }}"
 #elasticsearch_http_port: 9200

@@ -35,3 +35,6 @@ kibana_xpack_security: true
 elasticsearch_xpack_security: true
 elasticsearch_xpack_security_user: elastic
 elasticsearch_xpack_security_password: elastic_pass
+
+elasticsearch_ssl_method: ansible
+elasticsearch_ssl_cert_skip_deployed: no

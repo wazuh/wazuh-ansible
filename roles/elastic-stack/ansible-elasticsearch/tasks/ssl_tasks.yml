@@ -1,0 +1,29 @@
+---
+
+- name: SSL | check if certificate exists on target node
+  stat:
+    path: '{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt'
+  register: certificate_file_exists
+
+- name: SSL | run elasticsearch security tasks with legacy method
+  include_tasks: ssl_legacy.yml
+  when:
+    - elasticsearch_ssl_method | lower == 'legacy'
+    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
+
+- name: SSL | run elasticsearch security tasks with ansible method
+  include_tasks: ssl_ansible.yml
+  when:
+    - elasticsearch_ssl_method | lower == 'ansible'
+    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
+
+- name: ES | Set elasticsearch bootstrap password
+  shell: |
+    set -o pipefail
+    echo {{ elasticsearch_xpack_security_password }} | {{ node_certs_source }}/bin/elasticsearch-keystore add -xf bootstrap.password
+  args:
+    executable: /bin/bash
+  when:
+    - node_certs_generator | bool
+    - not (elasticsearch_ssl_cert_skip_deployed and certificate_file_exists.stat.exists)
+  tags: molecule-idempotence-notest

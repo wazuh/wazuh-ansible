@@ -4,8 +4,8 @@ single_node: false
 elasticsearch_node_master: true
 minimum_master_nodes: 1
 
+elasticsearch_node_name: '{{ ansible_hostname }}'
 elasticsearch_network_host: '{{ private_ip }}'
-elasticsearch_node_name: '{{ private_ip }}'
 
 elasticsearch_reachable_host: '{{ private_ip }}'
 elasticsearch_http_port: 9200

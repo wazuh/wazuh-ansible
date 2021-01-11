@@ -1,0 +1,18 @@
+
+opendistro_security.ssl.transport.pemcert_filepath: {{ node.key }}.pem
+opendistro_security.ssl.transport.pemkey_filepath: {{ node.key }}.key
+opendistro_security.ssl.transport.pemtrustedcas_filepath: {{ elasticsearch_ssl_ca_name }}.pem
+opendistro_security.ssl.transport.enforce_hostname_verification: false
+opendistro_security.ssl.transport.resolve_hostname: false
+opendistro_security.ssl.http.enabled: true
+opendistro_security.ssl.http.pemcert_filepath: {{ node.key }}_http.pem
+opendistro_security.ssl.http.pemkey_filepath: {{ node.key }}_http.key
+opendistro_security.ssl.http.pemtrustedcas_filepath: {{ elasticsearch_ssl_ca_name }}.pem
+opendistro_security.nodes_dn:
+{% for key,value in instances.items() %}
+  - CN={{ key }}.{{ domain_name }},OU={{ elasticsearch_ssl_default_org_unit }},O={{ elasticsearch_ssl_default_org }}
+{% endfor %}
+opendistro_security.authcz.admin_dn:
+{% for admin_entry in elasticsearch_ssl_admins %}
+  - CN={{ admin_entry.name }}{{ admin_entry.domain | default('') | regex_replace('^\.*(.+)$', '.\\1') }}, OU={{ elasticsearch_ssl_default_org_unit }}, O={{ elasticsearch_ssl_default_org }}
+{% endfor %}

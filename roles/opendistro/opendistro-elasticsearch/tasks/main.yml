@@ -1,6 +1,7 @@
 ---
 
-- import_tasks: local_actions.yml
+- name: SSL | Execute cert chain tasks
+  include_tasks: ssl_tasks.yml
   when:
     - generate_certs
 

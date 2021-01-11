@@ -68,9 +68,10 @@
 - import_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- import_tasks: "xpack_security.yml"
-  when:
-    - elasticsearch_xpack_security
+- name: SSL | Execute cert chain tasks
+  include_tasks: ssl_tasks.yml
+  when: elasticsearch_xpack_security | bool
+
 
 - name: Configure Elasticsearch.
   template:
