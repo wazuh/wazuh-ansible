@@ -1,0 +1,9 @@
+---
+- name: Deploy Kibana with role defaults
+  hosts: all
+  become: yes
+  roles:
+    - role: elastic-stack/ansible-kibana
+      vars:
+        elasticsearch_network_host: '127.0.0.1'
+        elasticsearch_reachable_host: 'localhost'
