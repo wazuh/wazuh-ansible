@@ -18,11 +18,11 @@ elastic_stack_version: 7.9.3
 filebeat_version: 7.9.3
 
 # Debian packages need the ${VERSION}-1
-wazuh_manager_version: 4.0.3-1
-wazuh_agent_version: 4.0.3-1
+wazuh_manager_version: 4.0.4-1
+wazuh_agent_version: 4.0.4-1
 
 # Kibana role appends it automatically.
-wazuh_version: 4.0.3
+wazuh_version: 4.0.4
 
 
 ########################################################
