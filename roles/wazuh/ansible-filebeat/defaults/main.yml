@@ -1,7 +1,7 @@
 ---
 filebeat_version: 7.9.3
 
-wazuh_template_branch: v4.0.3
+wazuh_template_branch: v4.0.4
 
 filebeat_create_config: true
 
