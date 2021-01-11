@@ -1,0 +1,11 @@
+---
+- name: Deploy a single Wazuh manager with defaults
+  hosts: all
+  become: yes
+  roles:
+    - role: wazuh/ansible-wazuh-manager
+    - role: wazuh/ansible-filebeat
+      vars:
+        # Send elastic data to localhost
+        filebeat_output_elasticsearch_hosts:
+          - localhost:9200
