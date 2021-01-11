@@ -1,0 +1,20 @@
+---
+- name: Deploy single ODFE with defaults
+  hosts: all
+  become: yes
+  roles:
+    - role: opendistro/opendistro-elasticsearch
+      vars:
+        # As this is a single node, it's ok to generate certs and deploy at once
+        single_node: yes
+        generate_certs: yes
+        perform_installation: yes
+        opendistro_jvm_xms: 1024
+        elasticsearch_node_name: es-node01
+        elasticsearch_network_host: '0.0.0.0'
+        domain_name: wazuh.com
+        instances:
+          es-node01:
+            name: es-node01
+            dns: es-node01
+            ip: '{{ ansible_default_ipv4.address }}'

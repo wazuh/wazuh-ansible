@@ -1,0 +1,4 @@
+---
+- import_playbook: wazuh-odfe-elastic.yml
+- import_playbook: wazuh-manager-single-oss.yml
+- import_playbook: wazuh-odfe-kibana.yml

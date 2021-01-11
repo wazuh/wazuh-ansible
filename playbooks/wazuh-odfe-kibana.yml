@@ -1,0 +1,9 @@
+---
+- name: Deploy single Kibana with defaults
+  hosts: all
+  become: yes
+  roles:
+    - role: opendistro/opendistro-kibana
+      vars:
+        kibana_node_name: es-node01
+        elasticsearch_network_host: es-node01.wazuh.com
