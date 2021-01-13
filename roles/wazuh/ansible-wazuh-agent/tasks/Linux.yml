@@ -40,7 +40,7 @@
 
 - name: Linux | Check if client.keys exists
   stat:
-    path: /var/ossec/etc/client.keys
+    path: "{{ var_ossec_etc }}/client.keys"
   register: client_keys_file
   tags:
     - config
@@ -51,7 +51,7 @@
     - name: Copy CA root certificate to verify authd
       copy:
         src: "{{ wazuh_agent_authd.ssl_agent_ca }}"
-        dest: "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
+        dest: "{{ var_ossec_etc }}/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
         mode: 0644
       when:
         - wazuh_agent_authd.ssl_agent_ca is not none
@@ -59,7 +59,7 @@
     - name: Copy TLS/SSL certificate for agent verification
       copy:
         src: "{{ item }}"
-        dest: "/var/ossec/etc/{{ item | basename }}"
+        dest: "{{ var_ossec_etc }}/{{ item | basename }}"
         mode: 0644
       with_items:
         - "{{ wazuh_agent_authd.ssl_agent_cert }}"
@@ -70,7 +70,7 @@
 
     - name: Linux | Register agent (via authd)
       shell: >
-        /var/ossec/bin/agent-auth
+        {{ var_ossec_bin }}/agent-auth
         {% if wazuh_agent_authd.agent_name is defined and wazuh_agent_authd.agent_name != None %}
         -A {{ wazuh_agent_authd.agent_name }}
         {% endif %}
@@ -79,13 +79,13 @@
         {% if wazuh_agent_nat %} -I "any" {% endif %}
         {% if authd_pass | length > 0 %} -P {{ authd_pass }} {% endif %}
         {% if wazuh_agent_authd.ssl_agent_ca is defined and wazuh_agent_authd.ssl_agent_ca != None %}
-        -v "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
+        -v "{{ var_ossec_etc }}/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
         {% endif %}
         {% if wazuh_agent_authd.ssl_agent_cert is defined and wazuh_agent_authd.ssl_agent_cert != None %}
-        -x "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_cert | basename }}"
+        -x "{{ var_ossec_etc }}/{{ wazuh_agent_authd.ssl_agent_cert | basename }}"
         {% endif %}
         {% if wazuh_agent_authd.ssl_agent_key is defined and wazuh_agent_authd.ssl_agent_key != None  %}
-        -k "/var/ossec/etc/{{ wazuh_agent_authd.ssl_agent_key | basename }}"
+        -k "{{ var_ossec_etc }}/{{ wazuh_agent_authd.ssl_agent_key | basename }}"
         {% endif %}
         {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %} -a {% endif %}
         {% if wazuh_agent_authd.groups is defined and wazuh_agent_authd.groups | length > 0 %}
@@ -107,7 +107,7 @@
 
   when:
     - wazuh_agent_authd.enable | bool
-    - wazuh_agent_config.enrollment.enabled != 'yes'
+    - wazuh_agent_config_defaults.enrollment.enabled != 'yes'
   tags:
     - config
     - authd
@@ -193,7 +193,7 @@
         - api
 
     - name: Linux | Import Key (via rest-API)
-      command: /var/ossec/bin/manage_agents
+      command: "{{ var_ossec_bin }}/manage_agents"
       environment:
         OSSEC_ACTION: i
         OSSEC_AGENT_NAME: '{{ agent_name }}'
@@ -207,7 +207,7 @@
       notify: restart wazuh-agent
   when:
     - not ( wazuh_agent_authd.enable | bool )
-    - wazuh_agent_config.enrollment.enabled != 'yes'
+    - wazuh_agent_config_defaults.enrollment.enabled != 'yes'
     - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
   tags:
     - config
@@ -216,12 +216,12 @@
 - name: Linux | Agent registration via auto-enrollment
   debug:
     msg: Agent registration will be performed through enrollment option in templated ossec.conf
-  when:  wazuh_agent_config.enrollment.enabled == 'yes'
+  when:  wazuh_agent_config_defaults.enrollment.enabled == 'yes'
 
 - name: Linux | Installing agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
-    dest: /var/ossec/etc/ossec.conf
+    dest: "{{ var_ossec_etc }}/ossec.conf"
     owner: root
     group: ossec
     mode: 0644
@@ -233,7 +233,7 @@
 - name: Linux | Installing local_internal_options.conf
   template:
     src: var-ossec-etc-local-internal-options.conf.j2
-    dest: /var/ossec/etc/local_internal_options.conf
+    dest: "{{ var_ossec_etc }}/local_internal_options.conf"
     owner: root
     group: ossec
     mode: 0640
@@ -245,13 +245,13 @@
 - name: Create auto-enrollment password file
   template:
     src: authd_pass.j2
-    dest: "/var/ossec/etc/authd.pass"
+    dest: "{{ var_ossec_etc }}/authd.pass"
     owner: ossec
     group: ossec
     mode: 0640
   when:
-    - wazuh_agent_config.enrollment.enabled == 'yes'
-    - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
+    - wazuh_agent_config_defaults.enrollment.enabled == 'yes'
+    - wazuh_agent_config_defaults.enrollment.authorization_pass_path | length > 0
     - authd_pass | length > 0
   tags:
     - config
