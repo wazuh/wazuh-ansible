@@ -4,7 +4,9 @@ opendistro_version: 1.11.0
 
 single_node: false
 elasticsearch_node_name: node-1
+elasticsearch_node_master: false
 opendistro_cluster_name: wazuh
+elasticsearch_network_host: 127.0.0.1
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
 elasticsearch_lower_disk_requirements: false
@@ -51,8 +53,8 @@ certs_gen_tool_version: 1.8
 certs_gen_tool_url: "https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/{{ certs_gen_tool_version }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
 
 
-opendistro_admin_password: changeme
-opendistro_kibana_password: changeme
+opendistro_admin_password: admin  
+opendistro_kibana_password: admin
 
 # Deployment settings
 generate_certs: true
