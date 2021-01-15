@@ -12,5 +12,3 @@
         api_user: ansible
         max_retries: 5
         retry_interval: 5
-  vars_files:
-    - ./group_vars/vars.yml
