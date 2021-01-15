@@ -16,7 +16,7 @@ wazuh_manager_sources_installation:
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
-  user_dir: "/var/ossec"
+  user_dir: "{{ ossec_dir }}"
   user_delete_dir: null
   user_enable_active_response: null
   user_enable_syscheck: "y"
@@ -297,7 +297,7 @@ wazuh_manager_localfiles:
       command: 'last -n 20'
       frequency: '360'
     - format: 'syslog'
-      location: '/var/ossec/logs/active-responses.log'
+      location: "{{ ossec_logs }}/active-responses.log"
   debian:
     - format: 'syslog'
       location: '/var/log/auth.log'
@@ -512,3 +512,23 @@ wazuh_manager_config_defaults:
 #         format: 'eventchannel'
 #       - location: 'System'
 #         format: 'eventlog'
+
+# OSSEC config paths
+
+ossec_dir: '/var/ossec'
+ossec_bin: "{{ ossec_dir }}/bin"
+ossec_etc: "{{ ossec_dir }}/etc"
+ossec_shared: "{{ ossec_etc }}/shared"
+ossec_default: "{{ ossec_shared }}/default" 
+ossec_logs: "{{ ossec_dir }}/logs"
+ossec_rules: "{{ ossec_etc }}/rules"
+ossec_decoders: "{{ ossec_etc }}/decoders"
+ossec_api: "{{ ossec_dir }}/api"
+ossec_api_conf: "{{ ossec_api }}/configuration"
+ossec_framework: "{{ ossec_dir }}/framework"
+ossec_framework_lib: "{{ ossec_framework }}/lib"
+ossec_framework_scripts: "{{ ossec_framework }}/scripts"
+ossec_python: "{{ ossec_framework }}/python"
+ossec_python_bin: "{{ ossec_python }}/bin" 
+ossec_agentless: "{{ ossec_dir }}/agentless"
+ossec_rootcheck: "{{ ossec_etc }}/rootcheck"
