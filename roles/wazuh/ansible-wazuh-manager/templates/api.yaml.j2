@@ -44,10 +44,10 @@
  experimental_features: {{ wazuh_manager_config.api.experimental_features }}
 
 # Enable remote commands
-remote_commands:
-  localfile:
-    enabled: {{ wazuh_manager_config.api.remote_commands_localfile }}
-    exceptions: {{ wazuh_manager_config.api.remote_commands_localfile_exceptions }}
-  wodle_command:
-    enabled: {{ wazuh_manager_config.api.remote_commands_wodle }}
-    exceptions: {{ wazuh_manager_config.api.remote_commands_wodle_exceptions }}
+ remote_commands:
+   localfile:
+     enabled: {{ wazuh_manager_config.api.remote_commands_localfile }}
+     exceptions: {{ wazuh_manager_config.api.remote_commands_localfile_exceptions }}
+   wodle_command:
+     enabled: {{ wazuh_manager_config.api.remote_commands_wodle }}
+     exceptions: {{ wazuh_manager_config.api.remote_commands_wodle_exceptions }}
