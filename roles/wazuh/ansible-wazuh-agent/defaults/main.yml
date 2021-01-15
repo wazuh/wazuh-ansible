@@ -16,7 +16,7 @@ wazuh_agent_sources_installation:
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
-  user_dir: "{{ var_ossec }}"
+  user_dir: "{{ ossec_dir }}"
   user_delete_dir: "y"
   user_enable_active_response: "y"
   user_enable_syscheck: "y"
@@ -27,10 +27,10 @@ wazuh_agent_sources_installation:
   user_generate_authd_cert: "n"
   user_update: "y"
   user_binaryinstall: null
-  user_agent_server_ip: "YOUR_MANAGER_IP"
+  user_agent_server_ip: "172.16.0.152"
   user_agent_server_name: null
   user_agent_config_profile: null
-  user_ca_store: "{{ var_ossec }}/wpk_root.pem"
+  user_ca_store: "{{ ossec_dir }}/wpk_root.pem"
 
 wazuh_agent_yum_lock_timeout: 30
 
@@ -107,7 +107,7 @@ wazuh_agent_enrollment:
   server_ca_path: ''
   agent_certificate_path: ''
   agent_key_path: ''
-  authorization_pass_path: "{{ var_ossec_etc }}/authd.pass"
+  authorization_pass_path: "{{ ossec_etc }}/authd.pass"
   auto_method: 'no'
   delay_after_enrollment: 20
   use_source_ip: 'no'
@@ -324,7 +324,7 @@ wazuh_agent_localfiles:
       location: '/var/log/audit/audit.log'
   linux:
     - format: 'syslog'
-      location: '{{ var_ossec }}/logs/active-responses.log'
+      location: '{{ ossec_dir }}/logs/active-responses.log'
     - format: 'full_command'
       command: 'last -n 20'
       frequency: '360'
@@ -356,7 +356,7 @@ wazuh_agent_labels:
 ## Active response
 wazuh_agent_active_response:
   ar_disabled: 'no'
-  ca_store: '{{ var_ossec_etc }}/wpk_root.pem'
+  ca_store: '{{ ossec_etc }}/wpk_root.pem'
   ca_store_win: 'wpk_root.pem'
   ca_verification: 'yes'
 
@@ -382,3 +382,10 @@ wazuh_agent_config_defaults:
 
   labels: '{{ wazuh_agent_labels }}'
   enrollment: '{{ wazuh_agent_enrollment }}'
+
+# OSSEC config paths
+
+ossec_dir: '/var/ossec'
+ossec_bin: "{{ ossec_dir }}/bin"
+ossec_etc: "{{ ossec_dir }}/etc"
+ossec_shared: "{{ ossec_etc }}/shared" 
