@@ -218,7 +218,7 @@ Including an example of how to use your role (for instance, with variables passe
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2020 Wazuh Inc. (License GPLv3)
+WAZUH Copyright (C) 2021 Wazuh Inc. (License GPLv3)
 
 ### Based on previous work from dj-wasabi
 

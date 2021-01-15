@@ -47,7 +47,7 @@ The following is an example of how this role can be used:
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2020 Wazuh Inc. (License GPLv3)
+WAZUH Copyright (C) 2021 Wazuh Inc. (License GPLv3)
 
 ### Based on previous work from dj-wasabi
 

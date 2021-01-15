@@ -69,13 +69,20 @@ if __name__ == "__main__":
     # set a random password for all other users
     for name, id in initial_users.items():
         if name != username:
+            specials = "@$!%*?&-_"
             random_pass = "".join(
+                [
+                    random.choice(string.ascii_uppercase),
+                    random.choice(string.ascii_lowercase),
+                    random.choice(string.digits),
+                    random.choice(specials),
+                ] +
                 random.choices(
                     string.ascii_uppercase
                     + string.ascii_lowercase
                     + string.digits
-                    + "@$!%*?&-_",
-                    k=16,
+                    + specials,
+                    k=14,
                 )
             )
             update_user(
