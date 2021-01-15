@@ -395,6 +395,7 @@ wazuh_manager_api:
   https_cert: "api/configuration/ssl/server.crt"
   https_use_ca: False
   https_ca: "api/configuration/ssl/ca.crt"
+  https_ssl_cipher: "TLSv1.2"
   logging_level: "info"
   logging_path: "logs/api.log"
   cors: no
@@ -410,7 +411,10 @@ wazuh_manager_api:
   use_only_authd: no
   drop_privileges: yes
   experimental_features: no
-
+  remote_commands_localfile: yes
+  remote_commands_localfile_exceptions: []
+  remote_commands_wodle: yes
+  remote_commands_wodle_exceptions: []
 # wazuh_api_users:
 #   - username: custom-user
 #     password: .S3cur3Pa55w0rd*- # Must comply with requirements (8+ length, uppercase, lowercase, specials chars)
