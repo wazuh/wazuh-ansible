@@ -3,6 +3,8 @@ filebeat_version: 7.9.1
 
 wazuh_template_branch: v4.0.3
 
+filebeat_node_name: node-1
+
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
 
@@ -12,7 +14,7 @@ filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module
 filebeat_module_folder: /usr/share/filebeat/module/wazuh
 elasticsearch_security_user: admin
-elasticsearch_security_password: changeme
+elasticsearch_security_password: admin
 # Security plugin
 filebeat_security: true
 filebeat_ssl_dir: /etc/pki/filebeat
