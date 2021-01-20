@@ -297,7 +297,7 @@ wazuh_manager_localfiles:
       command: 'last -n 20'
       frequency: '360'
     - format: 'syslog'
-      location: '/var/ossec/logs/active-responses.log'
+      location: "{{ wazuh_manager_sources_installation.user_dir }}/logs/active-responses.log"
   debian:
     - format: 'syslog'
       location: '/var/log/auth.log'
@@ -500,7 +500,7 @@ wazuh_manager_config_defaults:
 #       - format: 'apache'
 #         location: '/var/log/httpd/access_log'
 #       - format: 'apache'
-#         location: '/var/ossec/logs/active-responses.log'
+#         location: "{{ wazuh_manager_sources_installation.user_dir }}/logs/active-responses.log"
 #   - type: os
 #     type_value: Windows
 #     syscheck:
