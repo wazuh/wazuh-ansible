@@ -70,6 +70,10 @@ wazuh_manager_globals:
   - '^localhost.localdomain$'
   - '127.0.0.53'
 
+# Time for an agent to be considered disconnected and alert on it
+wazuh_manager_agent_disconnection_time: 20s
+wazuh_manager_agent_disconnection_alert_time: 100s
+
 ## Alerts
 wazuh_manager_log_level: 3
 wazuh_manager_email_level: 12
@@ -364,7 +368,6 @@ wazuh_manager_authd:
   force_time: 0
   purge: 'yes'
   use_password: 'no'
-  limit_maxagents: 'yes'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
   ssl_agent_ca: null
   ssl_verify_host: 'no'
@@ -384,6 +387,13 @@ wazuh_manager_cluster:
   nodes:
     - 'manager'
   hidden: 'no'
+
+## Configuration for wazuh-logtest soluion
+wazuh_manager_rule_test:
+  enabled: true
+  threads: 1
+  max_sessions: 64
+  session_timeout: 15m
 
 ## Wazuh API setup
 wazuh_manager_api:
