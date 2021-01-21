@@ -74,15 +74,15 @@
   when:
     - not build_from_sources
 
-- name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
-  args:
-    executable: /bin/bash
-  become: yes
-  become_user: kibana
-  changed_when: false
-  tags:
-    - skip_ansible_lint
+# - name: Kibana optimization (can take a while)
+#   shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
+#   args:
+#     executable: /bin/bash
+#   become: yes
+#   become_user: kibana
+#   changed_when: false
+#   tags:
+#     - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
