@@ -10,7 +10,7 @@ kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
 elastic_stack_version: 7.9.1
-wazuh_version: 4.0.3
+wazuh_version: 4.0.4
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository

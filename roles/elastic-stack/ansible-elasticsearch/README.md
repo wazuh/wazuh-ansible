@@ -12,7 +12,7 @@ This role will work on:
  * Fedora
  * Debian
  * Ubuntu
- 
+
 For the elasticsearch role with XPack security the `unzip` command must be available on the Ansible master.
 
 Role Variables
@@ -134,7 +134,7 @@ It is possible to define users directly on the playbook, these must be defined o
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2020 Wazuh Inc. (License GPLv3)
+WAZUH Copyright (C) 2021 Wazuh Inc. (License GPLv3)
 
 ### Based on previous work from geerlingguy
 

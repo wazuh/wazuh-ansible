@@ -15,7 +15,7 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
-| v4.0.3        | 7.9.3   | 1.11.0 |
+| v4.0.4        | 7.9.3   | 1.11.0 |
 
 ## Documentation
 
@@ -357,7 +357,7 @@ https://github.com/dj-wasabi/ansible-ossec-server
 ## License and copyright
 
 WAZUH
-Copyright (C) 2016-2020 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2016-2021 Wazuh Inc.  (License GPLv2)
 
 ## Web references
 

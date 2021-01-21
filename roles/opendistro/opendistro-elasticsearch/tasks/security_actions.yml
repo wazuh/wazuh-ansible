@@ -8,27 +8,6 @@
     - "{{ opendistro_conf_path }}/esnode.pem"
     - "{{ opendistro_conf_path }}/esnode-key.pem"
 
-
-- name: Configure node name
-  block:
-    - name: Setting node name (Elasticsearch)
-      set_fact:
-        od_node_name: "{{ elasticsearch_node_name }}"
-      when:
-        elasticsearch_node_name is defined and kibana_node_name is not defined
-
-    - name: Setting node name (Kibana)
-      set_fact:
-        od_node_name: "{{ kibana_node_name }}"
-      when:
-        kibana_node_name is defined
-
-    - name: Setting node name (Filebeat)
-      set_fact:
-        od_node_name: "{{ kibana_node_name }}"
-      when:
-        filebeat_node_name is defined
-
 - name: Configure IP (Private address)
   set_fact:
     target_address: "{{ hostvars[inventory_hostname]['private_ip'] }}"
@@ -50,11 +29,11 @@
   with_items:
     - root-ca.pem
     - root-ca.key
-    - "{{ od_node_name }}.key"
-    - "{{ od_node_name }}.pem"
-    - "{{ od_node_name }}_http.key"
-    - "{{ od_node_name }}_http.pem"
-    - "{{ od_node_name }}_elasticsearch_config_snippet.yml"
+    - "{{ elasticsearch_node_name }}.key"
+    - "{{ elasticsearch_node_name }}.pem"
+    - "{{ elasticsearch_node_name }}_http.key"
+    - "{{ elasticsearch_node_name }}_http.pem"
+    - "{{ elasticsearch_node_name }}_elasticsearch_config_snippet.yml"
     - admin.key
     - admin.pem
 
@@ -65,7 +44,7 @@
     insertafter: EOF
     marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
   vars:
-    snippet_path: '{{ local_certs_path }}/certs/{{ od_node_name }}_elasticsearch_config_snippet.yml'
+    snippet_path: '{{ local_certs_path }}/certs/{{ elasticsearch_node_name }}_elasticsearch_config_snippet.yml'
 
 - name: Prepare the OpenDistro security configuration file
   replace:

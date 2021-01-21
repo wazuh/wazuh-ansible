@@ -1,6 +1,30 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.0.4]
+
+### Added
+
+- Update to [Wazuh v4.0.4](https://github.com/wazuh/wazuh/blob/v4.0.4/CHANGELOG.md#v404)
+
+- Support for new Wazuh API config options.
+
+- Add localfile labels to agent ossec.conf template ([@dragospe](https://github.com/dragospe)) [PR#521](https://github.com/wazuh/wazuh-ansible/pull/521)
+
+### Changed
+
+- Please notice that default Kibana user in role defaults changed from `kibanaserver` to `admin`. See listed PRs below for details.
+
+### Fixed
+
+- `create_user.py` generates invalid passwords ([@singuliere](https://github.com/singuliere)) [PR#519](https://github.com/wazuh/wazuh-ansible/pull/519)
+- Fix invalid Jinja2 syntax in centralized configuration template ([@kravietz](https://github.com/kravietz)) [PR#528](https://github.com/wazuh/wazuh-ansible/pull/528)
+- Replace default user for `opendistro-kibana` role ([@zenidd](https://github.com/zenidd)) [PR#529](https://github.com/wazuh/wazuh-ansible/pull/529)
+- Remove legacy declarations of `od_node_name` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei), [@dragospe](https://github.com/dragospe))  [PR#530](https://github.com/wazuh/wazuh-ansible/pull/530)
+- Add missing variable `elasticsearch_node_master` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#534](https://github.com/wazuh/wazuh-ansible/pull/534)
+- Add missing variable `elasticsearch_network_host` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#540](https://github.com/wazuh/wazuh-ansible/pull/540)
+
+
 ## [v4.0.3]
 
 ### Added
