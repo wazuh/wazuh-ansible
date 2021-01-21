@@ -1,12 +1,12 @@
 ---
-wazuh_agent_version: 4.0.4-1
+wazuh_agent_version: 4.1.0-1
 
 
 # Custom packages installation
 
-wazuh_custom_packages_installation_agent_enabled: false
-wazuh_custom_packages_installation_agent_deb_url: ""
-wazuh_custom_packages_installation_agent_rpm_url: ""
+wazuh_custom_packages_installation_agent_enabled: true
+wazuh_custom_packages_installation_agent_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/apt/pool/main/w/wazuh-agent/wazuh-agent_4.1.0-1_amd64.deb"
+wazuh_custom_packages_installation_agent_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/wazuh-agent-4.1.0-1.x86_64.rpm"
 
 # Sources installation
 
@@ -54,9 +54,9 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
-  md5: ac2a7f83cab1f8e217083965de7b0c84
-wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.0.4-1.msi
-wazuh_winagent_package_name: wazuh-agent-4.0.4-1.msi
+  md5: ac02a74cb510ce499bf697bf82cc194a
+wazuh_winagent_config_url: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/windows/wazuh-agent-4.1.0-1.msi
+wazuh_winagent_package_name: wazuh-agent-4.1.0-1.msi
 
 wazuh_agent_repo:
   apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
