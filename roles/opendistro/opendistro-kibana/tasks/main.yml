@@ -60,7 +60,7 @@
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
     NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
-    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}-1.zip
+    https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana-4.0.4_7.10.0-1.zip
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/plugins/wazuh/package.json

@@ -19,8 +19,6 @@
     <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
     <email_maxperhour>{{ wazuh_manager_config.mail_maxperhour }}</email_maxperhour>
     <email_log_source>{{ wazuh_manager_config.email_log_source }}</email_log_source>
-    <agents_disconnection_time>{{ wazuh_manager_agent_disconnection_time }}</agents_disconnection_time>
-    <agents_disconnection_alert_time>{{ wazuh_manager_agent_disconnection_alert_time }}</agents_disconnection_alert_time>
   </global>
 
   <alerts>
@@ -635,6 +633,9 @@
     {% if wazuh_manager_config.authd.use_password is not none %}
     <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
     {% endif %}
+    {% if wazuh_manager_config.authd.limit_maxagents is not none %}
+    <limit_maxagents>{{wazuh_manager_config.authd.limit_maxagents}}</limit_maxagents>
+    {% endif %}
     {% if wazuh_manager_config.authd.ciphers is not none %}
     <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
     {% endif %}
@@ -656,12 +657,6 @@
   </auth>
 {% endif %}
 
-	  <rule_test>
-	    <enabled>{{ wazuh_manager_rule_test.enabled | bool | ternary('yes', 'no') }}</enabled>
-	    <threads>{{ wazuh_manager_rule_test.threads }}</threads>
-	    <max_sessions>{{ wazuh_manager_rule_test.max_sessions}}</max_sessions>
-	    <session_timeout>{{ wazuh_manager_rule_test.session_timeout }}</session_timeout>
-	  </rule_test>
 
   <cluster>
     <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>

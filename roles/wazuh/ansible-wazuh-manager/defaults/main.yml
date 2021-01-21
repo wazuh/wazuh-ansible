@@ -1,11 +1,11 @@
 ---
-wazuh_manager_version: 4.1.0-1
+wazuh_manager_version: 4.0.4-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 
 # Custom packages installation
-wazuh_custom_packages_installation_manager_enabled: true
+wazuh_custom_packages_installation_manager_enabled: false
 wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/apt/pool/main/w/wazuh-manager/wazuh-manager_4.1.0-1_amd64.deb"
 wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/pre-release/yum/wazuh-manager-4.1.0-1.x86_64.rpm"
 
@@ -368,6 +368,7 @@ wazuh_manager_authd:
   force_time: 0
   purge: 'yes'
   use_password: 'no'
+  limit_maxagents: 'yes'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
   ssl_agent_ca: null
   ssl_verify_host: 'no'
