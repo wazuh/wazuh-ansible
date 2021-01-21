@@ -74,15 +74,15 @@
   when:
     - not build_from_sources
 
-- name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
-  args:
-    executable: /bin/bash
-  become: yes
-  become_user: kibana
-  changed_when: false
-  tags:
-    - skip_ansible_lint
+# - name: Kibana optimization (can take a while)
+#   shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
+#   args:
+#     executable: /bin/bash
+#   become: yes
+#   become_user: kibana
+#   changed_when: false
+#   tags:
+#     - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
@@ -102,7 +102,7 @@
 
 - name: Create wazuh plugin config directory
   file:
-    path: /usr/share/kibana/optimize/wazuh/config/
+    path: /usr/share/kibana/data/wazuh/config/
     state: directory
     recurse: yes
     owner: kibana
@@ -113,7 +113,7 @@
 - name: Configure Wazuh Kibana Plugin
   template:
     src: wazuh.yml.j2
-    dest: /usr/share/kibana/optimize/wazuh/config/wazuh.yml
+    dest: /usr/share/kibana/data/wazuh/config/wazuh.yml
     owner: kibana
     group: kibana
     mode: 0751
