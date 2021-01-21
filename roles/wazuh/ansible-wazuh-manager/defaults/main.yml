@@ -16,7 +16,6 @@ wazuh_manager_sources_installation:
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
-  user_dir: "/var/ossec"
   user_delete_dir: null
   user_enable_active_response: null
   user_enable_syscheck: "y"
@@ -35,6 +34,7 @@ wazuh_manager_sources_installation:
   user_ca_store: null
   threads: "2"
 
+wazuh_dir: "/var/ossec"
 wazuh_manager_repo:
   apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
   yum: 'https://packages.wazuh.com/4.x/yum/'
@@ -297,7 +297,7 @@ wazuh_manager_localfiles:
       command: 'last -n 20'
       frequency: '360'
     - format: 'syslog'
-      location: "{{ wazuh_manager_sources_installation.user_dir }}/logs/active-responses.log"
+      location: "{{ wazuh_dir }}/logs/active-responses.log"
   debian:
     - format: 'syslog'
       location: '/var/log/auth.log'
@@ -500,7 +500,7 @@ wazuh_manager_config_defaults:
 #       - format: 'apache'
 #         location: '/var/log/httpd/access_log'
 #       - format: 'apache'
-#         location: "{{ wazuh_manager_sources_installation.user_dir }}/logs/active-responses.log"
+#         location: "{{ wazuh_dir }}/logs/active-responses.log"
 #   - type: os
 #     type_value: Windows
 #     syscheck:
