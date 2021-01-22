@@ -16,6 +16,7 @@ wazuh_manager_sources_installation:
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
+  user_dir: "/var/ossec"
   user_delete_dir: null
   user_enable_active_response: null
   user_enable_syscheck: "y"

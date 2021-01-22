@@ -16,6 +16,7 @@ wazuh_agent_sources_installation:
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
+  user_dir: "/var/ossec"
   user_delete_dir: "y"
   user_enable_active_response: "y"
   user_enable_syscheck: "y"
