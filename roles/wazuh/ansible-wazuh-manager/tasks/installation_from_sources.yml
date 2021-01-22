@@ -2,7 +2,7 @@
 # Wazuh Manager
   - name: Check if Wazuh Manager is already installed
     stat:
-      path: /var/ossec/bin/ossec-control
+      path: "{{ wazuh_dir }}/bin/ossec-control"
     register: wazuh_ossec_control
 
   - name: Installing Wazuh Manager from sources

@@ -94,7 +94,7 @@
     <frequency>{{ agent_config.rootcheck.frequency }}</frequency>
 
     {% if agent_config.rootcheck.cis_distribution_filename is defined %}
-    <system_audit>/var/ossec/etc/shared/default/{{ agent_config.rootcheck.cis_distribution_filename }}</system_audit>
+    <system_audit>{{ wazuh_dir }}/etc/shared/default/{{ agent_config.rootcheck.cis_distribution_filename }}</system_audit>
     {% endif %}
     <skip_nfs>yes</skip_nfs>
   </rootcheck>

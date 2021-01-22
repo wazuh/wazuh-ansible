@@ -33,7 +33,7 @@
   command: "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:1825 -keyout sslmanager.key -out sslmanager.cert -subj /CN={{ wazuh_manager_fqdn }}/"
   args:
     creates: sslmanager.cert
-    chdir: /var/ossec/etc/
+    chdir: "{{ wazuh_dir }}/etc/"
   tags:
     - config
   when: wazuh_manager_config.authd.ssl_agent_ca is not none
@@ -41,7 +41,7 @@
 - name: Copy CA, SSL key and cert for authd
   copy:
     src: "{{ item }}"
-    dest: "/var/ossec/etc/{{ item }}"
+    dest: "{{ wazuh_dir }}/etc/{{ item }}"
     mode: 0644
   with_items:
     - "{{ wazuh_manager_config.authd.ssl_agent_ca }}"
@@ -80,7 +80,7 @@
 
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
-            dest=/var/ossec/etc/rules/local_rules.xml
+            dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
             owner=ossec
             group=ossec
             mode=0640
@@ -92,7 +92,7 @@
 
 - name: Adding local rules files
   copy: src="{{ wazuh_manager_config.ruleset.rules_path }}"
-        dest=/var/ossec/etc/rules/
+        dest="{{ wazuh_dir }}/etc/rules/"
         owner=ossec
         group=ossec
         mode=0640
@@ -104,7 +104,7 @@
 
 - name: Installing the local_decoder.xml
   template: src=var-ossec-rules-local_decoder.xml.j2
-            dest=/var/ossec/etc/decoders/local_decoder.xml
+            dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
             owner=ossec
             group=ossec
             mode=0640
@@ -116,7 +116,7 @@
 
 - name: Adding local decoders files
   copy: src="{{ wazuh_manager_config.ruleset.decoders_path }}"
-        dest=/var/ossec/etc/decoders/
+        dest="{{ wazuh_dir }}/etc/decoders/"
         owner=ossec
         group=ossec
         mode=0640
@@ -129,11 +129,11 @@
 - name: Configure the shared-agent.conf
   template:
     src: var-ossec-etc-shared-agent.conf.j2
-    dest: /var/ossec/etc/shared/default/agent.conf
+    dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
     owner: ossec
     group: ossec
     mode: 0640
-    validate: '/var/ossec/bin/verify-agent-conf -f %s'
+    validate: "{{ wazuh_dir }}/bin/verify-agent-conf -f %s"
   notify: restart wazuh-manager
   tags:
     - init
@@ -143,7 +143,7 @@
 
 - name: Installing the api.yaml (api configuration)
   template: src=api.yaml.j2
-            dest=/var/ossec/api/configuration/api.yaml
+            dest="{{ wazuh_dir }}/api/configuration/api.yaml"
             owner=root
             group=ossec
             mode=0640
@@ -156,7 +156,7 @@
 
 - name: Installing the local_internal_options.conf
   template: src=var-ossec-etc-local-internal-options.conf.j2
-            dest=/var/ossec/etc/local_internal_options.conf
+            dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
             owner=root
             group=ossec
             mode=0640
@@ -186,9 +186,9 @@
 - name: Check if client-syslog is enabled
   shell: |
     set -o pipefail
-    "grep -c 'ossec-csyslogd' /var/ossec/bin/.process_list | xargs echo"
+    "grep -c 'ossec-csyslogd' {{ wazuh_dir }}/bin/.process_list | xargs echo"
   args:
-    removes: /var/ossec/bin/.process_list
+    removes: "{{ wazuh_dir }}/bin/.process_list"
     executable: /bin/bash
   changed_when: false
   check_mode: false
@@ -197,7 +197,7 @@
     - config
 
 - name: Enable client-syslog
-  command: /var/ossec/bin/ossec-control enable client-syslog
+  command: "{{ wazuh_dir }}/bin/ossec-control enable client-syslog"
   notify: restart wazuh-manager
   when:
     - csyslog_enabled.stdout == '0' or "skipped" in csyslog_enabled.stdout
@@ -208,9 +208,9 @@
 - name: Check if ossec-agentlessd is enabled
   shell: |
     set -o pipefail
-    "grep -c 'ossec-agentlessd' /var/ossec/bin/.process_list | xargs echo"
+    "grep -c 'ossec-agentlessd' {{ wazuh_dir }}/bin/.process_list | xargs echo"
   args:
-    removes: /var/ossec/bin/.process_list
+    removes: "{{ wazuh_dir }}/bin/.process_list"
     executable: /bin/bash
   changed_when: false
   check_mode: false
@@ -219,7 +219,7 @@
     - config
 
 - name: Enable ossec-agentlessd
-  command: /var/ossec/bin/ossec-control enable agentless
+  command: "{{ wazuh_dir }}/bin/ossec-control enable agentless"
   notify: restart wazuh-manager
   when:
     - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
@@ -239,7 +239,7 @@
 - name: Configure ossec.conf
   template:
     src: var-ossec-etc-ossec-server.conf.j2
-    dest: /var/ossec/etc/ossec.conf
+    dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
     group: ossec
     mode: 0644
@@ -251,7 +251,7 @@
 - name: Ossec-authd password
   template:
     src: authd_pass.j2
-    dest: "/var/ossec/etc/authd.pass"
+    dest: "{{ wazuh_dir }}/etc/authd.pass"
     owner: ossec
     group: ossec
     mode: 0640
@@ -268,16 +268,16 @@
     - name: Copy create_user script
       copy:
         src: create_user.py
-        dest: /var/ossec/framework/scripts/create_user.py
+        dest: "{{ wazuh_dir }}/framework/scripts/create_user.py"
         owner: root
         group: ossec
         mode: 0644
 
     - name: Execute create_user script
       script:
-        chdir: /var/ossec/framework/scripts/
+        chdir: "{{ wazuh_dir }}/framework/scripts/"
         cmd: create_user.py --username "{{ item.username }}" --password "{{ item.password }}"
-        executable: /var/ossec/framework/python/bin/python3
+        executable: "{{ wazuh_dir }}/framework/python/bin/python3"
       with_items:
         - "{{ wazuh_api_users }}"
 
@@ -290,7 +290,7 @@
 - name: Agentless Hosts & Passwd
   template:
     src: agentless.j2
-    dest: "/var/ossec/agentless/.passlist_tmp"
+    dest: "{{ wazuh_dir }}/agentless/.passlist_tmp"
     owner: root
     group: root
     mode: 0644
@@ -300,7 +300,7 @@
     - config
 
 - name: Encode the secret
-  shell: /usr/bin/base64 /var/ossec/agentless/.passlist_tmp > /var/ossec/agentless/.passlist && rm /var/ossec/agentless/.passlist_tmp
+  shell: "/usr/bin/base64 {{ wazuh_dir }}/agentless/.passlist_tmp > {{ wazuh_dir }}/agentless/.passlist && rm {{ wazuh_dir }}/agentless/.passlist_tmp"
   when: agentless_creds is defined
   tags:
     - config
@@ -314,7 +314,7 @@
     - config
 
 - name: Create agent groups
-  command: "/var/ossec/bin/agent_groups -a -g {{ item }} -q"
+  command: "{{ wazuh_dir }}/bin/agent_groups -a -g {{ item }} -q"
   with_items:
     - "{{ agent_groups }}"
   when:
