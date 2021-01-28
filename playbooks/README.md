@@ -37,18 +37,18 @@ this example can be found at `wazuh-elastic_stack-distributed.yml`.
 ### OpenDistro
 
 Similarly, for all software components in a single host:
- - `wazuh-elastic-single.yml`
- - `wazuh-manager-single.yml`
- - `wazuh-kibana-single.yml`
+ - `wazuh-odfe-elastic.yml`
+ - `wazuh-manager-single-oss.yml`
+ - `wazuh-odfe-kibana.yml`
 
 or use the `wazuh-odfe-all-in-one.yml` playbook.
 
 Please note that OpenDistro role is more demanding regarding certificate chain, host and domain name, so it's advised to take a look everything is correctly setup or just use the distributed docker lab.
 
-The accompanying production ready playbook for ODFE is an example on how to deploy on a private subnet environment with internal ports shielded from the internet, and ideally make use of a VPN software or have firewall rules in place enabling proper forwarding for ports intended for consumption (i.e: Kibana dashboard and maybe Wazuh cluster ports depending on where your monitored endpoints are, see [architechture documentation] for more information).
+The accompanying production ready playbook for ODFE is an example on how to deploy on a private subnet environment with internal ports shielded from the internet, and ideally make use of a VPN software or have firewall rules in place enabling proper forwarding for ports intended for consumption (i.e: Kibana dashboard and maybe Wazuh cluster ports depending on where your monitored endpoints are, see [architecture documentation] for more information).
 By no means is intended to be used on it's own, but in tandem with other playbooks or roles to harden the target systems and environment.
 
 [controller]: https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html
 [poetry]: https://python-poetry.org/
 [connection plugin]: https://docs.ansible.com/ansible/2.8/plugins/connection/docker.html
-[architechture documentation]: https://documentation.wazuh.com/4.0/getting-started/architecture.html
+[architecture documentation]: https://documentation.wazuh.com/4.0/getting-started/architecture.html
