@@ -25,7 +25,7 @@
   copy:
     src: "{{ local_certs_path }}/certs/{{ item }}"
     dest: /etc/elasticsearch/
-    mode: 0644
+    mode: 0600
   with_items:
     - root-ca.pem
     - root-ca.key
