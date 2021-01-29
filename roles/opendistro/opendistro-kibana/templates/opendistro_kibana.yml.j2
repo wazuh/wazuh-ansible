@@ -18,7 +18,7 @@ server.ssl.enabled: true
 server.ssl.certificate: "/usr/share/kibana/{{ kibana_node_name }}_http.pem"
 server.ssl.key: "/usr/share/kibana/{{ kibana_node_name }}_http.key"
 elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/root-ca.pem"]
-elasticsearch.ssl.verificationMode: full
+elasticsearch.ssl.verificationMode: "{{ kibana_ssl_verification_mode }}"
 
 {% else %}
 elasticsearch.hosts: "http://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}"
