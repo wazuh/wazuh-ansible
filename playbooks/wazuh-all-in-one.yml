@@ -1,0 +1,4 @@
+---
+- import_playbook: wazuh-elastic-single.yml
+- import_playbook: wazuh-manager-single.yml
+- import_playbook: wazuh-kibana-single.yml

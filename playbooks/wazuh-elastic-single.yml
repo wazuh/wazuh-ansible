@@ -1,0 +1,11 @@
+---
+- name: Deploy a single Elasticsearch with defaults
+  hosts: all
+  become: yes
+  roles:
+    - role: elastic-stack/ansible-elasticsearch
+      vars:
+        single_node: true
+        elasticsearch_network_host: '0.0.0.0'
+        # Adjust memory usage or otherwise you might end up out of memory
+        elasticsearch_jvm_xms: 1024

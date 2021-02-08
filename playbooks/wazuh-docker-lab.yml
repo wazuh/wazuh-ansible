@@ -1,0 +1,47 @@
+#!/usr/bin/env -S ansible-playbook -v
+---
+- name: Deploy a Lab
+  hosts: localhost
+  connection: local
+  vars:
+
+    docker_lab_containers:
+      - name: es-node01
+      - name: es-node02
+      - name: es-node03
+      - name: es-kib01
+      - name: wz-mgr01
+
+    # change to absent to delete the lab
+    docker_state_containers: started
+    docker_state_network: present
+
+    # docker-related details
+    docker_net_name: wazuh_lab
+    docker_net_mode: bridge
+    docker_default_image: geerlingguy/docker-centos7-ansible
+    docker_default_volumes: ['/sys/fs/cgroup:/sys/fs/cgroup:ro']
+    docker_default_ulimits: ['nofile:262144:262144']
+
+  tasks:
+    -  docker_network:
+          name: '{{ docker_net_name }}'
+          state: '{{ docker_state_network }}'
+
+    -  docker_container:
+          name: '{{ item.name }}'
+          network_mode: '{{ docker_net_mode }}'
+          networks:
+            - name: '{{ docker_net_name }}'
+          hostname: '{{ item.name }}'
+          domainname: wazuh.com
+          #docker_default_behavior: no_defaults
+          networks_cli_compatible: yes
+          ulimits: '{{ item.ulimits| default(docker_default_ulimits) }}'
+          image: '{{ item.image | default(docker_default_image) }}'
+          volumes: '{{ item.volumes | default(docker_default_volumes) }}'
+          expose: '{{ item.expose | default(omit) }}'
+          recreate: yes
+          privileged: yes
+          state: '{{ docker_state_containers }}'
+       loop: '{{ docker_lab_containers }}'
