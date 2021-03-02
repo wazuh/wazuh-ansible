@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.0.4-1
+wazuh_manager_version: 4.1.1-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.0.4"
+  branch: "v4.1.1"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -70,6 +70,9 @@ wazuh_manager_globals:
   - '127.0.0.1'
   - '^localhost.localdomain$'
   - '127.0.0.53'
+
+wazuh_manager_agent_disconnection_time: '20s'
+wazuh_manager_agents_disconnection_alert_time: '100s'
 
 ## Alerts
 wazuh_manager_log_level: 3
@@ -365,7 +368,6 @@ wazuh_manager_authd:
   force_time: 0
   purge: 'yes'
   use_password: 'no'
-  limit_maxagents: 'yes'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
   ssl_agent_ca: null
   ssl_verify_host: 'no'
@@ -469,6 +471,8 @@ wazuh_manager_config_defaults:
   integrations: '{{ wazuh_manager_integrations }}'
   monitor_aws: '{{ wazuh_manager_monitor_aws }}'
   labels: '{{ wazuh_manager_labels }}'
+  agents_disconnection_time: '{{ wazuh_manager_agent_disconnection_time }}'
+  agents_disconnection_alert_time: '{{ wazuh_manager_agents_disconnection_alert_time }}'
 
 # shared-agent.conf
 
