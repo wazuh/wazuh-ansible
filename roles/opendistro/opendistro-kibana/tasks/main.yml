@@ -13,7 +13,7 @@
 
 - name: Install Kibana
   package:
-    name: "opendistroforelasticsearch-kibana{{ kibana_opendistro_version }}"
+    name: "opendistroforelasticsearch-kibana-{{ kibana_opendistro_version }}"
     state: present
   register: install
   tags: install
@@ -75,7 +75,7 @@
     - not build_from_sources
 
 - name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli --optimize -c {{ kibana_conf_path }}/kibana.yml
+  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli/cli.js --optimize -c {{ kibana_conf_path }}/kibana.yml
   args:
     executable: /bin/bash
   become: yes
@@ -102,7 +102,7 @@
 
 - name: Create wazuh plugin config directory
   file:
-    path: /usr/share/kibana/optimize/wazuh/config/
+    path: /usr/share/kibana/data/wazuh/config/
     state: directory
     recurse: yes
     owner: kibana
@@ -113,7 +113,7 @@
 - name: Configure Wazuh Kibana Plugin
   template:
     src: wazuh.yml.j2
-    dest: /usr/share/kibana/optimize/wazuh/config/wazuh.yml
+    dest: /usr/share/kibana/data/wazuh/config/wazuh.yml
     owner: kibana
     group: kibana
     mode: 0751

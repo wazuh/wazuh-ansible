@@ -36,7 +36,7 @@ Example Playbook
 ```
   - hosts: elasticsearch
     roles:
-      - { role: ansible-role-elasticsearch, elasticsearch_network_host: '192.168.33.182', single_host: true }
+      - { role: ansible-role-elasticsearch, elasticsearch_network_host: '192.168.33.182', single_node: true }
 ```
 
 - Three nodes Elasticsearch cluster

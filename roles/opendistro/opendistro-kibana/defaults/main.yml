@@ -9,21 +9,18 @@ kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
-elastic_stack_version: 7.9.1
-wazuh_version: 4.0.4
+elastic_stack_version: 7.10.0
+wazuh_version: 4.1.1
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
-kibana_opendistro_version: -1.11.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_version: 1.12.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 
 package_repos:
   yum:
     opendistro:
-      baseurl: 'https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/'
-      gpg: 'https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch'
-    elasticsearch_oss:
-      baseurl: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
-      gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+      baseurl: 'https://packages.wazuh.com/4.x/yum/'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
 
 
 # API credentials
@@ -54,7 +51,7 @@ nodejs:
 
 # Build from sources
 build_from_sources: false
-wazuh_plugin_branch: 4.0-7.9
+wazuh_plugin_branch: 4.1-7.10
 
 #Nodejs NODE_OPTIONS
 node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536
