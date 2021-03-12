@@ -184,6 +184,7 @@ wazuh_agent_syscollector:
   packages: 'yes'
   ports_no: 'yes'
   processes: 'yes'
+  hotfixes: 'no'
 
 ## SCA
 wazuh_agent_sca:
