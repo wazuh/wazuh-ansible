@@ -151,6 +151,7 @@ wazuh_manager_syscollector:
   packages: 'yes'
   ports_no: 'yes'
   processes: 'yes'
+  hotfixes: 'yes'
 
 wazuh_manager_monitor_aws:
   disabled: 'yes'
