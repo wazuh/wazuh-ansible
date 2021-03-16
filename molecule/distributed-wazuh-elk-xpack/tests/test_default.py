@@ -46,8 +46,8 @@ def test_wazuh_services_are_running(host):
 @pytest.mark.parametrize("wazuh_file, wazuh_owner, wazuh_group, wazuh_mode", [
     ("/var/ossec/etc/sslmanager.cert", "root", "root", 0o640),
     ("/var/ossec/etc/sslmanager.key", "root", "root", 0o640),
-    ("/var/ossec/etc/rules/local_rules.xml", "ossec", "ossec", 0o640),
-    ("/var/ossec/etc/lists/audit-keys", "ossec", "ossec", 0o660),
+    ("/var/ossec/etc/rules/local_rules.xml", "wazuh", "wazuh", 0o640),
+    ("/var/ossec/etc/lists/audit-keys", "wazuh", "wazuh", 0o660),
 ])
 def test_wazuh_files(host, wazuh_file, wazuh_owner, wazuh_group, wazuh_mode):
     """Test Wazuh related files exist and have proper owners and mode."""
