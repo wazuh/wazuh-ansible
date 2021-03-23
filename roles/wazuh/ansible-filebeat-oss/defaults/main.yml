@@ -1,7 +1,7 @@
 ---
 filebeat_version: 7.10.0
 
-wazuh_template_branch: v4.1.1
+wazuh_template_branch: v4.1.3
 
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
