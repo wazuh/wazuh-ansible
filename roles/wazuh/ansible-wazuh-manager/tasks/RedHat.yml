@@ -117,7 +117,7 @@
   replace:
     path: /etc/init.d/wazuh-manager
     regexp: 'echo -n "Starting Wazuh-manager: "'
-    replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
+    replace: "echo -n \"Starting Wazuh-manager (EL6): \"; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ wazuh_dir }}/framework/lib"
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'

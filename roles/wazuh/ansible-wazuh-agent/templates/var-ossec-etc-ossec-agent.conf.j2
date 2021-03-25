@@ -103,8 +103,8 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ wazuh_agent_config.rootcheck.frequency }}</frequency>
 
-    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
-    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    <rootkit_files>{{ wazuh_dir }}/etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>{{ wazuh_dir }}/etc/shared/rootkit_trojans.txt</rootkit_trojans>
     <skip_nfs>yes</skip_nfs>
     {% endif %}
     {% if ansible_os_family == "Windows" %}
@@ -353,6 +353,11 @@
     {% endif %}
   {% else %}
     <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'json' %}
+    {% for label in localfile.label %}
+    <label key="{{ label.key }}">{{ label.value }}</label>
+    {% endfor %}
+    {% endif %}
     {% endif %}
   </localfile>
   {% endfor %}
@@ -371,6 +376,11 @@
       {% endif %}
   {% else %}
       <location>{{ localfile.location }}</location>
+      {% if localfile.format == 'json' %}
+      {% for label in localfile.label %}
+      <label key="{{ label.key }}">{{ label.value }}</label>
+      {% endfor %}
+      {% endif %}
   {% endif %}
   </localfile>
   {% endfor %}
@@ -389,6 +399,11 @@
       {% endif %}
     {% else %}
       <location>{{ localfile.location }}</location>
+      {% if localfile.format == 'json' %}
+      {% for label in localfile.label %}
+      <label key="{{ label.key }}">{{ label.value }}</label>
+      {% endfor %}
+      {% endif %}
   {% endif %}
   </localfile>
   {% endfor %}
@@ -404,6 +419,11 @@
       <query>{{ localfile.query}}</query>
   {% else %}
       <location>{{ localfile.location }}</location>
+      {% if localfile.format == 'json' %}
+      {% for label in localfile.label %}
+      <label key="{{ label.key }}">{{ label.value }}</label>
+      {% endfor %}
+      {% endif %}
   {% endif %}
   </localfile>
   {% endfor %}

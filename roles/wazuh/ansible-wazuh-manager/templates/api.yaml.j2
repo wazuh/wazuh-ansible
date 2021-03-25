@@ -14,7 +14,7 @@
   cert: "{{ wazuh_manager_config.api.https_cert }}"
   use_ca: {{ wazuh_manager_config.api.https_use_ca }}
   ca: "{{ wazuh_manager_config.api.https_ca }}"
-
+  ssl_cipher: "{{ wazuh_manager_config.api.https_ssl_cipher }}"
 # Logging configuration
 # Values for API log level: disabled, info, warning, error, debug, debug2 (each level includes the previous level).
  logs:
@@ -42,3 +42,12 @@
  drop_privileges: {{ wazuh_manager_config.api.drop_privileges }}
 # Enable features under development
  experimental_features: {{ wazuh_manager_config.api.experimental_features }}
+
+# Enable remote commands
+ remote_commands:
+   localfile:
+     enabled: {{ wazuh_manager_config.api.remote_commands_localfile }}
+     exceptions: {{ wazuh_manager_config.api.remote_commands_localfile_exceptions }}
+   wodle_command:
+     enabled: {{ wazuh_manager_config.api.remote_commands_wodle }}
+     exceptions: {{ wazuh_manager_config.api.remote_commands_wodle_exceptions }}

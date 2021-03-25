@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.0.3-1
+wazuh_manager_version: 4.1.3-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.0.3"
+  branch: "v4.1.3"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -35,6 +35,7 @@ wazuh_manager_sources_installation:
   user_ca_store: null
   threads: "2"
 
+wazuh_dir: "/var/ossec"
 wazuh_manager_repo:
   apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
   yum: 'https://packages.wazuh.com/4.x/yum/'
@@ -69,6 +70,9 @@ wazuh_manager_globals:
   - '127.0.0.1'
   - '^localhost.localdomain$'
   - '127.0.0.53'
+
+wazuh_manager_agent_disconnection_time: '20s'
+wazuh_manager_agents_disconnection_alert_time: '100s'
 
 ## Alerts
 wazuh_manager_log_level: 3
@@ -297,7 +301,7 @@ wazuh_manager_localfiles:
       command: 'last -n 20'
       frequency: '360'
     - format: 'syslog'
-      location: '/var/ossec/logs/active-responses.log'
+      location: "{{ wazuh_dir }}/logs/active-responses.log"
   debian:
     - format: 'syslog'
       location: '/var/log/auth.log'
@@ -364,7 +368,6 @@ wazuh_manager_authd:
   force_time: 0
   purge: 'yes'
   use_password: 'no'
-  limit_maxagents: 'yes'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
   ssl_agent_ca: null
   ssl_verify_host: 'no'
@@ -395,6 +398,7 @@ wazuh_manager_api:
   https_cert: "api/configuration/ssl/server.crt"
   https_use_ca: False
   https_ca: "api/configuration/ssl/ca.crt"
+  https_ssl_cipher: "TLSv1.2"
   logging_level: "info"
   logging_path: "logs/api.log"
   cors: no
@@ -410,7 +414,10 @@ wazuh_manager_api:
   use_only_authd: no
   drop_privileges: yes
   experimental_features: no
-
+  remote_commands_localfile: yes
+  remote_commands_localfile_exceptions: []
+  remote_commands_wodle: yes
+  remote_commands_wodle_exceptions: []
 # wazuh_api_users:
 #   - username: custom-user
 #     password: .S3cur3Pa55w0rd*- # Must comply with requirements (8+ length, uppercase, lowercase, specials chars)
@@ -464,6 +471,8 @@ wazuh_manager_config_defaults:
   integrations: '{{ wazuh_manager_integrations }}'
   monitor_aws: '{{ wazuh_manager_monitor_aws }}'
   labels: '{{ wazuh_manager_labels }}'
+  agents_disconnection_time: '{{ wazuh_manager_agent_disconnection_time }}'
+  agents_disconnection_alert_time: '{{ wazuh_manager_agents_disconnection_alert_time }}'
 
 # shared-agent.conf
 
@@ -496,7 +505,7 @@ wazuh_manager_config_defaults:
 #       - format: 'apache'
 #         location: '/var/log/httpd/access_log'
 #       - format: 'apache'
-#         location: '/var/ossec/logs/active-responses.log'
+#         location: "{{ wazuh_dir }}/logs/active-responses.log"
 #   - type: os
 #     type_value: Windows
 #     syscheck:

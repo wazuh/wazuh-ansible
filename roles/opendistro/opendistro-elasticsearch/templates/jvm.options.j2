@@ -1,5 +1,3 @@
-#jinja2: trim_blocks:False
-# {{ ansible_managed }}
 ## JVM configuration
 
 ################################################################
@@ -21,20 +19,22 @@
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
 
-# Xms represents the initial size of total heap space
-# Xmx represents the maximum size of total heap space
 {% if opendistro_jvm_xms is not none %}
 {% if opendistro_jvm_xms < 32000 %}
 -Xms{{ opendistro_jvm_xms }}m
+
 -Xmx{{ opendistro_jvm_xms }}m
 {% else %}
 -Xms32000m
+
 -Xmx32000m
 {% endif %}
 {% else %}
 -Xms{% if ansible_memtotal_mb < 64000 %}{{ ((ansible_memtotal_mb|int)/2)|int }}m{% else %}32000m{% endif %}
+
 -Xmx{% if ansible_memtotal_mb < 64000 %}{{ ((ansible_memtotal_mb|int)/2)|int }}m{% else %}32000m{% endif %}
 {% endif %}
+
 
 ################################################################
 ## Expert settings
@@ -47,44 +47,22 @@
 ################################################################
 
 ## GC configuration
--XX:+UseConcMarkSweepGC
--XX:CMSInitiatingOccupancyFraction=75
--XX:+UseCMSInitiatingOccupancyOnly
+8-13:-XX:+UseConcMarkSweepGC
+8-13:-XX:CMSInitiatingOccupancyFraction=75
+8-13:-XX:+UseCMSInitiatingOccupancyOnly
 
-## optimizations
+## G1GC Configuration
+# NOTE: G1 GC is only supported on JDK version 10 or later
+# to use G1GC, uncomment the next two lines and update the version on the
+# following three lines to your version of the JDK
+# 10-13:-XX:-UseConcMarkSweepGC
+# 10-13:-XX:-UseCMSInitiatingOccupancyOnly
+14-:-XX:+UseG1GC
+14-:-XX:G1ReservePercent=25
+14-:-XX:InitiatingHeapOccupancyPercent=30
 
-# pre-touch memory pages used by the JVM during initialization
--XX:+AlwaysPreTouch
-
-## basic
-
-# force the server VM
--server
-
-# explicitly set the stack size
--Xss1m
-
-# set to headless, just in case
--Djava.awt.headless=true
-
-# ensure UTF-8 encoding by default (e.g. filenames)
--Dfile.encoding=UTF-8
-
-# use our provided JNA always versus the system one
--Djna.nosys=true
-
-# turn off a JDK optimization that throws away stack traces for common
-# exceptions because stack traces are important for debugging
--XX:-OmitStackTraceInFastThrow
-
-# flags to configure Netty
--Dio.netty.noUnsafe=true
--Dio.netty.noKeySetOptimization=true
--Dio.netty.recycler.maxCapacityPerThread=0
-
-# log4j 2
--Dlog4j.shutdownHookEnabled=false
--Dlog4j2.disable.jmx=true
+## JVM temporary directory
+-Djava.io.tmpdir=${ES_TMPDIR}
 
 ## heap dumps
 
@@ -92,26 +70,27 @@
 # heap dumps are created in the working directory of the JVM
 -XX:+HeapDumpOnOutOfMemoryError
 
-# specify an alternative path for heap dumps
-# ensure the directory exists and has sufficient space
+# specify an alternative path for heap dumps; ensure the directory exists and
+# has sufficient space
 -XX:HeapDumpPath=/var/lib/elasticsearch
 
-## GC logging
+# specify an alternative path for JVM fatal error logs
+-XX:ErrorFile=/var/log/elasticsearch/hs_err_pid%p.log
 
-#-XX:+PrintGCDetails
-#-XX:+PrintGCTimeStamps
-#-XX:+PrintGCDateStamps
-#-XX:+PrintClassHistogram
-#-XX:+PrintTenuringDistribution
-#-XX:+PrintGCApplicationStoppedTime
+## JDK 8 GC logging
+8:-XX:+PrintGCDetails
+8:-XX:+PrintGCDateStamps
+8:-XX:+PrintTenuringDistribution
+8:-XX:+PrintGCApplicationStoppedTime
+8:-Xloggc:/var/log/elasticsearch/gc.log
+8:-XX:+UseGCLogFileRotation
+8:-XX:NumberOfGCLogFiles=32
+8:-XX:GCLogFileSize=64m
 
-# log GC status to a file with time stamps
-# ensure the directory exists
-#-Xloggc:${loggc}
+# JDK 9+ GC logging
+9-:-Xlog:gc*,gc+age=trace,safepoint:file=/var/log/elasticsearch/gc.log:utctime,pid,tags:filecount=32,filesize=64m
 
-# By default, the GC log file will not rotate.
-# By uncommenting the lines below, the GC log file
-# will be rotated every 128MB at most 32 times.
-#-XX:+UseGCLogFileRotation
-#-XX:NumberOfGCLogFiles=32
-#-XX:GCLogFileSize=128M
+## OpenDistro Performance Analyzer
+-Dclk.tck=100
+-Djdk.attach.allowAttachSelf=true
+-Djava.security.policy=file:///usr/share/elasticsearch/plugins/opendistro_performance_analyzer/pa_config/es_security.policy
