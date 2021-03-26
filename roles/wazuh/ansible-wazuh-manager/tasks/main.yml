@@ -279,12 +279,12 @@
         cmd: create_user.py --username "{{ item.username }}" --password "{{ item.password }}"
         executable: "{{ wazuh_dir }}/framework/python/bin/python3"
       with_items:
-        - "{{ wazuh_api_users }}"
+        - "{{ wazuh_manager_api.wazuh_api_users }}"
 
   tags:
     - config_api_users
   when:
-    - wazuh_api_users is defined
+    - wazuh_manager_api.wazuh_api_users is defined
     - wazuh_manager_config.cluster.node_type == "master"
 
 - name: Agentless Hosts & Passwd
