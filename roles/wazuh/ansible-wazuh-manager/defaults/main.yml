@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.1.3-1
+wazuh_manager_version: 4.1.4-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.1.3"
+  branch: "v4.1.4"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
