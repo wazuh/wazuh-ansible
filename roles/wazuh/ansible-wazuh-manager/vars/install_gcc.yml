@@ -1,0 +1,4 @@
+# Install gcc vars
+
+gcc_version: 5.5.0
+gcc_download_url: "http://packages.wazuh.com/utils/gcc/gcc-{{ gcc_version }}.tar.gz"

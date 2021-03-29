@@ -1,20 +1,16 @@
 ---
 
+- import_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- import_tasks: Debian.yml
+  when: ansible_os_family == 'Debian'
+
 - import_tasks: local_actions.yml
   when:
     - generate_certs
 
 - block:
-    - import_tasks: RedHat.yml
-      when: ansible_os_family == 'RedHat'
-
-    - name: Install OpenDistro
-      package:
-        name: opendistroforelasticsearch-{{ opendistro_version }}
-        state: present
-      register: install
-      tags: install
-
     - name: Remove elasticsearch configuration file
       file:
         path: "{{ opendistro_conf_path }}/elasticsearch.yml"

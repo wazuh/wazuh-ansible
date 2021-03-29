@@ -63,6 +63,8 @@
       -ca -crt
       -t {{ local_certs_path }}/certs/
       -f -o
+    environment:
+      JAVA_HOME: /usr/
     when:
       - not root_ca_file.stat.exists
       - tlsconfig_template.changed
@@ -74,6 +76,8 @@
      -crt
      -t {{ local_certs_path }}/certs/
      -f
+    environment:
+      JAVA_HOME: /usr/
     when:
       - root_ca_file.stat.exists
       - tlsconfig_template.changed

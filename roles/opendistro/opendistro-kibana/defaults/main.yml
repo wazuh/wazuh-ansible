@@ -14,12 +14,16 @@ wazuh_version: 4.1.4
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
-kibana_opendistro_version: 1.12.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_version: 1.12.0 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 
 package_repos:
   yum:
     opendistro:
       baseurl: 'https://packages.wazuh.com/4.x/yum/'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  apt:
+    opendistro:
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
       gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
 
 

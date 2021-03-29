@@ -11,6 +11,17 @@
   register: wazuh_manager_https_packages_installed
   until: wazuh_manager_https_packages_installed is succeeded
 
+- name: "Install dependencies"
+  apt:
+    name: ['unzip', 'openssl', 'tar']
+    state: present
+
+- name: Install dependencies to build from sources
+  apt:
+    name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'libssl-dev', 'g++']
+    state: present
+  when: wazuh_manager_sources_installation.enabled
+
 - name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
   become: true
   shell: |

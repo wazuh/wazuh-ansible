@@ -1,0 +1,59 @@
+---
+
+# Vars
+# gcc_download_url: http://packages.wazuh.com/utils/gcc/gcc-5.5.0.tar.gz
+# gcc_version: 5.5.0
+#
+  - name: Include GCC install vars 
+    include_vars: install_gcc.yml
+
+  - name: Download GCC sources
+    get_url:
+      url: "{{ gcc_download_url }}"
+      dest: "/tmp/gcc-{{ gcc_version }}.tar.gz"
+    register: gcc_download
+
+  - name: Unpack GCC 
+    unarchive:
+      copy: no
+      dest: /tmp/
+      src: "{{ gcc_download.dest }}"
+    when: gcc_download.changed
+    register: gcc_unpack
+
+  - name: Download prerequisites
+    command: "./contrib/download_prerequisites"
+    args:
+      chdir: "/tmp/gcc-{{ gcc_version }}"
+    when: gcc_unpack.changed
+    register: gcc_requisites
+
+  - name: Configure GCC
+    command: >- 
+      ./configure 
+        --prefix=/usr/local/gcc-{{ gcc_version }}
+        --enable-languages=c,c++
+        --disable-multilib 
+        --disable-libsanitizer
+        --disable-bootstrap
+    when: gcc_requisites.changed 
+    register: gcc_configure
+
+  - name: Install GCC 
+    shell: make -j$(nproc) && make install
+    args:
+      chdir: "/tmp/gcc-{{ gcc_version }}"
+    when: gcc_configure.changed
+    register: gcc_install 
+
+  - name: Create a symbolic link
+    file:
+      src: "/usr/local/gcc-{{ gcc_version }}/bin/g++"
+      dest: /usr/bin/c++
+      state: link
+    when: gcc_install.changed
+
+  - name: Delete installlation files
+    file:
+      state: absent
+      path: "/tmp/gcc-{{ gcc_version }}" 

@@ -2,21 +2,13 @@
 # Wazuh Manager
   - name: Check if Wazuh Manager is already installed
     stat:
-      path: "{{ wazuh_dir }}/bin/ossec-control"
-    register: wazuh_ossec_control
+      path: "{{ wazuh_dir }}/bin/wazuh-control"
+    register: wazuh_control_path
 
   - name: Installing Wazuh Manager from sources
     block:
-      - name: Install dependencies to build Wazuh packages
-        package:
-          name:
-            - make
-            - gcc
-            - automake
-            - autoconf
-            - libtool
-            - tar
-          state: present
+      - name: Install CMake 
+        include_tasks: install_cmake.yml
 
       - name: Removing old files
         file:
@@ -102,6 +94,8 @@
         changed_when: installation_result == 0
         args:
           chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+        environment:
+          PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
       - name: Cleanup downloaded files
         file:
@@ -114,7 +108,7 @@
           state: absent
 
     when:
-      - not wazuh_ossec_control.stat.exists
+      - not wazuh_control_path.stat.exists
       - wazuh_manager_sources_installation.enabled
     tags:
       - manager
