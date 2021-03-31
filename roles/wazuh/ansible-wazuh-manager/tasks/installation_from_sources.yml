@@ -18,6 +18,9 @@
             - tar
           state: present
 
+      - name: Install CMake 
+        include_tasks: install_cmake.yml
+
       - name: Removing old files
         file:
           path: "/tmp/{{ wazuh_manager_sources_installation.branch }}.tar.gz"
@@ -102,6 +105,8 @@
         changed_when: installation_result == 0
         args:
           chdir: "/tmp/wazuh-{{ wazuh_manager_sources_installation.branch }}"
+        environment:
+          PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
       - name: Cleanup downloaded files
         file:
