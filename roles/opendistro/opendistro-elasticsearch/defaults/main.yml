@@ -32,6 +32,12 @@ package_repos:
     opendistro:
       baseurl: 'https://packages.wazuh.com/4.x/yum/'
       gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  apt:
+    opendistro:
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+    openjdk:
+      baseurl: 'deb http://deb.debian.org/debian stretch-backports main'
       
 opendistro_sec_plugin_conf_path: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig
 opendistro_sec_plugin_tools_path: /usr/share/elasticsearch/plugins/opendistro_security/tools
