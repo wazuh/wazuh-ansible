@@ -21,7 +21,10 @@ package_repos:
     opendistro:
       baseurl: 'https://packages.wazuh.com/4.x/yum/'
       gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-
+  apt:
+    opendistro:
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
 
 # API credentials
 wazuh_api_credentials:
@@ -38,7 +41,7 @@ kibana_telemetry_optin: "false"
 kibana_telemetry_enabled: "false"
 
 opendistro_admin_password: changeme
-opendistro_kibana_user: admin
+opendistro_kibana_user: changeme
 opendistro_kibana_password: changeme
 local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
 
