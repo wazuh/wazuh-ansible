@@ -8,12 +8,8 @@
     - import_tasks: RedHat.yml
       when: ansible_os_family == 'RedHat'
 
-    - name: Install OpenDistro
-      package:
-        name: opendistroforelasticsearch-{{ opendistro_version }}
-        state: present
-      register: install
-      tags: install
+    - import_tasks: Debian.yml
+      when: ansible_os_family == 'Debian'
 
     - name: Remove elasticsearch configuration file
       file:
