@@ -40,8 +40,8 @@ filebeat_version: 7.10.0
 kibana_opendistro_version: 1.12.0-1
 
 # Debian packages need the ${VERSION}-1
-wazuh_manager_version: 4.1.4-1
-wazuh_agent_version: 4.1.4-1
+wazuh_manager_version: 4.2.0-1
+wazuh_agent_version: 4.2.0-1
 
 # Kibana role appends it automatically.
-wazuh_version: 4.1.4
+wazuh_version: 4.2.0
