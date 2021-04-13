@@ -1,0 +1,40 @@
+---
+
+# Vars
+# cmake_download_url: http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz
+# cmake_version: 3.18.3
+#
+  - name: Include CMake install vars 
+    include_vars: install_cmake.yml
+
+  - name: Download CMake sources
+    get_url:
+      url: "{{ cmake_download_url }}"
+      dest: "/tmp/cmake-{{ cmake_version }}.tar.gz"
+    register: cmake_download
+
+  - name: Unpack CMake
+    unarchive:
+      copy: no
+      dest: /tmp/
+      src: "{{ cmake_download.dest }}"
+    when: cmake_download.changed
+    register: cmake_unpack
+
+  - name: Configure CMake
+    command: "./bootstrap"
+    args:
+      chdir: "/tmp/cmake-{{ cmake_version }}"
+    when: cmake_unpack.changed
+    register: cmake_configure
+
+  - name: Install CMake
+    shell: make && make install
+    args:
+      chdir: "/tmp/cmake-{{ cmake_version }}"
+    when: cmake_configure.changed
+
+  - name: Delete installation files
+    file:
+      state: absent
+      path: "/tmp/cmake-{{ cmake_version }}"

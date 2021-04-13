@@ -1,0 +1,43 @@
+
+---
+
+#- name: Install OpenDistro dependencies
+#  apt:
+#    name: [
+#      'unzip', 'wget', 'curl',
+#      'apt-transport-https', software-properties-common
+#    ]
+#    state: present
+
+- name: Add openjdk repository
+  apt_repository:
+    repo: "{{ package_repos.apt.openjdk.baseurl }}"
+    state: present
+    update_cache: yes
+
+- name: Install openjdk-11-jdk
+  apt:
+    name: openjdk-11-jdk
+    state: present
+  environment:
+    JAVA_HOME: /usr
+
+- name: Add Opendistro repository
+  block:
+    - name: Add apt repository signing key
+      apt_key:
+        url: "{{ package_repos.apt.opendistro.gpg }}"
+        state: present
+
+    - name: Add Opendistro repository
+      apt_repository:
+        repo: "{{ package_repos.apt.opendistro.baseurl }}"
+        state: present
+        update_cache: yes
+
+- name: Install OpenDistro
+  apt:
+    name: opendistroforelasticsearch={{ opendistro_version }}-1
+    state: present
+  register: install
+  tags: install 
