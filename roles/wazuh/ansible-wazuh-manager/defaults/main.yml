@@ -61,7 +61,7 @@ wazuh_manager_mailto:
   - 'admin@example.net'
 
 wazuh_manager_email_smtp_server: smtp.example.wazuh.com
-wazuh_manager_email_from: ossecm@example.wazuh.com
+wazuh_manager_email_from: wazuh@example.wazuh.com
 wazuh_manager_email_maxperhour: 12
 wazuh_manager_email_queue_size: 131072
 wazuh_manager_email_log_source: 'alerts.log'
