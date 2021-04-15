@@ -215,13 +215,13 @@
 
 - name: Linux | Agent registration via auto-enrollment
   debug:
-    msg: Agent registration will be performed through enrollment option in templated ossec.conf
+    msg: Agent registration will be performed through enrollment option in templated agent.conf
   when:  wazuh_agent_config.enrollment.enabled == 'yes'
 
-- name: Linux | Installing agent configuration (ossec.conf)
+- name: Linux | Installing agent configuration (agent.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
-    dest: "{{ wazuh_dir }}/etc/ossec.conf"
+    dest: "{{ wazuh_dir }}/etc/agent.conf"
     owner: root
     group: wazuh
     mode: 0644
