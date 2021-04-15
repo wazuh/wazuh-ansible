@@ -35,12 +35,9 @@ def test_wazuh_services_are_running(host):
     assert 'ossec-authd' in output
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output
-    assert 'ossec-execd' in output
     assert 'ossec-monitord' in output
     assert 'ossec-remoted' in output
-    assert 'ossec-logcollector' in output
     assert 'ossec-analysisd' in output
-    assert 'ossec-syscheckd' in output
 
 
 @pytest.mark.parametrize("wazuh_file, wazuh_owner, wazuh_group, wazuh_mode", [
