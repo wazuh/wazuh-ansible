@@ -1,6 +1,6 @@
 ---
 # Cluster Settings
-opendistro_version: 1.12.0
+opendistro_version: 1.13.2
 
 single_node: false
 elasticsearch_node_name: node-1
