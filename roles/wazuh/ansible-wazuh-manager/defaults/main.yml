@@ -259,7 +259,7 @@ wazuh_manager_commands:
     executable: 'restart-ossec.sh'
     expect: ''
   - name: 'firewall-drop'
-    executable: 'firewall-drop.sh'
+    executable: 'firewall-drop'
     expect: 'srcip'
     timeout_allowed: 'yes'
   - name: 'host-deny'
