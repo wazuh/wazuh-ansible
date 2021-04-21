@@ -1,4 +1,5 @@
 ---
+
 wazuh_manager_version: 4.1.4-1
 
 wazuh_manager_fqdn: "wazuh-server"
@@ -71,8 +72,8 @@ wazuh_manager_globals:
   - '^localhost.localdomain$'
   - '127.0.0.53'
 
-wazuh_manager_agent_disconnection_time: '20s'
-wazuh_manager_agents_disconnection_alert_time: '100s'
+wazuh_manager_agent_disconnection_time: '10m'
+wazuh_manager_agents_disconnection_alert_time: '0'
 
 ## Alerts
 wazuh_manager_log_level: 3
