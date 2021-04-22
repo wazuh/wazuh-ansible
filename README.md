@@ -14,7 +14,8 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
-
+| v4.1.5        | 7.10.0  | 1.12.0 |
+|---------------|---------|--------|
 | v4.1.4        | 7.10.0  | 1.12.0 |
 |---------------|---------|--------|
 | v4.1.3        | 7.10.0  | 1.12.0 |
