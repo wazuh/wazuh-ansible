@@ -19,3 +19,4 @@
         node1:
           name: node-1       # Important: must be equal to elasticsearch_node_name.
           ip: 127.0.0.1
+      ansible_shell_allow_world_readable_temp: true

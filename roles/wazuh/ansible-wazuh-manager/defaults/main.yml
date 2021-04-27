@@ -1,5 +1,6 @@
 ---
-wazuh_manager_version: 4.1.4-1
+
+wazuh_manager_version: 4.3.0-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -12,7 +13,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.1.4"
+  branch: "v4.3.0"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -61,7 +62,7 @@ wazuh_manager_mailto:
   - 'admin@example.net'
 
 wazuh_manager_email_smtp_server: smtp.example.wazuh.com
-wazuh_manager_email_from: ossecm@example.wazuh.com
+wazuh_manager_email_from: wazuh@example.wazuh.com
 wazuh_manager_email_maxperhour: 12
 wazuh_manager_email_queue_size: 131072
 wazuh_manager_email_log_source: 'alerts.log'
@@ -71,8 +72,8 @@ wazuh_manager_globals:
   - '^localhost.localdomain$'
   - '127.0.0.53'
 
-wazuh_manager_agent_disconnection_time: '20s'
-wazuh_manager_agents_disconnection_alert_time: '100s'
+wazuh_manager_agent_disconnection_time: '10m'
+wazuh_manager_agents_disconnection_alert_time: '0'
 
 ## Alerts
 wazuh_manager_log_level: 3
@@ -259,7 +260,7 @@ wazuh_manager_commands:
     executable: 'restart-ossec.sh'
     expect: ''
   - name: 'firewall-drop'
-    executable: 'firewall-drop.sh'
+    executable: 'firewall-drop'
     expect: 'srcip'
     timeout_allowed: 'yes'
   - name: 'host-deny'

@@ -81,8 +81,8 @@
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
-            owner=ossec
-            group=ossec
+            owner=wazuh
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -93,8 +93,8 @@
 - name: Adding local rules files
   copy: src="{{ wazuh_manager_config.ruleset.rules_path }}"
         dest="{{ wazuh_dir }}/etc/rules/"
-        owner=ossec
-        group=ossec
+        owner=wazuh
+        group=wazuh
         mode=0640
   notify: restart wazuh-manager
   tags:
@@ -105,8 +105,8 @@
 - name: Installing the local_decoder.xml
   template: src=var-ossec-rules-local_decoder.xml.j2
             dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
-            owner=ossec
-            group=ossec
+            owner=wazuh
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -117,8 +117,8 @@
 - name: Adding local decoders files
   copy: src="{{ wazuh_manager_config.ruleset.decoders_path }}"
         dest="{{ wazuh_dir }}/etc/decoders/"
-        owner=ossec
-        group=ossec
+        owner=wazuh
+        group=wazuh
         mode=0640
   notify: restart wazuh-manager
   tags:
@@ -130,8 +130,8 @@
   template:
     src: var-ossec-etc-shared-agent.conf.j2
     dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
-    owner: ossec
-    group: ossec
+    owner: wazuh
+    group: wazuh
     mode: 0640
     validate: "{{ wazuh_dir }}/bin/verify-agent-conf -f %s"
   notify: restart wazuh-manager
@@ -141,24 +141,11 @@
   when:
     - shared_agent_config is defined
 
-- name: Installing the api.yaml (api configuration)
-  template: src=api.yaml.j2
-            dest="{{ wazuh_dir }}/api/configuration/api.yaml"
-            owner=root
-            group=ossec
-            mode=0640
-  notify: restart wazuh-manager
-  when:
-    - wazuh_manager_config.cluster.node_type == "master"
-  tags:
-    - init
-    - config
-
 - name: Installing the local_internal_options.conf
   template: src=var-ossec-etc-local-internal-options.conf.j2
             dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
             owner=root
-            group=ossec
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -197,7 +184,7 @@
     - config
 
 - name: Enable client-syslog
-  command: "{{ wazuh_dir }}/bin/ossec-control enable client-syslog"
+  command: "{{ wazuh_dir }}/bin/wazuh-control enable client-syslog"
   notify: restart wazuh-manager
   when:
     - csyslog_enabled.stdout == '0' or "skipped" in csyslog_enabled.stdout
@@ -219,7 +206,7 @@
     - config
 
 - name: Enable ossec-agentlessd
-  command: "{{ wazuh_dir }}/bin/ossec-control enable agentless"
+  command: "{{ wazuh_dir }}/bin/wazuh-control enable agentless"
   notify: restart wazuh-manager
   when:
     - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout
@@ -241,7 +228,7 @@
     src: var-ossec-etc-ossec-server.conf.j2
     dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
-    group: ossec
+    group: wazuh
     mode: 0644
   notify: restart wazuh-manager
   tags:
@@ -252,8 +239,8 @@
   template:
     src: authd_pass.j2
     dest: "{{ wazuh_dir }}/etc/authd.pass"
-    owner: ossec
-    group: ossec
+    owner: wazuh
+    group: wazuh
     mode: 0640
   no_log: true
   notify: restart wazuh-manager
@@ -270,7 +257,7 @@
         src: create_user.py
         dest: "{{ wazuh_dir }}/framework/scripts/create_user.py"
         owner: root
-        group: ossec
+        group: wazuh
         mode: 0644
 
     - name: Execute create_user script

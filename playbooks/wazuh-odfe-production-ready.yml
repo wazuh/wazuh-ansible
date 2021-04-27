@@ -186,3 +186,4 @@
           node6:
             name: node-6
             ip: "{{ hostvars.kibana.private_ip }}"
+          ansible_shell_allow_world_readable_temp: true
