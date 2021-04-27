@@ -10,13 +10,13 @@
 
 - name: Configure IP (Private address)
   set_fact:
-    target_address: "{{ hostvars[inventory_hostname]['private_ip'] }}"
+    target_address: "{{ hostvars[inventory_hostname]['private_ip'] if not single_node else elasticsearch_network_host }}"
   when:
     - hostvars[inventory_hostname]['private_ip'] is defined
 
 - name: Configure IP (Public address)
   set_fact:
-    target_address: "{{ inventory_hostname }}"
+    target_address: "{{ inventory_hostname if not single_node else elasticsearch_network_host }}"
   when:
     - hostvars[inventory_hostname]['private_ip'] is not defined
 
