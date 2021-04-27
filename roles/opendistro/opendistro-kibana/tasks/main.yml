@@ -19,7 +19,6 @@
     # noqa 503
     path: "{{ kibana_conf_path }}/kibana.yml"
     state: absent
-  when: install.changed
   tags: install
 
 - import_tasks: security_actions.yml
