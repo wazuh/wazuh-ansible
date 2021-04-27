@@ -84,7 +84,7 @@
     - config
 
 - name: Windows | Installing local_internal_options.conf
-  win_template:
+  template:
     src: var-ossec-etc-local-internal-options.conf.j2
     dest: "{{ wazuh_agent_win_path }}local_internal_options.conf"
   notify: Windows | Restart Wazuh Agent

@@ -11,4 +11,3 @@
       - "{{ kibana_node_name }}_http.pem"
   tags:
   - security
-  when: install.changed
