@@ -9,22 +9,22 @@ kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
-elastic_stack_version: 7.10.0
+elastic_stack_version: 7.10.2
 wazuh_version: 4.2.0
-wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
+wazuh_app_url: https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
-kibana_opendistro_version: 1.12.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_version: 1.13.2-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 
 package_repos:
   yum:
     opendistro:
-      baseurl: 'https://packages.wazuh.com/4.x/yum/'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+      baseurl: 'https://packages-dev.wazuh.com/pre-release/yum/'
+      gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   apt:
     opendistro:
-      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+      baseurl: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+      gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
 
 # API credentials
 wazuh_api_credentials:
