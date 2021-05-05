@@ -118,7 +118,7 @@
 
   <!-- Policy monitoring -->
   <rootcheck>
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.rootcheck.disable }}</disabled>
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
     <check_dev>yes</check_dev>

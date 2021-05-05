@@ -117,6 +117,7 @@ wazuh_manager_reports:
 
 ## Woodles
 wazuh_manager_rootcheck:
+  disable: 'no'
   frequency: 43200
 
 wazuh_manager_openscap:
