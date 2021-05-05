@@ -126,10 +126,10 @@
     - config
     - rules
 
-- name: Configure the shared-agent.conf
+- name: Configure the agent shared.conf
   template:
     src: var-ossec-etc-shared-agent.conf.j2
-    dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
+    dest: "{{ wazuh_dir }}/etc/shared/default/shared.conf"
     owner: wazuh
     group: wazuh
     mode: 0640
@@ -223,10 +223,10 @@
     - init
     - config
 
-- name: Configure ossec.conf
+- name: Configure manager.conf
   template:
     src: var-ossec-etc-ossec-server.conf.j2
-    dest: "{{ wazuh_dir }}/etc/ossec.conf"
+    dest: "{{ wazuh_dir }}/etc/manager.conf"
     owner: root
     group: wazuh
     mode: 0644
