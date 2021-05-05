@@ -14,8 +14,8 @@ kibana_addresses: "{{ kibana_hostvars | map(attribute='private_ip') | list }}"
 
 ########################################################
 # Versions
-elastic_stack_version: 7.10.2
-filebeat_version: 7.10.2
+elastic_stack_version: 7.10.0
+filebeat_version: 7.10.0
 
 # Debian packages need the ${VERSION}-1
 wazuh_manager_version: 5.0.0-1
