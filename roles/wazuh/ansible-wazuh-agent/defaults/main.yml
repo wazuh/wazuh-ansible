@@ -4,9 +4,9 @@ wazuh_agent_version: 5.0.0-1
 
 # Custom packages installation
 
-wazuh_custom_packages_installation_agent_enabled: false
-wazuh_custom_packages_installation_agent_deb_url: ""
-wazuh_custom_packages_installation_agent_rpm_url: ""
+wazuh_custom_packages_installation_agent_enabled: true
+wazuh_custom_packages_installation_agent_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/test/5.0/deb/var/wazuh-agent_5.0.0-vmj.7_amd64.deb"
+wazuh_custom_packages_installation_agent_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/warehouse/test/5.0/rpm/var/wazuh-agent-5.0.0-vmj.7.x86_64.rpm"
 
 # Sources installation
 
