@@ -14,7 +14,7 @@ wazuh_version: 5.0.0
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
-kibana_opendistro_version: 1.12.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_version: 1.13.2-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 
 package_repos:
   yum:
