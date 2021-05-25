@@ -8,7 +8,8 @@
 These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
 ## Branches
-* `master` branch corresponds to the latest Wazuh Ansible changes. It might be unstable.
+* `master` branch contains the latest code, be aware of possible bugs on this branch.
+* `stable` branch on correspond to the last Wazuh stable version.
 
 ## Compatibility Matrix
 
