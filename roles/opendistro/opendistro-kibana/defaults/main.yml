@@ -9,12 +9,12 @@ kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
-elastic_stack_version: 7.10.0
+elastic_stack_version: 7.10.2
 wazuh_version: 5.0.0
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
-kibana_opendistro_version: 1.12.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+kibana_opendistro_version: 1.13.2-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 
 package_repos:
   yum:
