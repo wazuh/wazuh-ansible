@@ -34,10 +34,10 @@ filebeat_node_name: '{{ ansible_hostname }}'
 # Versions
 # See: https://opendistro.github.io/for-elasticsearch-docs/version-history/
 
-elastic_stack_version: 7.10.0
-opendistro_version: 1.12.0
-filebeat_version: 7.10.0
-kibana_opendistro_version: 1.12.0-1
+elastic_stack_version: 7.10.2
+opendistro_version: 1.13.2
+filebeat_version: 7.10.2
+kibana_opendistro_version: 1.13.2-1
 
 # Debian packages need the ${VERSION}-1
 wazuh_manager_version: 4.3.0-1
