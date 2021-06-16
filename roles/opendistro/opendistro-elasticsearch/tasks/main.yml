@@ -1,15 +1,14 @@
 ---
 
-- import_tasks: local_actions.yml
-  when:
-    - generate_certs
-
 - block:
     - import_tasks: RedHat.yml
       when: ansible_os_family == 'RedHat'
 
     - import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
+
+    - import_tasks: local_actions.yml
+      when: generate_certs
 
     - name: Remove elasticsearch configuration file
       file:
