@@ -11,6 +11,9 @@
     - import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
 
+    - name: Remove Performance analyzer plugin
+      command: "/usr/share/elasticsearch/bin/elasticsearch-plugin remove opendistro-performance-analyzer"
+
     - name: Remove elasticsearch configuration file
       file:
         path: "{{ opendistro_conf_path }}/elasticsearch.yml"
