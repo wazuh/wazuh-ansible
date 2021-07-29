@@ -11,6 +11,12 @@
     - import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
 
+    - name: Remove performance analyzer plugin from elasticsearch
+      become: true
+      command: ./elasticsearch-plugin remove opendistro-performance-analyzer
+      args:
+        chdir: /usr/share/elasticsearch/bin/
+
     - name: Remove elasticsearch configuration file
       file:
         path: "{{ opendistro_conf_path }}/elasticsearch.yml"
@@ -51,7 +57,7 @@
 
     - name: Wait for Elasticsearch API
       uri:
-        url: "https://{{ inventory_hostname }}:{{ opendistro_http_port }}/_cluster/health/"
+        url: "https://{{ inventory_hostname if not single_node else elasticsearch_network_host }}:{{ opendistro_http_port }}/_cluster/health/"
         user: "admin" # Default OpenDistro user is always "admin"
         password: "{{ opendistro_admin_password }}"
         validate_certs: no
@@ -70,7 +76,7 @@
 
     - name: Wait for Elasticsearch API (Private IP)
       uri:
-        url: "https://{{ hostvars[inventory_hostname]['private_ip'] }}:{{ opendistro_http_port }}/_cluster/health/"
+        url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else elasticsearch_network_host }}:{{ opendistro_http_port }}/_cluster/health/"
         user: "admin" # Default OpenDistro user is always "admin"
         password: "{{ opendistro_admin_password }}"
         validate_certs: no
