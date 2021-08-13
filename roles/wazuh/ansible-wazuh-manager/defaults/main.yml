@@ -270,7 +270,6 @@ wazuh_manager_commands:
     timeout_allowed: 'yes'
   - name: 'netsh'
     executable: 'netsh.exe'
-    expect: 'srcip'
     timeout_allowed: 'yes'
 
 ## Localfile
