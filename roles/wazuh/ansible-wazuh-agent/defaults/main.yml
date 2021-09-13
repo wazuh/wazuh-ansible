@@ -61,7 +61,7 @@ wazuh_winagent_package_name: wazuh-agent-4.2.2-1.msi
 wazuh_dir: "/var/ossec"
 
 wazuh_agent_repo:
-  apt: 'deb https://packages-dev.wazuh.com/pre-release/apt/ stable main'
+  apt: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
   yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
   gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
