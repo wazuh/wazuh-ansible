@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.2.1-1
+wazuh_manager_version: 4.2.2-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.2.1"
+  branch: "v4.2.2-rc1"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -37,9 +37,9 @@ wazuh_manager_sources_installation:
 
 wazuh_dir: "/var/ossec"
 wazuh_manager_repo:
-  apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-  yum: 'https://packages.wazuh.com/4.x/yum/'
-  gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  apt: 'deb https://packages-dev.wazuh.com/pre-release/apt/ stable main'
+  yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
+  gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 
 

@@ -8,7 +8,7 @@ kibana_server_port: "5601"
 kibana_conf_path: /etc/kibana
 elastic_stack_version: 7.10.2
 wazuh_version: 4.2.1
-wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
+wazuh_app_url: https://packages-dev.wazuh.com/pre-release/ui/kibana/wazuh_kibana
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'
