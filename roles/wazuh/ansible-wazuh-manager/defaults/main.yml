@@ -37,8 +37,8 @@ wazuh_manager_sources_installation:
 
 wazuh_dir: "/var/ossec"
 wazuh_manager_repo:
-  apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-  yum: 'https://packages.wazuh.com/4.x/yum/'
+  apt: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+  yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
   gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 
