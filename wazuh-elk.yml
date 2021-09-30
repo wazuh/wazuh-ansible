@@ -1,0 +1,4 @@
+- hosts: linuxwazuhmanager
+  roles:
+      - { role: roles/elastic-stack/ansible-elasticsearch, elasticsearch_network_host: 'localhost' }
+      - { role: roles/elastic-stack/ansible-kibana, elasticsearch_network_host: 'localhost' }
