@@ -10,7 +10,7 @@ kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
 elastic_stack_version: 7.10.2
-wazuh_version: 4.1.5
+wazuh_version: 4.2.2
 wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 
 # The OpenDistro package repository
@@ -21,7 +21,10 @@ package_repos:
     opendistro:
       baseurl: 'https://packages.wazuh.com/4.x/yum/'
       gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-
+  apt:
+    opendistro:
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
 
 # API credentials
 wazuh_api_credentials:
@@ -38,7 +41,7 @@ kibana_telemetry_optin: "false"
 kibana_telemetry_enabled: "false"
 
 opendistro_admin_password: changeme
-opendistro_kibana_user: admin
+opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme
 local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
 
