@@ -1,6 +1,5 @@
 ---
-
-wazuh_manager_version: 4.1.4-1
+wazuh_manager_version: 4.2.2-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -13,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.1.4"
+  branch: "v4.2.2"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -253,39 +252,24 @@ wazuh_manager_syscheck:
 ## Command
 wazuh_manager_commands:
   - name: 'disable-account'
-    executable: 'disable-account.sh'
-    expect: 'user'
+    executable: 'disable-account'
     timeout_allowed: 'yes'
-  - name: 'restart-ossec'
-    executable: 'restart-ossec.sh'
-    expect: ''
+  - name: 'restart-wazuh'
+    executable: 'restart-wazuh'
   - name: 'firewall-drop'
-    executable: 'firewall-drop.sh'
-    expect: 'srcip'
+    executable: 'firewall-drop'
     timeout_allowed: 'yes'
   - name: 'host-deny'
-    executable: 'host-deny.sh'
-    expect: 'srcip'
+    executable: 'host-deny'
     timeout_allowed: 'yes'
   - name: 'route-null'
-    executable: 'route-null.sh'
-    expect: 'srcip'
+    executable: 'route-null'
     timeout_allowed: 'yes'
   - name: 'win_route-null'
-    executable: 'route-null.cmd'
-    expect: 'srcip'
-    timeout_allowed: 'yes'
-  - name: 'win_route-null-2012'
-    executable: 'route-null-2012.cmd'
-    expect: 'srcip'
+    executable: 'route-null.exe'
     timeout_allowed: 'yes'
   - name: 'netsh'
-    executable: 'netsh.cmd'
-    expect: 'srcip'
-    timeout_allowed: 'yes'
-  - name: 'netsh-win-2016'
-    executable: 'netsh-win-2016.cmd'
-    expect: 'srcip'
+    executable: 'netsh.exe'
     timeout_allowed: 'yes'
 
 ## Localfile

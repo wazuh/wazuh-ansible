@@ -1,12 +1,30 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [v4.2.2]
+
+### Added
+
+- Update to [Wazuh v4.2.2](https://github.com/wazuh/wazuh/blob/v4.2.2/CHANGELOG.md#v420)
+
+## [v4.2.1]
+
+### Added
+
+- Update to [Wazuh v4.2.1](https://github.com/wazuh/wazuh/blob/v4.2.1/CHANGELOG.md#v420)
+
+## [v4.2.0]
+
+### Added
+
+- Update to [Wazuh v4.2.0](https://github.com/wazuh/wazuh/blob/v4.2.0/CHANGELOG.md#v420)
+
 ## [v4.1.5]
 
 ### Added
 
 - Update to [Wazuh v4.1.5](https://github.com/wazuh/wazuh/blob/v4.1.5/CHANGELOG.md#v415)
-
 ## [v4.1.4]
 
 ### Added

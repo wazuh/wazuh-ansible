@@ -92,6 +92,12 @@
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
 
+- name: Install dependencies to build from sources
+  yum:
+    name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'openssl-devel', 'gcc-c++']
+    state: present
+  when: wazuh_manager_sources_installation.enabled
+
 - name: CentOS/RedHat/Amazon | Install wazuh-manager
   package:
     name: "wazuh-manager-{{ wazuh_manager_version }}"

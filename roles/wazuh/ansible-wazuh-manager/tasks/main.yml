@@ -197,7 +197,7 @@
     - config
 
 - name: Enable client-syslog
-  command: "{{ wazuh_dir }}/bin/ossec-control enable client-syslog"
+  command: "{{ wazuh_dir }}/bin/wazuh-control enable client-syslog"
   notify: restart wazuh-manager
   when:
     - csyslog_enabled.stdout == '0' or "skipped" in csyslog_enabled.stdout
@@ -219,7 +219,7 @@
     - config
 
 - name: Enable ossec-agentlessd
-  command: "{{ wazuh_dir }}/bin/ossec-control enable agentless"
+  command: "{{ wazuh_dir }}/bin/wazuh-control enable agentless"
   notify: restart wazuh-manager
   when:
     - agentlessd_enabled.stdout == '0' or "skipped" in agentlessd_enabled.stdout

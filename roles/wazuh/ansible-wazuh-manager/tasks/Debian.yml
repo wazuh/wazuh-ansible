@@ -97,6 +97,12 @@
   tags:
     - config
 
+- name: Install dependencies to build from sources
+  apt:
+    name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'libssl-dev', 'g++']
+    state: present
+  when: wazuh_manager_sources_installation.enabled
+
 - name: Debian/Ubuntu | Install wazuh-manager
   apt:
     name:

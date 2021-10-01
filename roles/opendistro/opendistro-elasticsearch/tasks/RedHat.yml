@@ -39,5 +39,12 @@
       - wget
       - unzip
 
+  - name: Install OpenDistro
+    package:
+      name: opendistroforelasticsearch-{{ opendistro_version }}
+      state: present
+    register: install
+    tags: install
+
   tags:
   - install
