@@ -15,7 +15,7 @@
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
   yum:
-    name: wazuh-agent-{{ wazuh_agent_version }}
+    name: wazuh-agent-{{ wazuh_agent_version_yum }}
     state: present
     lock_timeout: '{{ wazuh_agent_yum_lock_timeout }}'
   when:
