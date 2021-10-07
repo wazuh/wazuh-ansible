@@ -425,7 +425,7 @@ wazuh_manager_config_defaults:
   alerts_log: '{{ wazuh_manager_alerts_log }}'
   logall: '{{ wazuh_manager_logall }}'
   logall_json: '{{ wazuh_manager_logall_json }}'
-  log_format: '{{ wazuh_manager_log_format }}'
+  log_format: '{{ wazuh_manager_log_format }}'wazuh_agent_version_yum
   api: '{{ wazuh_manager_api }}'
   cluster: '{{ wazuh_manager_cluster }}'
   connection: '{{ wazuh_manager_connection }}'
