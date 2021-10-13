@@ -11,7 +11,7 @@
     - import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
 
-    - name: Check elasticsearch-plugin performance-analyzer is install 
+    - name: Check if performance-analyzer is installed
       become: true
       command: ./elasticsearch-plugin list | grep 'opendistro-performance-analyzer'
       register: elasticsearch_performance
