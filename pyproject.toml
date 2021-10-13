@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wazuh-ansible"
-version = "4.1.5"
+version = "4.2.3"
 description = ""
 authors = ["neonmei <neonmei@pm.me>"]
 
