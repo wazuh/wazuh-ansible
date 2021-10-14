@@ -14,6 +14,7 @@
     repo: "{{ package_repos.apt.openjdk.baseurl }}"
     state: present
     update_cache: yes
+  when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
 
 - name: Install openjdk-11-jdk
   apt:
