@@ -9,6 +9,10 @@
 #    ]
 #    state: present
 
+- name: Update cache
+  apt:
+    update_cache: yes
+
 - name: Add openjdk repository
   apt_repository:
     repo: "{{ package_repos.apt.openjdk.baseurl }}"
