@@ -14,9 +14,13 @@
     - name: Remove performance analyzer plugin from elasticsearch
       become: true
       command: ./elasticsearch-plugin remove opendistro-performance-analyzer
-      ignore_errors: true
       args:
         chdir: /usr/share/elasticsearch/bin/
+      register: remove_elasticsearch_performance_analyzer
+      failed_when:
+        - remove_elasticsearch_performance_analyzer.rc != 0
+        - '"not found" not in remove_elasticsearch_performance_analyzer.stderr'
+      changed_when: "remove_elasticsearch_performance_analyzer.rc == 0"
 
     - name: Remove elasticsearch configuration file
       file:
