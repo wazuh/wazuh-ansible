@@ -7,11 +7,17 @@ All notable changes to this project will be documented in this file.
 
 - Update to [Wazuh v4.3.0](https://github.com/wazuh/wazuh/blob/v4.3.0/CHANGELOG.md#v430)
 
+## [v4.2.4]
+
+### Added
+
+- Update to [Wazuh v4.2.4](https://github.com/wazuh/wazuh/blob/v4.2.4/CHANGELOG.md#v424)
+
 ## [v4.2.3]
 
 ### Added
 
-- Update to [Wazuh v4.2.3](https://github.com/wazuh/wazuh/blob/v4.2.3/CHANGELOG.md#v420)
+- Update to [Wazuh v4.2.3](https://github.com/wazuh/wazuh/blob/v4.2.3/CHANGELOG.md#v423)
 
 ## [v4.2.2]
 
