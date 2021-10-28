@@ -107,6 +107,14 @@
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
 
+- name: Ensure extra time for Elasticsearch to start on reboots
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/elasticsearch.service
+    regexp: '^TimeoutStartSec='
+    line: "TimeoutStartSec={{ elasticsearch_start_timeout }}"
+  become: yes
+  tags: configure
+
 - name: Ensure Elasticsearch started and enabled
   service:
     name: elasticsearch
@@ -160,3 +168,9 @@
   failed_when: http_response.status != 200
   when:
     - elasticsearch_xpack_users is defined
+
+- name: Reload systemd configuration
+  systemd:
+    daemon_reload: true
+  become: yes
+  notify: restart elasticsearch
