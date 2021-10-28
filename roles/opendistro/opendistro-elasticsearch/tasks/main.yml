@@ -55,7 +55,7 @@
       tags: install
 
     - name: Ensure extra time for Elasticsearch to start on reboots
-      ansible.builtin.lineinfile:
+      lineinfile:
         path: /usr/lib/systemd/system/elasticsearch.service
         regexp: '^TimeoutStartSec='
         line: "TimeoutStartSec={{ elasticsearch_start_timeout }}"
