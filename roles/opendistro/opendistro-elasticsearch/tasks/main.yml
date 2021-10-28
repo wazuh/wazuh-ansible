@@ -54,6 +54,14 @@
       notify: restart elasticsearch
       tags: install
 
+    - name: Ensure extra time for Elasticsearch to start on reboots
+      lineinfile:
+        path: /usr/lib/systemd/system/elasticsearch.service
+        regexp: '^TimeoutStartSec='
+        line: "TimeoutStartSec={{ elasticsearch_start_timeout }}"
+      become: yes
+      tags: configure
+
     - name: Ensure Elasticsearch started and enabled
       service:
         name: elasticsearch
@@ -100,4 +108,10 @@
 
     - import_tasks: "RMRedHat.yml"
       when: ansible_os_family == "RedHat"
+
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reload: true
+      become: yes
+      notify: restart elasticsearch
   when: perform_installation
