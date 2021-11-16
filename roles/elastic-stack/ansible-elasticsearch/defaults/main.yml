@@ -7,6 +7,7 @@ elasticsearch_jvm_xms: null
 elastic_stack_version: 7.10.2
 elasticsearch_lower_disk_requirements: false
 elasticsearch_path_repo: []
+elasticsearch_start_timeout: 90
 
 elasticrepo:
   apt: 'https://artifacts.elastic.co/packages/7.x/apt'
