@@ -10,6 +10,7 @@ elasticsearch_network_host: '0.0.0.0'
 elasticsearch_node_master: true
 elasticsearch_node_data: true
 elasticsearch_node_ingest: true
+elasticsearch_start_timeout: 90
 
 elasticsearch_lower_disk_requirements: false
 elasticsearch_cluster_nodes:
