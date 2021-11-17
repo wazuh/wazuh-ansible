@@ -351,8 +351,11 @@ wazuh_manager_authd:
   enable: true
   port: 1515
   use_source_ip: 'no'
-  force_insert: 'yes'
-  force_time: 0
+  force:
+    enabled: yes
+    key_mismatch: yes
+    disconnected_time: '1h'
+    after_registration_time: '1h'
   purge: 'yes'
   use_password: 'no'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
