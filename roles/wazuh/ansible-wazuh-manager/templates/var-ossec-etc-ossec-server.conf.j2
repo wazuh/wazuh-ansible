@@ -369,7 +369,9 @@
   <command>
     <name>{{ command.name }}</name>
     <executable>{{ command.executable }}</executable>
-    <expect>{{ command.expect }}</expect>
+    {% if command.expect is defined %}
+        <expect>{{ command.expect }}</expect>
+    {% endif %}
     {% if command.timeout_allowed is defined %}
         <timeout_allowed>{{ command.timeout_allowed }}</timeout_allowed>
     {% endif %}
@@ -623,12 +625,28 @@
     {% if wazuh_manager_config.authd.use_source_ip is not none %}
     <use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>
     {% endif %}
-    {% if wazuh_manager_config.authd.force_insert is not none %}
-    <force_insert>{{wazuh_manager_config.authd.force_insert}}</force_insert>
-    {% endif %}
-    {% if wazuh_manager_config.authd.force_time is not none %}
-    <force_time>{{wazuh_manager_config.authd.force_time}}</force_time>
-    {% endif %}
+    <force>
+      {% if wazuh_manager_config.authd.force.enabled is not none %}
+      <enabled>{{wazuh_manager_config.authd.force.enabled}}</enabled>
+      {% else %}
+      <enabledport>yes</enabled>
+      {% endif %}
+      {% if wazuh_manager_config.authd.force.key_mismatch is not none %}
+      <key_mismatch>{{wazuh_manager_config.authd.force.key_mismatch}}</key_mismatch>
+      {% else %}
+      <key_mismatch>yes</key_mismatch>
+      {% endif %}
+      {% if wazuh_manager_config.authd.force.disconnected_time is not none %}
+      <disconnected_time enabled="yes">{{wazuh_manager_config.authd.force.disconnected_time}}</disconnected_time>
+      {% else %}
+      <disconnected_time enabled="yes">1h</disconnected_time>
+      {% endif %}
+      {% if wazuh_manager_config.authd.force.after_registration_time is not none %}
+      <after_registration_time>{{wazuh_manager_config.authd.force.after_registration_time}}</after_registration_time>
+      {% else %}
+      <after_registration_time>1h</after_registration_time>
+      {% endif %}
+    </force>
     {% if wazuh_manager_config.authd.purge is not none %}
     <purge>{{wazuh_manager_config.authd.purge}}</purge>
     {% endif %}
