@@ -1,6 +1,6 @@
 ---
 
-wazuh_agent_version: 4.3.0-1
+wazuh_agent_version: 4.4.0-1
 
 # Custom packages installation
 
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v4.3.0"
+  branch: "v4.4.0"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
@@ -55,8 +55,8 @@ wazuh_winagent_config:
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
   md5: 8ffa75d13280f1aa6ffca54f4273df4d
-wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.3.0-1.msi
-wazuh_winagent_package_name: wazuh-agent-4.3.0-1.msi
+wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.4.0-1.msi
+wazuh_winagent_package_name: wazuh-agent-4.4.0-1.msi
 
 wazuh_dir: "/var/ossec"
 
