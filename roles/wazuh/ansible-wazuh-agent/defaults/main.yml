@@ -384,3 +384,6 @@ wazuh_agent_config_defaults:
 
   labels: '{{ wazuh_agent_labels }}'
   enrollment: '{{ wazuh_agent_enrollment }}'
+
+  docker_listener:
+    disable: 'yes'
