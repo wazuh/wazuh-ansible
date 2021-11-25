@@ -1,6 +1,6 @@
 ---
-wazuh_agent_version: 4.2.2-1
-wazuh_agent_version_yum: 4.2.2-dependencies.update
+wazuh_agent_version: 4.3.0-4.3.uc
+wazuh_agent_version_yum: 4.3.0-4.3.uc
 
 
 # Custom packages installation

@@ -1,6 +1,6 @@
 ---
-wazuh_manager_version: 4.2.2-1
-wazuh_manager_version_yum: 4.2.2-dependencies.update
+wazuh_manager_version: 4.2.5-1
+wazuh_manager_version_yum: 4.3.0-4.3.uc
 
 
 wazuh_manager_fqdn: "wazuh-server"
