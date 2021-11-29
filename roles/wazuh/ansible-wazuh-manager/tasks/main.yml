@@ -81,8 +81,8 @@
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
-            owner=ossec
-            group=ossec
+            owner=wazuh
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -93,8 +93,8 @@
 - name: Adding local rules files
   copy: src="{{ wazuh_manager_config.ruleset.rules_path }}"
         dest="{{ wazuh_dir }}/etc/rules/"
-        owner=ossec
-        group=ossec
+        owner=wazuh
+        group=wazuh
         mode=0640
   notify: restart wazuh-manager
   tags:
@@ -105,8 +105,8 @@
 - name: Installing the local_decoder.xml
   template: src=var-ossec-rules-local_decoder.xml.j2
             dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
-            owner=ossec
-            group=ossec
+            owner=wazuh
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -117,8 +117,8 @@
 - name: Adding local decoders files
   copy: src="{{ wazuh_manager_config.ruleset.decoders_path }}"
         dest="{{ wazuh_dir }}/etc/decoders/"
-        owner=ossec
-        group=ossec
+        owner=wazuh
+        group=wazuh
         mode=0640
   notify: restart wazuh-manager
   tags:
@@ -130,7 +130,7 @@
   template:
     src: var-ossec-etc-shared-agent.conf.j2
     dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
-        owner: wazuh
+    owner: wazuh
     group: wazuh
     mode: 0640
     validate: "{{ wazuh_dir }}/bin/verify-agent-conf -f %s"
@@ -145,7 +145,7 @@
   template: src=var-ossec-etc-local-internal-options.conf.j2
             dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
             owner=root
-            group=ossec
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -239,7 +239,7 @@
   template:
     src: authd_pass.j2
     dest: "{{ wazuh_dir }}/etc/authd.pass"
-        owner: wazuh
+    owner: wazuh
     group: wazuh
     mode: 0640
   no_log: true
