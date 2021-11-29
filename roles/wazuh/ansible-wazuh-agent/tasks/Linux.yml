@@ -223,7 +223,7 @@
     src: var-ossec-etc-ossec-agent.conf.j2
     dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
-    group: ossec
+    group: wazuh
     mode: 0644
   notify: restart wazuh-agent
   tags:
@@ -235,7 +235,7 @@
     src: var-ossec-etc-local-internal-options.conf.j2
     dest: "{{ wazuh_dir }}/etc/local_internal_options.conf"
     owner: root
-    group: ossec
+    group: wazuh
     mode: 0640
   notify: restart wazuh-agent
   tags:
@@ -246,8 +246,8 @@
   template:
     src: authd_pass.j2
     dest: "{{ wazuh_dir }}/etc/authd.pass"
-    owner: ossec
-    group: ossec
+    owner: wazuh
+    group: wazuh
     mode: 0640
   when:
     - wazuh_agent_config.enrollment.enabled == 'yes'

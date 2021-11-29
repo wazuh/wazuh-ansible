@@ -130,8 +130,8 @@
   template:
     src: var-ossec-etc-shared-agent.conf.j2
     dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
-    owner: ossec
-    group: ossec
+        owner: wazuh
+    group: wazuh
     mode: 0640
     validate: "{{ wazuh_dir }}/bin/verify-agent-conf -f %s"
   notify: restart wazuh-manager
@@ -228,7 +228,7 @@
     src: var-ossec-etc-ossec-server.conf.j2
     dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
-    group: ossec
+    group: wazuh
     mode: 0644
   notify: restart wazuh-manager
   tags:
@@ -239,8 +239,8 @@
   template:
     src: authd_pass.j2
     dest: "{{ wazuh_dir }}/etc/authd.pass"
-    owner: ossec
-    group: ossec
+        owner: wazuh
+    group: wazuh
     mode: 0640
   no_log: true
   notify: restart wazuh-manager
@@ -257,7 +257,7 @@
         src: create_user.py
         dest: "{{ wazuh_dir }}/framework/scripts/create_user.py"
         owner: root
-        group: ossec
+        group: wazuh
         mode: 0644
 
     - name: Execute create_user script
