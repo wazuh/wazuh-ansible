@@ -1,6 +1,6 @@
 ---
 # Single node
-  - hosts: <your server host>  
+  - hosts: 192.168.33.10  
     become: yes
     become_user: root
     roles:
@@ -12,11 +12,11 @@
       single_node: true
       minimum_master_nodes: 1
       elasticsearch_node_master: true
-      elasticsearch_network_host: 127.0.0.1
+      elasticsearch_network_host: 192.168.33.10
       filebeat_node_name: node-1
-      filebeat_output_elasticsearch_hosts: 127.0.0.1
+      filebeat_output_elasticsearch_hosts: 192.168.33.10
       instances:
         node1:
           name: node-1       # Important: must be equal to elasticsearch_node_name.
-          ip: 127.0.0.1
+          ip: 192.168.33.10
       ansible_shell_allow_world_readable_temp: true

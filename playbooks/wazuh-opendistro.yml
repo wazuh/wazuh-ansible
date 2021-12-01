@@ -7,7 +7,7 @@
     instances:           # A certificate will be generated for every node using the name as CN.
       node1:
         name: node-1
-        ip: <node-1 IP>
+        ip: 192.168.33.10
       node2:
         name: node-2
         ip: <node-2 IP>

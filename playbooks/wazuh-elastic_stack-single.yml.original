@@ -1,10 +1,5 @@
 ---
-- vars_prompt:
-  - name: es_ip_address
-    prompt: " Please Enter Elasticsearch Host IP"
-    private: no    
-
-  hosts: "{{ es_ip_address }}"
+- hosts: 192.168.33.10
   roles:
     - {role: ../roles/wazuh/ansible-wazuh-manager}
     - role: ../roles/wazuh/ansible-filebeat
