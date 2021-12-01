@@ -1,4 +1,6 @@
 ---
+# Prompt user for IP ADDRESS at run time
+# And install all the components for Wazuh SOC against the provided IP ADDRESS
 - vars_prompt:
   - name: es_ip_address
     prompt: " Please Enter Elasticsearch Host IP"
