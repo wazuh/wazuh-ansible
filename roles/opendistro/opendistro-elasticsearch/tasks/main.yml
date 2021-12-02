@@ -33,7 +33,6 @@
       file:
         path: "{{ opendistro_conf_path }}/elasticsearch.yml"
         state: absent
-      when: install.changed
       tags: install
 
     - name: Copy Configuration File
@@ -44,7 +43,6 @@
         group: elasticsearch
         mode: 0640
         marker: "## {mark} Opendistro general settings ##"
-      when: install.changed
       tags: install
 
     - include_tasks: security_actions.yml
