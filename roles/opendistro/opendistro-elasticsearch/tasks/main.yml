@@ -48,7 +48,6 @@
     - include_tasks: security_actions.yml
       tags:
         - security
-      when: install.changed
 
     - name: Configure OpenDistro Elasticsearch JVM memmory.
       template:
