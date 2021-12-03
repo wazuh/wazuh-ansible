@@ -14,13 +14,6 @@
 - import_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Install Kibana
-  package:
-    name: "opendistroforelasticsearch-kibana-{{ kibana_opendistro_version }}"
-    state: present
-  register: install
-  tags: install
-
 - name: Remove Kibana configuration file
   file:
     # noqa 503
