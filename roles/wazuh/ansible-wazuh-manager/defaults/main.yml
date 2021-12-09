@@ -388,7 +388,6 @@ wazuh_manager_api:
   https_cert: "api/configuration/ssl/server.crt"
   https_use_ca: False
   https_ca: "api/configuration/ssl/ca.crt"
-  https_ssl_cipher: "TLSv1.2"
   logging_level: "info"
   logging_path: "logs/api.log"
   cors: no
@@ -401,7 +400,6 @@ wazuh_manager_api:
   access_max_login_attempts: 5
   access_block_time: 300
   access_max_request_per_minute: 300
-  use_only_authd: no
   drop_privileges: yes
   experimental_features: no
   remote_commands_localfile: yes

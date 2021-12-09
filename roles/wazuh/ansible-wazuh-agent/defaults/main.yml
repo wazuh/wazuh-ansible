@@ -105,7 +105,7 @@ wazuh_agent_enrollment:
   agent_name: ''
   groups: ''
   agent_address: ''
-  ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
+  ssl_ciphers: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
   server_ca_path: ''
   agent_certificate_path: ''
   agent_key_path: ''
