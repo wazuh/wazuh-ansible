@@ -63,6 +63,17 @@
   notify: restart elasticsearch
   tags: configure
 
+- name: Configure disabled log4j.
+  template:
+    src: "templates/disabledlog4j.options.j2"
+    dest: /etc/elasticsearch/jvm.options.d/disabledlog4j.options
+    owner: root
+    group: elasticsearch
+    mode: 0644
+    force: yes
+  notify: restart elasticsearch
+  tags: install
+
 # fix in new PR (ignore_errors)
 
 - import_tasks: "RMRedHat.yml"
