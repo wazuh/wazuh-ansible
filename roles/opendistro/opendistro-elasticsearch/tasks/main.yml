@@ -55,6 +55,17 @@
       notify: restart elasticsearch
       tags: install
 
+    - name: Configure disabled log4j.
+      template:
+        src: "templates/disabledlog4j.options.j2"
+        dest: /etc/elasticsearch/jvm.options.d/disabledlog4j.options
+        owner: root
+        group: elasticsearch
+        mode: 2750
+        force: yes
+      notify: restart elasticsearch
+      tags: install
+
     - name: Ensure extra time for Elasticsearch to start on reboots
       lineinfile:
         path: /usr/lib/systemd/system/elasticsearch.service
