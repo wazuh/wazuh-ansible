@@ -11,3 +11,7 @@ Pipfile.lock
 *.swp
 molecule/**/es_certs/
 molecule/**/opendistro/
+.idea/
+Vagrantfile
+playbook.yml
+.vagrant/

@@ -5,7 +5,11 @@
       - apt-transport-https
       - ca-certificates
       - acl
+      - gpg-agent
     state: present
+    cache_valid_time: 3600
+    install_recommends: false
+    update_cache: true
   register: wazuh_agent_ca_package_install
   until: wazuh_agent_ca_package_install is succeeded
 

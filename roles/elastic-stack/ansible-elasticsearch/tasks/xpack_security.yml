@@ -1,4 +1,4 @@
-
+---
 - name: Check if certificate exists locally
   stat:
     path: "{{ node_certs_destination }}/{{ elasticsearch_node_name }}.crt"

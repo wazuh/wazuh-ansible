@@ -9,29 +9,14 @@ lint: |
   ansible-lint roles
   flake8 molecule
 platforms:
-  - name: wazuh_manager_centos7
-    hostname: wazuh-mgr01
-    image: geerlingguy/docker-centos7-ansible
+  - name: "wazuh_manager_${MOLECULE_DISTRO:-fedora34}"
+    hostname: "wazuh-mgr01-${MOLECULE_DISTRO:-fedora34}"
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible:latest"
     command: /sbin/init
     pre_build_image: true
     privileged: true
     memory_reservation: 512m
     memory: 1024m
-    ulimits:
-      - nofile:262144:262144
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-
-  - name: wazuh_manager_debian9
-    hostname: wazuh-mgr02
-    image: geerlingguy/docker-debian9-ansible
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-    memory_reservation: 512m
-    memory: 1024m
-    groups:
-      - managers
     ulimits:
       - nofile:262144:262144
     volumes:

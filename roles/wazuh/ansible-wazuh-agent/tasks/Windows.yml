@@ -62,7 +62,7 @@
     {% if wazuh_agent_authd.agent_name is not none %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
     {% if authd_pass | length > 0 %} -P {{ authd_pass }}{% endif %}
   register: agent_auth_output
-  notify: Windows | Restart Wazuh Agent
+  notify: restart windows-wazuh-agent
   when:
     - wazuh_agent_authd.enable | bool
     - not check_windows_key.stat.exists or check_windows_key.stat.size == 0
@@ -79,7 +79,7 @@
   template: # noqa 208
     src: var-ossec-etc-ossec-agent.conf.j2
     dest: "{{ wazuh_agent_win_path }}ossec.conf"
-  notify: Windows | Restart Wazuh Agent
+  notify: restart windows-wazuh-agent
   tags:
     - config
 
@@ -87,7 +87,7 @@
   template:
     src: var-ossec-etc-local-internal-options.conf.j2
     dest: "{{ wazuh_agent_win_path }}local_internal_options.conf"
-  notify: Windows | Restart Wazuh Agent
+  notify: restart windows-wazuh-agent
   tags:
     - config
 

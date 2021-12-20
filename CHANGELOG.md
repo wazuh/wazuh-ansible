@@ -73,7 +73,7 @@ All notable changes to this project will be documented in this file.
 - Update to [Wazuh v4.1.1](https://github.com/wazuh/wazuh/blob/v4.1.1/CHANGELOG.md#v411)
 - Apply changes in ossec.conf file
 - Modify jvm.options to [v7.10](https://www.elastic.co/guide/en/elasticsearch/reference/7.10/jvm-options.html)
-- Change opendistro repository packages (opendistroforelasticsearch, elasticsearch-oss) to Wazuh URL and GPG key 
+- Change opendistro repository packages (opendistroforelasticsearch, elasticsearch-oss) to Wazuh URL and GPG key
 
 ## [v4.0.4]
 

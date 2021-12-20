@@ -4,7 +4,13 @@
   hosts: all
   become: true
   become_user: root
+  gather_facts: true
   vars:
+    packages:
+      Debian:
+        - iproute2
+      RedHat:
+        - iproute
     # arguments common to all managers
     wazuh_managers_common:
       port: 1514
@@ -32,6 +38,28 @@
         wazuh_managers: '{{ wazuh_managers_list }}'
       when: inventory_hostname in groups['agents']
   pre_tasks:
+    - name: Wait for systemd to complete initialization. # noqa 303
+      command: systemctl is-system-running
+      register: systemctl_status
+      until: >
+        'running' in systemctl_status.stdout or
+        'degraded' in systemctl_status.stdout
+      retries: 30
+      delay: 5
+      when: ansible_service_mgr == 'systemd'
+      changed_when: false
+      failed_when: systemctl_status.rc > 1
+
+    - name: Recursively create man diroctory
+      file:
+        path: /usr/share/man/man1
+        state: directory
+        recurse: true
+
+    - name: Install iproute2
+      package:
+        name: "{{ packages[ansible_os_family] }}"
+        state: present
 
     - name: (converge) build wazuh_managers list dynamically for agents to consume
       set_fact:

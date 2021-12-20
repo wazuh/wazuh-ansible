@@ -17,7 +17,7 @@ path.repo:
 discovery.type: single-node
 {% elif elasticsearch_bootstrap_node %}
 node.master: true
-cluster.initial_master_nodes: 
+cluster.initial_master_nodes:
 {% for item in elasticsearch_cluster_nodes %}
   - {{ item }}
 {% endfor %}
@@ -50,8 +50,8 @@ cluster.routing.allocation.disk.watermark.high: 300mb
 # XPACK Security
 xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
-xpack.security.transport.ssl.verification_mode: certificate 
-xpack.security.transport.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key 
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key
 xpack.security.transport.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt
 {% if generate_CA == true %}
 xpack.security.transport.ssl.certificate_authorities: [ "{{ node_certs_destination }}/ca.crt" ]
@@ -60,8 +60,8 @@ xpack.security.transport.ssl.certificate_authorities: [ "{{ node_certs_destinati
 {% endif %}
 xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.verification_mode: certificate
-xpack.security.http.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key 
-xpack.security.http.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt 
+xpack.security.http.ssl.key: {{node_certs_destination}}/{{ elasticsearch_node_name }}.key
+xpack.security.http.ssl.certificate: {{node_certs_destination}}/{{ elasticsearch_node_name }}.crt
 {% if generate_CA == true %}
 xpack.security.http.ssl.certificate_authorities: [ "{{ node_certs_destination }}/ca.crt" ]
 {% elif generate_CA == false %}

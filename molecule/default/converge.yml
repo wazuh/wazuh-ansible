@@ -3,9 +3,11 @@
   hosts: all
   roles:
     - role: ../../roles/wazuh/ansible-wazuh-manager
-      vars:
-    - { role: ../../roles/wazuh/ansible-filebeat, filebeat_output_elasticsearch_hosts: "elasticsearch_centos7:9200" }
+    - role: ../../roles/wazuh/ansible-filebeat
   vars:
+    filebeat_output_elasticsearch_hosts: "elasticsearch_centos7:9200"
+    wazuh_template_branch: "{{ lookup('env','WAZUH_TEMPLATE_BRANCH') or 'v4.2.5' }}"
+    wazuh_manager_version: "{{ lookup('env','WAZUH_MANAGER_VERSION') or '4.2.5-1' }}"
   pre_tasks:
     - name: (converge) fix missing packages in cloud images
       apt:

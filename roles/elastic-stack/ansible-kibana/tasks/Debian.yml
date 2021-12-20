@@ -1,12 +1,16 @@
 ---
-- name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
+- name: Debian/Ubuntu | Install apt-transport-https, ca-certificates and gpg
   apt:
     name:
       - apt-transport-https
       - ca-certificates
+      - gpg-agent
     state: present
-  register: kibana_installing_ca_package
-  until: kibana_installing_ca_package is succeeded
+    cache_valid_time: 3600
+    install_recommends: false
+    update_cache: true
+  register: kibana_https_packages_installed
+  until: kibana_https_packages_installed is succeeded
 
 - name: Debian/Ubuntu | Add Elasticsearch GPG key
   apt_key:

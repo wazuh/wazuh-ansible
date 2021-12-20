@@ -4,11 +4,12 @@
     name:
       - apt-transport-https
       - ca-certificates
-      - gnupg
+      - gpg-agent
       - acl
     state: present
     cache_valid_time: 3600
     install_recommends: false
+    update_cache: true
   register: wazuh_manager_https_packages_installed
   until: wazuh_manager_https_packages_installed is succeeded
 

@@ -1,0 +1,42 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-byte-order-marker
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: debug-statements
+      - id: check-yaml
+        files: .*\.(yaml|yml)$
+  - repo: https://github.com/PyCQA/flake8.git
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.26.3
+    hooks:
+      - id: yamllint
+        files: \.(yaml|yml)$
+        args: [-c=.yamllint]
+        types: [file, yaml]
+        entry: yamllint --strict -f parsable
+  - repo: https://github.com/robertdebock/pre-commit
+    rev: v1.4.4
+    hooks:
+      - id: ansible_role_find_unused_variable
+      - id: ansible_role_find_empty_files
+      - id: ansible_role_find_empty_directories
+      - id: ansible_role_fix_readability
+      - id: ansible_role_find_undefined_handlers
+      - id: ansible_role_find_unquoted_values
+
+  - repo: https://github.com/openstack-dev/bashate.git
+    rev: 2.1.0
+    hooks:
+      - id: bashate
+        entry: bashate --error . --verbose --ignore=E006,E040

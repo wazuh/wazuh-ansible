@@ -5,7 +5,13 @@
   hosts: all
   become: true
   become_user: root
+  gather_facts: true
   vars:
+    packages:
+      Debian:
+        - iproute2
+      RedHat:
+        - iproute
     endpoints_hostvars: '{{ managers_hostvars | union(elastic_hostvars) | union(kibana_hostvars)  }}'
   roles:
     - role: ../../roles/elastic-stack/ansible-elasticsearch
@@ -16,6 +22,29 @@
         - inventory_hostname in groups['elastic']
         - ansible_hostname == 'wazuh-es01'
   pre_tasks:
+    - name: Wait for systemd to complete initialization. # noqa 303
+      command: systemctl is-system-running
+      register: systemctl_status
+      until: >
+        'running' in systemctl_status.stdout or
+        'degraded' in systemctl_status.stdout
+      retries: 30
+      delay: 5
+      when: ansible_service_mgr == 'systemd'
+      changed_when: false
+      failed_when: systemctl_status.rc > 1
+
+    - name: Recursively create man directory
+      file:
+        path: /usr/share/man/man1
+        state: directory
+        recurse: true
+
+    - name: Install iproute2
+      package:
+        name: "{{ packages[ansible_os_family] }}"
+        state: present
+
     - name: (converge) build instances list dynamically for cert generator consumption
       set_fact:
         elk_endpoint_list: "{{ elk_endpoint_list | default({}) | combine({ instance_hostname: instance_item }) }}"

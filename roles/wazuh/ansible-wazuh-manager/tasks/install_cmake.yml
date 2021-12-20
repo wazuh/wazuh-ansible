@@ -4,7 +4,7 @@
 # cmake_download_url: http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz
 # cmake_version: 3.18.3
 #
-  - name: Include CMake install vars 
+  - name: Include CMake install vars
     include_vars: install_cmake.yml
 
   - name: Download CMake sources

@@ -3,10 +3,16 @@ name: Molecule tests for Wazuh Ansible
 on: [pull_request, workflow_dispatch, release]
 
 jobs:
-
   scenario-default:
     name: Default scenario (smoke)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - fedora34
+          - debian9
+          - centos7
+          - ubuntu2004
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
@@ -21,7 +27,7 @@ jobs:
       - name: Set up Python 3.
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8'
 
       - name: Install poetry
         run: pip3 install poetry
@@ -34,10 +40,17 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: "${{ matrix.distro }}"
 
   scenario-distributed-wazuh-elk:
     name: Distributed ELK + Wazuh
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - debian9
+          - centos7
+          - ubuntu2004
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
@@ -51,7 +64,7 @@ jobs:
       - name: Set up Python 3.
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8'
 
       - name: Install poetry
         run: pip3 install poetry
@@ -65,10 +78,17 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: "${{ matrix.distro }}"
 
   scenario-distributed-wazuh-elk-xpack:
     name: Distributed ELK + XPack + Wazuh
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - debian9
+          - centos7
+          - ubuntu2004
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
@@ -82,7 +102,7 @@ jobs:
       - name: Set up Python 3.
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8'
 
       - name: Install poetry
         run: pip3 install poetry
@@ -95,10 +115,17 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: "${{ matrix.distro }}"
 
   scenario-distributed-wazuh-odfe:
     name: Distributed ODFE + Wazuh
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - debian9
+          - centos7
+          - ubuntu2004
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
@@ -112,7 +139,7 @@ jobs:
       - name: Set up Python 3.
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8'
 
       - name: Install poetry
         run: pip3 install poetry
@@ -125,3 +152,4 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: "${{ matrix.distro }}"

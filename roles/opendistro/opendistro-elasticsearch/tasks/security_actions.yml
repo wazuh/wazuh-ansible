@@ -125,5 +125,3 @@
     timeout: 4
   when:
     - opendistro_custom_user is defined and opendistro_custom_user
-
-

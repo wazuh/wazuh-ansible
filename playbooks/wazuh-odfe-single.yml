@@ -1,6 +1,6 @@
 ---
 # Single node
-  - hosts: <your server host>  
+  - hosts: <your server host>
     become: yes
     become_user: root
     roles:

@@ -1,6 +1,12 @@
 ---
 - name: restart wazuh-agent
-  service: name=wazuh-agent state=restarted enabled=yes
+  service:
+    name: wazuh-agent
+    state: restarted
+    enabled: true
 
-- name: Windows | Restart Wazuh Agent
-  win_service: name=WazuhSvc start_mode=auto state=restarted
+- name: restart windows-wazuh-agent
+  win_service:
+    name: WazuhSvc
+    start_mode: auto
+    state: restarted

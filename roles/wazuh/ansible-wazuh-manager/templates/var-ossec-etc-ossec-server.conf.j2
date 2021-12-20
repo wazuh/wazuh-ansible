@@ -1,4 +1,7 @@
-#jinja2: lstrip_blocks: True
+#jinja2: trim_blocks: "true", lstrip_blocks: "true"
+<!--
+# {{ ansible_managed }}
+-->
 <!--
   Wazuh - Manager - Default configuration
   More info at: https://documentation.wazuh.com
@@ -622,6 +625,8 @@
     {% if wazuh_manager_config.authd.use_source_ip is not none %}
     <use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>
     {% endif %}
+    <!-- Here will be force section for version > {{ wazuh_manager_version }} -->
+    {% if wazuh_manager_version > '4.2.5-1' %}
     <force>
       {% if wazuh_manager_config.authd.force.enabled is not none %}
       <enabled>{{wazuh_manager_config.authd.force.enabled}}</enabled>
@@ -644,6 +649,7 @@
       <after_registration_time>1h</after_registration_time>
       {% endif %}
     </force>
+    {% endif %}
     {% if wazuh_manager_config.authd.purge is not none %}
     <purge>{{wazuh_manager_config.authd.purge}}</purge>
     {% endif %}

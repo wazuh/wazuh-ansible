@@ -15,6 +15,6 @@
       name: "opendistroforelasticsearch-kibana-{{ kibana_opendistro_version }}"
       state: present
     register: install
-    
+
   tags:
     - install
