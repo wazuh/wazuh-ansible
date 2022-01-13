@@ -586,6 +586,27 @@
       {% endif %}
     </bucket>
     {% endfor %}
+  {% if monitor_aws is defined and monitor_aws.disable_service_block is defined and monitor_aws.disable_service_block == "no" %}
+    {% for service in monitor_aws.s3_service %}
+    <service type="{{ service.service_type }}">
+      {% if service.aws_log_groups is defined %}
+      <aws_log_groups>{{ service.aws_log_groups }}</aws_log_groups>
+      {% endif %}
+      {% if service.only_logs_after is defined %}
+      <only_logs_after>{{ service.only_logs_after }}</only_logs_after>
+      {% endif %}
+      {% if service.remove_log_streams is defined %}
+      <remove_log_streams>{{ service.remove_log_streams }}</remove_log_streams>
+      {% endif %}
+      {% if service.access_key is defined %}
+      <access_key>{{ service.access_key }}</access_key>
+      {% endif %}
+      {% if service.secret_key is defined %}
+      <secret_key>{{ service.secret_key }}</secret_key>
+      {% endif %}
+    </service>
+    {% endfor %}
+  {% endif %}
   </wodle>
 {% endif %}
 
