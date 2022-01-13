@@ -163,6 +163,7 @@ wazuh_manager_monitor_aws:
       bucket_type: null
       path: null
       only_logs_after: null
+      regions: null
       access_key: null
       secret_key: null
 

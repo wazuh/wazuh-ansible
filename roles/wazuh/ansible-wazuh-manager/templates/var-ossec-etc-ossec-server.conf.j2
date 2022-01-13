@@ -572,11 +572,18 @@
       {% if bucket.path is defined %}
       <path>{{ bucket.path }}</path>
       {% endif %}
+      {% if bucket.regions is defined %}
+      <regions>{{ bucket.regions }}</regions>
+      {% endif %}
       {% if bucket.only_logs_after is defined %}
       <only_logs_after>{{ bucket.only_logs_after }}</only_logs_after>
       {% endif %}
+      {% if bucket.access_key is defined %}
       <access_key>{{ bucket.access_key }}</access_key>
+      {% endif %}
+      {% if bucket.secret_key is defined %}
       <secret_key>{{ bucket.secret_key }}</secret_key>
+      {% endif %}
     </bucket>
     {% endfor %}
   </wodle>
