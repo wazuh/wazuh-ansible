@@ -233,13 +233,13 @@
     <skip_nfs>yes</skip_nfs>
   {% endif %}
   {% if wazuh_agent_config.sca.day | length > 0 %}
-    <day>{{ wazuh_agent_config.sca.day }}</day>
+    <day>yes</day>
   {% endif %}
   {% if wazuh_agent_config.sca.wday | length > 0 %}
-    <wday>{{ wazuh_agent_config.sca.wday }}</wday>
+    <wday>yes</wday>
   {% endif %}
   {% if wazuh_agent_config.sca.time | length > 0 %}
-    <time>{{ wazuh_agent_config.sca.time }}</time>
+    <time>yes</time>
   {% endif %}
   </sca>
 
