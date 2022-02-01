@@ -10,9 +10,9 @@
       gpgkey: "{{ package_repos.yum.opendistro.gpg }}"
       gpgcheck: true
 
-  - name: Install Kibana
+  - name: Install Wazuh-Dashboard
     package:
-      name: "opendistroforelasticsearch-kibana-{{ kibana_opendistro_version }}"
+      name: "wazuh-dashboard-{{ kibana_opendistro_version }}"
       state: present
     register: install
     

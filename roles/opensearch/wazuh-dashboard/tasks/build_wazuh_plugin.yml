@@ -1,4 +1,5 @@
 ---
+## 732 will not be needed
   - name: Ensure the Git package is present
     package:
       name: git
@@ -33,12 +34,14 @@
     changed_when: install_yarn_result == 0
 
   - name: Remove old wazuh-kibana-app git directory
+## 732 check if it is needed
     file:
       path: /tmp/app
       state: absent
     changed_when: false
 
   - name: Clone wazuh-kibana-app repository # Using command as git module doesn't cover single-branch nor depth
+## 732 will not be needed
     command: git clone https://github.com/wazuh/wazuh-kibana-app -b {{ wazuh_plugin_branch }} --single-branch --depth=1 app # noqa 303
     register: clone_app_repo_result
     changed_when: false

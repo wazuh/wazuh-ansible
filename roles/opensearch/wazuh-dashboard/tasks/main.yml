@@ -32,7 +32,7 @@
     owner: kibana
     mode: 0640
     marker: "## {mark} Kibana general settings ##"
-  notify: restart kibana
+  notify: restart wazuh-dashboard
   tags:
     - install
     - configure
@@ -46,38 +46,38 @@
     group: kibana
     recurse: yes
 
-- name: Build and Install Wazuh Kibana Plugin from sources
-  import_tasks: build_wazuh_plugin.yml
-  when:
-    - build_from_sources is defined
-    - build_from_sources
+#- name: Build and Install Wazuh Kibana Plugin from sources
+#  import_tasks: build_wazuh_plugin.yml
+#  when:
+#    - build_from_sources is defined
+#    - build_from_sources
 
-- name: Install Wazuh Plugin (can take a while)
-  shell: >-
-    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
-    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}-1.zip
-  args:
-    executable: /bin/bash
-    creates: /usr/share/kibana/plugins/wazuh/package.json
-    chdir: /usr/share/kibana
-  become: yes
-  become_user: kibana
-  notify: restart kibana
-  tags:
-    - install
-    - skip_ansible_lint
-  when:
-    - not build_from_sources
+#- name: Install Wazuh Plugin (can take a while)
+#  shell: >-
+#    NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install
+#    {{ wazuh_app_url }}-{{ wazuh_version }}_{{ elastic_stack_version }}-1.zip
+#  args:
+#    executable: /bin/bash
+#    creates: /usr/share/kibana/plugins/wazuh/package.json
+#    chdir: /usr/share/kibana
+#  become: yes
+#  become_user: kibana
+#  notify: restart kibana
+#  tags:
+#    - install
+#    - skip_ansible_lint
+#  when:
+#    - not build_from_sources
 
-- name: Kibana optimization (can take a while)
-  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli/cli.js --optimize -c {{ kibana_conf_path }}/kibana.yml
-  args:
-    executable: /bin/bash
-  become: yes
-  become_user: kibana
-  changed_when: false
-  tags:
-    - skip_ansible_lint
+#- name: Kibana optimization (can take a while)
+#  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli/cli.js --optimize -c {{ kibana_conf_path }}/kibana.yml
+#  args:
+#    executable: /bin/bash
+#  become: yes
+#  become_user: kibana
+#  changed_when: false
+#  tags:
+#    - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}

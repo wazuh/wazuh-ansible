@@ -9,7 +9,8 @@
   when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
   block:
   
-    - name: Install OpenDistro dependencies
+    - name: Install Wazuh-Indexer dependencies
+    ## 732 change task name
       apt:
         name: [
           'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
@@ -21,22 +22,24 @@
         keyserver: keyserver.ubuntu.com
         id: 648ACFD622F3D138
     
-    - name: Add openjdk repository
-      apt_repository:
-        repo: "{{ package_repos.apt.openjdk.baseurl }}"
-        state: present
-        update_cache: yes
-        filename: 'wazuh-openjdk'
+#    - name: Add openjdk repository
+#      apt_repository:
+#        repo: "{{ package_repos.apt.openjdk.baseurl }}"
+#        state: present
+#        update_cache: yes
+#        filename: 'wazuh-openjdk'
 
-- name: Install openjdk-11-jdk
-  apt:
-    name: openjdk-11-jdk
-    state: present
-  environment:
-    JAVA_HOME: /usr
+#- name: Install openjdk-11-jdk
+### 732 will not be needed as indexer comes with the jdk.
+#  apt:
+#    name: openjdk-11-jdk
+#    state: present
+#  environment:
+#    JAVA_HOME: /usr
 
-- name: Add Opendistro repository
+- name: Add Wazuh-Indexer repository
   block:
+  ## 732 the wazuh repo should be added instead
     - name: Add apt repository signing key
       apt_key:
         url: "{{ package_repos.apt.opendistro.gpg }}"
@@ -49,9 +52,10 @@
         filename: 'wazuh-opendistro'
         update_cache: yes
 
-- name: Install OpenDistro
+- name: Install Wazuh-Indexer
+## the indexer package should be installed instead
   apt:
-    name: opendistroforelasticsearch={{ opendistro_version }}-1
+    name: wazuh-indexer={{ opendistro_version }}-1
     state: present
   register: install
   tags: install 

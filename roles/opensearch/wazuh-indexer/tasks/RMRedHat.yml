@@ -1,5 +1,6 @@
 ---
 - name: RedHat/CentOS/Fedora | Remove Elasticsearch repository (and clean up left-over metadata)
+  ## 732 will not be needed and if it is needed the wazuh repo should be removed.
   yum_repository:
     name: opendistro_repo
     state: absent

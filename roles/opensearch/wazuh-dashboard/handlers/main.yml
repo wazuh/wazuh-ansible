@@ -1,0 +1,4 @@
+---
+- name: restart wazuh-dashboard
+  service: name=wazuh-dashboard state=restarted
+## 732 service name should be updated

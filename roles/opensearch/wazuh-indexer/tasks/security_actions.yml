@@ -1,12 +1,13 @@
-- name: Remove demo certs
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "{{ opendistro_conf_path }}/kirk.pem"
-    - "{{ opendistro_conf_path }}/kirk-key.pem"
-    - "{{ opendistro_conf_path }}/esnode.pem"
-    - "{{ opendistro_conf_path }}/esnode-key.pem"
+#- name: Remove demo certs
+#  ## 732 will not be needed
+#  file:
+#    path: "{{ item }}"
+#    state: absent
+#  with_items:
+#    - "{{ opendistro_conf_path }}/kirk.pem"
+#    - "{{ opendistro_conf_path }}/kirk-key.pem"
+#    - "{{ opendistro_conf_path }}/esnode.pem"
+#    - "{{ opendistro_conf_path }}/esnode-key.pem"
 
 - name: Configure IP (Private address)
   set_fact:
@@ -24,38 +25,39 @@
 - name: Copy the node & admin certificates to Elasticsearch cluster
   copy:
     src: "{{ local_certs_path }}/certs/{{ item }}"
-    dest: /etc/elasticsearch/
+    dest: "{{ opendistro_conf_path }}/certs/"
     mode: 0644
+  become: yes
   with_items:
     - root-ca.pem
     - root-ca.key
-    - "{{ elasticsearch_node_name }}.key"
+    - "{{ elasticsearch_node_name }}-key.pem"
     - "{{ elasticsearch_node_name }}.pem"
-    - "{{ elasticsearch_node_name }}_http.key"
-    - "{{ elasticsearch_node_name }}_http.pem"
-    - "{{ elasticsearch_node_name }}_elasticsearch_config_snippet.yml"
-    - admin.key
+    #- "{{ elasticsearch_node_name }}_http.key"
+    #- "{{ elasticsearch_node_name }}_http.pem"
+    #- "{{ elasticsearch_node_name }}_elasticsearch_config_snippet.yml"
+    - admin-key.pem
     - admin.pem
 
-- name: Copy the OpenDistro security configuration file to cluster
-  blockinfile:
-    block: "{{ lookup('file', snippet_path ) }}"
-    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
-    insertafter: EOF
-    marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
-  vars:
-    snippet_path: '{{ local_certs_path }}/certs/{{ elasticsearch_node_name }}_elasticsearch_config_snippet.yml'
+#- name: Copy the OpenDistro security configuration file to cluster
+#  blockinfile:
+#    block: "{{ lookup('file', snippet_path ) }}"
+#    dest: "{{ opendistro_conf_path }}/elasticsearch.yml"
+#    insertafter: EOF
+#    marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
+#  vars:
+#    snippet_path: '{{ local_certs_path }}/certs/{{ elasticsearch_node_name }}_elasticsearch_config_snippet.yml'
 
-- name: Prepare the OpenDistro security configuration file
-  replace:
-    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
-    regexp: 'searchguard'
-    replace: 'opendistro_security'
-  tags: local
+#- name: Prepare the OpenDistro security configuration file
+#  replace:
+#    path: "{{ opendistro_conf_path }}/elasticsearch.yml"
+#    regexp: 'searchguard'
+#    replace: 'opendistro_security'
+#  tags: local
 
 - name: Restart elasticsearch with security configuration
   systemd:
-    name: elasticsearch
+    name: wazuh-indexer
     state: restarted
 
 - name: Copy the OpenDistro security internal users template
@@ -98,18 +100,21 @@
 
 - name: Initialize the OpenDistro security index in elasticsearch
   command: >
+    sudo -u wazuh-indexer OPENSEARCH_PATH_CONF=/etc/wazuh-indexer
+    JAVA_HOME=/usr/share/wazuh-indexer/jdk
     {{ opendistro_sec_plugin_tools_path }}/securityadmin.sh
-    -cacert {{ opendistro_conf_path }}/root-ca.pem
-    -cert {{ opendistro_conf_path }}/admin.pem
-    -key {{ opendistro_conf_path }}/admin.key
-    -cd {{ opendistro_sec_plugin_conf_path }}/
-    -nhnv -icl
+    -cd {{ opendistro_sec_plugin_tools_path }}/
+    -icl -p 9800 -cd /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig
+    -cacert {{ opendistro_conf_path }}/certs/root-ca.pem
+    -cert {{ opendistro_conf_path }}/certs/admin.pem
+    -key {{ opendistro_conf_path }}/certs/admin-key.pem
+    -nhnv
     -h {{ target_address }}
   run_once: true # noqa 301
 
 - name: Create custom user
   uri:
-    url: "https://{{ target_address }}:{{ opendistro_http_port }}/_opendistro/_security/api/internalusers/{{ opendistro_custom_user }}"
+    url: "https://{{ target_address }}:{{ opendistro_http_port }}/_plugins/_security/api/internalusers/{{ opendistro_custom_user }}"
     method: PUT
     user: "admin" # Default OpenDistro user is always "admin"
     password: "{{ opendistro_admin_password }}"

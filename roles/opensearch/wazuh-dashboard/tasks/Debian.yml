@@ -3,19 +3,22 @@
 
   - include_vars: debian.yml 
   - name: Add apt repository signing key
+## 732 will not be needed. The wazuh repo should be added
     apt_key:
       url: "{{ package_repos.apt.opendistro.gpg }}"
       state: present
 
   - name: Debian systems | Add OpenDistro repo
+## 732 will not be needed. The wazuh repo should be added
     apt_repository:
       repo: "{{ package_repos.apt.opendistro.baseurl }}"
       state: present
       update_cache: yes
 
-  - name: Install Kibana
+  - name: Install Wazuh-Dashboard
+## 732 package name and task name should be updated.
     apt:
-      name: "opendistroforelasticsearch-kibana={{ kibana_opendistro_version }}"
+      name: "wazuh-dashboard={{ kibana_opendistro_version }}"
       state: present
     register: install
 
