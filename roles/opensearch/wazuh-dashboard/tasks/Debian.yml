@@ -3,22 +3,19 @@
 
   - include_vars: debian.yml 
   - name: Add apt repository signing key
-## 732 will not be needed. The wazuh repo should be added
     apt_key:
-      url: "{{ package_repos.apt.indexer.gpg }}"
+      url: "{{ package_repos.apt.dashboard.gpg }}"
       state: present
 
   - name: Debian systems | Add OpenDistro repo
-## 732 will not be needed. The wazuh repo should be added
     apt_repository:
-      repo: "{{ package_repos.apt.indexer.baseurl }}"
+      repo: "{{ package_repos.apt.dashboard.baseurl }}"
       state: present
       update_cache: yes
 
   - name: Install Wazuh-Dashboard
-## 732 package name and task name should be updated.
     apt:
-      name: "wazuh-dashboard={{ kibana_opendistro_version }}"
+      name: "wazuh-dashboard={{ dashboard_version }}-1"
       state: present
     register: install
 

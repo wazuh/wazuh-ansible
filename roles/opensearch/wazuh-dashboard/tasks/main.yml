@@ -1,8 +1,8 @@
 ---
 
-- name: Stopping early, trying to compile Wazuh Kibana Plugin on Debian 10 is not possible
+- name: Stopping early, trying to compile Wazuh Dashboard Plugin on Debian 10 is not possible
   fail:
-    msg: "It's not possible to compile the Wazuh Kibana plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
+    msg: "It's not possible to compile the Wazuh Dashboard plugin on Debian 10 due to: https://github.com/wazuh/wazuh-kibana-app/issues/1924"
   when:
     - build_from_sources
     - ansible_distribution == "Debian"
@@ -14,36 +14,35 @@
 - import_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Remove Kibana configuration file
+- name: Remove Dashboard configuration file
   file:
     # noqa 503
-    path: "{{ kibana_conf_path }}/kibana.yml"
+    path: "{{ dashboard_conf_path }}/dashboard.yml"
     state: absent
   tags: install
 
 - import_tasks: security_actions.yml
 
 - name: Copy Configuration File
-  blockinfile:
-    block: "{{ lookup('template', 'opendistro_kibana.yml.j2') }}"
-    dest: "{{ kibana_conf_path }}/kibana.yml"
-    create: true
-    group: kibana
-    owner: kibana
+  template:
+    src: "templates/dashboard.yml.j2"
+    dest: "{{ dashboard_conf_path }}/dashboard.yml"
+    group: wazuh-dashboard
+    owner: wazuh-dashboard
     mode: 0640
-    marker: "## {mark} Kibana general settings ##"
+    force: yes
   notify: restart wazuh-dashboard
   tags:
     - install
     - configure
 
-- name: Ensuring Kibana directory owner
+- name: Ensuring Wazuh-Dashboard directory owner
   file:
     # noqa 208
-    path: "/usr/share/kibana"
+    path: "/usr/share/wazuh-dashboard"
     state: directory
-    owner: kibana
-    group: kibana
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
     recurse: yes
 
 #- name: Build and Install Wazuh Kibana Plugin from sources
@@ -70,7 +69,7 @@
 #    - not build_from_sources
 
 #- name: Kibana optimization (can take a while)
-#  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli/cli.js --optimize -c {{ kibana_conf_path }}/kibana.yml
+#  shell: /usr/share/kibana/node/bin/node {{ node_options }} /usr/share/kibana/src/cli/cli.js --optimize -c {{ dashboard_conf_path }}/kibana.yml
 #  args:
 #    executable: /bin/bash
 #  become: yes
@@ -79,44 +78,44 @@
 #  tags:
 #    - skip_ansible_lint
 
-- name: Wait for Elasticsearch port
-  wait_for: host={{ indexer_network_host }} port={{ elasticsearch_http_port }}
+- name: Wait for Wazuh-Indexer port
+  wait_for: host={{ indexer_network_host }} port={{ indexer_http_port }}
 
 - name: Select correct API protocol
   set_fact:
-    elastic_api_protocol: "{% if kibana_opendistro_security is defined and kibana_opendistro_security %}https{% else %}http{% endif %}"
+    indexer_api_protocol: "{% if dashboard_security is defined and dashboard_security %}https{% else %}http{% endif %}"
 
 - name: Attempting to delete legacy Wazuh index if exists
   uri:
-    url: "{{ elastic_api_protocol }}://{{ indexer_network_host }}:{{ elasticsearch_http_port }}/.wazuh"
+    url: "{{ indexer_api_protocol }}://{{ indexer_network_host }}:{{ indexer_http_port }}/.wazuh"
     method: DELETE
     user: "admin"
     password: "{{ indexer_admin_password }}"
     validate_certs: no
     status_code: 200, 404
 
-- name: Create wazuh plugin config directory
+- name: Create Wazuh Plugin config directory
   file:
-    path: /usr/share/kibana/data/wazuh/config/
+    path: /usr/share/wazuh-dashboard/data/wazuh/config/
     state: directory
     recurse: yes
-    owner: kibana
-    group: kibana
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
     mode: 0751
   changed_when: False
 
-- name: Configure Wazuh Kibana Plugin
+- name: Configure Wazuh Dashboard Plugin
   template:
     src: wazuh.yml.j2
-    dest: /usr/share/kibana/data/wazuh/config/wazuh.yml
-    owner: kibana
-    group: kibana
+    dest: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
     mode: 0751
   changed_when: False
 
-- name: Ensure Kibana started and enabled
+- name: Ensure Wazuh-Dashboard started and enabled
   service:
-    name: kibana
+    name: wazuh-dashboard
     enabled: true
     state: started
 

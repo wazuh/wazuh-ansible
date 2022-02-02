@@ -1,6 +1,6 @@
 ---
-- name: Remove Elasticsearch repository (and clean up left-over metadata)
+- name: Remove Wazuh-Dashboard repository (and clean up left-over metadata)
   yum_repository:
-    name: opendistro_repo
+    name: wazuh_repo
     state: absent
   changed_when: false

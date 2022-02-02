@@ -1,34 +1,38 @@
 ---
 
-# Kibana configuration
-elasticsearch_http_port: 9200
-elastic_api_protocol: https
-kibana_conf_path: /etc/kibana
+# Dashboard configuration
+indexer_http_port: 9700
+indexer_api_protocol: https
+dashboard_conf_path: /etc/wazuh-dashboard/
 ## 732 check the path
-kibana_node_name: node-1
-kibana_server_host: "0.0.0.0"
-kibana_server_port: "5601"
-kibana_server_name: "kibana"
-kibana_max_payload_bytes: 1048576
-elastic_stack_version: 4.3.0
+dashboard_node_name: node-1
+dashboard_server_host: "0.0.0.0"
+dashboard_server_port: "5601"
+dashboard_server_name: "dashboard"
+#kibana_max_payload_bytes: 1048576
+#elastic_stack_version: 4.3.0
 ## 732 check if it is the right version
 wazuh_version: 4.3.0
-wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
+#wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
 ## 732 check if it is needed.
 
 # The OpenDistro package repository
-kibana_opendistro_version: 4.3.0-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+dashboard_version: "4.3.0" # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
 ## 732 check if it is the right version
 
 package_repos:
   yum:
-    opendistro:
-      baseurl: 'https://packages.wazuh.com/4.x/yum/'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+    dashboard:
+      #baseurl: 'https://packages.wazuh.com/4.x/yum/'
+      baseurl: 'https://packages-dev.wazuh.com/pre-release/yum/'
+      #gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+      gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   apt:
-    opendistro:
-      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+    dashboard:
+      #baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+      baseurl: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+      #gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+      gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
 
 # API credentials
 wazuh_api_credentials:
@@ -39,13 +43,13 @@ wazuh_api_credentials:
     password: "wazuh"
 
 # opendistro Security
-kibana_opendistro_security: true
-kibana_newsfeed_enabled: "false"
-kibana_telemetry_optin: "false"
-kibana_telemetry_enabled: "false"
+dashboard_security: true
+#kibana_newsfeed_enabled: "false"
+#kibana_telemetry_optin: "false"
+#kibana_telemetry_enabled: "false"
 
 indexer_admin_password: changeme
-opendistro_kibana_user: kibanaserver
+dashboard_user: dashboardserver
 dashboard_password: changeme
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 
@@ -58,7 +62,7 @@ nodejs:
 
 # Build from sources
 build_from_sources: false
-wazuh_plugin_branch: 4.1-7.10
+#wazuh_plugin_branch: 4.1-7.10
 ## 732 check if it is the right version and if it is needed
 
 #Nodejs NODE_OPTIONS

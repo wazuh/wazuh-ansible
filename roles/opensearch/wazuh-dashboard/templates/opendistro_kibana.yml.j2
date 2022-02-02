@@ -1,17 +1,17 @@
 # {{ ansible_managed }}
 # Description:
 # Default Kibana configuration for Open Distro.
-server.port: {{ kibana_server_port }}
+server.port: {{ dashboard_server_port }}
 
 #server.basePath: ""
 server.maxPayloadBytes: {{ kibana_max_payload_bytes }}
-server.name: {{ kibana_server_name }}
+server.name: {{ dashboard_server_name }}
 server.host: {{ kibana_server_host }}
 
 
 {% if kibana_opendistro_security %}
 
-elasticsearch.hosts: "https://{{ indexer_network_host }}:{{ elasticsearch_http_port }}"
+elasticsearch.hosts: "https://{{ indexer_network_host }}:{{ indexer_http_port }}"
 elasticsearch.username: {{ opendistro_kibana_user }}
 elasticsearch.password: {{ dashboard_password }}
 server.ssl.enabled: true
@@ -21,7 +21,7 @@ elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/root-ca.pem"]
 elasticsearch.ssl.verificationMode: full
 
 {% else %}
-elasticsearch.hosts: "http://{{ indexer_network_host }}:{{ elasticsearch_http_port }}"
+elasticsearch.hosts: "http://{{ indexer_network_host }}:{{ indexer_http_port }}"
 {% endif %}
 
 elasticsearch.requestHeadersWhitelist: ["securitytenant","Authorization"]

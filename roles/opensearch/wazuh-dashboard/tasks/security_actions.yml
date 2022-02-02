@@ -1,13 +1,13 @@
 - block:
 
-  - name: Copy the certificates from local to the Kibana instance
+  - name: Copy the certificates from local to the Wazuh-Dashboard instance
     copy:
       src: "{{ local_certs_path }}/certs/{{ item }}"
-      dest: /usr/share/kibana
+      dest: /etc/wazuh-dashboard/certs/
       mode: 0644
     with_items:
       - "root-ca.pem"
-      - "{{ kibana_node_name }}_http.key"
-      - "{{ kibana_node_name }}_http.pem"
+      - "{{ dashboard_node_name }}-key.pem"
+      - "{{ dashboard_node_name }}.pem"
   tags:
   - security

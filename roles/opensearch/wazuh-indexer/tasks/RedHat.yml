@@ -4,9 +4,9 @@
   - name: RedHat/CentOS/Fedora | Add Wazuh-Indexer repo
    ## 732 wazuh repo should be added instead.
     yum_repository:
-      file: opendistro
-      name: opendistro_repo
-      description: Opendistro yum repository
+      file: wazuh
+      name: wazuh_repo
+      description: Wazuh yum repository
       baseurl: "{{ package_repos.yum.indexer.baseurl }}"
       gpgkey: "{{ package_repos.yum.indexer.gpg }}"
       gpgcheck: true
