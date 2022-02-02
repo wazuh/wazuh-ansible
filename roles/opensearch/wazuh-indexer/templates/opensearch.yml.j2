@@ -1,14 +1,14 @@
-network.host: {{ elasticsearch_network_host }}
-node.name: {{ elasticsearch_node_name }}
+network.host: {{ indexer_network_host }}
+node.name: {{ indexer_node_name }}
 {% if single_node == true %}
 discovery.type: single-node
 {% else %}
 cluster.initial_master_nodes:
-{% for item in elasticsearch_cluster_nodes %}
+{% for item in indexer_cluster_nodes %}
   - {{ item }}
 {% endfor %}
 {% endif %}
-cluster.name: {{ opendistro_cluster_name }}
+cluster.name: {{ indexer_cluster_name }}
 
 http.port: 9700-9799
 transport.tcp.port: 9800-9899
@@ -24,11 +24,11 @@ path.logs: /var/log/wazuh-indexer
 #                                                                             #
 ###############################################################################
 
-plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/{{ elasticsearch_node_name }}.pem
-plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/{{ elasticsearch_node_name }}-key.pem
+plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}.pem
+plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}-key.pem
 plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
-plugins.security.ssl.transport.pemcert_filepath: /etc/wazuh-indexer/certs/{{ elasticsearch_node_name }}.pem
-plugins.security.ssl.transport.pemkey_filepath: /etc/wazuh-indexer/certs/{{ elasticsearch_node_name }}-key.pem
+plugins.security.ssl.transport.pemcert_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}.pem
+plugins.security.ssl.transport.pemkey_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}-key.pem
 plugins.security.ssl.transport.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
 plugins.security.ssl.http.enabled: true
 plugins.security.ssl.transport.enforce_hostname_verification: false
@@ -40,7 +40,7 @@ plugins.security.authcz.admin_dn:
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.nodes_dn:
-- "CN={{ elasticsearch_node_name }},OU=Docu,O=Wazuh,L=California,C=US"
+- "CN={{ indexer_node_name }},OU=Docu,O=Wazuh,L=California,C=US"
 plugins.security.restapi.roles_enabled:
 - "all_access"
 - "security_rest_api_access"

@@ -4,7 +4,7 @@ path.data: /var/lib/elasticsearch
 path.logs: /var/log/elasticsearch
 network.host: {{ elasticsearch_network_host }}
 
-node.master: {{ elasticsearch_node_master|lower }}
+node.master: {{ indexer_node_master|lower }}
 
 {% if single_node == true %}
 discovery.type: single-node
@@ -20,11 +20,11 @@ discovery.seed_hosts:
 {% endfor %}
 {% endif %}
 
-{% if elasticsearch_node_data|lower == 'false' %}
+{% if indexer_node_data|lower == 'false' %}
 node.data: false
 {% endif %}
 
-{% if elasticsearch_node_ingest|lower == 'false' %}
+{% if indexer_node_ingest|lower == 'false' %}
 node.ingest: false
 {% endif %}
 

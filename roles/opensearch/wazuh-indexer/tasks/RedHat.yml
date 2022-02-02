@@ -7,8 +7,8 @@
       file: opendistro
       name: opendistro_repo
       description: Opendistro yum repository
-      baseurl: "{{ package_repos.yum.opendistro.baseurl }}"
-      gpgkey: "{{ package_repos.yum.opendistro.gpg }}"
+      baseurl: "{{ package_repos.yum.indexer.baseurl }}"
+      gpgkey: "{{ package_repos.yum.indexer.gpg }}"
       gpgcheck: true
     changed_when: false
 
@@ -45,7 +45,7 @@
   - name: Install Wazuh-Indexer
   ## 732 the package name should be updated
     package:
-      name: wazuh-indexer-{{ opendistro_version }}
+      name: wazuh-indexer-{{ indexer_version }}
       state: present
     register: install
     tags: install

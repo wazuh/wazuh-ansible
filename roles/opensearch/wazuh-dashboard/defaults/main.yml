@@ -44,10 +44,10 @@ kibana_newsfeed_enabled: "false"
 kibana_telemetry_optin: "false"
 kibana_telemetry_enabled: "false"
 
-opendistro_admin_password: changeme
+indexer_admin_password: changeme
 opendistro_kibana_user: kibanaserver
-opendistro_kibana_password: changeme
-local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
+dashboard_password: changeme
+local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 
 # Nodejs
 nodejs:

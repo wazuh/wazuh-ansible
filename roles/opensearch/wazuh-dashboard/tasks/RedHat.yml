@@ -6,8 +6,8 @@
       file: opendistro
       name: opendistro_repo
       description: Opendistro yum repository
-      baseurl: "{{ package_repos.yum.opendistro.baseurl }}"
-      gpgkey: "{{ package_repos.yum.opendistro.gpg }}"
+      baseurl: "{{ package_repos.yum.indexer.baseurl }}"
+      gpgkey: "{{ package_repos.yum.indexer.gpg }}"
       gpgcheck: true
 
   - name: Install Wazuh-Dashboard

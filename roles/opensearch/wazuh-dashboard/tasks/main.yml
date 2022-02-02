@@ -80,7 +80,7 @@
 #    - skip_ansible_lint
 
 - name: Wait for Elasticsearch port
-  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }}
+  wait_for: host={{ indexer_network_host }} port={{ elasticsearch_http_port }}
 
 - name: Select correct API protocol
   set_fact:
@@ -88,10 +88,10 @@
 
 - name: Attempting to delete legacy Wazuh index if exists
   uri:
-    url: "{{ elastic_api_protocol }}://{{ elasticsearch_network_host }}:{{ elasticsearch_http_port }}/.wazuh"
+    url: "{{ elastic_api_protocol }}://{{ indexer_network_host }}:{{ elasticsearch_http_port }}/.wazuh"
     method: DELETE
     user: "admin"
-    password: "{{ opendistro_admin_password }}"
+    password: "{{ indexer_admin_password }}"
     validate_certs: no
     status_code: 200, 404
 

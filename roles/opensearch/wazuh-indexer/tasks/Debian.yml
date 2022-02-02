@@ -42,12 +42,12 @@
   ## 732 the wazuh repo should be added instead
     - name: Add apt repository signing key
       apt_key:
-        url: "{{ package_repos.apt.opendistro.gpg }}"
+        url: "{{ package_repos.apt.indexer.gpg }}"
         state: present
 
     - name: Add Opendistro repository
       apt_repository:
-        repo: "{{ package_repos.apt.opendistro.baseurl }}"
+        repo: "{{ package_repos.apt.indexer.baseurl }}"
         state: present
         filename: 'wazuh-opendistro'
         update_cache: yes
@@ -55,7 +55,7 @@
 - name: Install Wazuh-Indexer
 ## the indexer package should be installed instead
   apt:
-    name: wazuh-indexer={{ opendistro_version }}-1
+    name: wazuh-indexer={{ indexer_version }}-1
     state: present
   register: install
   tags: install 

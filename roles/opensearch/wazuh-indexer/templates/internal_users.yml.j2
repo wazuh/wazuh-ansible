@@ -9,13 +9,13 @@ _meta:
 # Define your internal users here
 
 admin:
-  hash: "{{ opendistro_admin_password }}"
+  hash: "{{ indexer_admin_password }}"
   reserved: true
   backend_roles:
   - "admin"
   description: "admin user"
 
 kibanaserver:
-  hash: "{{ opendistro_kibana_password }}"
+  hash: "{{ dashboard_password }}"
   reserved: true
   description: "kibanaserver user"

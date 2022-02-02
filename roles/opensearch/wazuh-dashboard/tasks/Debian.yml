@@ -5,13 +5,13 @@
   - name: Add apt repository signing key
 ## 732 will not be needed. The wazuh repo should be added
     apt_key:
-      url: "{{ package_repos.apt.opendistro.gpg }}"
+      url: "{{ package_repos.apt.indexer.gpg }}"
       state: present
 
   - name: Debian systems | Add OpenDistro repo
 ## 732 will not be needed. The wazuh repo should be added
     apt_repository:
-      repo: "{{ package_repos.apt.opendistro.baseurl }}"
+      repo: "{{ package_repos.apt.indexer.baseurl }}"
       state: present
       update_cache: yes
 

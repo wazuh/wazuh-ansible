@@ -24,18 +24,18 @@
 #        - '"not found" not in remove_elasticsearch_performance_analyzer.stderr'
 #      changed_when: "remove_elasticsearch_performance_analyzer.rc == 0"
 
-    - name: Remove elasticsearch configuration file
+    - name: Remove Opensearch configuration file
   ## 732 will not be needed
       file:
-        path: "{{ opendistro_conf_path }}/opensearch.yml"
+        path: "{{ indexer_conf_path }}/opensearch.yml"
         state: absent
       tags: install
 
-    - name: Copy Configuration File
+    - name: Copy Opensearch Configuration File
   ## 732 will not be needed
       template:
         src: "templates/opensearch.yml.j2"
-        dest: "{{ opendistro_conf_path }}/opensearch.yml"
+        dest: "{{ indexer_conf_path }}/opensearch.yml"
         owner: root
         group: wazuh-indexer
         mode: 0640
@@ -47,11 +47,11 @@
         - security
 
 
-    - name: Configure OpenDistro Elasticsearch JVM memmory.
+    - name: Configure Wazuh-Indexer JVM memmory.
   ## 732 will not be needed and if it is needed the path should be updated.
       template:
         src: "templates/jvm.options.j2"
-        dest: "{{ opendistro_conf_path }}/jvm.options"
+        dest: "{{ indexer_conf_path }}/jvm.options"
         owner: root
         group: wazuh-indexer
         mode: 0644
@@ -63,7 +63,7 @@
   ## 732 will not be needed
       template:
         src: "templates/disabledlog4j.options.j2"
-        dest: "{{ opendistro_conf_path }}/jvm.options.d/disabledlog4j.options"
+        dest: "{{ indexer_conf_path }}/jvm.options.d/disabledlog4j.options"
         owner: root
         group: wazuh-indexer
         mode: 2750
@@ -71,17 +71,17 @@
       notify: restart wazuh-indexer
       tags: install
 
-    - name: Ensure extra time for Elasticsearch to start on reboots
+    - name: Ensure extra time for Wazuh-Indexer to start on reboots
       lineinfile:
         path: /usr/lib/systemd/system/wazuh-indexer.service
         regexp: '^TimeoutStartSec='
-        line: "TimeoutStartSec={{ elasticsearch_start_timeout }}"
+        line: "TimeoutStartSec={{ indexer_start_timeout }}"
       become: yes
       tags: configure
 
     - name: Index files to remove
       find:
-        paths: "{{ opendistro_index_path }}"
+        paths: "{{ indexer_index_path }}"
         patterns: "*"
       register: files_to_delete
 
@@ -98,19 +98,19 @@
         enabled: true
         state: started
 
-    - name: Wait for Elasticsearch API
+    - name: Wait for Wazuh-Indexer API
       uri:
-        url: "https://{{ inventory_hostname if not single_node else elasticsearch_network_host }}:{{ opendistro_http_port }}/_cat/health/"
+        url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default OpenDistro user is always "admin"
-        password: "{{ opendistro_admin_password }}"
+        password: "{{ indexer_admin_password }}"
         validate_certs: no
         status_code: 200,401
         return_content: yes
         timeout: 4
       register: _result
       until:
-        - _result.json is defined
-        - _result.json.status == "green" or ( _result.json.status == "yellow" and single_node )
+        - _result is defined
+        - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
       retries: 24
       delay: 5
       tags: debug
@@ -119,17 +119,17 @@
 
     - name: Wait for Elasticsearch API (Private IP)
       uri:
-        url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else elasticsearch_network_host }}:{{ opendistro_http_port }}/_cat/health/"
+        url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default OpenDistro user is always "admin"
-        password: "{{ opendistro_admin_password }}"
+        password: "{{ indexer_admin_password }}"
         validate_certs: no
         status_code: 200,401
         return_content: yes
         timeout: 4
       register: _result
       until:
-        - _result.json is defined
-        - _result.json.status == "green" or ( _result.json.status == "yellow" and single_node )
+        - _result is defined
+        - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
       retries: 24
       delay: 5
       tags: debug
