@@ -42,8 +42,8 @@ package_repos:
       baseurl: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
       #gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
       gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
-#    openjdk:
-#      baseurl: 'deb http://deb.debian.org/debian stretch-backports main'
+    openjdk:
+      baseurl: 'deb http://deb.debian.org/debian stretch-backports main'
       
 indexer_sec_plugin_conf_path: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig
 indexer_sec_plugin_tools_path: /usr/share/wazuh-indexer/plugins/opensearch-security/tools

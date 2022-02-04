@@ -7,7 +7,13 @@ cluster.initial_master_nodes:
 {% for item in indexer_cluster_nodes %}
   - {{ item }}
 {% endfor %}
+
+discovery.seed_hosts:
+{% for item in elasticsearch_discovery_nodes %}
+  - {{ item }}
+{% endfor %}
 {% endif %}
+
 cluster.name: {{ indexer_cluster_name }}
 
 http.port: 9700-9799
@@ -40,7 +46,9 @@ plugins.security.authcz.admin_dn:
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.nodes_dn:
-- "CN={{ indexer_node_name }},OU=Docu,O=Wazuh,L=California,C=US"
+{% for (key,value) in instances.items() %}
+- "CN={{ value.name }},OU=Docu,O=Wazuh,L=California,C=US"
+{% endfor %}
 plugins.security.restapi.roles_enabled:
 - "all_access"
 - "security_rest_api_access"

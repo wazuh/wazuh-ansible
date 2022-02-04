@@ -70,7 +70,7 @@
 - name: Hashing the custom admin password
   command: "{{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}" # noqa 301
   register: indexer_admin_password_hashed
-  no_log: '{{ indexer_nolog_sensible | bool }}'
+  #no_log: '{{ indexer_nolog_sensible | bool }}'
   run_once: true
 
 - name: Set the Admin user password

@@ -1,27 +1,31 @@
 ---
 filebeat_version: 7.10.2
 
-wazuh_template_branch: v4.3.0
+wazuh_template_branch: v4.2.5
 
 filebeat_output_elasticsearch_hosts:
-  - "localhost:9200"
+  - "localhost:9700"
 
-filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
+#filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
+filebeat_module_package_url: https://packages-dev.wazuh.com/pre-release/filebeat
 filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
 filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module
 filebeat_module_folder: /usr/share/filebeat/module/wazuh
-elasticsearch_security_user: admin
-elasticsearch_security_password: changeme
+indexer_security_user: admin
+indexer_security_password: changeme
 # Security plugin
 filebeat_security: true
 filebeat_ssl_dir: /etc/pki/filebeat
 
 # Local path to store the generated certificates (OpenDistro security plugin)
-local_certs_path: ./opendistro/certificates
+local_certs_path: ./indexer/certificates
 
-elasticrepo:
-  apt: 'https://artifacts.elastic.co/packages/oss-7.x/apt'
-  yum: 'https://artifacts.elastic.co/packages/oss-7.x/yum'
-  gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
-  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
+filebeatrepo:
+  #apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+  apt: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+  #yum: 'https://packages.wazuh.com/4.x/yum/'
+  yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
+  #gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
+  key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'

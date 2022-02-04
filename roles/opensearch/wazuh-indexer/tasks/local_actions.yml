@@ -67,6 +67,20 @@
       bash {{ local_certs_path }}/wazuh-cert-tool.sh
     become: yes
 
+  - name: Get Certificate files
+    find:
+      paths: "{{ local_certs_path }}/certs"
+      patterns: "*"
+    register: certificate_files
+
+  - name: Change Certificates Ownership
+    file: 
+      path: "{{ item.path }}"
+      owner: "{{ ansible_effective_user_id }}"
+      group: "{{ ansible_effective_user_id }}"
+    become: yes
+    with_items: "{{ certificate_files.files }}"
+
   run_once: true
   delegate_to: localhost
   become: no

@@ -16,7 +16,7 @@
       group: root
       mode: 0644
     with_items:
-      - "{{ filebeat_node_name }}.key"
+      - "{{ filebeat_node_name }}-key.pem"
       - "{{ filebeat_node_name }}.pem"
       - "root-ca.pem"
 

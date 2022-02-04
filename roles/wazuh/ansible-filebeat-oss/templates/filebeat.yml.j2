@@ -19,13 +19,13 @@ output.elasticsearch:
   hosts: {{ filebeat_output_elasticsearch_hosts | to_json }}
 
 {% if filebeat_security %}
-  username: {{ elasticsearch_security_user }}
-  password: {{ elasticsearch_security_password }}
+  username: {{ indexer_security_user }}
+  password: {{ indexer_security_password }}
   protocol: https
   ssl.certificate_authorities:
     - {{ filebeat_ssl_dir }}/root-ca.pem
   ssl.certificate: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem"
-  ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.key"
+  ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem"
 {% endif %}
 
 # Optional. Send events to Logstash instead of Elasticsearch
