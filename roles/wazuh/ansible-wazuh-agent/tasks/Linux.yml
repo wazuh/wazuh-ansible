@@ -1,4 +1,9 @@
 ---
+- name: make wazuh group
+  ansible.builtin.group:
+    name: wazuh
+    state: present
+
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
