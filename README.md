@@ -180,7 +180,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
-        filebeat_output_elasticsearch_hosts:
+        filebeat_output_indexer_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
@@ -209,7 +209,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
-        filebeat_output_elasticsearch_hosts:
+        filebeat_output_indexer_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
@@ -319,7 +319,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
         elasticsearch_node_master: true
         elasticsearch_network_host: <your server host>
         filebeat_node_name: node-1
-        filebeat_output_elasticsearch_hosts: <your server host>
+        filebeat_output_indexer_hosts: <your server host>
         ansible_ssh_user: vagrant
         ansible_ssh_private_key_file: /path/to/ssh/key.pem
         ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'

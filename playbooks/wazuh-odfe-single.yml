@@ -4,17 +4,17 @@
     become: yes
     become_user: root
     roles:
-      - role: ../roles/opendistro/opendistro-elasticsearch
+      - role: ../roles/opensearch/wazuh-indexer
       - role: ../roles/wazuh/ansible-wazuh-manager
       - role: ../roles/wazuh/ansible-filebeat-oss
-      - role: ../roles/opendistro/opendistro-kibana
+      - role: ../roles/opensearch/wazuh-dashboard
     vars:
       single_node: true
       minimum_master_nodes: 1
       elasticsearch_node_master: true
       elasticsearch_network_host: 127.0.0.1
       filebeat_node_name: node-1
-      filebeat_output_elasticsearch_hosts: 127.0.0.1
+      filebeat_output_indexer_hosts: 127.0.0.1
       instances:
         node1:
           name: node-1       # Important: must be equal to elasticsearch_node_name.

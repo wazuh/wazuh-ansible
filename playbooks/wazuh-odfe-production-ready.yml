@@ -2,7 +2,7 @@
 # Certificates generation
     - hosts: es1
       roles:
-        - role: ../roles/opendistro/opendistro-elasticsearch
+        - role: ../roles/opensearch/wazuh-indexer
           elasticsearch_network_host: "{{ private_ip }}"
           elasticsearch_cluster_nodes:
             - "{{ hostvars.es1.private_ip }}"
@@ -43,7 +43,7 @@
     - hosts: odfe_cluster
       strategy: free
       roles:
-        - role: ../roles/opendistro/opendistro-elasticsearch
+        - role: ../roles/opensearch/wazuh-indexer
           elasticsearch_network_host: "{{ private_ip }}"
       become: yes
       become_user: root
@@ -105,7 +105,7 @@
         wazuh_api_users:
           - username: custom-user
             password: .S3cur3Pa55w0rd*-
-        filebeat_output_elasticsearch_hosts:
+        filebeat_output_indexer_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
@@ -134,7 +134,7 @@
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
-        filebeat_output_elasticsearch_hosts:
+        filebeat_output_indexer_hosts:
                 - "{{ hostvars.es1.private_ip }}"
                 - "{{ hostvars.es2.private_ip }}"
                 - "{{ hostvars.es3.private_ip }}"
@@ -142,8 +142,8 @@
   #ODFE+Kibana node
     - hosts: kibana
       roles:
-        - role: "../roles/opendistro/opendistro-elasticsearch"
-        - role: "../roles/opendistro/opendistro-kibana"
+        - role: "../roles/opensearch/wazuh-indexer"
+        - role: "../roles/opensearch/wazuh-dashboard"
       become: yes
       become_user: root
       vars:

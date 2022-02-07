@@ -9,7 +9,7 @@ cluster.initial_master_nodes:
 {% endfor %}
 
 discovery.seed_hosts:
-{% for item in elasticsearch_discovery_nodes %}
+{% for item in indexer_discovery_nodes %}
   - {{ item }}
 {% endfor %}
 {% endif %}

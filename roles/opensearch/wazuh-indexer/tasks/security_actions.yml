@@ -22,7 +22,7 @@
     - hostvars[inventory_hostname]['private_ip'] is not defined
 
 
-- name: Copy the node & admin certificates to Elasticsearch cluster
+- name: Copy the node & admin certificates to Wazuh-Indexer cluster
   copy:
     src: "{{ local_certs_path }}/certs/{{ item }}"
     dest: "{{ indexer_conf_path }}/certs/"
@@ -55,12 +55,12 @@
 #    replace: 'opendistro_security'
 #  tags: local
 
-- name: Restart elasticsearch with security configuration
+- name: Restart Wazuh-Indexer with security configuration
   systemd:
     name: wazuh-indexer
     state: restarted
 
-- name: Copy the OpenDistro security internal users template
+- name: Copy the Opensearch security internal users template
   template:
     src: "templates/internal_users.yml.j2"
     dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
@@ -77,15 +77,15 @@
   replace:
     path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
     regexp: '(?<=admin:\n  hash: )(.*)(?=)'
-    replace: "{{ odfe_password_hash | quote }}"
+    replace: "{{ indexer_password_hash | quote }}"
   vars:
-    odfe_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
+    indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
   run_once: true
 
 # this can also be achieved with password_hash, but it requires dependencies on the controller
 - name: Hash the kibanaserver role/user pasword
   command: "{{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ dashboard_password }}" # noqa 301
-  register: opendistro_kibanaserver_password_hashed
+  register: indexer_kibanaserver_password_hashed
   no_log: '{{ indexer_nolog_sensible | bool }}'
   run_once: true
 
@@ -93,12 +93,12 @@
   replace:
     path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
     regexp: '(?<=kibanaserver:\n  hash: )(.*)(?=)'
-    replace: "{{ odfe_password_hash | quote }}"
+    replace: "{{ indexer_password_hash | quote }}"
   vars:
-    odfe_password_hash: "{{ opendistro_kibanaserver_password_hashed.stdout_lines | last }}"
+    indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
   run_once: true
 
-- name: Initialize the OpenDistro security index in elasticsearch
+- name: Initialize the Opensearch security index in Wazuh-Indexer
   command: >
     sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
     JAVA_HOME=/usr/share/wazuh-indexer/jdk
@@ -116,7 +116,7 @@
   uri:
     url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
     method: PUT
-    user: "admin" # Default OpenDistro user is always "admin"
+    user: "admin" # Default Indexer user is always "admin"
     password: "{{ indexer_admin_password }}"
     body: |
       {

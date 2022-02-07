@@ -15,8 +15,8 @@ indexer_start_timeout: 90
 #elasticsearch_lower_disk_requirements: false
 indexer_cluster_nodes:
   - 127.0.0.1
-#elasticsearch_discovery_nodes:
-#  - 127.0.0.1
+indexer_discovery_nodes:
+  - 127.0.0.1
 
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 ##check if it is the correct directory

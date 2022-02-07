@@ -7,7 +7,7 @@
       url: "{{ package_repos.apt.dashboard.gpg }}"
       state: present
 
-  - name: Debian systems | Add OpenDistro repo
+  - name: Debian systems | Add Wazuh-Dashboard repo
     apt_repository:
       repo: "{{ package_repos.apt.dashboard.baseurl }}"
       state: present

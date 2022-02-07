@@ -45,11 +45,11 @@
         url: "{{ package_repos.apt.indexer.gpg }}"
         state: present
 
-    - name: Add Opendistro repository
+    - name: Add Indexer repository
       apt_repository:
         repo: "{{ package_repos.apt.indexer.baseurl }}"
         state: present
-        filename: 'wazuh-opendistro'
+        filename: 'wazuh-indexer'
         update_cache: yes
 
 - name: Install Wazuh-Indexer

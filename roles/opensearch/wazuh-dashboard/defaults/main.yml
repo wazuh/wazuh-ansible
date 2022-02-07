@@ -49,7 +49,7 @@ dashboard_security: true
 #kibana_telemetry_enabled: "false"
 
 indexer_admin_password: changeme
-dashboard_user: dashboardserver
+dashboard_user: kibanaserver
 dashboard_password: changeme
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 

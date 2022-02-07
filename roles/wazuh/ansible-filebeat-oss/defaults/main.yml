@@ -3,7 +3,7 @@ filebeat_version: 7.10.2
 
 wazuh_template_branch: v4.2.5
 
-filebeat_output_elasticsearch_hosts:
+filebeat_output_indexer_hosts:
   - "localhost:9700"
 
 #filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
@@ -18,7 +18,7 @@ indexer_security_password: changeme
 filebeat_security: true
 filebeat_ssl_dir: /etc/pki/filebeat
 
-# Local path to store the generated certificates (OpenDistro security plugin)
+# Local path to store the generated certificates (Opensearch security plugin)
 local_certs_path: ./indexer/certificates
 
 filebeatrepo:

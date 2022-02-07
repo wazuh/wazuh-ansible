@@ -46,7 +46,7 @@
     when:
       - ansible_distribution == 'Amazon'
 
-  - name: RedHat/CentOS/Fedora | Install OpenDistro dependencies
+  - name: RedHat/CentOS/Fedora | Install Indexer dependencies
     yum:
       name: "{{ packages }}"
     vars:

@@ -1,8 +1,8 @@
 ---
 - name: RedHat/CentOS/Fedora/Amazon Linux | Install Filebeats repo
   yum_repository:
-    name: elastic_oss-repo_7
-    description: Elastic repository for 7.x packages
+    name: wazuh_repo
+    description: Wazuh Repo
     baseurl: "{{ filebeatrepo.yum }}"
     gpgkey: "{{ filebeatrepo.gpg }}"
     gpgcheck: true

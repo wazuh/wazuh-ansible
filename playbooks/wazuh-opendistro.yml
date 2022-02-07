@@ -1,7 +1,7 @@
 ---
 - hosts: es_cluster
   roles:
-    - role: ../roles/opendistro/opendistro-elasticsearch
+    - role: ../roles/opensearch/wazuh-indexer
 
   vars:
     instances:           # A certificate will be generated for every node using the name as CN.

@@ -14,9 +14,9 @@ setup.template.json.name: 'wazuh'
 setup.template.overwrite: true
 setup.ilm.enabled: false
 
-# Send events directly to Elasticsearch
+# Send events directly to Opensearch
 output.elasticsearch:
-  hosts: {{ filebeat_output_elasticsearch_hosts | to_json }}
+  hosts: {{ filebeat_output_indexer_hosts | to_json }}
 
 {% if filebeat_security %}
   username: {{ indexer_security_user }}
@@ -28,5 +28,5 @@ output.elasticsearch:
   ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem"
 {% endif %}
 
-# Optional. Send events to Logstash instead of Elasticsearch
+# Optional. Send events to Logstash instead of Opensearch
 #output.logstash.hosts: ["YOUR_LOGSTASH_SERVER_IP:5000"]

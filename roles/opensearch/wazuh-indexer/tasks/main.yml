@@ -91,7 +91,7 @@
         state: absent
       with_items: "{{ files_to_delete.files }}"
 
-    - name: Ensure Elasticsearch started and enabled
+    - name: Ensure Wazuh-Indexer started and enabled
   ## 732 the service name should be updated
       service:
         name: wazuh-indexer
@@ -101,7 +101,7 @@
     - name: Wait for Wazuh-Indexer API
       uri:
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
-        user: "admin" # Default OpenDistro user is always "admin"
+        user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
         validate_certs: no
         status_code: 200,401
@@ -117,10 +117,10 @@
       when:
         - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
 
-    - name: Wait for Elasticsearch API (Private IP)
+    - name: Wait for Wazuh-Indexer API (Private IP)
       uri:
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
-        user: "admin" # Default OpenDistro user is always "admin"
+        user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
         validate_certs: no
         status_code: 200,401
