@@ -16,7 +16,10 @@ setup.ilm.enabled: false
 
 # Send events directly to Opensearch
 output.elasticsearch:
-  hosts: {{ filebeat_output_indexer_hosts | to_json }}
+  hosts:
+{% for item in filebeat_output_indexer_hosts %}
+  - {{ item }}:9700
+{% endfor %}
 
 {% if filebeat_security %}
   username: {{ indexer_security_user }}
