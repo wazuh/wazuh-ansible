@@ -113,6 +113,13 @@
     mode: 0751
   changed_when: False
 
+- name: Configure opensearch.password in opensearch.keystore
+  shell: >-
+    echo ToKDVUeRwxAey3xM | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f opensearch.password
+  args:
+    executable: /bin/bash
+  become: yes
+
 - name: Ensure Wazuh-Dashboard started and enabled
   service:
     name: wazuh-dashboard
