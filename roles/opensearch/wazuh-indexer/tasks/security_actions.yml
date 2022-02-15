@@ -113,7 +113,8 @@
     -cert {{ indexer_conf_path }}/certs/admin.pem
     -key {{ indexer_conf_path }}/certs/admin-key.pem
     -h {{ target_address }}
-  run_once: true # noqa 301
+  retries: 2
+  delay: 5 # noqa 301
 
 - name: Create custom user
   uri:
