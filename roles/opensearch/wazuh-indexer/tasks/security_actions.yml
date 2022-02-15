@@ -98,6 +98,10 @@
     indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
   run_once: true
 
+- name: Pause for 2 minute
+  pause:
+    minutes: 2
+
 - name: Initialize the Opensearch security index in Wazuh-Indexer
   command: >
     sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
