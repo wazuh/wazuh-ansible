@@ -4,21 +4,14 @@
 indexer_http_port: 9700
 indexer_api_protocol: https
 dashboard_conf_path: /etc/wazuh-dashboard/
-## 732 check the path
 dashboard_node_name: node-1
 dashboard_server_host: "0.0.0.0"
 dashboard_server_port: "5601"
 dashboard_server_name: "dashboard"
-#kibana_max_payload_bytes: 1048576
-#elastic_stack_version: 4.3.0
-## 732 check if it is the right version
 wazuh_version: 4.3.0
-#wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
-## 732 check if it is needed.
 
-# The OpenDistro package repository
-dashboard_version: "4.3.0" # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
-## 732 check if it is the right version
+# The Wazuh dashboard package repository
+dashboard_version: "4.3.0"
 
 package_repos:
   yum:
@@ -42,28 +35,9 @@ wazuh_api_credentials:
     username: "wazuh"
     password: "wazuh"
 
-# opendistro Security
+# Dashboard Security
 dashboard_security: true
-#kibana_newsfeed_enabled: "false"
-#kibana_telemetry_optin: "false"
-#kibana_telemetry_enabled: "false"
-
 indexer_admin_password: changeme
 dashboard_user: kibanaserver
 dashboard_password: changeme
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
-
-# Nodejs
-nodejs:
-  repo_dict:
-      debian: "deb"
-      redhat: "rpm"
-  repo_url_ext: "nodesource.com/setup_10.x"
-
-# Build from sources
-build_from_sources: false
-#wazuh_plugin_branch: 4.1-7.10
-## 732 check if it is the right version and if it is needed
-
-#Nodejs NODE_OPTIONS
-node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536

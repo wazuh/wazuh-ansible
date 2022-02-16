@@ -18,49 +18,22 @@
       state: directory
 
   - name: Local action | Check that the generation tool exists
-  ## 732 will not be needed
     stat:
       path: "{{ local_certs_path }}/wazuh-cert-tool.sh"
     register: tool_package
 
   - name: Local action | Download certificates generation tool
-  ## 732 will not be needed
     get_url:
       url: "{{ certs_gen_tool_url }}"
       dest: "{{ local_certs_path }}/wazuh-cert-tool.sh"
-      #search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
     when: not tool_package.stat.exists
 
-#  - name: Local action | Extract the certificates generation tool
-#  ## 732 will not be needed
-#    unarchive:
-#      src: "{{ local_certs_path }}/search-guard-tlstool-{{ certs_gen_tool_version }}.zip"
-#      dest: "{{ local_certs_path }}/"
-
-#  - name: Local action | Add the execution bit to the binary
-#  ## 732 will not be needed
-#    file:
-#      dest: "{{ local_certs_path }}/tools/sgtlstool.sh"
-#      mode: a+x
-
   - name: Local action | Prepare the certificates generation template file
-## 732 need to resolve the certificate creation (config.yml)
     template:
       src: "templates/config.yml.j2"
       dest: "{{ local_certs_path }}/config.yml"
       mode: 0644
     register: tlsconfig_template
-
-#  - name: Create a directory if it does not exist
-#    file:
-#      path: "{{ local_certs_path }}/certs/"
-#      state: directory
-#      mode: '0755'
-
-#  - name: Local action | Check if root CA file exists
-#    stat:
-#      path: "{{ local_certs_path }}/certs/root-ca.key"
-#    register: root_ca_file
 
   - name: Local action | Generate the node & admin certificates in local
     command: >-

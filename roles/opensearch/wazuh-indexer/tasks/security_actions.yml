@@ -1,13 +1,11 @@
-#- name: Remove demo certs
-#  ## 732 will not be needed
-#  file:
-#    path: "{{ item }}"
-#    state: absent
-#  with_items:
-#    - "{{ indexer_conf_path }}/kirk.pem"
-#    - "{{ indexer_conf_path }}/kirk-key.pem"
-#    - "{{ indexer_conf_path }}/esnode.pem"
-#    - "{{ indexer_conf_path }}/esnode-key.pem"
+- name: Remove demo certs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ indexer_conf_path }}/demo-indexer-key.pem"
+    - "{{ indexer_conf_path }}/demo-indexer.pem"
+
 
 - name: Configure IP (Private address)
   set_fact:
@@ -33,27 +31,8 @@
     - root-ca.key
     - "{{ indexer_node_name }}-key.pem"
     - "{{ indexer_node_name }}.pem"
-    #- "{{ indexer_node_name }}_http.key"
-    #- "{{ indexer_node_name }}_http.pem"
-    #- "{{ indexer_node_name }}_elasticsearch_config_snippet.yml"
     - admin-key.pem
     - admin.pem
-
-#- name: Copy the OpenDistro security configuration file to cluster
-#  blockinfile:
-#    block: "{{ lookup('file', snippet_path ) }}"
-#    dest: "{{ indexer_conf_path }}/elasticsearch.yml"
-#    insertafter: EOF
-#    marker: "## {mark} Opendistro Security Node & Admin certificates configuration ##"
-#  vars:
-#    snippet_path: '{{ local_certs_path }}/certs/{{ indexer_node_name }}_elasticsearch_config_snippet.yml'
-
-#- name: Prepare the OpenDistro security configuration file
-#  replace:
-#    path: "{{ indexer_conf_path }}/elasticsearch.yml"
-#    regexp: 'searchguard'
-#    replace: 'opendistro_security'
-#  tags: local
 
 - name: Restart Wazuh-Indexer with security configuration
   systemd:
@@ -70,7 +49,7 @@
 - name: Hashing the custom admin password
   command: "{{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}" # noqa 301
   register: indexer_admin_password_hashed
-  #no_log: '{{ indexer_nolog_sensible | bool }}'
+  no_log: '{{ indexer_nolog_sensible | bool }}'
   run_once: true
 
 - name: Set the Admin user password

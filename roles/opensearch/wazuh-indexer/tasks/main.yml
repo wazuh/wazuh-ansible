@@ -11,28 +11,25 @@
     - import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
 
-#    - name: Remove performance analyzer plugin from elasticsearch
-#  ## 732 will not be needed
-#      become: true
-#      command: ./elasticsearch-plugin remove opendistro-performance-analyzer
-#      ignore_errors: true
-#      args:
-#        chdir: /usr/share/elasticsearch/bin/
-#      register: remove_elasticsearch_performance_analyzer
-#      failed_when:
-#        - remove_elasticsearch_performance_analyzer.rc != 0
-#        - '"not found" not in remove_elasticsearch_performance_analyzer.stderr'
-#      changed_when: "remove_elasticsearch_performance_analyzer.rc == 0"
+    - name: Remove performance analyzer plugin from Wazuh indexer
+      become: true
+      command: ./opensearch-plugin remove opensearch-performance-analyzer
+      ignore_errors: true
+      args:
+        chdir: /usr/share/wazuh-indexer/bin/
+      register: remove_opensearch_performance_analyzer
+      failed_when:
+        - remove_opensearch_performance_analyzer.rc != 0
+        - '"not found" not in remove_opensearch_performance_analyzer.stderr'
+      changed_when: "remove_opensearch_performance_analyzer.rc == 0"
 
     - name: Remove Opensearch configuration file
-  ## 732 will not be needed
       file:
         path: "{{ indexer_conf_path }}/opensearch.yml"
         state: absent
       tags: install
 
     - name: Copy Opensearch Configuration File
-  ## 732 will not be needed
       template:
         src: "templates/opensearch.yml.j2"
         dest: "{{ indexer_conf_path }}/opensearch.yml"
@@ -48,7 +45,6 @@
 
 
     - name: Configure Wazuh-Indexer JVM memmory.
-  ## 732 will not be needed and if it is needed the path should be updated.
       template:
         src: "templates/jvm.options.j2"
         dest: "{{ indexer_conf_path }}/jvm.options"
@@ -60,7 +56,6 @@
       tags: install
 
     - name: Configure disabled log4j.
-  ## 732 will not be needed
       template:
         src: "templates/disabledlog4j.options.j2"
         dest: "{{ indexer_conf_path }}/jvm.options.d/disabledlog4j.options"
@@ -92,7 +87,6 @@
       with_items: "{{ files_to_delete.files }}"
 
     - name: Ensure Wazuh-Indexer started and enabled
-  ## 732 the service name should be updated
       service:
         name: wazuh-indexer
         enabled: true
