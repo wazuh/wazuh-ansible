@@ -93,7 +93,9 @@
     -key {{ indexer_conf_path }}/certs/admin-key.pem
     -h {{ target_address }}
   retries: 2
-  delay: 5 # noqa 301
+  delay: 5
+  register: result
+  until: result.rc == 0
 
 - name: Create custom user
   uri:
