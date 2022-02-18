@@ -14,6 +14,7 @@
     package:
       name: "wazuh-dashboard-{{ dashboard_version }}"
       state: present
+      update_cache: yes
     register: install
     
   tags:

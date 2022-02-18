@@ -304,35 +304,51 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
 
 ```yaml
 ---
+# Certificates generation
+  - hosts: aio
+    roles:
+      - role: ../roles/opensearch/wazuh-indexer
+        perform_installation: false
+    become: no
+    #become_user: root
+    vars:
+      indexer_node_master: true
+      instances:
+        node1:
+          name: node-1       # Important: must be equal to indexer_node_name.
+          ip: 127.0.0.1
+          role: indexer
+    tags:
+      - generate-certs
 # Single node
-    - hosts: server
-      become: yes
-      become_user: root
-      roles:
-        - role: ../roles/opendistro/opendistro-elasticsearch
-        - role: "../roles/wazuh/ansible-wazuh-manager"
-        - role: "../roles/wazuh/ansible-filebeat-oss"
-        - role: "../roles/opendistro/opendistro-kibana"
-      vars:
-        single_node: true
-        minimum_master_nodes: 1
-        elasticsearch_node_master: true
-        elasticsearch_network_host: <your server host>
-        filebeat_node_name: node-1
-        filebeat_output_indexer_hosts: <your server host>
-        ansible_ssh_user: vagrant
-        ansible_ssh_private_key_file: /path/to/ssh/key.pem
-        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-        instances:
-          node1:
-            name: node-1       # Important: must be equal to elasticsearch_node_name.
-            ip: <your server host>
+  - hosts: aio
+    become: yes
+    become_user: root
+    roles:
+      - role: ../roles/opensearch/wazuh-indexer
+      - role: ../roles/wazuh/ansible-wazuh-manager
+      - role: ../roles/wazuh/ansible-filebeat-oss
+      - role: ../roles/opensearch/wazuh-dashboard
+    vars:
+      single_node: true
+      minimum_master_nodes: 1
+      indexer_node_master: true
+      indexer_network_host: 127.0.0.1
+      filebeat_node_name: node-1
+      filebeat_output_indexer_hosts:
+      - 127.0.0.1
+      instances:
+        node1:
+          name: node-1       # Important: must be equal to indexer_node_name.
+          ip: 127.0.0.1
+          role: indexer
+      ansible_shell_allow_world_readable_temp: true
 ```
 
 ### Inventory file
 
 ```ini
-[server]
+[aio]
 <your server host>
 
 [all:vars]
@@ -344,7 +360,7 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ### Launching the playbook
 
 ```bash
-ansible-playbook wazuh-odfe-single.yml -i inventory
+sudo ansible-playbook wazuh-opensearch-single.yml -i inventory
 ```
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<your server host>:5601`

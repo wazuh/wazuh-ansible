@@ -72,7 +72,7 @@
     mode: 0751
   changed_when: False
 
-- name: Configure opensearch.password in opensearch.keystore
+- name: Configure opensearch.password in opensearch_dashboards.keystore
   shell: >-
     echo {{ dashboard_password }} | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
   args:

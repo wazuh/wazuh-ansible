@@ -17,6 +17,7 @@
     apt:
       name: "wazuh-dashboard={{ dashboard_version }}-1"
       state: present
+      update_cache: yes
     register: install
 
   tags:
