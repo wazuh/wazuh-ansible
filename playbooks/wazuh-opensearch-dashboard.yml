@@ -1,5 +1,5 @@
 ---
-- hosts: es1
+- hosts: wi1
   roles:
     - role: ../roles/opensearch/wazuh-dashboard
   vars:

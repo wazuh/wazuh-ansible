@@ -4,6 +4,6 @@
     - role: ../roles/wazuh/ansible-wazuh-manager
     - role: ../roles/wazuh/ansible-filebeat-oss
       filebeat_output_indexer_hosts:
-      - "<elastic-node-1>:9200"
-      - "<elastic-node-2>:9200"
-      - "<elastic-node-2>:9200"
+      - "<indexer-node-1>:9200"
+      - "<indexer-node-2>:9200"
+      - "<indexer-node-2>:9200"
