@@ -3,4 +3,3 @@
   service:
     name: wazuh-indexer
     state: restarted
-## 732 the name of the service changes to wazuh-indexer

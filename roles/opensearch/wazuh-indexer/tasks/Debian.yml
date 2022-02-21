@@ -10,7 +10,6 @@
   block:
   
     - name: Install Wazuh-Indexer dependencies
-    ## 732 change task name
       apt:
         name: [
           'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
@@ -30,7 +29,6 @@
         filename: 'wazuh-openjdk'
 
 - name: Install openjdk-11-jdk
-## 732 will not be needed as indexer comes with the jdk.
   apt:
     name: openjdk-11-jdk
     state: present
@@ -39,7 +37,6 @@
 
 - name: Add Wazuh-Indexer repository
   block:
-  ## 732 the wazuh repo should be added instead
     - name: Add apt repository signing key
       apt_key:
         url: "{{ package_repos.apt.indexer.gpg }}"

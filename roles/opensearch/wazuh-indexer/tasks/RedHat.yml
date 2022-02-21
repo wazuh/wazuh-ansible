@@ -2,7 +2,6 @@
 - block:
 
   - name: RedHat/CentOS/Fedora | Add Wazuh-Indexer repo
-   ## 732 wazuh repo should be added instead.
     yum_repository:
       file: wazuh
       name: wazuh_repo
@@ -13,7 +12,6 @@
     changed_when: false
 
   - name: RedHat/CentOS/Fedora | Install OpenJDK 11
-  ## 732 will not be needed
     yum:
       name: java-11-openjdk-devel
       state: present
@@ -21,7 +19,6 @@
       - ansible_distribution != 'Amazon'
 
   - name: Amazon Linux | Install OpenJDK 11
-  ## 732 will not be needed
     block:
       - name: Install Amazon extras
         yum:
@@ -55,7 +52,6 @@
       - unzip
 
   - name: Install Wazuh-Indexer
-  ## 732 the package name should be updated
     package:
       name: wazuh-indexer-{{ indexer_version }}
       state: present
