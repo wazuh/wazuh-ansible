@@ -13,8 +13,7 @@
             - "{{ hostvars.wi2.private_ip }}"
             - "{{ hostvars.wi3.private_ip }}"
           perform_installation: false
-      become: yes
-      become_user: root
+      become: no
       vars:
         indexer_node_master: true
         instances:
@@ -47,7 +46,7 @@
       tags:
         - generate-certs
 
-#ODFE Cluster
+#Wazuh Indexer Cluster
     - hosts: wi_cluster
       strategy: free
       roles:

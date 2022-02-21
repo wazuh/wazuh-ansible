@@ -5,7 +5,7 @@
 [![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.wazuh.com)
 [![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://wazuh.com)
 
-These playbooks install and configure Wazuh agent, manager and Elastic Stack.
+These playbooks install and configure Wazuh agent, manager and indexer and dashboard.
 
 ## Branches
 * `master` branch contains the latest code, be aware of possible bugs on this branch.
@@ -15,7 +15,7 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
-| v4.3.0        | 7.10.2  | 1.13.2 |
+| v4.3.0        |         | 1.13.2 |
 | v4.2.5        | 7.10.2  | 1.13.2 |
 | v4.2.4        | 7.10.2  | 1.13.2 |
 | v4.2.3        | 7.10.2  | 1.13.2 |
@@ -41,9 +41,9 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
     │ │ │ ├── ansible-elasticsearch
     │ │ │ ├── ansible-kibana
     │ │
-    │ │ ├── opendistro
-    │ │ │ ├── opendistro-elasticsearch
-    │ │ │ ├── opendistro-kibana
+    │ │ ├── opensearch
+    │ │ │ ├── wazuh-dashboard
+    │ │ │ ├── wazuh-indexer
     │ │
     │ │ ├── wazuh
     │ │ │ ├── ansible-filebeat
@@ -60,10 +60,12 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
     │ │ ├── wazuh-elastic_stack-distributed.yml
     │ │ ├── wazuh-elastic_stack-single.yml
     │ │ ├── wazuh-kibana.yml
-    │ │ ├── wazuh-manager.yml
     │ │ ├── wazuh-manager-oss.yml
-    │ │ ├── wazuh-opendistro.yml
-    │ │ ├── wazuh-opendistro-kibana.yml
+    │ │ ├── wazuh-manager.yml
+    │ │ ├── wazuh-opensearch-dashboard.yml
+    | | ├── wazuh-opensearch-production-ready
+    │ │ ├── wazuh-opensearch-single.yml
+    │ │ ├── wazuh-opensearch.yml
     │
     │ ├── README.md
     │ ├── VERSION
@@ -78,82 +80,97 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 ```yaml
 ---
 # Certificates generation
-    - hosts: es1
+    - hosts: wi1
       roles:
-        - role: ../roles/opendistro/opendistro-elasticsearch
-          elasticsearch_network_host: "{{ private_ip }}"
-          elasticsearch_cluster_nodes:
-            - "{{ hostvars.es1.private_ip }}"
-            - "{{ hostvars.es2.private_ip }}"
-            - "{{ hostvars.es3.private_ip }}"
-          elasticsearch_discovery_nodes:
-            - "{{ hostvars.es1.private_ip }}"
-            - "{{ hostvars.es2.private_ip }}"
-            - "{{ hostvars.es3.private_ip }}"
+        - role: ../roles/opensearch/wazuh-indexer
+          indexer_network_host: "{{ private_ip }}"
+          indexer_cluster_nodes:
+            - "{{ hostvars.wi1.private_ip }}"
+            - "{{ hostvars.wi2.private_ip }}"
+            - "{{ hostvars.wi3.private_ip }}"
+          indexer_discovery_nodes:
+            - "{{ hostvars.wi1.private_ip }}"
+            - "{{ hostvars.wi2.private_ip }}"
+            - "{{ hostvars.wi3.private_ip }}"
           perform_installation: false
-      become: yes
-      become_user: root
+      become: no
       vars:
-        elasticsearch_node_master: true
+        indexer_node_master: true
         instances:
           node1:
-            name: node-1       # Important: must be equal to elasticsearch_node_name.
-            ip: "{{ hostvars.es1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            name: node-1       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            role: indexer
           node2:
             name: node-2
-            ip: "{{ hostvars.es2.private_ip }}"
+            ip: "{{ hostvars.wi2.private_ip }}"
+            role: indexer
           node3:
             name: node-3
-            ip: "{{ hostvars.es3.private_ip }}"
+            ip: "{{ hostvars.wi3.private_ip }}"
+            role: indexer
           node4:
             name: node-4
             ip: "{{ hostvars.manager.private_ip }}"
+            role: wazuh
+            node_type: master
           node5:
             name: node-5
             ip: "{{ hostvars.worker.private_ip }}"
+            role: wazuh
+            node_type: worker
           node6:
             name: node-6
-            ip: "{{ hostvars.kibana.private_ip }}"
+            ip: "{{ hostvars.dashboard.private_ip }}"
+            role: dashboard
       tags:
         - generate-certs
 
-#ODFE Cluster
-    - hosts: odfe_cluster
+#Wazuh Indexer Cluster
+    - hosts: wi_cluster
       strategy: free
       roles:
-        - role: ../roles/opendistro/opendistro-elasticsearch
-          elasticsearch_network_host: "{{ private_ip }}"
+        - role: ../roles/opensearch/wazuh-indexer
+          indexer_network_host: "{{ private_ip }}"
       become: yes
       become_user: root
       vars:
-        elasticsearch_cluster_nodes:
-          - "{{ hostvars.es1.private_ip }}"
-          - "{{ hostvars.es2.private_ip }}"
-          - "{{ hostvars.es3.private_ip }}"
-        elasticsearch_discovery_nodes:
-          - "{{ hostvars.es1.private_ip }}"
-          - "{{ hostvars.es2.private_ip }}"
-          - "{{ hostvars.es3.private_ip }}"
-        elasticsearch_node_master: true
+        indexer_cluster_nodes:
+          - "{{ hostvars.wi1.private_ip }}"
+          - "{{ hostvars.wi2.private_ip }}"
+          - "{{ hostvars.wi3.private_ip }}"
+        indexer_discovery_nodes:
+          - "{{ hostvars.wi1.private_ip }}"
+          - "{{ hostvars.wi2.private_ip }}"
+          - "{{ hostvars.wi3.private_ip }}"
+        indexer_node_master: true
         instances:
           node1:
-            name: node-1       # Important: must be equal to elasticsearch_node_name.
-            ip: "{{ hostvars.es1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            name: node-1       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            role: indexer
           node2:
             name: node-2
-            ip: "{{ hostvars.es2.private_ip }}"
+            ip: "{{ hostvars.wi2.private_ip }}"
+            role: indexer
           node3:
             name: node-3
-            ip: "{{ hostvars.es3.private_ip }}"
+            ip: "{{ hostvars.wi3.private_ip }}"
+            role: indexer
           node4:
             name: node-4
             ip: "{{ hostvars.manager.private_ip }}"
+            role: wazuh
+            node_type: master
           node5:
             name: node-5
             ip: "{{ hostvars.worker.private_ip }}"
+            role: wazuh
+            node_type: worker
           node6:
             name: node-6
-            ip: "{{ hostvars.kibana.private_ip }}"
+            ip: "{{ hostvars.dashboard.private_ip }}"
+            role: dashboard
 
   #Wazuh cluster
     - hosts: manager
@@ -180,10 +197,13 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
+        wazuh_api_users:
+          - username: custom-user
+            password: .S3cur3Pa55w0rd*-
         filebeat_output_indexer_hosts:
-                - "{{ hostvars.es1.private_ip }}"
-                - "{{ hostvars.es2.private_ip }}"
-                - "{{ hostvars.es3.private_ip }}"
+                - "{{ hostvars.wi1.private_ip }}"
+                - "{{ hostvars.wi2.private_ip }}"
+                - "{{ hostvars.wi3.private_ip }}"
 
     - hosts: worker
       roles:
@@ -210,57 +230,66 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
         filebeat_output_indexer_hosts:
-                - "{{ hostvars.es1.private_ip }}"
-                - "{{ hostvars.es2.private_ip }}"
-                - "{{ hostvars.es3.private_ip }}"
+                - "{{ hostvars.wi1.private_ip }}"
+                - "{{ hostvars.wi2.private_ip }}"
+                - "{{ hostvars.wi3.private_ip }}"
 
-  #ODFE+Kibana node
-    - hosts: kibana
+  #Indexer+Dashboard node
+    - hosts: dashboard
       roles:
-        - role: "../roles/opendistro/opendistro-elasticsearch"
-        - role: "../roles/opendistro/opendistro-kibana"
+        - role: "../roles/opensearch/wazuh-indexer"
+        - role: "../roles/opensearch/wazuh-dashboard"
       become: yes
       become_user: root
       vars:
-        elasticsearch_network_host: "{{ hostvars.kibana.private_ip }}"
-        elasticsearch_node_name: node-6
-        elasticsearch_node_master: false
-        elasticsearch_node_ingest: false
-        elasticsearch_node_data: false
-        elasticsearch_cluster_nodes:
-            - "{{ hostvars.es1.private_ip }}"
-            - "{{ hostvars.es2.private_ip }}"
-            - "{{ hostvars.es3.private_ip }}"
-        elasticsearch_discovery_nodes:
-            - "{{ hostvars.es1.private_ip }}"
-            - "{{ hostvars.es2.private_ip }}"
-            - "{{ hostvars.es3.private_ip }}"
-        kibana_node_name: node-6
+        indexer_network_host: "{{ hostvars.dashboard.private_ip }}"
+        indexer_node_name: node-6
+        indexer_node_master: false
+        indexer_node_ingest: false
+        indexer_node_data: false
+        indexer_cluster_nodes:
+            - "{{ hostvars.wi1.private_ip }}"
+            - "{{ hostvars.wi2.private_ip }}"
+            - "{{ hostvars.wi3.private_ip }}"
+        indexer_discovery_nodes:
+            - "{{ hostvars.wi1.private_ip }}"
+            - "{{ hostvars.wi2.private_ip }}"
+            - "{{ hostvars.wi3.private_ip }}"
+        dashboard_node_name: node-6
         wazuh_api_credentials:
           - id: default
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
-            user: foo
-            password: bar
+            username: custom-user
+            password: .S3cur3Pa55w0rd*-
         instances:
           node1:
-            name: node-1       # Important: must be equal to elasticsearch_node_name.
-            ip: "{{ hostvars.es1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            name: node-1       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            role: indexer
           node2:
             name: node-2
-            ip: "{{ hostvars.es2.private_ip }}"
+            ip: "{{ hostvars.wi2.private_ip }}"
+            role: indexer
           node3:
             name: node-3
-            ip: "{{ hostvars.es3.private_ip }}"
+            ip: "{{ hostvars.wi3.private_ip }}"
+            role: indexer
           node4:
             name: node-4
             ip: "{{ hostvars.manager.private_ip }}"
+            role: wazuh
+            node_type: master
           node5:
             name: node-5
             ip: "{{ hostvars.worker.private_ip }}"
+            role: wazuh
+            node_type: worker
           node6:
             name: node-6
-            ip: "{{ hostvars.kibana.private_ip }}"
+            ip: "{{ hostvars.dashboard.private_ip }}"
+            role: dashboard
+          ansible_shell_allow_world_readable_temp: true
 ```
 
 ### Inventory file
@@ -271,17 +300,17 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 - The ssh credentials used by Ansible during the provision can be specified in this file too. Another option is including them directly on the playbook.
 
 ```ini
-es1 ansible_host=<es1_ec2_public_ip> private_ip=<es1_ec2_private_ip> elasticsearch_node_name=node-1
-es2 ansible_host=<es2_ec2_public_ip> private_ip=<es2_ec2_private_ip> elasticsearch_node_name=node-2
-es3 ansible_host=<es3_ec2_public_ip> private_ip=<es3_ec2_private_ip> elasticsearch_node_name=node-3
+wi1 ansible_host=<wi1_ec2_public_ip> private_ip=<wi1_ec2_private_ip> elasticsearch_node_name=node-1
+wi2 ansible_host=<wi2_ec2_public_ip> private_ip=<wi2_ec2_private_ip> elasticsearch_node_name=node-2
+wi3 ansible_host=<wi3_ec2_public_ip> private_ip=<wi3_ec2_private_ip> elasticsearch_node_name=node-3
 kibana  ansible_host=<kibana_node_public_ip> private_ip=<kibana_ec2_private_ip>
 manager ansible_host=<manager_node_public_ip> private_ip=<manager_ec2_private_ip>
 worker  ansible_host=<worker_node_public_ip> private_ip=<worker_ec2_private_ip>
 
-[odfe_cluster]
-es1
-es2
-es3
+[wi_cluster]
+wi1
+wi2
+wi3
 
 [all:vars]
 ansible_ssh_user=vagrant
