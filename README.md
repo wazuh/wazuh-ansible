@@ -15,7 +15,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
-| v4.3.0        |         | 1.13.2 |
+| v4.3.0        |         |        |
 | v4.2.5        | 7.10.2  | 1.13.2 |
 | v4.2.4        | 7.10.2  | 1.13.2 |
 | v4.2.3        | 7.10.2  | 1.13.2 |
@@ -75,7 +75,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 ## Example: production-ready distributed environment
 
 ### Playbook
-The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 ODFE nodes and a mixed ODFE-Kibana node.
+The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 Wazuh Indexer nodes and a mixed Wazuh dashboard node.
 
 ```yaml
 ---
@@ -199,7 +199,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               hidden: 'no'
         wazuh_api_users:
           - username: custom-user
-            password: .S3cur3Pa55w0rd*-
+            password: SecretPassword!
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
@@ -261,10 +261,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
             username: custom-user
-            password: .S3cur3Pa55w0rd*-
+            password: SecretPassword!
         instances:
           node1:
-            name: node-1       # Important: must be equal to indexer_node_name.
+            name: node-1
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
@@ -289,7 +289,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
             name: node-6
             ip: "{{ hostvars.dashboard.private_ip }}"
             role: dashboard
-          ansible_shell_allow_world_readable_temp: true
+        ansible_shell_allow_world_readable_temp: true
 ```
 
 ### Inventory file
@@ -300,10 +300,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 - The ssh credentials used by Ansible during the provision can be specified in this file too. Another option is including them directly on the playbook.
 
 ```ini
-wi1 ansible_host=<wi1_ec2_public_ip> private_ip=<wi1_ec2_private_ip> elasticsearch_node_name=node-1
-wi2 ansible_host=<wi2_ec2_public_ip> private_ip=<wi2_ec2_private_ip> elasticsearch_node_name=node-2
-wi3 ansible_host=<wi3_ec2_public_ip> private_ip=<wi3_ec2_private_ip> elasticsearch_node_name=node-3
-kibana  ansible_host=<kibana_node_public_ip> private_ip=<kibana_ec2_private_ip>
+wi1 ansible_host=<wi1_ec2_public_ip> private_ip=<wi1_ec2_private_ip> indexer_node_name=node-1
+wi2 ansible_host=<wi2_ec2_public_ip> private_ip=<wi2_ec2_private_ip> indexer_node_name=node-2
+wi3 ansible_host=<wi3_ec2_public_ip> private_ip=<wi3_ec2_private_ip> indexer_node_name=node-3
+dashboard  ansible_host=<dashboard_node_public_ip> private_ip=<dashboard_ec2_private_ip>
 manager ansible_host=<manager_node_public_ip> private_ip=<manager_ec2_private_ip>
 worker  ansible_host=<worker_node_public_ip> private_ip=<worker_ec2_private_ip>
 
@@ -321,15 +321,15 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ### Launching the playbook
 
 ```bash
-ansible-playbook wazuh-odfe-production-ready.yml -i inventory
+sudo ansible-playbook wazuh-opensearch-production-ready.yml -i inventory
 ```
 
-After the playbook execution, the Wazuh UI should be reachable through `https://<kibana_host>:5601`
+After the playbook execution, the Wazuh UI should be reachable through `https://<dashboard_host>:5601`
 
 ## Example: single-host environment
 
 ### Playbook
-The hereunder example playbook uses the `wazuh-ansible` role to provision a single-host Wazuh environment. This architecture includes all the Wazuh and ODFE components in a single node.
+The hereunder example playbook uses the `wazuh-ansible` role to provision a single-host Wazuh environment. This architecture includes all the Wazuh and Opensearch components in a single node.
 
 ```yaml
 ---

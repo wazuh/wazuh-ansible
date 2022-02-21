@@ -119,7 +119,7 @@
               hidden: 'no'
         wazuh_api_users:
           - username: custom-user
-            password: .S3cur3Pa55w0rd*-
+            password: SecretPassword!
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
@@ -181,10 +181,10 @@
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
             username: custom-user
-            password: .S3cur3Pa55w0rd*-
+            password: SecretPassword!
         instances:
           node1:
-            name: node-1       # Important: must be equal to indexer_node_name.
+            name: node-1
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
@@ -209,4 +209,4 @@
             name: node-6
             ip: "{{ hostvars.dashboard.private_ip }}"
             role: dashboard
-          ansible_shell_allow_world_readable_temp: true
+        ansible_shell_allow_world_readable_temp: true
