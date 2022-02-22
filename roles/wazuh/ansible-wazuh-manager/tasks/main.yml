@@ -260,6 +260,15 @@
         group: wazuh
         mode: 0644
 
+    - name: Create admin.json
+      template:
+        src: templates/admin.json.j2
+        dest: "{{ wazuh_dir }}/api/configuration/admin.json"
+        owner: wazuh
+        group: wazuh
+        mode: 0644
+      no_log: true
+
     - name: Execute create_user script
       script:
         chdir: "{{ wazuh_dir }}/framework/scripts/"

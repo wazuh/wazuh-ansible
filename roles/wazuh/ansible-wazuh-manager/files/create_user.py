@@ -97,6 +97,6 @@ if __name__ == "__main__":
             password=password,
         )
     # disable unused default users
-    for def_user in ['wazuh', 'wazuh-wui']:
-        if def_user != username:
-            disable_user(initial_users[def_user])
+    #for def_user in ['wazuh', 'wazuh-wui']:
+    #    if def_user != username:
+    #        disable_user(initial_users[def_user])

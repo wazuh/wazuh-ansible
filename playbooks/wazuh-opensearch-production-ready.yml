@@ -119,7 +119,7 @@
               hidden: 'no'
         wazuh_api_users:
           - username: custom-user
-            password: SecretPassword!
+            password: SecretPassword1!
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
