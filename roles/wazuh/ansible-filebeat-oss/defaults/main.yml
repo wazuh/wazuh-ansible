@@ -4,7 +4,7 @@ filebeat_version: 7.10.2
 wazuh_template_branch: v4.2.5
 
 filebeat_output_indexer_hosts:
-  - "localhost:9700"
+  - "localhost:9200"
 
 #filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
 filebeat_module_package_url: https://packages-dev.wazuh.com/pre-release/filebeat

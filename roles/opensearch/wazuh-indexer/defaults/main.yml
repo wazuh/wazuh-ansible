@@ -55,7 +55,7 @@ indexer_custom_user_role: "admin"
 # Set JVM memory limits
 indexer_jvm_xms: null
 
-indexer_http_port: 9700
+indexer_http_port: 9200
 
 certs_gen_tool_version: 4.3
 

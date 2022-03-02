@@ -1,7 +1,7 @@
 ---
 
 # Dashboard configuration
-indexer_http_port: 9700
+indexer_http_port: 9200
 indexer_api_protocol: https
 dashboard_conf_path: /etc/wazuh-dashboard/
 dashboard_node_name: node-1
