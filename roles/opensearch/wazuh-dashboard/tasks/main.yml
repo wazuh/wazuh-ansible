@@ -9,7 +9,7 @@
 - name: Remove Dashboard configuration file
   file:
     # noqa 503
-    path: "{{ dashboard_conf_path }}/dashboard.yml"
+    path: "{{ dashboard_conf_path }}/opensearch_dashboards.yml"
     state: absent
   tags: install
 
@@ -17,8 +17,8 @@
 
 - name: Copy Configuration File
   template:
-    src: "templates/dashboard.yml.j2"
-    dest: "{{ dashboard_conf_path }}/dashboard.yml"
+    src: "templates/opensearch_dashboards.yml.j2"
+    dest: "{{ dashboard_conf_path }}/opensearch_dashboards.yml"
     group: wazuh-dashboard
     owner: wazuh-dashboard
     mode: 0640

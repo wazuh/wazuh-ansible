@@ -62,7 +62,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
     │ │ ├── wazuh-kibana.yml
     │ │ ├── wazuh-manager-oss.yml
     │ │ ├── wazuh-manager.yml
-    │ │ ├── wazuh-opensearch-dashboard.yml
+    │ │ ├── wazuh-opensearch-opensearch_dashboards.yml
     | | ├── wazuh-opensearch-production-ready
     │ │ ├── wazuh-opensearch-single.yml
     │ │ ├── wazuh-opensearch.yml
