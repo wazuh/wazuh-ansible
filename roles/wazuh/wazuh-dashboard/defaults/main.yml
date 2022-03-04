@@ -1,0 +1,41 @@
+---
+
+# Dashboard configuration
+indexer_http_port: 9200
+indexer_api_protocol: https
+dashboard_conf_path: /etc/wazuh-dashboard/
+dashboard_node_name: node-1
+dashboard_server_host: "0.0.0.0"
+dashboard_server_port: "5601"
+dashboard_server_name: "dashboard"
+wazuh_version: 4.3.0
+indexer_cluster_nodes:
+  - 127.0.0.1
+  
+# The Wazuh dashboard package repository
+dashboard_version: "4.3.0"
+
+package_repos:
+  yum:
+    dashboard:
+      baseurl: 'https://packages.wazuh.com/4.x/yum/'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  apt:
+    dashboard:
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+
+# API credentials
+wazuh_api_credentials:
+  - id: "default"
+    url: "https://localhost"
+    port: 55000
+    username: "wazuh"
+    password: "wazuh"
+
+# Dashboard Security
+dashboard_security: true
+indexer_admin_password: changeme
+dashboard_user: kibanaserver
+dashboard_password: changeme
+local_certs_path: "{{ playbook_dir }}/indexer/certificates"
