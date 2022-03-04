@@ -8,8 +8,8 @@
 - name: Debian 9 (Stretch)
   when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
   block:
-  
-    - name: Install Wazuh-Indexer dependencies
+
+    - name: Install Wazuh indexer dependencies
       apt:
         name: [
           'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
@@ -20,7 +20,7 @@
       ansible.builtin.apt_key:
         keyserver: keyserver.ubuntu.com
         id: 648ACFD622F3D138
-    
+
     - name: Add openjdk repository
       apt_repository:
         repo: "{{ package_repos.apt.openjdk.baseurl }}"
@@ -35,24 +35,23 @@
   environment:
     JAVA_HOME: /usr
 
-- name: Add Wazuh-Indexer repository
+- name: Add Wazuh indexer repository
   block:
     - name: Add apt repository signing key
       apt_key:
         url: "{{ package_repos.apt.indexer.gpg }}"
         state: present
 
-    - name: Add Indexer repository
+    - name: Add Wazuh indexer repository
       apt_repository:
         repo: "{{ package_repos.apt.indexer.baseurl }}"
         state: present
         filename: 'wazuh-indexer'
         update_cache: yes
 
-- name: Install Wazuh-Indexer
-## the indexer package should be installed instead
+- name: Install Wazuh indexer
   apt:
     name: wazuh-indexer={{ indexer_version }}-1
     state: present
   register: install
-  tags: install 
+  tags: install
