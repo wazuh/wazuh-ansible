@@ -46,7 +46,7 @@
       tags:
         - generate-certs
 
-#Wazuh Indexer Cluster
+# Wazuh indexer cluster
     - hosts: wi_cluster
       strategy: free
       roles:
@@ -92,7 +92,7 @@
             ip: "{{ hostvars.dashboard.private_ip }}"
             role: dashboard
 
-  #Wazuh cluster
+# Wazuh cluster
     - hosts: manager
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
@@ -154,7 +154,7 @@
                 - "{{ hostvars.wi2.private_ip }}"
                 - "{{ hostvars.wi3.private_ip }}"
 
-  #Indexer+Dashboard node
+# Indexer + dashboard node
     - hosts: dashboard
       roles:
         - role: "../roles/opensearch/wazuh-indexer"
