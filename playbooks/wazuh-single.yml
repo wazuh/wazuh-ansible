@@ -2,7 +2,7 @@
 # Certificates generation
   - hosts: aio
     roles:
-      - role: ../roles/opensearch/wazuh-indexer
+      - role: ../roles/wazuh/wazuh-indexer
         perform_installation: false
     become: no
     #become_user: root
@@ -20,10 +20,10 @@
     become: yes
     become_user: root
     roles:
-      - role: ../roles/opensearch/wazuh-indexer
+      - role: ../roles/wazuh/wazuh-indexer
       - role: ../roles/wazuh/ansible-wazuh-manager
       - role: ../roles/wazuh/ansible-filebeat-oss
-      - role: ../roles/opensearch/wazuh-dashboard
+      - role: ../roles/wazuh/wazuh-dashboard
     vars:
       single_node: true
       minimum_master_nodes: 1

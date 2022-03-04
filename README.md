@@ -82,7 +82,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 # Certificates generation
     - hosts: wi1
       roles:
-        - role: ../roles/opensearch/wazuh-indexer
+        - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
           indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
@@ -130,7 +130,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
     - hosts: wi_cluster
       strategy: free
       roles:
-        - role: ../roles/opensearch/wazuh-indexer
+        - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
       become: yes
       become_user: root
@@ -237,8 +237,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
   #Indexer+Dashboard node
     - hosts: dashboard
       roles:
-        - role: "../roles/opensearch/wazuh-indexer"
-        - role: "../roles/opensearch/wazuh-dashboard"
+        - role: "../roles/wazuh/wazuh-indexer"
+        - role: "../roles/wazuh/wazuh-dashboard"
       become: yes
       become_user: root
       vars:
@@ -336,7 +336,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
 # Certificates generation
   - hosts: aio
     roles:
-      - role: ../roles/opensearch/wazuh-indexer
+      - role: ../roles/wazuh/wazuh-indexer
         perform_installation: false
     become: no
     #become_user: root
@@ -354,10 +354,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
     become: yes
     become_user: root
     roles:
-      - role: ../roles/opensearch/wazuh-indexer
+      - role: ../roles/wazuh/wazuh-indexer
       - role: ../roles/wazuh/ansible-wazuh-manager
       - role: ../roles/wazuh/ansible-filebeat-oss
-      - role: ../roles/opensearch/wazuh-dashboard
+      - role: ../roles/wazuh/wazuh-dashboard
     vars:
       single_node: true
       minimum_master_nodes: 1

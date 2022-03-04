@@ -2,7 +2,7 @@
 # Certificates generation
     - hosts: wi1
       roles:
-        - role: ../roles/opensearch/wazuh-indexer
+        - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
           indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
@@ -50,7 +50,7 @@
     - hosts: wi_cluster
       strategy: free
       roles:
-        - role: ../roles/opensearch/wazuh-indexer
+        - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
       become: yes
       become_user: root
@@ -157,8 +157,8 @@
   #Indexer+Dashboard node
     - hosts: dashboard
       roles:
-        - role: "../roles/opensearch/wazuh-indexer"
-        - role: "../roles/opensearch/wazuh-dashboard"
+        - role: "../roles/wazuh/wazuh-indexer"
+        - role: "../roles/wazuh/wazuh-dashboard"
       become: yes
       become_user: root
       vars:
