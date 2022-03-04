@@ -1,5 +1,5 @@
 ---
-- name: RedHat/CentOS/Fedora | Remove Wazuh-Indexer repository (and clean up left-over metadata)
+- name: RedHat/CentOS/Fedora | Remove Wazuh indexer repository (and clean up left-over metadata)
   yum_repository:
     name: wazuh_repo
     state: absent
