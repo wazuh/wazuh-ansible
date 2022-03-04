@@ -20,7 +20,7 @@
     - hostvars[inventory_hostname]['private_ip'] is not defined
 
 
-- name: Copy the node & admin certificates to Wazuh-Indexer cluster
+- name: Copy the node & admin certificates to Wazuh indexer cluster
   copy:
     src: "{{ local_certs_path }}/certs/{{ item }}"
     dest: "{{ indexer_conf_path }}/certs/"
@@ -34,7 +34,7 @@
     - admin-key.pem
     - admin.pem
 
-- name: Restart Wazuh-Indexer with security configuration
+- name: Restart Wazuh indexer with security configuration
   systemd:
     name: wazuh-indexer
     state: restarted
@@ -77,7 +77,7 @@
     indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
   run_once: true
 
-- name: Initialize the Opensearch security index in Wazuh-Indexer
+- name: Initialize the Opensearch security index in Wazuh indexer
   command: >
     sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
     JAVA_HOME=/usr/share/wazuh-indexer/jdk
