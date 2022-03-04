@@ -28,7 +28,7 @@
     - install
     - configure
 
-- name: Ensuring Wazuh-Dashboard directory owner
+- name: Ensuring Wazuh dashboard directory owner
   file:
     # noqa 208
     path: "/usr/share/wazuh-dashboard"
@@ -79,7 +79,7 @@
     executable: /bin/bash
   become: yes
 
-- name: Ensure Wazuh-Dashboard started and enabled
+- name: Ensure Wazuh dashboard started and enabled
   service:
     name: wazuh-dashboard
     enabled: true
