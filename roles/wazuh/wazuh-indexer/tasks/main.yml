@@ -44,7 +44,7 @@
         - security
 
 
-    - name: Configure Wazuh-Indexer JVM memmory.
+    - name: Configure Wazuh indexer JVM memmory.
       template:
         src: "templates/jvm.options.j2"
         dest: "{{ indexer_conf_path }}/jvm.options"
@@ -66,7 +66,7 @@
       notify: restart wazuh-indexer
       tags: install
 
-    - name: Ensure extra time for Wazuh-Indexer to start on reboots
+    - name: Ensure extra time for Wazuh indexer to start on reboots
       lineinfile:
         path: /usr/lib/systemd/system/wazuh-indexer.service
         regexp: '^TimeoutStartSec='
@@ -81,18 +81,18 @@
       register: files_to_delete
 
     - name: Remove Index Files
-      file: 
+      file:
         path: "{{ item.path }}"
         state: absent
       with_items: "{{ files_to_delete.files }}"
 
-    - name: Ensure Wazuh-Indexer started and enabled
+    - name: Ensure Wazuh indexer started and enabled
       service:
         name: wazuh-indexer
         enabled: true
         state: started
 
-    - name: Wait for Wazuh-Indexer API
+    - name: Wait for Wazuh indexer API
       uri:
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
@@ -111,7 +111,7 @@
       when:
         - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
 
-    - name: Wait for Wazuh-Indexer API (Private IP)
+    - name: Wait for Wazuh indexer API (Private IP)
       uri:
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
