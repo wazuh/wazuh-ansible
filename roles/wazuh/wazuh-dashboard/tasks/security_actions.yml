@@ -1,6 +1,6 @@
 - block:
 
-  - name: Copy the certificates from local to the Wazuh-Dashboard instance
+  - name: Copy the certificates from local to the Wazuh dashboard instance
     copy:
       src: "{{ local_certs_path }}/certs/{{ item }}"
       dest: /etc/wazuh-dashboard/certs/
