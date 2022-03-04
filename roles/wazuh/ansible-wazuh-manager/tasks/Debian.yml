@@ -16,7 +16,7 @@
   become: true
   shell: |
     set -o pipefail
-    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+    curl -s https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
   args:
     warn: false
     executable: /bin/bash
