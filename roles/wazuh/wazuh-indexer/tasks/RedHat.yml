@@ -1,7 +1,7 @@
 ---
 - block:
 
-  - name: RedHat/CentOS/Fedora | Add Wazuh-Indexer repo
+  - name: RedHat/CentOS/Fedora | Add Wazuh indexer repo
     yum_repository:
       file: wazuh
       name: wazuh_repo
@@ -51,7 +51,7 @@
       - wget
       - unzip
 
-  - name: Install Wazuh-Indexer
+  - name: Install Wazuh indexer
     package:
       name: wazuh-indexer-{{ indexer_version }}
       state: present
