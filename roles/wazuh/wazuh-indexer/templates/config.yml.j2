@@ -1,7 +1,6 @@
 nodes:
   # Elasticsearch server nodes
   elasticsearch:
-## 732 this will change to indexer:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'indexer') %}
     name: {{ value.name }}
@@ -26,7 +25,6 @@ nodes:
 
   # Kibana node
   kibana:
-## 732 this will change to dashboard:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'dashboard') %}
     name: {{ value.name }}
