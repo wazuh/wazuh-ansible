@@ -47,7 +47,7 @@ plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.nodes_dn:
 {% for (key,value) in instances.items() %}
-- "CN={{ value.name }},OU=Docu,O=Wazuh,L=California,C=US"
+- "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
 {% endfor %}
 plugins.security.restapi.roles_enabled:
 - "all_access"
