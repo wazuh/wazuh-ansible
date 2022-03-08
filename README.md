@@ -56,16 +56,16 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
     │
     │ ├── playbooks
     │ │ ├── wazuh-agent.yml
+    │ │ ├── wazuh-dashboard.yml
     │ │ ├── wazuh-elastic.yml
     │ │ ├── wazuh-elastic_stack-distributed.yml
     │ │ ├── wazuh-elastic_stack-single.yml
+    │ │ ├── wazuh-indexer.yml
     │ │ ├── wazuh-kibana.yml
     │ │ ├── wazuh-manager-oss.yml
     │ │ ├── wazuh-manager.yml
-    │ │ ├── wazuh-opensearch-opensearch_dashboards.yml
-    | | ├── wazuh-opensearch-production-ready
-    │ │ ├── wazuh-opensearch-single.yml
-    │ │ ├── wazuh-opensearch.yml
+    | | ├── wazuh-production-ready
+    │ │ ├── wazuh-single.yml
     │
     │ ├── README.md
     │ ├── VERSION
@@ -321,7 +321,7 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ### Launching the playbook
 
 ```bash
-sudo ansible-playbook wazuh-opensearch-production-ready.yml -i inventory
+sudo ansible-playbook wazuh-production-ready.yml -i inventory
 ```
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<dashboard_host>:5601`
@@ -389,7 +389,7 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 ### Launching the playbook
 
 ```bash
-sudo ansible-playbook wazuh-opensearch-single.yml -i inventory
+sudo ansible-playbook wazuh-single.yml -i inventory
 ```
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<your server host>:5601`
