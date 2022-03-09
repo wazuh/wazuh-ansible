@@ -10,7 +10,7 @@ nodes:
 
   # Wazuh server nodes
   # Use node_type only with more than one Wazuh manager
-  wazuh_servers:
+  server:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'wazuh') %}
     name: {{ value.name }}
