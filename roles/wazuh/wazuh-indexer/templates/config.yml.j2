@@ -1,6 +1,6 @@
 nodes:
-  # Elasticsearch server nodes
-  elasticsearch:
+  # Indexer server nodes
+  indexer:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'indexer') %}
     name: {{ value.name }}
@@ -10,7 +10,7 @@ nodes:
 
   # Wazuh server nodes
   # Use node_type only with more than one Wazuh manager
-  wazuh_servers:
+  server:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'wazuh') %}
     name: {{ value.name }}
@@ -23,8 +23,8 @@ nodes:
 {% endif %}
 {% endfor %}
 
-  # Kibana node
-  kibana:
+  # Dashboard node
+  dashboard:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'dashboard') %}
     name: {{ value.name }}
