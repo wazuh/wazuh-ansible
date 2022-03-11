@@ -56,7 +56,7 @@ indexer_http_port: 9200
 certs_gen_tool_version: 4.3
 
 # Url of certificates generator tool
-certs_gen_tool_url: "https://packages-dev.wazuh.com/{{ certs_gen_tool_version }}/wazuh-certs-tool.sh"
+certs_gen_tool_url: "https://packages.wazuh.com/resources/{{ certs_gen_tool_version }}/wazuh-certs-tool.sh"
 
 indexer_admin_password: changeme
 dashboard_password: changeme
