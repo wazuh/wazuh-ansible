@@ -55,15 +55,18 @@ wazuh_winagent_config:
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
   md5: 8ffa75d13280f1aa6ffca54f4273df4d
-wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.3.0-1.msi
+wazuh_winagent_config_url: https://packages-dev.wazuh.com/pre-release/windows/wazuh-agent-4.3.0-1.msi
 wazuh_winagent_package_name: wazuh-agent-4.3.0-1.msi
 
 wazuh_dir: "/var/ossec"
 
 wazuh_agent_repo:
-  apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-  yum: 'https://packages.wazuh.com/4.x/yum/'
-  gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  #apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+  #yum: 'https://packages.wazuh.com/4.x/yum/'
+  #gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  apt: 'deb https://packages-dev.wazuh.com/pre-relelease/apt/ unstable main'
+  yum: 'https://packages-dev.wazuh.com/pre-relelease/yum/'
+  gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 
 # This is deprecated, see: wazuh_agent_address
