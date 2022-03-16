@@ -37,19 +37,12 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
     ├── wazuh-ansible
     │ ├── roles
-    │ │ ├── elastic-stack
-    │ │ │ ├── ansible-elasticsearch
-    │ │ │ ├── ansible-kibana
-    │ │
-    │ │ ├── opensearch
-    │ │ │ ├── wazuh-dashboard
-    │ │ │ ├── wazuh-indexer
-    │ │
     │ │ ├── wazuh
-    │ │ │ ├── ansible-filebeat
     │ │ │ ├── ansible-filebeat-oss
     │ │ │ ├── ansible-wazuh-manager
     │ │ │ ├── ansible-wazuh-agent
+    │ │ │ ├── wazuh-dashboard
+    │ │ │ ├── wazuh-indexer
     │ │
     │ │ ├── ansible-galaxy
     │ │ │ ├── meta
@@ -57,13 +50,8 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
     │ ├── playbooks
     │ │ ├── wazuh-agent.yml
     │ │ ├── wazuh-dashboard.yml
-    │ │ ├── wazuh-elastic.yml
-    │ │ ├── wazuh-elastic_stack-distributed.yml
-    │ │ ├── wazuh-elastic_stack-single.yml
     │ │ ├── wazuh-indexer.yml
-    │ │ ├── wazuh-kibana.yml
     │ │ ├── wazuh-manager-oss.yml
-    │ │ ├── wazuh-manager.yml
     | | ├── wazuh-production-ready
     │ │ ├── wazuh-single.yml
     │
@@ -199,7 +187,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               hidden: 'no'
         wazuh_api_users:
           - username: custom-user
-            password: SecretPassword!
+            password: SecretPassword1!
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
@@ -261,7 +249,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
             username: custom-user
-            password: SecretPassword!
+            password: SecretPassword1!
         instances:
           node1:
             name: node-1
