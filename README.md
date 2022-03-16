@@ -37,19 +37,12 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
     ├── wazuh-ansible
     │ ├── roles
-    │ │ ├── elastic-stack
-    │ │ │ ├── ansible-elasticsearch
-    │ │ │ ├── ansible-kibana
-    │ │
-    │ │ ├── opensearch
-    │ │ │ ├── wazuh-dashboard
-    │ │ │ ├── wazuh-indexer
-    │ │
     │ │ ├── wazuh
-    │ │ │ ├── ansible-filebeat
     │ │ │ ├── ansible-filebeat-oss
     │ │ │ ├── ansible-wazuh-manager
     │ │ │ ├── ansible-wazuh-agent
+    │ │ │ ├── wazuh-dashboard
+    │ │ │ ├── wazuh-indexer
     │ │
     │ │ ├── ansible-galaxy
     │ │ │ ├── meta
@@ -57,13 +50,8 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
     │ ├── playbooks
     │ │ ├── wazuh-agent.yml
     │ │ ├── wazuh-dashboard.yml
-    │ │ ├── wazuh-elastic.yml
-    │ │ ├── wazuh-elastic_stack-distributed.yml
-    │ │ ├── wazuh-elastic_stack-single.yml
     │ │ ├── wazuh-indexer.yml
-    │ │ ├── wazuh-kibana.yml
     │ │ ├── wazuh-manager-oss.yml
-    │ │ ├── wazuh-manager.yml
     | | ├── wazuh-production-ready
     │ │ ├── wazuh-single.yml
     │
