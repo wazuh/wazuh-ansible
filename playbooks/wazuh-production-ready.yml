@@ -181,7 +181,7 @@
             url: https://{{ hostvars.manager.private_ip }}
             port: 55000
             username: custom-user
-            password: SecretPassword!
+            password: SecretPassword1!
         instances:
           node1:
             name: node-1
