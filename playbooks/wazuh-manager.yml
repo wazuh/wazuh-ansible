@@ -1,8 +1,0 @@
----
-- hosts: <WAZUH_MANAGER_HOST>
-  roles:
-    - role: ../roles/wazuh/ansible-wazuh-manager
-    - role: ../roles/wazuh/ansible-filebeat
-      filebeat_output_elasticsearch_hosts: <YOUR_ELASTICSEARCH_IP>:9200
-
-

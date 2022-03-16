@@ -1,7 +1,0 @@
----
-- hosts: <KIBANA_HOST>
-  roles:
-    - role: ../roles/elastic-stack/ansible-kibana
-      elasticsearch_network_host: <YOUR_ELASTICSEARCH_IP>
-  vars:
-    ansible_shell_allow_world_readable_temp: true
