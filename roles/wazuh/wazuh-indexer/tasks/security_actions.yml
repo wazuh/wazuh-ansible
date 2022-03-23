@@ -22,7 +22,7 @@
 
 - name: Copy the node & admin certificates to Wazuh indexer cluster
   copy:
-    src: "{{ local_certs_path }}/certs/{{ item }}"
+    src: "{{ local_certs_path }}/wazuh-certificates/{{ item }}"
     dest: "{{ indexer_conf_path }}/certs/"
     mode: 0644
   become: yes
