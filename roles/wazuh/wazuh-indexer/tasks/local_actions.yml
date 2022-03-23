@@ -19,13 +19,13 @@
 
   - name: Local action | Check that the generation tool exists
     stat:
-      path: "{{ local_certs_path }}/wazuh-cert-tool.sh"
+      path: "{{ local_certs_path }}/wazuh-certs-tool.sh"
     register: tool_package
 
   - name: Local action | Download certificates generation tool
     get_url:
       url: "{{ certs_gen_tool_url }}"
-      dest: "{{ local_certs_path }}/wazuh-cert-tool.sh"
+      dest: "{{ local_certs_path }}/wazuh-certs-tool.sh"
     when: not tool_package.stat.exists
 
   - name: Local action | Prepare the certificates generation template file
@@ -37,12 +37,12 @@
 
   - name: Local action | Generate the node & admin certificates in local
     command: >-
-      bash {{ local_certs_path }}/wazuh-cert-tool.sh
+      bash {{ local_certs_path }}/wazuh-certs-tool.sh -A
     become: yes
 
   - name: Get Certificate files
     find:
-      paths: "{{ local_certs_path }}/certs"
+      paths: "{{ local_certs_path }}/wazuh-certificates"
       patterns: "*"
     register: certificate_files
 
