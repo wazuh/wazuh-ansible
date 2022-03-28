@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.2.6-1
+wazuh_manager_version: 4.4.0-1
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.2.6"
+  branch: "v4.4.0"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -61,7 +61,7 @@ wazuh_manager_mailto:
   - 'admin@example.net'
 
 wazuh_manager_email_smtp_server: smtp.example.wazuh.com
-wazuh_manager_email_from: ossecm@example.wazuh.com
+wazuh_manager_email_from: wazuh@example.wazuh.com
 wazuh_manager_email_maxperhour: 12
 wazuh_manager_email_queue_size: 131072
 wazuh_manager_email_log_source: 'alerts.log'
@@ -258,6 +258,7 @@ wazuh_manager_commands:
     executable: 'restart-wazuh'
   - name: 'firewall-drop'
     executable: 'firewall-drop'
+    expect: 'srcip'
     timeout_allowed: 'yes'
   - name: 'host-deny'
     executable: 'host-deny'
@@ -349,8 +350,11 @@ wazuh_manager_authd:
   enable: true
   port: 1515
   use_source_ip: 'no'
-  force_insert: 'yes'
-  force_time: 0
+  force:
+    enabled: 'yes'
+    key_mismatch: 'yes'
+    disconnected_time: '1h'
+    after_registration_time: '1h'
   purge: 'yes'
   use_password: 'no'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'

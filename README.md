@@ -8,12 +8,15 @@
 These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 
 ## Branches
-* `master` branch corresponds to the latest Wazuh Ansible changes. It might be unstable.
+* `master` branch contains the latest code, be aware of possible bugs on this branch.
+* `stable` branch on correspond to the last Wazuh stable version.
 
 ## Compatibility Matrix
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
+| v4.4.0        |         |        |
+| v4.3.0        |         |        |
 | v4.2.6        | 7.10.2  | 1.13.2 |
 | v4.2.5        | 7.10.2  | 1.13.2 |
 | v4.2.4        | 7.10.2  | 1.13.2 |
@@ -24,6 +27,7 @@ These playbooks install and configure Wazuh agent, manager and Elastic Stack.
 | v4.1.5        | 7.10.2  | 1.13.2 |
 | v4.1.4        | 7.10.0  | 1.12.0 |
 | v4.1.3        | 7.10.0  | 1.12.0 |
+| v4.1.2        | 7.10.0  | 1.12.0 |
 | v4.1.1        | 7.10.0  | 1.12.0 |
 
 ## Documentation
