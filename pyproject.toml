@@ -9,7 +9,7 @@ python = "^3.6"
 
 # Pin ansible version to that currently present on awx
 ansible = "==4.2.0"
-jinja2 = "^2.11.2"
+jinja2 = "^2.11.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
