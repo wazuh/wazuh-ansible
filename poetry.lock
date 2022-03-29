@@ -607,6 +607,23 @@ checkqa-mypy = ["mypy (==v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [[package]]
+name = "pytest-testinfra"
+version = "6.6.0"
+description = "Test infrastructures"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+pytest = "!=3.0.2"
+
+[package.extras]
+ansible = ["ansible"]
+paramiko = ["paramiko"]
+salt = ["salt"]
+winrm = ["pywinrm"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.1"
 description = "Extensions to the standard Python datetime module"
@@ -783,20 +800,20 @@ doc = ["reno", "sphinx", "tornado (>=4.5)"]
 
 [[package]]
 name = "testinfra"
-version = "5.3.1"
+version = "6.0.0"
 description = "Test infrastructures"
 category = "dev"
 optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
-pytest = "!=3.0.2"
+pytest-testinfra = "*"
 
 [package.extras]
-ansible = ["ansible"]
-paramiko = ["paramiko"]
-salt = ["salt"]
-winrm = ["pywinrm"]
+ansible = ["pytest-testinfra"]
+paramiko = ["pytest-testinfra"]
+salt = ["pytest-testinfra"]
+winrm = ["pytest-testinfra"]
 
 [[package]]
 name = "text-unidecode"
@@ -895,7 +912,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "e354fb5ed58997980cf4054acafaedb7c90214750c8290d5459bbc09fb2393f0"
+content-hash = "f161c468cb0232e95bd93a99cf0fe7c26a10aeca0dd950ef995d67ad2a81f4aa"
 
 [metadata.files]
 ansible = [
@@ -1223,6 +1240,10 @@ pytest = [
     {file = "pytest-5.4.3-py3-none-any.whl", hash = "sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1"},
     {file = "pytest-5.4.3.tar.gz", hash = "sha256:7979331bfcba207414f5e1263b5a0f8f521d0f457318836a7355531ed1a4c7d8"},
 ]
+pytest-testinfra = [
+    {file = "pytest-testinfra-6.6.0.tar.gz", hash = "sha256:c2c0af72e51d84f72306045b551a91ac8a2cef2ca1fa87636ee64ceaa0f219c5"},
+    {file = "pytest_testinfra-6.6.0-py3-none-any.whl", hash = "sha256:3aac5453a8b0e61b00539d8560442e862ce04ce1e31d08fd44500a4e43d3a989"},
+]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
     {file = "python_dateutil-2.8.1-py2.py3-none-any.whl", hash = "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"},
@@ -1340,8 +1361,8 @@ tenacity = [
     {file = "tenacity-8.0.1.tar.gz", hash = "sha256:43242a20e3e73291a28bcbcacfd6e000b02d3857a9a9fff56b297a27afdc932f"},
 ]
 testinfra = [
-    {file = "testinfra-5.3.1-py3-none-any.whl", hash = "sha256:9d3a01fb787253df76ac4ab46d18a84d4b01be877ed1b5812e590dcf480a627e"},
-    {file = "testinfra-5.3.1.tar.gz", hash = "sha256:baf1d809ea2dc22c0cb5b9441bf4e17c1eb653e1ccc02cc63137d0ab467fa1de"},
+    {file = "testinfra-6.0.0-py3-none-any.whl", hash = "sha256:1a75b5025dbe82ffedec50afeaf9a7f96a8cd1e294f0d40de3a089a369ceae0e"},
+    {file = "testinfra-6.0.0.tar.gz", hash = "sha256:4225d36e4bb02eb1618429325280c4b62a18cea8a90c91564ee0cc1d31ca331a"},
 ]
 text-unidecode = [
     {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
