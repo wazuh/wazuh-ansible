@@ -4,7 +4,7 @@
   roles:
     - role: ../../roles/wazuh/ansible-wazuh-manager
       vars:
-    - { role: ../../roles/wazuh/ansible-filebeat-oss, filebeat_output_indexer_hosts: "elasticsearch_centos7:9200" }
+    - { role: ../../roles/wazuh/ansible-filebeat-oss, filebeat_output_indexer_hosts: "indexer_centos7:9200" }
   vars:
   pre_tasks:
     - name: (converge) fix missing packages in cloud images
