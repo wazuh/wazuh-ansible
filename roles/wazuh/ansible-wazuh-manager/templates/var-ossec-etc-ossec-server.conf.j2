@@ -248,13 +248,13 @@
     <skip_nfs>yes</skip_nfs>
   {% endif %}
   {% if wazuh_manager_config.sca.day | length > 0 %}
-    <day>yes</day>
+    <day>{{ wazuh_manager_config.sca.day }}</day>
   {% endif %}
   {% if wazuh_manager_config.sca.wday | length > 0 %}
-    <wday>yes</wday>
+    <wday>{{ wazuh_manager_config.sca.wday }}</wday>
   {% endif %}
   {% if wazuh_manager_config.sca.time | length > 0 %}
-    <time>yes</time>
+    <time>{{ wazuh_manager_config.sca.time }}</time>
   {% endif %}
   </sca>
 
@@ -369,9 +369,6 @@
   <command>
     <name>{{ command.name }}</name>
     <executable>{{ command.executable }}</executable>
-    {% if command.expect is defined %}
-        <expect>{{ command.expect }}</expect>
-    {% endif %}
     {% if command.timeout_allowed is defined %}
         <timeout_allowed>{{ command.timeout_allowed }}</timeout_allowed>
     {% endif %}
