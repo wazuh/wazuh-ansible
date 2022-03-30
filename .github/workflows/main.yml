@@ -30,7 +30,7 @@ jobs:
         run: poetry install
 
       - name: Run Molecule tests.
-        run: poetry run molecule test -s default
+        run: poetry run molecule test --sudo -s default
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
