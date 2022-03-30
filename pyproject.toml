@@ -8,7 +8,7 @@ authors = ["neonmei <neonmei@pm.me>"]
 python = "^3.6"
 
 # Pin ansible version to that currently present on awx
-ansible = "==2.9.5"
+ansible = "==4.10.0"
 jinja2 = "^3.0.3"
 
 [tool.poetry.dev-dependencies]
