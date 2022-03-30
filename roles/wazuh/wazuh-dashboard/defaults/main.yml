@@ -18,12 +18,12 @@ dashboard_version: "4.3.0"
 package_repos:
   yum:
     dashboard:
-      baseurl: 'https://packages.wazuh.com/4.x/yum/'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+      baseurl: 'https://packages-dev.wazuh.com/pre-release/yum/'
+      gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   apt:
     dashboard:
-      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+      baseurl: 'deb https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+      gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
 
 # API credentials
 wazuh_api_credentials:
