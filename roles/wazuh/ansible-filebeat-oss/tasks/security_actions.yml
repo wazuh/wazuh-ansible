@@ -15,6 +15,7 @@
       owner: root
       group: root
       mode: 0644
+    become: yes
     with_items:
       - "{{ filebeat_node_name }}-key.pem"
       - "{{ filebeat_node_name }}.pem"
