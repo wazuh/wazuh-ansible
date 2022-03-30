@@ -157,36 +157,26 @@ unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
-version = "7.1.2"
+version = "8.0.4"
 description = "Composable command line interface toolkit"
 category = "dev"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[[package]]
-name = "click-completion"
-version = "0.5.2"
-description = "Fish, Bash, Zsh and PowerShell completion for Click"
-category = "dev"
-optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [package.dependencies]
-click = "*"
-jinja2 = "*"
-shellingham = "*"
-six = "*"
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "click-help-colors"
-version = "0.8"
+version = "0.9.1"
 description = "Colorization of help messages in Click"
 category = "dev"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-click = ">=7.0"
+click = ">=7.0,<9"
 
 [package.extras]
 dev = ["pytest"]
@@ -296,18 +286,6 @@ rich = ">=9.5.1"
 test = ["mock (>=3.0.5)", "pytest-cov (>=2.7.1)", "pytest-mock (>=3.3.1)", "pytest-plus", "pytest-xdist (>=1.29.0)", "pytest (>=5.4.0)"]
 
 [[package]]
-name = "fasteners"
-version = "0.15"
-description = "A python package that provides useful locks."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-monotonic = ">=0.1"
-six = "*"
-
-[[package]]
 name = "flake8"
 version = "4.0.1"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -396,47 +374,57 @@ python-versions = "*"
 
 [[package]]
 name = "molecule"
-version = "3.0.8"
+version = "3.3.4"
 description = "Molecule aids in the development and testing of Ansible roles"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-ansible = ">=2.8"
-cerberus = ">=1.3.1"
-click = ">=7.0"
-click-completion = ">=0.5.1"
-click-help-colors = ">=0.6"
-colorama = ">=0.3.9"
-cookiecutter = ">=1.6.0,<1.7.1 || >1.7.1"
-docker = {version = ">=2.0.0", optional = true, markers = "extra == \"docker\""}
+ansible-lint = ">=5.0.12"
+cerberus = ">=1.3.1,<1.3.3 || >1.3.3,<1.3.4 || >1.3.4"
+click = ">=8.0,<9"
+click-help-colors = ">=0.9"
+cookiecutter = ">=1.7.3"
+dataclasses = {version = "*", markers = "python_version < \"3.7\""}
+enrich = ">=1.2.5"
 Jinja2 = ">=2.10.1"
+molecule-docker = {version = "*", optional = true, markers = "extra == \"docker\""}
+packaging = "*"
 paramiko = ">=2.5.0,<3"
-pexpect = ">=4.6.0,<5"
 pluggy = ">=0.7.1,<1.0"
-python-gilt = ">=1.2.1,<2"
 PyYAML = ">=5.1,<6"
+rich = ">=9.5.1"
 selinux = {version = "*", markers = "sys_platform == \"linux\" or sys_platform == \"linux2\""}
-sh = ">=1.13.1,<1.14"
-tabulate = ">=0.8.4"
-tree-format = ">=0.1.2"
-yamllint = ">=1.15.0,<2"
+subprocess-tee = ">=0.3.2"
 
 [package.extras]
-docker = ["docker (>=2.0.0)"]
-docs = ["simplejson", "sphinx", "sphinx-ansible-theme (>=0.2.2)"]
-lint = ["ansible-lint (>=4.2.0,<5)", "flake8 (>=3.6.0)", "pre-commit (>=1.21.0)", "yamllint (>=1.15.0)"]
-test = ["ansi2html", "coverage (<5)", "mock (>=3.0.5,<4)", "packaging", "pytest-cov (>=2.7.1,<3)", "pytest-helpers-namespace (>=2019.1.8,<2020)", "pytest-html (>=1.21.0)", "pytest-mock (>=1.10.4,<2)", "pytest-verbose-parametrize (>=1.7.0,<2)", "pytest-plus", "pytest-xdist (>=1.29.0,<2)", "pytest (>=5.4.0,<5.5)", "testinfra (>=3.4.0)"]
+ansible = ["ansible (>=2.10)"]
+ansible-base = ["ansible-base (>=2.10)"]
+docker = ["molecule-docker"]
+docs = ["Sphinx (>=4.0.2)", "simplejson (>=3.17.2)", "sphinx-notfound-page (>=0.7.1)", "sphinx-ansible-theme (>=0.2.2)"]
+lint = ["flake8 (>=3.8.4)", "pre-commit (>=2.10.1)", "yamllint"]
+podman = ["molecule-podman"]
+test = ["ansi2html (>=1.6.0)", "pexpect (>=4.8.0,<5)", "pytest-cov (>=2.10.1)", "pytest-helpers-namespace (>=2019.1.8)", "pytest-html (>=3.0.0)", "pytest-mock (>=3.3.1)", "pytest-plus (>=0.2)", "pytest-testinfra (>=6.1.0)", "pytest-verbose-parametrize (>=1.7.0)", "pytest-xdist (>=2.1.0)", "pytest (>=6.1.2)"]
 windows = ["pywinrm"]
 
 [[package]]
-name = "monotonic"
-version = "1.5"
-description = "An implementation of time.monotonic() for Python 2 & < 3.3"
+name = "molecule-docker"
+version = "0.3.4"
+description = "Molecule aids in the development and testing of Ansible roles"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
+
+[package.dependencies]
+docker = ">=4.3.1"
+molecule = ">=3.3.0"
+selinux = {version = "*", markers = "sys_platform == \"linux\" or sys_platform == \"linux2\""}
+
+[package.extras]
+docs = ["simplejson", "sphinx", "sphinx-ansible-theme (>=0.2.2)"]
+lint = ["pre-commit (>=1.21.0)"]
+test = ["molecule", "pytest-helpers-namespace"]
 
 [[package]]
 name = "packaging"
@@ -478,17 +466,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
-name = "pexpect"
-version = "4.8.0"
-description = "Pexpect allows easy control of interactive console applications."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-ptyprocess = ">=0.5"
-
-[[package]]
 name = "pluggy"
 version = "0.13.1"
 description = "plugin and hook calling mechanisms for python"
@@ -509,14 +486,6 @@ description = "A lightweight YAML Parser for Python. 🐓"
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-
-[[package]]
-name = "ptyprocess"
-version = "0.6.0"
-description = "Run a subprocess in a pseudo terminal"
-category = "dev"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "py"
@@ -633,24 +602,6 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 six = ">=1.5"
 
 [[package]]
-name = "python-gilt"
-version = "1.2.3"
-description = "gilt - A GIT layering tool."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-click = "*"
-colorama = "*"
-fasteners = "*"
-PyYAML = "*"
-sh = "*"
-
-[package.extras]
-test = ["black (==19.10b0)", "flake8", "hacking", "pep517", "pytest", "pytest-cov", "pytest-helpers-namespace", "pytest-mock", "twine"]
-
-[[package]]
 name = "python-slugify"
 version = "4.0.1"
 description = "A Python Slugify application that handles Unicode"
@@ -751,22 +702,6 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 distro = ">=1.3.0"
 
 [[package]]
-name = "sh"
-version = "1.13.1"
-description = "Python subprocess replacement"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "shellingham"
-version = "1.3.2"
-description = "Tool to Detect Surrounding Shell"
-category = "dev"
-optional = false
-python-versions = "!=3.0,!=3.1,!=3.2,!=3.3,>=2.6"
-
-[[package]]
 name = "six"
 version = "1.15.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -775,15 +710,15 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
-name = "tabulate"
-version = "0.8.9"
-description = "Pretty-print tabular data"
+name = "subprocess-tee"
+version = "0.3.5"
+description = "subprocess-tee"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [package.extras]
-widechars = ["wcwidth"]
+test = ["enrich (>=1.2.6)", "mock (>=4.0.3)", "molecule (>=3.4.0)", "pytest-cov (>=2.12.1)", "pytest-plus (>=0.2)", "pytest-xdist (>=2.3.0)", "pytest (>=6.2.5)"]
 
 [[package]]
 name = "tenacity"
@@ -828,17 +763,6 @@ description = "A lil' TOML parser"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
-
-[[package]]
-name = "tree-format"
-version = "0.1.2"
-description = ""
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.extras]
-dev = ["pytest (>=2.7.1)", "testtools (>=1.8.0)"]
 
 [[package]]
 name = "typing-extensions"
@@ -1006,15 +930,12 @@ charset-normalizer = [
     {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"},
 ]
 click = [
-    {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
-    {file = "click-7.1.2.tar.gz", hash = "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"},
-]
-click-completion = [
-    {file = "click-completion-0.5.2.tar.gz", hash = "sha256:5bf816b81367e638a190b6e91b50779007d14301b3f9f3145d68e3cade7bce86"},
+    {file = "click-8.0.4-py3-none-any.whl", hash = "sha256:6a7a62563bbfabfda3a38f3023a1db4a35978c0abd76f6c9605ecd6554d6d9b1"},
+    {file = "click-8.0.4.tar.gz", hash = "sha256:8458d7b1287c5fb128c90e23381cf99dcde74beaf6c7ff6384ce84d6fe090adb"},
 ]
 click-help-colors = [
-    {file = "click-help-colors-0.8.tar.gz", hash = "sha256:119e5faf69cfc919c995c5962326ac8fd87f11e56a371af594e3dfd8458f4c6e"},
-    {file = "click_help_colors-0.8-py3-none-any.whl", hash = "sha256:0d841a4058ec88c47f93ff6f32547a055f8e0a0273f6bd6cb3e08430f195131d"},
+    {file = "click-help-colors-0.9.1.tar.gz", hash = "sha256:78cbcf30cfa81c5fc2a52f49220121e1a8190cd19197d9245997605d3405824d"},
+    {file = "click_help_colors-0.9.1-py3-none-any.whl", hash = "sha256:25a6bd22d8abbc72c18a416a1cf21ab65b6120bee48e9637829666cbad22d51d"},
 ]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
@@ -1067,10 +988,6 @@ docker = [
 enrich = [
     {file = "enrich-1.2.7-py3-none-any.whl", hash = "sha256:f29b2c8c124b4dbd7c975ab5c3568f6c7a47938ea3b7d2106c8a3bd346545e4f"},
     {file = "enrich-1.2.7.tar.gz", hash = "sha256:0a2ab0d2931dff8947012602d1234d2a3ee002d9a355b5d70be6bf5466008893"},
-]
-fasteners = [
-    {file = "fasteners-0.15-py2.py3-none-any.whl", hash = "sha256:007e4d2b2d4a10093f67e932e5166722d2eab83b77724156e92ad013c6226574"},
-    {file = "fasteners-0.15.tar.gz", hash = "sha256:3a176da6b70df9bb88498e1a18a9e4a8579ed5b9141207762368a1017bf8f5ef"},
 ]
 flake8 = [
     {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
@@ -1172,12 +1089,12 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 molecule = [
-    {file = "molecule-3.0.8-py3-none-any.whl", hash = "sha256:6fb202099ff52bc427c6bd8f46f13b49b3d5812daa6880960a0fd0562e8a9be6"},
-    {file = "molecule-3.0.8.tar.gz", hash = "sha256:42d0c661b52074b00a620466df367ddab9c3682875e6d685bfc93487ef0479cc"},
+    {file = "molecule-3.3.4-py3-none-any.whl", hash = "sha256:a44c36bfc3734d561d941a90cf6ab18ede36e00decc92bd0f81623fa32dbdb2f"},
+    {file = "molecule-3.3.4.tar.gz", hash = "sha256:5794d0b39e695c4544c714ac90ab90901f22d8c9f623c2fee665b8b2dc2ce6cc"},
 ]
-monotonic = [
-    {file = "monotonic-1.5-py2.py3-none-any.whl", hash = "sha256:552a91f381532e33cbd07c6a2655a21908088962bb8fa7239ecbcc6ad1140cc7"},
-    {file = "monotonic-1.5.tar.gz", hash = "sha256:23953d55076df038541e648a53676fb24980f7a1be290cdda21300b3bc21dfb0"},
+molecule-docker = [
+    {file = "molecule-docker-0.3.4.tar.gz", hash = "sha256:dc9a8ad60b70ede303805cd6865deb5fb9c162e67ff5e7d1a45eb7e58cd36b88"},
+    {file = "molecule_docker-0.3.4-py3-none-any.whl", hash = "sha256:9d65761052a7a5dad6deee25e2ce9597148913532a10542c3ad8c342f56fe3b2"},
 ]
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
@@ -1191,10 +1108,6 @@ pathspec = [
     {file = "pathspec-0.8.0-py2.py3-none-any.whl", hash = "sha256:7d91249d21749788d07a2d0f94147accd8f845507400749ea19c1ec9054a12b0"},
     {file = "pathspec-0.8.0.tar.gz", hash = "sha256:da45173eb3a6f2a5a487efba21f050af2b41948be6ab52b6a1e3ff22bb8b7061"},
 ]
-pexpect = [
-    {file = "pexpect-4.8.0-py2.py3-none-any.whl", hash = "sha256:0b48a55dcb3c05f3329815901ea4fc1537514d6ba867a152b581d69ae3710937"},
-    {file = "pexpect-4.8.0.tar.gz", hash = "sha256:fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c"},
-]
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
@@ -1202,10 +1115,6 @@ pluggy = [
 poyo = [
     {file = "poyo-0.5.0-py2.py3-none-any.whl", hash = "sha256:3e2ca8e33fdc3c411cd101ca395668395dd5dc7ac775b8e809e3def9f9fe041a"},
     {file = "poyo-0.5.0.tar.gz", hash = "sha256:e26956aa780c45f011ca9886f044590e2d8fd8b61db7b1c1cf4e0869f48ed4dd"},
-]
-ptyprocess = [
-    {file = "ptyprocess-0.6.0-py2.py3-none-any.whl", hash = "sha256:d7cc528d76e76342423ca640335bd3633420dc1366f258cb31d05e865ef5ca1f"},
-    {file = "ptyprocess-0.6.0.tar.gz", hash = "sha256:923f299cc5ad920c68f2bc0bc98b75b9f838b93b599941a6b63ddbc2476394c0"},
 ]
 py = [
     {file = "py-1.10.0-py2.py3-none-any.whl", hash = "sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a"},
@@ -1262,9 +1171,6 @@ pytest-testinfra = [
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
     {file = "python_dateutil-2.8.1-py2.py3-none-any.whl", hash = "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"},
-]
-python-gilt = [
-    {file = "python_gilt-1.2.3-py2.py3-none-any.whl", hash = "sha256:e220ea2e7e190ee06dbfa5fafe87967858b4ac0cf53f3072fa6ece4664a42082"},
 ]
 python-slugify = [
     {file = "python-slugify-4.0.1.tar.gz", hash = "sha256:69a517766e00c1268e5bbfc0d010a0a8508de0b18d30ad5a1ff357f8ae724270"},
@@ -1355,21 +1261,13 @@ selinux = [
     {file = "selinux-0.2.1-py2.py3-none-any.whl", hash = "sha256:820adcf1b4451c9cc7759848797703263ba0eb6a4cad76d73548a9e0d57b7926"},
     {file = "selinux-0.2.1.tar.gz", hash = "sha256:d435f514e834e3fdc0941f6a29d086b80b2ea51b28112aee6254bd104ee42a74"},
 ]
-sh = [
-    {file = "sh-1.13.1-py2.py3-none-any.whl", hash = "sha256:6f792e45b45d039b423081558904981e8ab49572b0c38009fcc65feaab06bcda"},
-    {file = "sh-1.13.1.tar.gz", hash = "sha256:97a3d2205e3c6a842d87ebbc9ae93acae5a352b1bc4609b428d0fd5bb9e286a3"},
-]
-shellingham = [
-    {file = "shellingham-1.3.2-py2.py3-none-any.whl", hash = "sha256:7f6206ae169dc1a03af8a138681b3f962ae61cc93ade84d0585cca3aaf770044"},
-    {file = "shellingham-1.3.2.tar.gz", hash = "sha256:576c1982bea0ba82fb46c36feb951319d7f42214a82634233f58b40d858a751e"},
-]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
     {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
-tabulate = [
-    {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},
-    {file = "tabulate-0.8.9.tar.gz", hash = "sha256:eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7"},
+subprocess-tee = [
+    {file = "subprocess-tee-0.3.5.tar.gz", hash = "sha256:ff5cced589a4b8ac973276ca1ba21bb6e3de600cde11a69947ff51f696efd577"},
+    {file = "subprocess_tee-0.3.5-py3-none-any.whl", hash = "sha256:d34186c639aa7f8013b5dfba80e17f52589539137c9d9205f2ae1c1bd03549e1"},
 ]
 tenacity = [
     {file = "tenacity-8.0.1-py3-none-any.whl", hash = "sha256:f78f4ea81b0fabc06728c11dc2a8c01277bfc5181b321a4770471902e3eb844a"},
@@ -1386,10 +1284,6 @@ text-unidecode = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
-]
-tree-format = [
-    {file = "tree-format-0.1.2.tar.gz", hash = "sha256:a538523aa78ae7a4b10003b04f3e1b37708e0e089d99c9d3b9e1c71384c9a7f9"},
-    {file = "tree_format-0.1.2-py2-none-any.whl", hash = "sha256:b5056228dbedde1fb81b79f71fb0c23c98e9d365230df9b29af76e8d8003de11"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.7.4.3-py2-none-any.whl", hash = "sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f"},
