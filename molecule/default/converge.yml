@@ -2,10 +2,17 @@
 - name: Converge
   hosts: all
   roles:
+    - role: ../roles/wazuh/wazuh-indexer
+      perform_installation: false
     - role: ../../roles/wazuh/ansible-wazuh-manager
       vars:
     - { role: ../../roles/wazuh/ansible-filebeat-oss, filebeat_output_indexer_hosts: "indexer_centos7:9200" }
   vars:
+    instances:
+    node1:
+      name: node-1       # Important: must be equal to indexer_node_name.
+      ip: 127.0.0.1
+      role: indexer
   pre_tasks:
     - name: (converge) fix missing packages in cloud images
       apt:
