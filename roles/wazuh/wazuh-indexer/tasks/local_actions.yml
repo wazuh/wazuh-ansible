@@ -53,6 +53,7 @@
       paths: "{{ local_certs_path }}/wazuh-certificates"
       patterns: "*"
     register: certificate_files
+    become: yes
 
   - name: Change Certificates Ownership
     file: 
