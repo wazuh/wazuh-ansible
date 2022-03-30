@@ -35,6 +35,14 @@
       mode: 0644
     register: tlsconfig_template
 
+  - name: Display config.yml contents
+    command: cat {{ local_certs_path }}/config.yml
+    register: command_output
+
+  - name: Print config.yml
+    debug:
+      msg: "{{command_output.stdout}}"
+
   - name: Local action | Generate the node & admin certificates in local
     command: >-
       bash {{ local_certs_path }}/wazuh-certs-tool.sh -A
