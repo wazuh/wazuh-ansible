@@ -1,6 +1,6 @@
 - block:
 
-  - name: Ensure Indexer certificates directory permissions.
+  - name: Ensure Dashboard certificates directory permissions.
     file:
       path: "/etc/wazuh-dashboard/certs/"
       state: directory
