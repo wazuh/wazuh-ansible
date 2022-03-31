@@ -6,7 +6,7 @@
       state: directory
       owner: root
       group: root
-      mode: 0774
+      mode: 500
 
   - name: Copy the certificates from local to the Manager instance
     copy:
@@ -14,7 +14,7 @@
       dest: "{{ filebeat_ssl_dir }}"
       owner: root
       group: root
-      mode: 0644
+      mode: 400
     with_items:
       - "{{ filebeat_node_name }}-key.pem"
       - "{{ filebeat_node_name }}.pem"
