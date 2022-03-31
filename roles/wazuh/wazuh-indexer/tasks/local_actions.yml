@@ -35,14 +35,6 @@
       mode: 0644
     register: tlsconfig_template
 
-  - name: Display config.yml contents
-    command: cat {{ local_certs_path }}/config.yml
-    register: command_output
-
-  - name: Print config.yml
-    debug:
-      msg: "{{command_output.stdout}}"
-
   - name: Local action | Generate the node & admin certificates in local
     command: >-
       bash {{ local_certs_path }}/wazuh-certs-tool.sh -A
@@ -52,7 +44,14 @@
     find:
       paths: "{{ local_certs_path }}/wazuh-certificates"
       patterns: "*"
+    become: yes
     register: certificate_files
+
+  - name: Change certificates directory ownership
+    file: 
+      path: "{{ local_certs_path }}/wazuh-certificates"
+      state: directory
+      mode: '777'
     become: yes
 
   - name: Change Certificates Ownership
@@ -60,6 +59,7 @@
       path: "{{ item.path }}"
       owner: "{{ ansible_effective_user_id }}"
       group: "{{ ansible_effective_user_id }}"
+      mode: '777'
     become: yes
     with_items: "{{ certificate_files.files }}"
 
