@@ -34,7 +34,7 @@ package_repos:
       gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   apt:
     indexer:
-      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ unstable main'
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
       gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
     openjdk:
       baseurl: 'deb http://deb.debian.org/debian stretch-backports main'
