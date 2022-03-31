@@ -3,6 +3,8 @@ filebeat_version: 7.10.2
 
 wazuh_template_branch: v4.3.0
 
+filebeat_node_name: node-1
+
 filebeat_output_indexer_hosts:
   - "localhost:9200"
 
@@ -18,7 +20,7 @@ filebeat_security: true
 filebeat_ssl_dir: /etc/pki/filebeat
 
 # Local path to store the generated certificates (Opensearch security plugin)
-local_certs_path: ./indexer/certificates
+local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 
 filebeatrepo:
   apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
