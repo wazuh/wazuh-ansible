@@ -19,13 +19,21 @@
   when:
     - hostvars[inventory_hostname]['private_ip'] is not defined
 
+- name: Ensure Indexer certificates directory permissions.
+  file:
+    path: "{{ indexer_conf_path }}/certs/"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 500
 
 - name: Copy the node & admin certificates to Wazuh indexer cluster
   copy:
     src: "{{ local_certs_path }}/wazuh-certificates/{{ item }}"
     dest: "{{ indexer_conf_path }}/certs/"
-    mode: 0644
-  become: yes
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 0400
   with_items:
     - root-ca.pem
     - root-ca.key
