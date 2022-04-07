@@ -3,8 +3,8 @@ nodes:
   indexer:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'indexer') %}
-    name: {{ value.name }}
-    ip: {{ value.ip }}
+    - name: {{ value.name }}
+      ip: {{ value.ip }}
 {% endif %}
 {% endfor %}
 
@@ -13,13 +13,13 @@ nodes:
   server:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'wazuh') %}
-    name: {{ value.name }}
-    ip: {{ value.ip }}
+    - name: {{ value.name }}
+      ip: {{ value.ip }}
 {% endif %}
 {% if (value.node_type is defined and value.node_type == 'master') %}
-    node_type: master
+      node_type: master
 {% elif (value.node_type is defined and value.node_type == 'worker') %}
-    node_type: worker
+      node_type: worker
 {% endif %}
 {% endfor %}
 
@@ -27,7 +27,7 @@ nodes:
   dashboard:
 {% for (key,value) in instances.items() %}
 {% if (value.role is defined and value.role == 'dashboard') %}
-    name: {{ value.name }}
-    ip: {{ value.ip }}
+    - name: {{ value.name }}
+      ip: {{ value.ip }}
 {% endif %}
 {% endfor %}
