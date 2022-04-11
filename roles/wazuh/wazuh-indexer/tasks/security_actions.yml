@@ -1,12 +1,3 @@
-- name: Remove demo certs
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "{{ indexer_conf_path }}/demo-indexer-key.pem"
-    - "{{ indexer_conf_path }}/demo-indexer.pem"
-
-
 - name: Configure IP (Private address)
   set_fact:
     target_address: "{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}"
