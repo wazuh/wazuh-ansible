@@ -38,30 +38,6 @@
   - name: Local action | Generate the node & admin certificates in local
     command: >-
       bash {{ local_certs_path }}/wazuh-certs-tool.sh -A
-    become: yes
-
-  - name: Get Certificate files
-    find:
-      paths: "{{ local_certs_path }}/wazuh-certificates"
-      patterns: "*"
-    become: yes
-    register: certificate_files
-
-  - name: Change certificates directory ownership
-    file: 
-      path: "{{ local_certs_path }}/wazuh-certificates"
-      state: directory
-      mode: '777'
-    become: yes
-
-  - name: Change Certificates Ownership
-    file: 
-      path: "{{ item.path }}"
-      owner: "{{ ansible_effective_user_id }}"
-      group: "{{ ansible_effective_user_id }}"
-      mode: '777'
-    become: yes
-    with_items: "{{ certificate_files.files }}"
 
   run_once: true
   delegate_to: localhost
