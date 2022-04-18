@@ -312,7 +312,7 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 sudo ansible-playbook wazuh-production-ready.yml -i inventory
 ```
 
-After the playbook execution, the Wazuh UI should be reachable through `https://<dashboard_host>:5601`
+After the playbook execution, the Wazuh UI should be reachable through `https://<dashboard_host>`
 
 ## Example: single-host environment
 
@@ -380,7 +380,7 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
 sudo ansible-playbook wazuh-single.yml -i inventory
 ```
 
-After the playbook execution, the Wazuh UI should be reachable through `https://<your server host>:5601`
+After the playbook execution, the Wazuh UI should be reachable through `https://<your server host>`
 
 ## Contribute
 
