@@ -6,10 +6,10 @@ opensearch.hosts:
 {% endfor %}
 opensearch.ssl.verificationMode: certificate
 opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
-opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.enabled: false
 opensearch_security.readonly_mode.roles: ["kibana_read_only"]
 server.ssl.enabled: true
 server.ssl.key: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}-key.pem"
 server.ssl.certificate: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}.pem"
 opensearch.ssl.certificateAuthorities: ["/etc/wazuh-dashboard/certs/root-ca.pem"]
-uiSettings.overrides.defaultRoute: /app/wazuh?security_tenant=global
+uiSettings.overrides.defaultRoute: /app/wazuh
