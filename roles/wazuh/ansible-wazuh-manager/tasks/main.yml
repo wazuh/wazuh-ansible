@@ -36,7 +36,8 @@
     name: expect
     state: "{{ wazuh_manager_package_state }}"
   when:
-    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6)
+    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6) and
+      not (ansible_distribution|lower == "centos" and ansible_distribution_major_version|int == 8)
   tags: init
 
 - name: Generate SSL files for authd
