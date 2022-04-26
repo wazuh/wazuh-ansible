@@ -4,12 +4,12 @@
   - include_vars: debian.yml
   - name: Add apt repository signing key
     apt_key:
-      url: "{{ package_repos.apt.dashboard.gpg }}"
+      url: "{{ wazuh_repo.gpg }}"
       state: present
 
   - name: Debian systems | Add Wazuh dashboard repo
     apt_repository:
-      repo: "{{ package_repos.apt.dashboard.baseurl }}"
+      repo: "{{ wazuh_repo.apt }}"
       state: present
       update_cache: yes
 

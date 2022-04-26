@@ -6,8 +6,8 @@
       file: wazuh
       name: wazuh_repo
       description: Wazuh yum repository
-      baseurl: "{{ package_repos.yum.indexer.baseurl }}"
-      gpgkey: "{{ package_repos.yum.indexer.gpg }}"
+      baseurl: "{{ wazuh_repo.yum }}"
+      gpgkey: "{{ wazuh_repo.gpg }}"
       gpgcheck: true
     changed_when: false
 
