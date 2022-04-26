@@ -26,12 +26,6 @@ minimum_master_nodes: 2
 # Example es1.example.com, es2.example.com
 domain_name: wazuh.com
 
-# The Wazuh indexer package repository
-package_repos:
-  apt:
-    openjdk:
-      baseurl: 'deb http://deb.debian.org/debian stretch-backports main'
-
 indexer_sec_plugin_conf_path: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig
 indexer_sec_plugin_tools_path: /usr/share/wazuh-indexer/plugins/opensearch-security/tools
 indexer_conf_path: /etc/wazuh-indexer/
@@ -45,11 +39,6 @@ indexer_custom_user_role: "admin"
 indexer_jvm_xms: null
 
 indexer_http_port: 9200
-
-certs_gen_tool_version: 4.3
-
-# Url of certificates generator tool
-certs_gen_tool_url: "https://packages.wazuh.com/{{ certs_gen_tool_version }}/wazuh-certs-tool.sh"
 
 indexer_admin_password: changeme
 dashboard_password: changeme

@@ -46,7 +46,9 @@
   run_once: true
 
 - name: Hashing the custom admin password
-  command: "{{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}" # noqa 301
+  shell: |
+    export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+    {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}
   register: indexer_admin_password_hashed
   no_log: '{{ indexer_nolog_sensible | bool }}'
   run_once: true
@@ -62,7 +64,9 @@
 
 # this can also be achieved with password_hash, but it requires dependencies on the controller
 - name: Hash the kibanaserver role/user pasword
-  command: "{{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ dashboard_password }}" # noqa 301
+  shell: |
+    export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+    {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ dashboard_password }}
   register: indexer_kibanaserver_password_hashed
   no_log: '{{ indexer_nolog_sensible | bool }}'
   run_once: true
