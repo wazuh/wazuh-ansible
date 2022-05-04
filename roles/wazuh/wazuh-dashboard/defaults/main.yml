@@ -15,16 +15,6 @@ indexer_cluster_nodes:
 # The Wazuh dashboard package repository
 dashboard_version: "4.3.0"
 
-package_repos:
-  yum:
-    dashboard:
-      baseurl: 'https://packages.wazuh.com/4.x/yum/'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-  apt:
-    dashboard:
-      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-
 # API credentials
 wazuh_api_credentials:
   - id: "default"

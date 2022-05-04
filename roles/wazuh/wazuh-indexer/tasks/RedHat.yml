@@ -6,27 +6,19 @@
       file: wazuh
       name: wazuh_repo
       description: Wazuh yum repository
-      baseurl: "{{ package_repos.yum.indexer.baseurl }}"
-      gpgkey: "{{ package_repos.yum.indexer.gpg }}"
+      baseurl: "{{ wazuh_repo.yum }}"
+      gpgkey: "{{ wazuh_repo.gpg }}"
       gpgcheck: true
     changed_when: false
 
-  - name: RedHat/CentOS/Fedora | Install OpenJDK 11
-    yum:
-      name: java-11-openjdk-devel
-      state: present
-    when:
-      - ansible_distribution != 'Amazon'
 
-  - name: Amazon Linux | Install OpenJDK 11
+
+  - name: Amazon Linux | Install Amazon extras
     block:
       - name: Install Amazon extras
         yum:
           name: amazon-linux-extras
           state: present
-
-      - name: Install OpenJDK 11
-        shell: amazon-linux-extras install java-openjdk11 -y
 
       - name: Configure vm.max_map_count
         lineinfile:

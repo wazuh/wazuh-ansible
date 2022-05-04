@@ -1,4 +1,13 @@
 ---
+- name: Get latest wazuh release
+  shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
+  register: wazuh_latest_release
+
+- include_vars: ../../vars/repo.yml
+  when: "{{ wazuh_latest_release.stdout is version(dashboard_version, operator='ge') }}"
+
+- include_vars: ../../vars/repo_dev.yml
+  when: "{{ wazuh_latest_release.stdout is version(dashboard_version, operator='lt') }}"
 
 - import_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'

@@ -16,35 +16,16 @@
         ]
         state: present
 
-    - name: Add the repository key for Debian's Stretch Backports repository
-      ansible.builtin.apt_key:
-        keyserver: keyserver.ubuntu.com
-        id: 648ACFD622F3D138
-
-    - name: Add openjdk repository
-      apt_repository:
-        repo: "{{ package_repos.apt.openjdk.baseurl }}"
-        state: present
-        update_cache: yes
-        filename: 'wazuh-openjdk'
-
-- name: Install openjdk-11-jdk
-  apt:
-    name: openjdk-11-jdk
-    state: present
-  environment:
-    JAVA_HOME: /usr
-
 - name: Add Wazuh indexer repository
   block:
     - name: Add apt repository signing key
       apt_key:
-        url: "{{ package_repos.apt.indexer.gpg }}"
+        url: "{{ wazuh_repo.gpg }}"
         state: present
 
     - name: Add Wazuh indexer repository
       apt_repository:
-        repo: "{{ package_repos.apt.indexer.baseurl }}"
+        repo: "{{ wazuh_repo.apt }}"
         state: present
         filename: 'wazuh-indexer'
         update_cache: yes
