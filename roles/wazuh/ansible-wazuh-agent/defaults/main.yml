@@ -54,7 +54,7 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
-  md5: 8ffa75d13280f1aa6ffca54f4273df4d
+  md5: 337ab33c31e3bc1d688cd903be3691fc
 wazuh_winagent_package_name: wazuh-agent-4.3.0-1.msi
 
 wazuh_dir: "/var/ossec"
