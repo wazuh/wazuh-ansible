@@ -1,6 +1,0 @@
----
-- name: Debian/Ubuntu | Removing Elasticsearch repository
-  apt_repository:
-    repo: "deb {{ elasticrepo.apt }} stable main"
-    state: absent
-  changed_when: false

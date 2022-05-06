@@ -11,13 +11,13 @@
 
 - name: Debian/Ubuntu | Add Elasticsearch apt key.
   apt_key:
-    url: "{{ elasticrepo.gpg }}"
-    id: "{{ elasticrepo.key_id }}"
+    url: "{{ filebeatrepo.gpg }}"
+    id: "{{ filebeatrepo.key_id }}"
     state: present
 
 - name: Debian/Ubuntu | Add Filebeat-oss repository.
   apt_repository:
-    repo: "deb {{ elasticrepo.apt }} stable main"
+    repo: "{{ filebeatrepo.apt }}"
     state: present
     update_cache: true
   changed_when: false

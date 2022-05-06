@@ -1,6 +1,0 @@
----
-- hosts: es1
-  roles:
-    - role: ../roles/opendistro/opendistro-kibana
-  vars:
-    ansible_shell_allow_world_readable_temp: true

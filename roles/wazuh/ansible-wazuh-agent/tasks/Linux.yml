@@ -218,6 +218,11 @@
     msg: Agent registration will be performed through enrollment option in templated ossec.conf
   when:  wazuh_agent_config.enrollment.enabled == 'yes'
 
+- name: Linux | Ensure group "wazuh" exists
+  ansible.builtin.group:
+    name: wazuh
+    state: present
+
 - name: Linux | Installing agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
