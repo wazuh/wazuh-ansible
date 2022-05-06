@@ -369,6 +369,7 @@
   <command>
     <name>{{ command.name }}</name>
     <executable>{{ command.executable }}</executable>
+    <expect>{{ command.expect }}</expect>
     {% if command.timeout_allowed is defined %}
         <timeout_allowed>{{ command.timeout_allowed }}</timeout_allowed>
     {% endif %}
