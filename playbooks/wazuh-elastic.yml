@@ -1,5 +1,0 @@
----
-- hosts: <YOUR_ELASTICSEARCH_IP>
-  roles:
-    - role: ../roles/elastic-stack/ansible-elasticsearch
-      elasticsearch_network_host: '<YOUR_ELASTICSEARCH_IP>'

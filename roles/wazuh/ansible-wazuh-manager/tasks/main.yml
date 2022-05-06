@@ -1,5 +1,15 @@
 ---
 
+- name: Get latest wazuh release
+  shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
+  register: wazuh_latest_release
+
+- include_vars: ../../vars/repo.yml
+  when: "{{ wazuh_latest_release.stdout is version(wazuh_manager_version, operator='ge') }}"
+
+- include_vars: ../../vars/repo_dev.yml
+  when: "{{ wazuh_latest_release.stdout is version(wazuh_manager_version, operator='lt') }}"
+
 - name: Overlay wazuh_manager_config on top of defaults
   set_fact:
     wazuh_manager_config: '{{ wazuh_manager_config_defaults | combine(config_layer, recursive=True) }}'
@@ -26,7 +36,8 @@
     name: expect
     state: "{{ wazuh_manager_package_state }}"
   when:
-    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6)
+    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6) and
+      not (ansible_distribution|lower == "centos" and ansible_distribution_major_version|int == 8)
   tags: init
 
 - name: Generate SSL files for authd
@@ -81,8 +92,8 @@
 - name: Installing the local_rules.xml (default local_rules.xml)
   template: src=var-ossec-rules-local_rules.xml.j2
             dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
-            owner=ossec
-            group=ossec
+            owner=wazuh
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -93,8 +104,8 @@
 - name: Adding local rules files
   copy: src="{{ wazuh_manager_config.ruleset.rules_path }}"
         dest="{{ wazuh_dir }}/etc/rules/"
-        owner=ossec
-        group=ossec
+        owner=wazuh
+        group=wazuh
         mode=0640
   notify: restart wazuh-manager
   tags:
@@ -105,8 +116,8 @@
 - name: Installing the local_decoder.xml
   template: src=var-ossec-rules-local_decoder.xml.j2
             dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
-            owner=ossec
-            group=ossec
+            owner=wazuh
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -117,8 +128,8 @@
 - name: Adding local decoders files
   copy: src="{{ wazuh_manager_config.ruleset.decoders_path }}"
         dest="{{ wazuh_dir }}/etc/decoders/"
-        owner=ossec
-        group=ossec
+        owner=wazuh
+        group=wazuh
         mode=0640
   notify: restart wazuh-manager
   tags:
@@ -130,8 +141,8 @@
   template:
     src: var-ossec-etc-shared-agent.conf.j2
     dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
-    owner: ossec
-    group: ossec
+    owner: wazuh
+    group: wazuh
     mode: 0640
     validate: "{{ wazuh_dir }}/bin/verify-agent-conf -f %s"
   notify: restart wazuh-manager
@@ -145,7 +156,7 @@
   template: src=var-ossec-etc-local-internal-options.conf.j2
             dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
             owner=root
-            group=ossec
+            group=wazuh
             mode=0640
   notify: restart wazuh-manager
   tags:
@@ -228,7 +239,7 @@
     src: var-ossec-etc-ossec-server.conf.j2
     dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
-    group: ossec
+    group: wazuh
     mode: 0644
   notify: restart wazuh-manager
   tags:
@@ -239,8 +250,8 @@
   template:
     src: authd_pass.j2
     dest: "{{ wazuh_dir }}/etc/authd.pass"
-    owner: ossec
-    group: ossec
+    owner: wazuh
+    group: wazuh
     mode: 0640
   no_log: true
   notify: restart wazuh-manager
@@ -257,8 +268,17 @@
         src: create_user.py
         dest: "{{ wazuh_dir }}/framework/scripts/create_user.py"
         owner: root
-        group: ossec
+        group: wazuh
         mode: 0644
+
+    - name: Create admin.json
+      template:
+        src: templates/admin.json.j2
+        dest: "{{ wazuh_dir }}/api/configuration/admin.json"
+        owner: wazuh
+        group: wazuh
+        mode: 0644
+      no_log: true
 
     - name: Execute create_user script
       script:
