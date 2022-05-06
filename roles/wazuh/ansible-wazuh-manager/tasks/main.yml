@@ -152,19 +152,6 @@
   when:
     - shared_agent_config is defined
 
-- name: Installing the api.yaml (api configuration)
-  template: src=api.yaml.j2
-            dest="{{ wazuh_dir }}/api/configuration/api.yaml"
-            owner=root
-            group=ossec
-            mode=0640
-  notify: restart wazuh-manager
-  when:
-    - wazuh_manager_config.cluster.node_type == "master"
-  tags:
-    - init
-    - config
-
 - name: Installing the local_internal_options.conf
   template: src=var-ossec-etc-local-internal-options.conf.j2
             dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
