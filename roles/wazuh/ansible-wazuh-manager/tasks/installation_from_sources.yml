@@ -18,7 +18,7 @@
             - tar
           state: present
 
-      - name: Install CMake 
+      - name: Install CMake
         include_tasks: install_cmake.yml
 
       - name: Removing old files

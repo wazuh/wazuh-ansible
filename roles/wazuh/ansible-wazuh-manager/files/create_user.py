@@ -1,10 +1,8 @@
+import argparse
 import logging
-import sys
-import json
 import random
 import string
-import argparse
-import os
+import sys
 
 # Set framework path
 sys.path.append("/var/ossec/framework")
@@ -17,14 +15,16 @@ try:
         set_user_role,
         update_user,
     )
-except Exception as e:
+except ImportError:
     logging.error("No module 'wazuh' found.")
     sys.exit(1)
 
 
 def db_users():
     users_result = get_users()
-    return {user["username"]: user["id"] for user in users_result.affected_items}
+    return {
+        user["username"]: user["id"] for user in users_result.affected_items
+    }
 
 
 def db_roles():
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             password=password,
         )
     # set a random password for all other users
-    for name, id in initial_users.items():
+    for name, user_id in initial_users.items():
         if name != username:
             specials = "@$!%*?&-_"
             random_pass = "".join(
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             )
             update_user(
                 user_id=[
-                    str(id),
+                    str(user_id),
                 ],
                 password=random_pass,
             )

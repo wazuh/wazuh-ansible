@@ -1,4 +1,17 @@
 ---
+- name: Create group Wazuh
+  group:
+    name: "wazuh"
+    state: present
+
+- name: Create user Wazuh
+  user:
+    name: wazuh
+    group: wazuh
+    shell: /sbin/nologin
+    home: "{{ wazuh_dir }}"
+    comment: Wazuh User
+
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
@@ -38,6 +51,11 @@
   tags:
     - init
 
+- name: Adding ossec user to wazuh group
+  user:
+    name: ossec
+    groups: wazuh
+    append: yes
 - name: Linux | Check if client.keys exists
   stat:
     path: "{{ wazuh_dir }}/etc/client.keys"
@@ -225,6 +243,7 @@
     owner: root
     group: wazuh
     mode: 0644
+    lstrip_blocks: true
   notify: restart wazuh-agent
   tags:
     - init

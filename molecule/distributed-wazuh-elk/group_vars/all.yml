@@ -2,7 +2,7 @@
 
 ########################################################
 # Helper variables
-private_ip: '{{ ansible_default_ipv4.address }}'
+private_ip: '{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}'
 
 managers_hostvars: "{{ groups['managers'] | map('extract', hostvars)  | list }}"
 elastic_hostvars: "{{ groups['elastic'] | map('extract', hostvars)  | list }}"
@@ -16,8 +16,9 @@ elastic_stack_version: 7.10.2
 filebeat_version: 7.10.2
 
 # Debian packages need the ${VERSION}-1
-wazuh_manager_version: 4.4.0-1
-wazuh_agent_version: 4.4.0-1
+wazuh_agent_version: "{{ lookup('env','WAZUH_AGENT_VERSION') or '4.2.5-1' }}"
+wazuh_template_branch: "{{ lookup('env','WAZUH_TEMPLATE_BRANCH') or 'v4.2.5' }}"
+wazuh_manager_version: "{{ lookup('env','WAZUH_MANAGER_VERSION') or '4.2.5-1' }}"
 
 # Kibana role appends it automatically.
-wazuh_version: 4.4.0
+wazuh_version: "{{ lookup('env','WAZUH_KIBANA_VERSION') or '4.2.5' }}"

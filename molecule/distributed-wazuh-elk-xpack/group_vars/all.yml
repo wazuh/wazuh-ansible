@@ -17,12 +17,14 @@ kibana_addresses: "{{ kibana_hostvars | map(attribute='private_ip') | list }}"
 elastic_stack_version: 7.10.2
 filebeat_version: 7.10.2
 
+
 # Debian packages need the ${VERSION}-1
-wazuh_manager_version: 4.4.0-1
-wazuh_agent_version: 4.4.0-1
+wazuh_agent_version: "{{ lookup('env','WAZUH_AGENT_VERSION') or '4.2.5-1' }}"
+wazuh_template_branch: "{{ lookup('env','WAZUH_TEMPLATE_BRANCH') or 'v4.2.5' }}"
+wazuh_manager_version: "{{ lookup('env','WAZUH_MANAGER_VERSION') or '4.2.5-1' }}"
 
 # Kibana role appends it automatically.
-wazuh_version: 4.4.0
+wazuh_version: "{{ lookup('env','WAZUH_KIBANA_VERSION') or '4.2.5' }}"
 
 ########################################################
 # General ELK stack variables

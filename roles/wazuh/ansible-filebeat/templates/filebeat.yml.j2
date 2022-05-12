@@ -24,14 +24,14 @@ output.elasticsearch:
   password: {{ elasticsearch_xpack_security_password }}
   protocol: https
 {% if generate_CA == true %}
-  ssl.certificate_authorities: 
+  ssl.certificate_authorities:
     - {{node_certs_destination}}/ca.crt
 {% elif generate_CA == false %}
   ssl.certificate_authorities:
     - {{node_certs_destination}}/{{ca_cert_name}}
 {% endif %}
 
-  ssl.certificate: "{{node_certs_destination}}/{{ filebeat_node_name }}.crt" 
+  ssl.certificate: "{{node_certs_destination}}/{{ filebeat_node_name }}.crt"
   ssl.key: "{{node_certs_destination}}/{{ filebeat_node_name }}.key"
 {% endif %}
 

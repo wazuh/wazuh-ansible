@@ -10,7 +10,7 @@
   register: filebeat_installing_package
   until: filebeat_installing_package is succeeded
   when:
-    - ansible_distribution in ['CentOS','RedHat', 'Amazon']
+    - (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
   tags:
     - install
 
@@ -22,7 +22,7 @@
   register: filebeat_installing_package_debian
   until: filebeat_installing_package_debian is succeeded
   when:
-    - not (ansible_distribution in ['CentOS','RedHat', 'Amazon'])
+    - not (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
   tags:
     - init
 
@@ -118,7 +118,7 @@
     enabled: true
 
 - include_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
 - include_tasks: "RMDebian.yml"
   when: ansible_os_family == "Debian"

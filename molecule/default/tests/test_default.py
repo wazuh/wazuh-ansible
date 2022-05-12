@@ -10,8 +10,6 @@ def get_wazuh_version():
     """This return the version of Wazuh."""
     return "4.4.0"
 
-
-
 def test_wazuh_packages_are_installed(host):
     """Test the main packages are installed."""
     manager = host.package("wazuh-manager")
@@ -32,7 +30,7 @@ def test_wazuh_services_are_running(host):
     # assert api.is_running
     output = host.check_output(
         'ps aux | grep ossec | tr -s " " | cut -d" " -f11'
-        )
+    )
     assert 'ossec-authd' in output
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output

@@ -18,24 +18,9 @@ platforms:
   ################################################
   # Wazuh Managers
   ################################################
-  - name: wazuh_manager_centos7
+  - name: "wazuh_manager_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-mgr01
-    image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-    memory_reservation: 512m
-    memory: 1024m
-    groups:
-      - managers
-    ulimits:
-      - nofile:262144:262144
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-
-  - name: wazuh_manager_debian9
-    hostname: wazuh-mgr02
-    image: geerlingguy/docker-debian9-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -51,9 +36,9 @@ platforms:
   ################################################
   # Elastic Cluster
   ################################################
-  - name: wazuh_elasticsearch_centos7
+  - name: "wazuh_elasticsearch_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-es01
-    image: geerlingguy/docker-centos7-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -66,9 +51,9 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: wazuh_elasticsearch_debian9
+  - name: "wazuh_elasticsearch_${MOLECULE_DISTRO:-fedora34}_2"
     hostname: wazuh-es02
-    image: geerlingguy/docker-debian9-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -84,22 +69,9 @@ platforms:
   ################################################
   # Wazuh Agents
   ################################################
-  - name: wazuh_agent_centos7
+  - name: "wazuh_agent_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-agent01
-    image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-    memory: 1024m
-    memory_reservation: 512m
-    groups:
-      - agents
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-
-  - name: wazuh_agent_debian9
-    hostname: wazuh-agent01
-    image: geerlingguy/docker-debian9-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -114,9 +86,9 @@ platforms:
   # Kibana
   ################################################
 
-  - name: wazuh_kibana_centos7
+  - name: "wazuh_kibana_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-kib01
-    image: geerlingguy/docker-centos7-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true

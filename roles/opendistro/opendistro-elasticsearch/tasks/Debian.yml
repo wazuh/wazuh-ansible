@@ -1,14 +1,25 @@
-
 ---
-
 - name: Update cache
   apt:
     update_cache: yes
 
+- name: Debian/Ubuntu | Install apt-transport-https, ca-certificates and gpg
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gpg-agent
+    state: present
+    cache_valid_time: 3600
+    install_recommends: false
+    update_cache: true
+  register: kibana_https_packages_installed
+  until: kibana_https_packages_installed is succeeded
+
 - name: Debian 9 (Stretch)
   when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
   block:
-  
+
     - name: Install OpenDistro dependencies
       apt:
         name: [
@@ -20,7 +31,7 @@
       ansible.builtin.apt_key:
         keyserver: keyserver.ubuntu.com
         id: 648ACFD622F3D138
-    
+
     - name: Add openjdk repository
       apt_repository:
         repo: "{{ package_repos.apt.openjdk.baseurl }}"
@@ -54,4 +65,4 @@
     name: opendistroforelasticsearch={{ opendistro_version }}-1
     state: present
   register: install
-  tags: install 
+  tags: install

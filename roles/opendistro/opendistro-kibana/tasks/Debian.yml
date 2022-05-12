@@ -1,7 +1,20 @@
 ---
 - block:
+  - include_vars: debian.yml
 
-  - include_vars: debian.yml 
+  - name: Debian/Ubuntu | Install apt-transport-https, ca-certificates and acl
+    apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - gpg-agent
+      state: present
+      cache_valid_time: 3600
+      install_recommends: false
+      update_cache: true
+    register: kibana_ca_packages_install
+    until: kibana_ca_packages_install is succeeded
+
   - name: Add apt repository signing key
     apt_key:
       url: "{{ package_repos.apt.opendistro.gpg }}"
@@ -20,4 +33,4 @@
     register: install
 
   tags:
-    - install 
+    - install

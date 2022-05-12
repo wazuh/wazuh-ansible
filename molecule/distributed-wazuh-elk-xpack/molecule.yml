@@ -18,9 +18,9 @@ platforms:
   ################################################
   # Wazuh Managers
   ################################################
-  - name: molecule_xpack_manager_centos7
+  - name: "molecule_xpack_manager_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-mgr01
-    image: geerlingguy/docker-centos7-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -33,27 +33,27 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: molecule_xpack_manager_debian9
-    hostname: wazuh-mgr02
-    image: geerlingguy/docker-debian9-ansible
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-    memory_reservation: 512m
-    memory: 1024m
-    groups:
-      - managers
-    ulimits:
-      - nofile:262144:262144
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#  - name: molecule_xpack_manager_debian9
+#    hostname: wazuh-mgr02
+#    image: geerlingguy/docker-debian9-ansible
+#    command: /sbin/init
+#    pre_build_image: true
+#    privileged: true
+#    memory_reservation: 512m
+#    memory: 1024m
+#    groups:
+#      - managers
+#    ulimits:
+#      - nofile:262144:262144
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   ################################################
   # Elastic Cluster
   ################################################
-  - name: molecule_xpack_elasticsearch_centos7
+  - name: "molecule_xpack_elasticsearch_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-es01
-    image: geerlingguy/docker-centos7-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -66,27 +66,27 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: molecule_xpack_elasticsearch_debian9
-    hostname: wazuh-es02
-    image: geerlingguy/docker-debian9-ansible
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-    memory: 4096m
-    memory_reservation: 2048m
-    groups:
-      - elastic
-    ulimits:
-      - nofile:262144:262144
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#  - name: molecule_xpack_elasticsearch_debian9
+#    hostname: wazuh-es02
+#    image: geerlingguy/docker-debian9-ansible
+#    command: /sbin/init
+#    pre_build_image: true
+#    privileged: true
+#    memory: 4096m
+#    memory_reservation: 2048m
+#    groups:
+#      - elastic
+#    ulimits:
+#      - nofile:262144:262144
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   ################################################
   # Wazuh Agents
   ################################################
-  - name: molecule_xpack_agent_centos7
+  - name: "molecule_xpack_agent_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-agent01
-    image: geerlingguy/docker-centos7-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true
@@ -97,26 +97,26 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: molecule_xpack_agent_debian9
-    hostname: wazuh-agent02
-    image: geerlingguy/docker-debian9-ansible
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-    memory: 1024m
-    memory_reservation: 512m
-    groups:
-      - agents
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#  - name: molecule_xpack_agent_debian9
+#    hostname: wazuh-agent02
+#    image: geerlingguy/docker-debian9-ansible
+#    command: /sbin/init
+#    pre_build_image: true
+#    privileged: true
+#    memory: 1024m
+#    memory_reservation: 512m
+#    groups:
+#      - agents
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   ################################################
   # Kibana
   ################################################
 
-  - name: molecule_xpack_kibana_centos7
+  - name: "molecule_xpack_kibana_${MOLECULE_DISTRO:-fedora34}"
     hostname: wazuh-kib01
-    image: geerlingguy/docker-centos7-ansible
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-fedora34}-ansible"
     command: /sbin/init
     pre_build_image: true
     privileged: true

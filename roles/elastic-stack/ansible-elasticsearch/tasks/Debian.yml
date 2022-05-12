@@ -4,7 +4,11 @@
     name:
       - apt-transport-https
       - ca-certificates
+      - gpg-agent
     state: present
+    cache_valid_time: 3600
+    install_recommends: false
+    update_cache: true
   register: elasticsearch_ca_packages_installed
   until: elasticsearch_ca_packages_installed is succeeded
 
