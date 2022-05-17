@@ -1,5 +1,14 @@
 ---
 
+- name: "Install dependencies"
+  package:
+    name:
+      - unzip
+      - openssl
+      - tar
+      - curl
+    state: present
+
 - name: Get latest wazuh release
   shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
   register: wazuh_latest_release
@@ -16,15 +25,6 @@
   vars:
     config_layer: '{{ wazuh_manager_config | default({}) }}'
   when: wazuh_manager_config_overlay | bool
-
-- name: "Install dependencies"
-  package:
-    name:
-      - unzip
-      - openssl
-      - tar
-      - curl
-    state: present
 
 - include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
