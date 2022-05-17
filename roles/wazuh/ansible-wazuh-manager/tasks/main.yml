@@ -23,6 +23,7 @@
       - unzip
       - openssl
       - tar
+      - curl
     state: present
 
 - include_tasks: "RedHat.yml"
