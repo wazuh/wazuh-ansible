@@ -2,6 +2,8 @@
 
 wazuh_manager_fqdn: '{{ ansible_hostname }}'
 filebeat_output_indexer_hosts: '{{ indexer_addresses }}'
+node_type: "{{ 'master' if ansible_hostname == 'wazuh-mgr01' else 'worker' }}"
+role: 'wazuh'
 
 wazuh_manager_config:
   connection:
