@@ -18,7 +18,7 @@ platforms:
   ################################################
   # Wazuh Managers
   ################################################
-  - name: molecule_odfe_manager_centos7
+  - name: molecule_wazuh_manager_centos7
     hostname: wazuh-mgr01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -33,7 +33,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: molecule_odfe_manager_debian9
+  - name: molecule_wazuh_manager_debian9
     hostname: wazuh-mgr02
     image: geerlingguy/docker-debian9-ansible
     command: /sbin/init
@@ -49,9 +49,9 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   ################################################
-  # Elastic Cluster
+  # Wazuh indexer Cluster
   ################################################
-  - name: molecule_odfe_elasticsearch_centos7
+  - name: molecule_wazuh_indexer_centos7
     hostname: wazuh-es01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -60,13 +60,13 @@ platforms:
     memory: 4096m
     memory_reservation: 2048m
     groups:
-      - elastic
+      - indexer
     ulimits:
       - nofile:262144:262144
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: molecule_odfe_elasticsearch_centos7_2
+  - name: molecule_wazuh_indexer_centos7_2
     hostname: wazuh-es02
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -75,7 +75,7 @@ platforms:
     memory: 4096m
     memory_reservation: 2048m
     groups:
-      - elastic
+      - indexer
     ulimits:
       - nofile:262144:262144
     volumes:
@@ -84,7 +84,7 @@ platforms:
   ################################################
   # Wazuh Agents
   ################################################
-  - name: molecule_odfe_agent_centos7
+  - name: molecule_wazuh_agent_centos7
     hostname: wazuh-agent01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
@@ -97,7 +97,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: molecule_odfe_agent_debian9
+  - name: molecule_wazuh_agent_debian9
     hostname: wazuh-agent02
     image: geerlingguy/docker-debian9-ansible
     command: /sbin/init
@@ -111,11 +111,11 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   ################################################
-  # Kibana
+  # Wazuh dashboard
   ################################################
 
-  - name: molecule_odfe_kibana_centos7
-    hostname: wazuh-kib01
+  - name: molecule_wazuh_dashboard_centos7
+    hostname: wazuh-dash01
     image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
     pre_build_image: true
@@ -123,7 +123,7 @@ platforms:
     memory: 2048m
     memory_reservation: 512m
     groups:
-      - kibana
+      - dashboard
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
@@ -147,7 +147,7 @@ provisioner:
     name: ansible-lint
     enabled: false
 scenario:
-  name: distributed-wazuh-odfe
+  name: distributed-wazuh
   test_sequence:
     - dependency
     - syntax

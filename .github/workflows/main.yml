@@ -35,7 +35,7 @@ jobs:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
 
-  scenario-distributed-wazuh-odfe:
+  scenario-distributed-wazuh:
     name: Distributed ODFE + Wazuh
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +60,7 @@ jobs:
         run: poetry install
 
       - name: Run Molecule tests.
-        run: poetry run molecule test -s distributed-wazuh-odfe
+        run: poetry run molecule test -s distributed-wazuh
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'

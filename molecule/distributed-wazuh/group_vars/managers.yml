@@ -1,7 +1,7 @@
 ---
 
 wazuh_manager_fqdn: '{{ ansible_hostname }}'
-filebeat_output_elasticsearch_hosts: '{{ elastic_addresses }}'
+filebeat_output_indexer_hosts: '{{ indexer_addresses }}'
 
 wazuh_manager_config:
   connection:
