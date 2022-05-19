@@ -55,21 +55,17 @@
             name: wazuh-es02
             ip: "{{ hostvars.molecule_wazuh_indexer_centos7_2.private_ip }}"
             role: indexer
-#          node3:
-#            name: node-3
-#            ip: "{{ hostvars.wi3.private_ip }}"
-#            role: indexer
-          node4:
+          node3:
             name: wazuh-mgr01
             ip: "{{ hostvars.molecule_wazuh_manager_debian9.private_ip }}"
             role: wazuh
             node_type: master
-          node5:
+          node4:
             name: wazuh-mgr02
             ip: "{{ hostvars.molecule_wazuh_manager_centos7.private_ip }}"
             role: wazuh
             node_type: worker
-          node6:
+          node5:
             name: wazuh-dash01
             ip: "{{ hostvars.molecule_wazuh_dashboard_centos7.private_ip }}"
             role: dashboard
@@ -109,21 +105,17 @@
         name: wazuh-es02
         ip: "{{ hostvars.molecule_wazuh_indexer_centos7_2.private_ip }}"
         role: indexer
-#          node3:
-#            name: node-3
-#            ip: "{{ hostvars.wi3.private_ip }}"
-#            role: indexer
-      node4:
+      node3:
         name: wazuh-mgr01
         ip: "{{ hostvars.molecule_wazuh_manager_debian9.private_ip }}"
         role: wazuh
         node_type: master
-      node5:
+      node4:
         name: wazuh-mgr02
         ip: "{{ hostvars.molecule_wazuh_manager_centos7.private_ip }}"
         role: wazuh
         node_type: worker
-      node6:
+      node5:
         name: wazuh-dash01
         ip: "{{ hostvars.molecule_wazuh_dashboard_centos7.private_ip }}"
         role: dashboard
