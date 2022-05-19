@@ -2,7 +2,6 @@
 
 dashboard_server_name: '{{ ansible_hostname }}'
 indexer_network_host: "{{ indexer_addresses[0] }}"
-#indexer_http_port: 9200
 
 indexer_node_master: false
 indexer_node_ingest: false
@@ -13,6 +12,5 @@ wazuh_api_credentials:
   - id: default
     url: 'https://{{ manager_addresses[0] }}'
     port: 55000
-    #port: 1514
     username: wazuh
     password: wazuh
