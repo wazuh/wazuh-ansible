@@ -111,7 +111,7 @@
 
     - name: Wait for Wazuh indexer API (Private IP)
       uri:
-        url: "https://127.0.0.1:{{ indexer_http_port }}/_cat/health/"
+        url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
         validate_certs: no
