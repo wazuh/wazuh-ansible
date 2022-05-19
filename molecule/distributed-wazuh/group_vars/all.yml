@@ -26,9 +26,9 @@ indexer_security_password: changeme
 indexer_admin_password: changeme
 
 # All nodes are called by IP name
-indexer_node_name: '{{ ansible_hostname }}'
-dashboard_node_name: '{{ ansible_hostname }}'
-filebeat_node_name: '{{ ansible_hostname }}'
+indexer_node_name: '{{ ansible_facts.hostname }}'
+dashboard_node_name: '{{ ansible_facts.hostname }}'
+filebeat_node_name: '{{ ansible_facts.hostname }}'
 
 indexer_version: 4.3.1
 filebeat_version: 7.10.2
