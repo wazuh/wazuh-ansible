@@ -36,7 +36,7 @@ jobs:
           ANSIBLE_FORCE_COLOR: '1'
 
   scenario-distributed-wazuh:
-    name: Distributed ODFE + Wazuh
+    name: Distributed Wazuh
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase.

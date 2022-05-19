@@ -60,7 +60,6 @@
     replace: "{{ indexer_password_hash | quote }}"
   vars:
     indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
-  run_once: true
 
 # this can also be achieved with password_hash, but it requires dependencies on the controller
 - name: Hash the kibanaserver role/user pasword
@@ -78,7 +77,6 @@
     replace: "{{ indexer_password_hash | quote }}"
   vars:
     indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
-  run_once: true
 
 - name: Initialize the Opensearch security index in Wazuh indexer
   command: >
