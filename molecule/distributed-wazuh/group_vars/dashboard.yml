@@ -1,0 +1,16 @@
+---
+
+dashboard_server_name: '{{ ansible_hostname }}'
+indexer_network_host: "{{ indexer_addresses[0] }}"
+
+indexer_node_master: false
+indexer_node_ingest: false
+indexer_node_data: false
+role: 'dashboard'
+
+wazuh_api_credentials:
+  - id: default
+    url: 'https://{{ manager_addresses[0] }}'
+    port: 55000
+    username: wazuh
+    password: wazuh

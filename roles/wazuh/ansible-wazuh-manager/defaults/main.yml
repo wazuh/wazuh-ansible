@@ -36,12 +36,6 @@ wazuh_manager_sources_installation:
   threads: "2"
 
 wazuh_dir: "/var/ossec"
-wazuh_manager_repo:
-  apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-  yum: 'https://packages.wazuh.com/4.x/yum/'
-  gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-  key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
-
 
 ##########################################
 ### Wazuh-OSSEC
@@ -387,7 +381,6 @@ wazuh_manager_api:
   https_cert: "api/configuration/ssl/server.crt"
   https_use_ca: False
   https_ca: "api/configuration/ssl/ca.crt"
-  https_ssl_cipher: "TLSv1.2"
   logging_level: "info"
   logging_path: "logs/api.log"
   cors: no
@@ -400,7 +393,6 @@ wazuh_manager_api:
   access_max_login_attempts: 5
   access_block_time: 300
   access_max_request_per_minute: 300
-  use_only_authd: no
   drop_privileges: yes
   experimental_features: no
   remote_commands_localfile: yes
@@ -422,7 +414,7 @@ wazuh_manager_config_overlay: true
 
 ## Other/Wrappers
 wazuh_manager_config_defaults:
-  repo: '{{ wazuh_manager_repo }}'
+  repo: '{{ wazuh_repo }}'
   json_output: '{{ wazuh_manager_json_output }}'
   alerts_log: '{{ wazuh_manager_alerts_log }}'
   logall: '{{ wazuh_manager_logall }}'

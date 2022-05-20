@@ -1,0 +1,4 @@
+
+{% for api in wazuh_api_users %}
+{"username":"{{ api['username'] }}", "password": "{{ api['password'] }}"}
+{% endfor %}
