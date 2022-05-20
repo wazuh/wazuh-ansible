@@ -45,57 +45,56 @@
     mode: 0644
   run_once: true
 
-- name: Hashing the custom admin password
-  shell: |
-    export JAVA_HOME=/usr/share/wazuh-indexer/jdk
-    {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}
-  register: indexer_admin_password_hashed
-  no_log: '{{ indexer_nolog_sensible | bool }}'
+- block:
+  - name: Hashing the custom admin password
+    shell: |
+      export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}
+    register: indexer_admin_password_hashed
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+  
+  - name: Set the Admin user password
+    replace:
+      path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+      regexp: '(?<=admin:\n  hash: )(.*)(?=)'
+      replace: "{{ indexer_password_hash | quote }}"
+    vars:
+      indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
+  
+  # this can also be achieved with password_hash, but it requires dependencies on the controller
+  - name: Hash the kibanaserver role/user pasword
+    shell: |
+      export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ dashboard_password }}
+    register: indexer_kibanaserver_password_hashed
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+  
+  - name: Set the kibanaserver user password
+    replace:
+      path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+      regexp: '(?<=kibanaserver:\n  hash: )(.*)(?=)'
+      replace: "{{ indexer_password_hash | quote }}"
+    vars:
+      indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
+  
+  - name: Initialize the Opensearch security index in Wazuh indexer
+    command: >
+      sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
+      JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/securityadmin.sh
+      -cd {{ indexer_sec_plugin_conf_path }}/
+      -icl -p 9300 -cd {{ indexer_sec_plugin_conf_path }}/
+      -nhnv
+      -cacert {{ indexer_conf_path }}/certs/root-ca.pem
+      -cert {{ indexer_conf_path }}/certs/admin.pem
+      -key {{ indexer_conf_path }}/certs/admin-key.pem
+      -h {{ target_address }}
+    retries: 2
+    delay: 5
+    register: result
+    until: result.rc == 0
   run_once: true
 
-- name: Set the Admin user password
-  replace:
-    path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
-    regexp: '(?<=admin:\n  hash: )(.*)(?=)'
-    replace: "{{ indexer_password_hash | quote }}"
-  vars:
-    indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
-  run_once: true
-
-# this can also be achieved with password_hash, but it requires dependencies on the controller
-- name: Hash the kibanaserver role/user pasword
-  shell: |
-    export JAVA_HOME=/usr/share/wazuh-indexer/jdk
-    {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ dashboard_password }}
-  register: indexer_kibanaserver_password_hashed
-  no_log: '{{ indexer_nolog_sensible | bool }}'
-  run_once: true
-
-- name: Set the kibanaserver user password
-  replace:
-    path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
-    regexp: '(?<=kibanaserver:\n  hash: )(.*)(?=)'
-    replace: "{{ indexer_password_hash | quote }}"
-  vars:
-    indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
-  run_once: true
-
-- name: Initialize the Opensearch security index in Wazuh indexer
-  command: >
-    sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
-    JAVA_HOME=/usr/share/wazuh-indexer/jdk
-    {{ indexer_sec_plugin_tools_path }}/securityadmin.sh
-    -cd {{ indexer_sec_plugin_conf_path }}/
-    -icl -p 9300 -cd {{ indexer_sec_plugin_conf_path }}/
-    -nhnv
-    -cacert {{ indexer_conf_path }}/certs/root-ca.pem
-    -cert {{ indexer_conf_path }}/certs/admin.pem
-    -key {{ indexer_conf_path }}/certs/admin-key.pem
-    -h {{ target_address }}
-  retries: 2
-  delay: 5
-  register: result
-  until: result.rc == 0
 
 - name: Create custom user
   uri:

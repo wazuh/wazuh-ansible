@@ -1,0 +1,13 @@
+---
+
+single_node: false
+indexer_node_master: true
+minimum_master_nodes: 1
+role: 'indexer'
+
+indexer_network_host: '{{ private_ip }}'
+
+indexer_http_port: 9200
+
+indexer_cluster_nodes: '{{ indexer_addresses }}'
+indexer_discovery_nodes: '{{ indexer_addresses }}'
