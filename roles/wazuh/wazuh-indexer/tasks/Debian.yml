@@ -1,0 +1,38 @@
+
+---
+
+- name: Update cache
+  apt:
+    update_cache: yes
+
+- name: Debian 9 (Stretch)
+  when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
+  block:
+
+    - name: Install Wazuh indexer dependencies
+      apt:
+        name: [
+          'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
+        ]
+        state: present
+
+- name: Add Wazuh indexer repository
+  block:
+    - name: Add apt repository signing key
+      apt_key:
+        url: "{{ wazuh_repo.gpg }}"
+        state: present
+
+    - name: Add Wazuh indexer repository
+      apt_repository:
+        repo: "{{ wazuh_repo.apt }}"
+        state: present
+        filename: 'wazuh-indexer'
+        update_cache: yes
+
+- name: Install Wazuh indexer
+  apt:
+    name: wazuh-indexer={{ indexer_version }}-1
+    state: present
+  register: install
+  tags: install

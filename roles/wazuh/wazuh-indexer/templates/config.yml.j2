@@ -1,0 +1,33 @@
+nodes:
+  # Indexer server nodes
+  indexer:
+{% for (key,value) in instances.items() %}
+{% if (value.role is defined and value.role == 'indexer') %}
+    - name: {{ value.name }}
+      ip: {{ value.ip }}
+{% endif %}
+{% endfor %}
+
+  # Wazuh server nodes
+  # Use node_type only with more than one Wazuh manager
+  server:
+{% for (key,value) in instances.items() %}
+{% if (value.role is defined and value.role == 'wazuh') %}
+    - name: {{ value.name }}
+      ip: {{ value.ip }}
+{% endif %}
+{% if (value.node_type is defined and value.node_type == 'master') %}
+      node_type: master
+{% elif (value.node_type is defined and value.node_type == 'worker') %}
+      node_type: worker
+{% endif %}
+{% endfor %}
+
+  # Dashboard node
+  dashboard:
+{% for (key,value) in instances.items() %}
+{% if (value.role is defined and value.role == 'dashboard') %}
+    - name: {{ value.name }}
+      ip: {{ value.ip }}
+{% endif %}
+{% endfor %}

@@ -1,6 +1,6 @@
 ---
-wazuh_agent_version: 4.2.6-1
 
+wazuh_agent_version: 4.3.1-1
 
 # Custom packages installation
 
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v4.2.6"
+  branch: "v4.3.1"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
@@ -54,17 +54,10 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
-  md5: 14eccab85be5be193f277e2c73532a5d
-wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.2.6-1.msi
-wazuh_winagent_package_name: wazuh-agent-4.2.6-1.msi
+  md5: 337ab33c31e3bc1d688cd903be3691fc
+wazuh_winagent_package_name: wazuh-agent-4.3.1-1.msi
 
 wazuh_dir: "/var/ossec"
-
-wazuh_agent_repo:
-  apt: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
-  yum: 'https://packages.wazuh.com/4.x/yum/'
-  gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-  key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 
 # This is deprecated, see: wazuh_agent_address
 wazuh_agent_nat: false
@@ -105,7 +98,7 @@ wazuh_agent_enrollment:
   agent_name: ''
   groups: ''
   agent_address: ''
-  ssl_cipher: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
+  ssl_ciphers: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
   server_ca_path: ''
   agent_certificate_path: ''
   agent_key_path: ''
@@ -367,7 +360,7 @@ wazuh_agent_log_format: 'plain'
 
 # wazuh_agent_config
 wazuh_agent_config_defaults:
-  repo: '{{ wazuh_agent_repo }}'
+  repo: '{{ wazuh_repo }}'
   active_response: '{{ wazuh_agent_active_response }}'
   log_format: '{{ wazuh_agent_log_format }}'
   client_buffer: '{{ wazuh_agent_client_buffer }}'
