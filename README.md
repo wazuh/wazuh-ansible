@@ -402,7 +402,7 @@ https://github.com/dj-wasabi/ansible-ossec-server
 ## License and copyright
 
 WAZUH
-Copyright (C) 2016-2021 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2016, Wazuh Inc.  (License GPLv2)
 
 ## Web references
 
