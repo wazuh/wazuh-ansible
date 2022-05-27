@@ -1,0 +1,4 @@
+---
+- hosts: managers
+  roles:
+    - role: ../roles/wazuh/ansible-wazuh-manager
