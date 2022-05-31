@@ -104,6 +104,15 @@
     - build_from_sources is defined
     - build_from_sources
 
+- name: Ensuring folder permissions (/usr/share/kibana)
+  file:
+    path: "/usr/share/kibana/"
+    owner: kibana
+    group: kibana
+    mode: 0770
+    state: directory
+    recurse: yes
+
 - name: Install Wazuh Plugin (can take a while)
   shell: >-
     NODE_OPTIONS="{{ node_options }}" /usr/share/kibana/bin/kibana-plugin install

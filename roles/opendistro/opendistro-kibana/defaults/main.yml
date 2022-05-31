@@ -14,7 +14,7 @@ kibana_server_host: "0.0.0.0"
 kibana_server_port: "5601"
 kibana_server_name: "kibana"
 kibana_max_payload_bytes: 1048576
-elastic_stack_version: 7.8.0
+elastic_stack_version: 7.9.2
 wazuh_version: 3.13.4
 wazuh_app_url: https://packages.wazuh.com/wazuhapp/wazuhapp
 
@@ -34,7 +34,7 @@ package_repos:
 # API credentials
 wazuh_api_credentials:
   - id: "default"
-    url: "http://localhost"
+    url: "https://localhost"
     port: 55000
     user: "foo"
     password: "bar"
