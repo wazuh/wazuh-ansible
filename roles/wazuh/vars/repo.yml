@@ -8,4 +8,4 @@ wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.
 certs_gen_tool_version: 4.3
 
 # Url of certificates generator tool
-certs_gen_tool_url: "https://packages.wazuh.com/{{ certs_gen_tool_version }}/wazuh-certs-tool.sh"
+certs_gen_tool_url: "https://packages-dev.wazuh.com/{{ certs_gen_tool_version }}/wazuh-certs-tool-training.sh"
