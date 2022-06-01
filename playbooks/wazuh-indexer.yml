@@ -1,7 +1,6 @@
 ---
 - hosts: wi_cluster
-  become: yes
-  become_user: root
+  become: true
   roles:
     - role: ../roles/wazuh/wazuh-indexer
 
