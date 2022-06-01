@@ -1,5 +1,6 @@
 ---
-- hosts: wi1
+- hosts: dashboard
+  become: true
   roles:
     - role: ../roles/wazuh/wazuh-dashboard
   vars:
