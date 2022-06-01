@@ -17,6 +17,8 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 |---------------|---------|--------|
 | v4.5.0        |         |        |
 | v4.4.0        |         |        |
+| v4.3.3        |         |        |
+| v4.3.2        |         |        |
 | v4.3.1        |         |        |
 | v4.3.0        |         |        |
 | v4.2.6        | 7.10.2  | 1.13.2 |
@@ -405,7 +407,7 @@ https://github.com/dj-wasabi/ansible-ossec-server
 ## License and copyright
 
 WAZUH
-Copyright (C) 2016-2021 Wazuh Inc.  (License GPLv2)
+Copyright (C) 2016, Wazuh Inc.  (License GPLv2)
 
 ## Web references
 
