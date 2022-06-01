@@ -1,0 +1,121 @@
+---
+
+- name: Build Facts
+  hosts: all
+  become: true
+  become_user: root
+  vars:
+    endpoints_hostvars: '{{ managers_hostvars | union(indexer_hostvars) | union(dashboard_hostvars)  }}'
+    wazuh_managers_common:
+      port: 1514
+      protocol: tcp
+      api_port: 55000
+      api_proto: 'http'
+      api_user: ansible
+      max_retries: 5
+      retry_interval: 5
+  pre_tasks:
+    - name: (converge) build instances list dynamically for cert generator consumption
+      set_fact:
+        wazuh_endpoint_list: "{{ wazuh_endpoint_list | default({}) | combine({ instance_hostname: instance_item }) }}"
+      vars:
+        instance_hostname: '{{ item.ansible_facts.hostname }}'
+        instance_item:
+          name: '{{ instance_hostname }}'
+          ip: '{{ item.private_ip }}'
+      loop: '{{ endpoints_hostvars }}'
+      no_log: true
+
+    - name: (converge) build wazuh_managers list dynamically for agents to consume
+      set_fact:
+        wazuh_managers_list: '{{ wazuh_managers_list | default([]) | union([manager_item]) }}'
+      vars:
+        manager_item: '{{ wazuh_managers_common | combine({"address": item})  }}'
+      loop: '{{ manager_addresses }}'
+
+    - name: overview of cert configuration
+      debug:
+        var: wazuh_endpoint_list
+
+- name: Generate certificates prior to converging
+  hosts: molecule_wazuh_indexer_centos7
+  become: true
+  become_user: root
+  roles:
+    - role: ../../roles/wazuh/wazuh-indexer
+      vars:
+        generate_certs: true
+        perform_installation: false
+        instances: 
+          node1:
+            name: wazuh-es01       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.molecule_wazuh_indexer_centos7.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            role: indexer
+          node2:
+            name: wazuh-es02
+            ip: "{{ hostvars.molecule_wazuh_indexer_centos7_2.private_ip }}"
+            role: indexer
+          node3:
+            name: wazuh-mgr01
+            ip: "{{ hostvars.molecule_wazuh_manager_debian9.private_ip }}"
+            role: wazuh
+            node_type: master
+          node4:
+            name: wazuh-mgr02
+            ip: "{{ hostvars.molecule_wazuh_manager_centos7.private_ip }}"
+            role: wazuh
+            node_type: worker
+          node5:
+            name: wazuh-dash01
+            ip: "{{ hostvars.molecule_wazuh_dashboard_centos7.private_ip }}"
+            role: dashboard
+  pre_tasks:
+    - name: overview of cert configuration
+      debug:
+        var: wazuh_endpoint_list
+
+- name: Converge
+  hosts: all
+  become: true
+  become_user: root
+  roles:
+    # 1. Wazuh indexer
+    - role: ../../roles/wazuh/wazuh-indexer
+      when: inventory_hostname in groups['indexer']
+    # 2. Managers
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      when: inventory_hostname in groups['managers']
+    - role: ../../roles/wazuh/ansible-filebeat-oss
+      when: inventory_hostname in groups['managers']
+    # 3. Wazuh dashboard
+    - role: ../../roles/wazuh/wazuh-dashboard
+      when: inventory_hostname in groups['dashboard']
+    # 4. Agents:
+    - role: ../../roles/wazuh/ansible-wazuh-agent
+      vars:
+        wazuh_managers: '{{ wazuh_managers_list }}'
+      when: inventory_hostname in groups['agents']
+  vars:
+    instances: 
+      node1:
+        name: wazuh-es01       # Important: must be equal to indexer_node_name.
+        ip: "{{ hostvars.molecule_wazuh_indexer_centos7.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+        role: indexer
+      node2:
+        name: wazuh-es02
+        ip: "{{ hostvars.molecule_wazuh_indexer_centos7_2.private_ip }}"
+        role: indexer
+      node3:
+        name: wazuh-mgr01
+        ip: "{{ hostvars.molecule_wazuh_manager_debian9.private_ip }}"
+        role: wazuh
+        node_type: master
+      node4:
+        name: wazuh-mgr02
+        ip: "{{ hostvars.molecule_wazuh_manager_centos7.private_ip }}"
+        role: wazuh
+        node_type: worker
+      node5:
+        name: wazuh-dash01
+        ip: "{{ hostvars.molecule_wazuh_dashboard_centos7.private_ip }}"
+        role: dashboard
