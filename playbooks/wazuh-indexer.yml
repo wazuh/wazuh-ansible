@@ -18,4 +18,3 @@
         name: node-3
         ip: "{{ hostvars.wi3.private_ip }}"
         role: indexer
-
