@@ -8,14 +8,14 @@
     instances:           # A certificate will be generated for every node using the name as CN.
       node1:
         name: node-1
-        ip: "172.31.15.14"
+        ip: "{{ hostvars.wi1.private_ip }}"
         role: indexer
-      # node2:
-      #   name: node-2
-      #   ip: "{{ hostvars.wi2.private_ip }}"
-      #   role: indexer
-      # node3:
-      #   name: node-3
-      #   ip: "{{ hostvars.wi3.private_ip }}"
-      #   role: indexer
+      node2:
+        name: node-2
+        ip: "{{ hostvars.wi2.private_ip }}"
+        role: indexer
+      node3:
+        name: node-3
+        ip: "{{ hostvars.wi3.private_ip }}"
+        role: indexer
 
