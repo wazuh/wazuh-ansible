@@ -1,5 +1,6 @@
 ---
 - hosts: wi_cluster
+  become: true
   roles:
     - role: ../roles/wazuh/wazuh-indexer
 
@@ -7,7 +8,7 @@
     instances:           # A certificate will be generated for every node using the name as CN.
       node1:
         name: node-1
-        ip: "172.31.2.75"
+        ip: "172.31.13.129"
         role: indexer
       # node2:
       #   name: node-2
