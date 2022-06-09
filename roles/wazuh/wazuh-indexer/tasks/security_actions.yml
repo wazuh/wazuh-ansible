@@ -49,7 +49,7 @@
   - name: Hashing the custom admin password
     shell: |
       export JAVA_HOME=/usr/share/wazuh-indexer/jdk
-      {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ indexer_admin_password }}
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ indexer_admin_password }}'
     register: indexer_admin_password_hashed
     no_log: '{{ indexer_nolog_sensible | bool }}'
   
@@ -65,7 +65,7 @@
   - name: Hash the kibanaserver role/user pasword
     shell: |
       export JAVA_HOME=/usr/share/wazuh-indexer/jdk
-      {{ indexer_sec_plugin_tools_path }}/hash.sh -p {{ dashboard_password }}
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ dashboard_password }}'
     register: indexer_kibanaserver_password_hashed
     no_log: '{{ indexer_nolog_sensible | bool }}'
   
