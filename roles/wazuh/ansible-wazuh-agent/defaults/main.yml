@@ -308,6 +308,8 @@ wazuh_agent_localfiles:
       location: '/var/log/dpkg.log'
     - format: 'syslog'
       location: '/var/log/kern.log'
+    - format: 'syslog'
+      location: '/var/log/messages'
   centos:
     - format: 'syslog'
       location: '/var/log/messages'
