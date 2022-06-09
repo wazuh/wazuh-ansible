@@ -174,7 +174,6 @@ wazuh_manager_sca:
 wazuh_manager_vulnerability_detector:
   enabled: 'no'
   interval: '5m'
-  ignore_time: '6h'
   run_on_start: 'yes'
   providers:
     - enabled: 'no'
