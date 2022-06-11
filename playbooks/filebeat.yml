@@ -1,5 +1,6 @@
 ---
 - hosts: filebeat
-  become: true
   roles:
     - role: ../roles/wazuh/ansible-filebeat-oss
+  become: true
+  become_user: root

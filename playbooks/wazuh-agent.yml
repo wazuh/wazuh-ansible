@@ -1,16 +1,24 @@
+# ---
+# - hosts: agents
+#   become: yes
+#   become_user: root
+#   roles:
+#     - ../roles/wazuh/ansible-wazuh-agent
+#   vars:
+#     wazuh_managers:
+#       - address: "{{ manager_ip }}"
+#         port: 1514
+#         protocol: tcp
+#         api_port: 55000
+#         api_proto: 'http'
+#         api_user: ansible
+#         max_retries: 5
+#         retry_interval: 5
+
 ---
 - hosts: agents
+  strategy: free
   become: yes
   become_user: root
   roles:
     - ../roles/wazuh/ansible-wazuh-agent
-  vars:
-    wazuh_managers:
-      - address: "{{ manager_ip }}"
-        port: 1514
-        protocol: tcp
-        api_port: 55000
-        api_proto: 'http'
-        api_user: ansible
-        max_retries: 5
-        retry_interval: 5

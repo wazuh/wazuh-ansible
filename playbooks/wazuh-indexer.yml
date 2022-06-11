@@ -1,20 +1,44 @@
----
-- hosts: wi_cluster
-  become: true
-  roles:
-    - role: ../roles/wazuh/wazuh-indexer
+# ---
+# - hosts: wi_cluster
+#   become: true
+#   roles:
+#     - role: ../roles/wazuh/wazuh-indexer
 
-  vars:
-    instances:           # A certificate will be generated for every node using the name as CN.
-      node1:
-        name: node-1
-        ip: "{{ hostvars.wi1.private_ip }}"
-        role: indexer
-      node2:
-        name: node-2
-        ip: "{{ hostvars.wi2.private_ip }}"
-        role: indexer
-      node3:
-        name: node-3
-        ip: "{{ hostvars.wi3.private_ip }}"
-        role: indexer
+#   vars:
+#     instances:           # A certificate will be generated for every node using the name as CN.
+#       node1:
+#         name: node-1
+#         ip: "{{ hostvars.wi1.private_ip }}"
+#         role: indexer
+#       node2:
+#         name: node-2
+#         ip: "{{ hostvars.wi2.private_ip }}"
+#         role: indexer
+#       node3:
+#         name: node-3
+#         ip: "{{ hostvars.wi3.private_ip }}"
+#         role: indexer
+
+---
+# Certificates generation
+    - hosts: wi1
+      roles:
+        - role: ../../roles/wazuh/wazuh-indexer
+          indexer_network_host: "{{ private_ip }}"
+          perform_installation: false
+      become: true
+      vars:
+        indexer_node_master: true
+      tags:
+        - generate-certs
+
+# Wazuh indexer cluster
+    - hosts: wi_cluster
+      strategy: free
+      roles:
+        - role: ../../roles/wazuh/wazuh-indexer
+          indexer_network_host: "{{ private_ip }}"
+      become: true
+      become_user: root
+      vars:
+        indexer_node_master: true

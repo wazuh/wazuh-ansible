@@ -1,7 +1,27 @@
+# ---
+# - hosts: dashboard
+#   become: true
+#   roles:
+#     - role: ../roles/wazuh/wazuh-dashboard
+#   vars:
+#     ansible_shell_allow_world_readable_temp: true
 ---
 - hosts: dashboard
-  become: true
   roles:
-    - role: ../roles/wazuh/wazuh-dashboard
+    - role: "../../roles/wazuh/wazuh-indexer"
+    - role: "../../roles/wazuh/wazuh-dashboard"
+  become: true
+  become_user: root
   vars:
+    indexer_network_host: "{{ hostvars.dashboard.private_ip }}"
+    indexer_node_master: false
+    indexer_node_ingest: false
+    indexer_node_data: false
+    indexer_cluster_nodes: "{{ indexer_discovery_nodes }}"
     ansible_shell_allow_world_readable_temp: true
+    wazuh_api_credentials:
+      - id: default
+        url: https://{{ hostvars.master.private_ip }}
+        port: 55000
+        username: wazuh
+        password: wazuh

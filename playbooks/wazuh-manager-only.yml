@@ -1,5 +1,6 @@
 ---
 - hosts: managers
-  become: true
   roles:
     - role: ../roles/wazuh/ansible-wazuh-manager
+  become: true
+  become_user: root
