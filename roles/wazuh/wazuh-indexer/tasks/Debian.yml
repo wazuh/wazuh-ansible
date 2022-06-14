@@ -4,6 +4,10 @@
 - name: Update cache
   apt:
     update_cache: yes
+    register: update_result
+    until: update_result is success
+    retries: 3
+    delay: 10
 
 - name: Debian 9 (Stretch)
   when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
