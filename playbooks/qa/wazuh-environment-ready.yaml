@@ -1,0 +1,65 @@
+---
+# Certificates generation
+    - hosts: wi1
+      roles:
+        - role: ../../roles/wazuh/wazuh-indexer
+          indexer_network_host: "{{ private_ip }}"
+          perform_installation: false
+      become: true
+      become_user: root
+      vars:
+        indexer_node_master: true
+      tags:
+        - generate-certs
+
+# Wazuh indexer cluster
+    - hosts: wi_cluster
+      strategy: linear
+      roles:
+        - role: ../../roles/wazuh/wazuh-indexer
+          indexer_network_host: "{{ private_ip }}"
+      become: true
+      become_user: root
+      vars:
+        indexer_node_master: true
+
+    - hosts: manager
+      roles:
+        - role: "../../roles/wazuh/ansible-wazuh-manager"
+      become: true
+      become_user: root
+
+    - hosts: filebeat
+      roles:
+        - role: "../../roles/wazuh/ansible-filebeat-oss"
+      become: true
+      become_user: root
+
+# Indexer + dashboard node
+    - hosts: dashboard
+      roles:
+        - role: "../../roles/wazuh/wazuh-indexer"
+        - role: "../../roles/wazuh/wazuh-dashboard"
+      become: true
+      become_user: root
+      vars:
+        indexer_network_host: "{{ hostvars.dashboard.private_ip }}"
+        indexer_node_master: false
+        indexer_node_ingest: false
+        indexer_node_data: false
+        indexer_cluster_nodes: "{{ indexer_discovery_nodes }}"
+        ansible_shell_allow_world_readable_temp: true
+        wazuh_api_credentials:
+          - id: default
+            url: https://{{ hostvars.master.private_ip }}
+            port: 55000
+            username: wazuh
+            password: wazuh
+
+  # Agent
+    - hosts: agent
+      strategy: free
+      become: yes
+      become_user: root
+      roles:
+        - ../../roles/wazuh/ansible-wazuh-agent
