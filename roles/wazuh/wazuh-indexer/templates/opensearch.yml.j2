@@ -57,3 +57,7 @@ plugins.security.system_indices.indices: [".opendistro-alerting-config", ".opend
 
 ### Option to allow Filebeat-oss 7.10.2 to work ###
 compatibility.override_main_response_version: true
+
+plugins.security.ssl.http.enabled_protocols:
+  - "TLSv1.1"
+  - "TLSv1.2"
