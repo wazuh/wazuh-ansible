@@ -27,20 +27,11 @@
       - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
         (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
 
-# Solaris
-  - name: Create noask file
-    lineinfile:
-      path: "/export/home/vagrant/noaskfile"
-      line: action=nocheck
-      create: yes
-    when: ansible_os_family == "Solaris"
+# MacOS
 
-
-  - name: Install solaris wazuh agent custom package
+  - name: Install MacOS agent from pkg | custom macos pkg
     become: true
-    shell: pkgadd -a noaskfile -d wazuh-* -n all
-    environment:
-      PATH: "/opt/python3/bin/:/usr/sbin:/usr/bin:/usr/sbin/:/opt/csw/gnu/:/usr/sfw/bin/:/opt/csw/bin/"
+    shell: installer -pkg wazuh-* -target /
     args:
-      chdir: "/export/home/vagrant"
-    when: ansible_os_family == 'Solaris'
+      chdir: /Users/vagrant
+    when: ansible_os_family == "Darwin"
