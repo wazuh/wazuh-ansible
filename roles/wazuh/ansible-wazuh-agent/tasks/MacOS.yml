@@ -1,0 +1,8 @@
+- name: Download agent package
+  get_url:
+    url: "{{ macos_agent_pkg }}"
+    dest: /Users/vagrant/wazuh-agent-4.4.0-08.06.ubuntu22.vdt.pkg
+    validate_certs: no
+
+- include_tasks: "installation_from_custom_packages.yml"
+  when: wazuh_custom_packages_installation_agent_enabled

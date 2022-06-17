@@ -44,3 +44,11 @@
     args:
       chdir: "/export/home/vagrant"
     when: ansible_os_family == 'Solaris'
+
+# MacOS
+  - name: Install MacOS agent from pkg | custom macos pkg
+    become: true
+    shell: installer -pkg wazuh-* -target /
+    args:
+      chdir: /Users/vagrant
+    when: ansible_os_family == "Darwin"
