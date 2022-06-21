@@ -35,3 +35,11 @@
     args:
       chdir: /Users/vagrant
     when: ansible_os_family == "Darwin"
+
+# Windows
+  - name: Install Wazuh Agent from .msi packages | custom win_package
+    win_package:
+      path: "{{ wazuh_custom_packages_installation_agent_msi_url }}"
+      state: present
+    when:
+      - ansible_os_family == "Windows"
