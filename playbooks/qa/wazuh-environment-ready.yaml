@@ -6,6 +6,7 @@
           indexer_network_host: "{{ private_ip }}"
           perform_installation: false
       become: true
+      become_user: root
       vars:
         indexer_node_master: true
       tags:
@@ -13,7 +14,7 @@
 
 # Wazuh indexer cluster
     - hosts: wi_cluster
-      strategy: free
+      strategy: linear
       roles:
         - role: ../../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
@@ -21,7 +22,6 @@
       become_user: root
       vars:
         indexer_node_master: true
-
 
     - hosts: manager
       roles:
