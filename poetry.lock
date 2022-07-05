@@ -173,8 +173,6 @@ description = "Composable command line interface toolkit"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
-optional = false
-python-versions = ">=3.5.0"
 
 [package.extras]
 unicode_backport = ["unicodedata2"]
