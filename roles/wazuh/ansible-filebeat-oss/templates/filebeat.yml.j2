@@ -35,8 +35,8 @@ output.elasticsearch:
 logging.metrics.enabled: false
 
 seccomp:
-default_action: allow
-syscalls:
-- action: allow
-  names:
-  - rseq
+  default_action: allow
+  syscalls:
+  - action: allow
+    names:
+    - rseq
