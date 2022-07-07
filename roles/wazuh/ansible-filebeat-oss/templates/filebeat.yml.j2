@@ -33,3 +33,10 @@ output.elasticsearch:
 #output.logstash.hosts: ["YOUR_LOGSTASH_SERVER_IP:5000"]
 
 logging.metrics.enabled: false
+
+seccomp:
+  default_action: allow
+  syscalls:
+  - action: allow
+    names:
+    - rseq
