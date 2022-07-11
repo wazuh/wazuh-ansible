@@ -1,0 +1,8 @@
+- name: Download agent package
+  get_url:
+    url: "{{ solaris_agent_pkg }}"
+    dest: /export/home/vagrant
+    validate_certs: no
+
+- include_tasks: "installation_from_custom_packages.yml"
+  when: wazuh_custom_packages_installation_agent_enabled
