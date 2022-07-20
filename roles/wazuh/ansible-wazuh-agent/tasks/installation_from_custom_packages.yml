@@ -27,6 +27,15 @@
       - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
         (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
 
+# MacOS
+
+  - name: Install MacOS agent from pkg | custom macos pkg
+    become: true
+    shell: installer -pkg wazuh-* -target /
+    args:
+      chdir: /Users/vagrant
+    when: ansible_os_family == "Darwin"
+
 # Solaris
   - name: Create noask file
     lineinfile:
@@ -51,4 +60,3 @@
       state: present
     when:
       - ansible_os_family == "Windows"
-      - wazuh_custom_packages_installation_agent_enabled
