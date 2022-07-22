@@ -30,10 +30,10 @@ indexer_node_name: '{{ ansible_facts.hostname }}'
 dashboard_node_name: '{{ ansible_facts.hostname }}'
 filebeat_node_name: '{{ ansible_facts.hostname }}'
 
-indexer_version: 4.3.6
+indexer_version: 4.5.0
 filebeat_version: 7.10.2
-wazuh_version: 4.3.6
+wazuh_version: 4.5.0
 
-# Debian packages need the ${VERSION}-1
-wazuh_manager_version: 4.3.6
-wazuh_agent_version: 4.3.6
+# Debian packages need the ${VERSION}
+wazuh_manager_version: 4.5.0
+wazuh_agent_version: 4.5.0
