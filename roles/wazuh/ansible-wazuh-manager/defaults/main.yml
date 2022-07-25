@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.5.0-1
+wazuh_manager_version: 4.5.0
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -173,7 +173,6 @@ wazuh_manager_sca:
 wazuh_manager_vulnerability_detector:
   enabled: 'no'
   interval: '5m'
-  ignore_time: '6h'
   run_on_start: 'yes'
   providers:
     - enabled: 'no'
