@@ -10,8 +10,7 @@
       gpgkey: "{{ wazuh_repo.gpg }}"
       gpgcheck: true
     changed_when: false
-
-
+    when: not wazuh_custom_packages_installation_indexer_enabled
 
   - name: Amazon Linux | Install Amazon extras
     block:
@@ -49,6 +48,10 @@
       state: present
     register: install
     tags: install
+    when: not wazuh_custom_packages_installation_indexer_enabled
 
   tags:
   - install
+
+- include_tasks: "install_from_custom_package.yml"
+  when: wazuh_custom_packages_installation_indexer_enabled

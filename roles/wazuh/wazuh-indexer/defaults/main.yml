@@ -1,4 +1,9 @@
 ---
+# Custom package installation
+wazuh_custom_packages_installation_indexer_enabled: false
+wazuh_custom_packages_installation_indexer_deb_url: ""
+wazuh_custom_packages_installation_indexer_rpm_url: ""
+
 # Cluster Settings
 indexer_version: 4.3.7
 
