@@ -1,5 +1,10 @@
 ---
 
+# Custom package installation
+wazuh_custom_packages_installation_indexer_enabled: false
+wazuh_custom_packages_installation_indexer_deb_url: ""
+wazuh_custom_packages_installation_indexer_rpm_url: ""
+
 # Dashboard configuration
 indexer_http_port: 9200
 indexer_api_protocol: https

@@ -22,3 +22,8 @@
 
   tags:
     - install
+  when: not wazuh_custom_packages_installation_dashboard_enabled
+
+- include_tasks: "install_from_custom_package.yml"
+  when:
+    - wazuh_custom_packages_installation_dashboard_enabled
