@@ -1,6 +1,6 @@
 - name: Download agent package
   get_url:
-    url: "{{ solaris_agent_pkg }}"
+    url: "{{ wazuh_custom_packages_installation_agent_solaris_url }}"
     dest: /export/home/vagrant
     validate_certs: no
 
