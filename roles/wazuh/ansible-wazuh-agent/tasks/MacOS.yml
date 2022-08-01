@@ -1,6 +1,6 @@
 - name: Download agent package
   get_url:
-    url: "{{ macos_agent_pkg }}"
+    url: "{{ wazuh_custom_packages_installation_agent_macos_url }}"
     dest: /Users/vagrant
     validate_certs: no
 
