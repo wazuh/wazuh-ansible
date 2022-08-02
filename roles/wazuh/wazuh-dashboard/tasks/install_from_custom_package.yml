@@ -1,0 +1,32 @@
+---
+  - block:
+      - name: Install Wazuh Dashboard from .deb packages
+        apt:
+          deb: "{{ wazuh_custom_packages_installation_dashboard_deb_url }}"
+          state: present
+        when:
+          - wazuh_custom_packages_installation_dashboard_enabled
+    when:
+      - ansible_os_family|lower == "debian"
+
+  - block:
+    - name: Install Wazuh Dashboard from .rpm packages | yum
+      yum:
+        name: "{{ wazuh_custom_packages_installation_dashboard_rpm_url }}"
+        state: present
+      when:
+        - wazuh_custom_packages_installation_dashboard_enabled
+        - not (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8")
+        - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
+
+    - name: Install Wazuh Dashboard from .rpm packages | dnf
+      dnf:
+        name: "{{ wazuh_custom_packages_installation_dashboard_rpm_url }}"
+        state: present
+        disable_gpg_check: True
+      when:
+        - wazuh_custom_packages_installation_dashboard_enabled
+        - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
+          (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
+    when:
+      - ansible_os_family|lower == "redhat"
