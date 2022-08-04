@@ -18,6 +18,7 @@
         yum:
           name: amazon-linux-extras
           state: present
+          lock_timeout: 180
 
       - name: Configure vm.max_map_count
         lineinfile:
