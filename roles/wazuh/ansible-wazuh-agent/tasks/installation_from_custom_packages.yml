@@ -54,9 +54,16 @@
     when: ansible_os_family == 'Solaris'
 
 # Windows
+  - name: Donwload Windows agent msi
+    win_get_url:
+      url: "{{ wazuh_custom_packages_installation_agent_msi_url }}"
+      dest: "{{wazuh_winagent_config.download_dir}}{{wazuh_winagent_package_name_generic}}"
+    when:
+      - ansible_os_family == "Windows"
+
   - name: Install Wazuh Agent from .msi packages | custom win_package
     win_package:
-      path: "{{ wazuh_custom_packages_installation_agent_msi_url }}"
+      path: "{{wazuh_winagent_config.download_dir}}{{wazuh_winagent_package_name_generic}}"
       state: present
     when:
       - ansible_os_family == "Windows"
