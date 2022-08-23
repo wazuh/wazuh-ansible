@@ -135,6 +135,7 @@
   args:
     executable: /bin/bash
     creates: /usr/share/kibana/optimize/wazuh/
+    chdir: /home/
   become: yes
   become_user: kibana
   tags:
