@@ -23,6 +23,7 @@
       dnf:
         name: "{{ wazuh_custom_packages_installation_manager_rpm_url }}"
         state: present
+        disable_gpg_check: True
       when:
         - wazuh_custom_packages_installation_manager_enabled
         - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
