@@ -27,3 +27,6 @@
 
 - include_tasks: "MacOS.yml"
   when: ansible_system == "Darwin"
+
+- include_tasks: "Solaris.yml"
+  when: ansible_os_family == "Solaris"

@@ -69,4 +69,3 @@
       state: present
     when:
       - ansible_os_family == "Windows"
-      - wazuh_custom_packages_installation_agent_enabled

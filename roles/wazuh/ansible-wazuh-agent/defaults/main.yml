@@ -56,9 +56,6 @@ wazuh_winagent_config:
   check_md5: True
   md5: d7c1d0fecff396094dd1d3b54e6c4d2b
 
-wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.3.7-1.msi
-wazuh_winagent_package_name: wazuh-agent-4.3.7-1.msi
-wazuh_winagent_package_name_generic: wazuh-agent.msi
 wazuh_dir: "/var/ossec"
 
 # This is deprecated, see: wazuh_agent_address
