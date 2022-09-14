@@ -1,4 +1,9 @@
 ---
+# Custom package installation
+wazuh_custom_packages_installation_indexer_enabled: false
+wazuh_custom_packages_installation_indexer_deb_url: ""
+wazuh_custom_packages_installation_indexer_rpm_url: ""
+
 # Cluster Settings
 indexer_version: 4.4.0
 
@@ -26,7 +31,7 @@ minimum_master_nodes: 2
 # Example es1.example.com, es2.example.com
 domain_name: wazuh.com
 
-indexer_sec_plugin_conf_path: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig
+indexer_sec_plugin_conf_path: /etc/wazuh-indexer/opensearch-security
 indexer_sec_plugin_tools_path: /usr/share/wazuh-indexer/plugins/opensearch-security/tools
 indexer_conf_path: /etc/wazuh-indexer/
 indexer_index_path: /var/lib/wazuh-indexer/
