@@ -1,6 +1,6 @@
 ---
 
-wazuh_agent_version: 4.3.8
+wazuh_agent_version: 4.4.0
 
 # Custom packages installation
 
@@ -12,7 +12,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v4.3.8"
+  branch: "v4.4.0"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
@@ -54,7 +54,7 @@ wazuh_winagent_config:
   # Adding quotes to auth_path_x86 since win_shell outputs error otherwise
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_md5: True
-  md5: d7c1d0fecff396094dd1d3b54e6c4d2b
+  md5: 8ffa75d13280f1aa6ffca54f4273df4d
 
 wazuh_dir: "/var/ossec"
 
