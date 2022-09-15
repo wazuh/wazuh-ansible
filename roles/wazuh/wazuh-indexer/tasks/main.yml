@@ -4,10 +4,10 @@
   register: wazuh_latest_release
 
 - include_vars: ../../vars/repo.yml
-  when: "{{ wazuh_latest_release.stdout is version(indexer_version, operator='ge') }}"
+  when: "wazuh_latest_release.stdout is version(indexer_version, operator='ge')"
 
 - include_vars: ../../vars/repo_dev.yml
-  when: "{{ wazuh_latest_release.stdout is version(indexer_version, operator='lt') }}"
+  when: "wazuh_latest_release.stdout is version(indexer_version, operator='lt')"
 
 - import_tasks: local_actions.yml
   when:
