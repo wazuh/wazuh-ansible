@@ -11,7 +11,14 @@
       gpgcheck: true
     changed_when: false
 
+- name: AlmaLinux 9
+  when: (ansible_facts['distribution'] == "AlmaLinux" and ansible_facts['distribution_major_version'] == "9")
+  block:
 
+  - name: Install Wazuh indexer dependencies
+    yum:
+      name: 'chkconfig'
+      state: present
 
   - name: Amazon Linux | Install Amazon extras
     block:
