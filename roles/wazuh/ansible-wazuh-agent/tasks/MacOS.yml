@@ -1,0 +1,8 @@
+- name: Download agent package
+  get_url:
+    url: "{{ wazuh_custom_packages_installation_agent_macos_url }}"
+    dest: /Users/vagrant
+    validate_certs: no
+
+- include_tasks: "installation_from_custom_packages.yml"
+  when: wazuh_custom_packages_installation_agent_enabled

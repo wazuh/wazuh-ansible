@@ -29,6 +29,7 @@
     dest: "{{ wazuh_winagent_config.download_dir }}"
   when:
     - not wazuh_package_downloaded.stat.exists
+    - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Windows | Verify the Wazuh Agent installer
   win_stat:
@@ -40,12 +41,14 @@
     - wazuh_agent_status.stat.checksum != wazuh_winagent_config.md5
   when:
     - wazuh_winagent_config.check_md5
+    - not wazuh_custom_packages_installation_agent_enabled
 
 
 - name: Windows | Install Agent if not already installed
   win_package:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
     state: present
+  when: not wazuh_custom_packages_installation_agent_enabled
 
 - name: Windows | Check if client.keys exists
   win_stat:
@@ -95,3 +98,7 @@
   win_file:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
     state: absent
+
+- include_tasks: "installation_from_custom_packages.yml"
+  when:
+    - wazuh_custom_packages_installation_agent_enabled

@@ -27,3 +27,44 @@
       - wazuh_custom_packages_installation_agent_enabled
       - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
         (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
+
+# MacOS
+
+  - name: Install MacOS agent from pkg | custom macos pkg
+    become: true
+    shell: installer -pkg wazuh-* -target /
+    args:
+      chdir: /Users/vagrant
+    when: ansible_os_family == "Darwin"
+
+# Solaris
+  - name: Create noask file
+    lineinfile:
+      path: "/export/home/vagrant/noaskfile"
+      line: action=nocheck
+      create: yes
+    when: ansible_os_family == "Solaris"
+
+  - name: Install solaris wazuh agent custom package
+    become: true
+    shell: pkgadd -a noaskfile -d wazuh-* -n all
+    environment:
+      PATH: "/opt/python3/bin/:/usr/sbin:/usr/bin:/usr/sbin/:/opt/csw/gnu/:/usr/sfw/bin/:/opt/csw/bin/"
+    args:
+      chdir: "/export/home/vagrant"
+    when: ansible_os_family == 'Solaris'
+
+# Windows
+  - name: Donwload Windows agent msi
+    win_get_url:
+      url: "{{ wazuh_custom_packages_installation_agent_msi_url }}"
+      dest: "{{wazuh_winagent_config.download_dir}}{{wazuh_winagent_package_name_generic}}"
+    when:
+      - ansible_os_family == "Windows"
+
+  - name: Install Wazuh Agent from .msi packages | custom win_package
+    win_package:
+      path: "{{wazuh_winagent_config.download_dir}}{{wazuh_winagent_package_name_generic}}"
+      state: present
+    when:
+      - ansible_os_family == "Windows"
