@@ -1,0 +1,25 @@
+---
+- name: Limit wazuh-agent with cgroup
+  ansible.builtin.command: "systemctl set-property wazuh-agent.service CPUQuota=20% MemoryHigh=15% MemoryMax=25%"
+  changed_when: false
+  register: recent_systemd_cmd_result
+  ignore_errors: true
+  become: true
+  tags:
+    - init
+
+- name: Configure cgroup for legacy systemd
+  block:
+  - name: Calculate 25% total max memory of the legacy host
+    ansible.builtin.set_fact:
+      max_memory_legacy_systemd: "{{ (ansible_facts['memtotal_mb'] | float * 0.25) | round(0, 'floor') | int }}"
+    changed_when: false
+
+  - name: Limit wazuh-agent with cgroup for legacy systemd
+    ansible.builtin.command: "systemctl set-property wazuh-agent.service CPUQuota=20% MemoryLimit={{ max_memory_legacy_systemd }}M"
+    notify: restart wazuh-agent
+    changed_when: false
+  become: true
+  tags:
+    - init
+  when: recent_systemd_cmd_result.rc != 0

@@ -1,16 +1,29 @@
 ---
-- hosts: <your wazuh agents hosts>
-  become: yes
-  become_user: root
+- hosts: "{{ ansible_play_hosts }}"
+  become: true
   roles:
-    - ../roles/wazuh/ansible-wazuh-agent
+    - joom.common.wazuh.wazuh_agent
   vars:
     wazuh_managers:
-      - address: <your manager IP>
+      - address: 'wazuh-cluster.joomsec.io'
         port: 1514
-        protocol: tcp
-        api_port: 55000
-        api_proto: 'http'
-        api_user: ansible
+        protocol: 'tcp'
         max_retries: 5
         retry_interval: 5
+
+    wazuh_agent_enrollment:
+      enabled: 'yes'
+      manager_address: 'wazuh-cluster.joomsec.io'
+      port: 1515
+      agent_name: ''
+      groups: ''
+      agent_address: ''
+      ssl_ciphers: HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH
+      server_ca_path: '/var/ossec/etc/rootCA.pem'
+      agent_certificate_path: ''
+      agent_key_path: ''
+      authorization_pass_path: "{{ wazuh_dir }}/etc/authd.pass"
+      auto_method: 'yes'
+      delay_after_enrollment: 20
+      use_source_ip: 'no'
+    install_root_cert: true

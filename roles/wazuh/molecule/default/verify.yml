@@ -1,0 +1,25 @@
+---
+
+- name: Verify
+  hosts: wazuh-master
+  become: true
+  tasks:
+    - name: Get status of the cluster
+      ansible.builtin.command:
+        cmd: "/var/ossec/bin/cluster_control -l"
+      register: cluster_control_output
+
+    - name: Assert that wazuh cluster is working
+      ansible.builtin.assert:
+        that:
+          - "{{ cluster_control_output.stdout_lines|length }} >= 3"
+
+    - name: Get status of the agent
+      ansible.builtin.command:
+        cmd: "/var/ossec/bin/agent_control -i 001"
+      register: agent_control_output
+
+    - name: Assert that wazuh agent is registered on the cluster
+      ansible.builtin.assert:
+        that:
+          - "{{ groups['wazuh-agent'][0] in agent_control_output.stdout }}"

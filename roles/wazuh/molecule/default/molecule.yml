@@ -1,0 +1,58 @@
+---
+dependency:
+  name: shell
+  command: ansible-galaxy collection install -r ../../../../../requirements.yml --force && pip install --upgrade -r ../../../../pip-requirements.txt
+
+scenario:
+  name: default
+  test_sequence:
+    - dependency
+    - lint
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - destroy
+
+driver:
+  name: delegated
+  tf_base_dir: ${MOLECULE_SCENARIO_DIRECTORY}/../../../../../../collections/ansible_collections/joom/common/molecule/resources/terraform
+  tf_ec2_stack: ec2_terraform
+  tf_vault_stack: vault_terraform
+  tf_workspace: collection-intg-test-${BUILD_NUMBER:-$USER}-wazuh-default
+  tf_instance_count: 3
+  tf_instance_type: t3.small
+
+# lint: |
+#         yamllint .
+#         ansible-lint
+#         flake8
+platforms:
+  - name: collection-intg-test-${BUILD_NUMBER:-$USER}-wazuh-default-0.joom.d
+    groups:
+      - wazuh-master
+  - name: collection-intg-test-${BUILD_NUMBER:-$USER}-wazuh-default-1.joom.d
+    groups:
+      - wazuh-worker
+  - name: collection-intg-test-${BUILD_NUMBER:-$USER}-wazuh-default-2.joom.d
+    groups:
+      - wazuh-agent
+
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      verbosity: 0
+  inventory:
+    links:
+      group_vars: ../inventory/group_vars/
+  playbooks:
+    prepare: ../resources/prepare.yml
+    create: ../../../../../../collections/ansible_collections/joom/common/molecule/resources/create.yml
+    destroy: ../../../../../../collections/ansible_collections/joom/common/molecule/resources/destroy.yml
+
+verifier:
+  name: ansible

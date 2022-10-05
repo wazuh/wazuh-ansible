@@ -1,0 +1,106 @@
+---
+- name: Converge master
+  hosts: wazuh-master
+  become: true
+  roles:
+    - name: wazuh_manager
+  vars:
+    wazuh_manager_connection:
+      - type: 'secure'
+        port: '1514'
+        protocol: 'tcp'
+
+    wazuh_manager_cluster:
+      disable: "no"
+      name: "wazuh"
+      node_name: "{{ inventory_hostname_short }}"
+      node_type: "master"
+      key: "{{ cluster_key }}"
+      port: "1516"
+      bind_addr: '0.0.0.0'
+      nodes: "{{ groups['wazuh-master'] }}"
+      hidden: "no"
+
+    wazuh_api_users:
+      - username: "{{ username }}"
+        password: "{{ password }}"
+
+    wazuh_manager_vulnerability_detector:
+      enabled: 'yes'
+      interval: '3h'
+      run_on_start: 'no'
+      min_full_scan_interval: '6h'
+      providers:
+        - enabled: 'yes'
+          os:
+            - 'trusty'
+            - 'xenial'
+            - 'bionic'
+          update_interval: '3h'
+          name: '"canonical"'
+        - enabled: 'yes'
+          os:
+            - 'wheezy'
+            - 'stretch'
+            - 'jessie'
+            - 'buster'
+          update_interval: '3h'
+          name: '"debian"'
+
+- name: Converge worker
+  hosts: wazuh-worker
+  become: true
+  roles:
+    - name: wazuh_manager
+  vars:
+    wazuh_manager_connection:
+      - type: 'secure'
+        port: '1514'
+        protocol: 'tcp'
+
+    wazuh_manager_cluster:
+      disable: "no"
+      name: "wazuh"
+      node_name: "{{ inventory_hostname_short }}"
+      node_type: "worker"
+      key: "{{ cluster_key }}"
+      port: "1516"
+      bind_addr: '0.0.0.0'
+      nodes: "{{ groups['wazuh-master'] }}"
+      hidden: "no"
+
+    wazuh_manager_vulnerability_detector:
+      enabled: 'yes'
+      interval: '3h'
+      run_on_start: 'no'
+      min_full_scan_interval: '6h'
+      providers:
+        - enabled: 'yes'
+          os:
+            - 'trusty'
+            - 'xenial'
+            - 'bionic'
+          update_interval: '3h'
+          name: '"canonical"'
+        - enabled: 'yes'
+          os:
+            - 'wheezy'
+            - 'stretch'
+            - 'jessie'
+            - 'buster'
+          update_interval: '3h'
+          name: '"debian"'
+
+- name: Converge agent
+  hosts: wazuh-agent
+  become: true
+  roles:
+    - wazuh_agent
+  vars:
+    wazuh_managers:
+      - address: "{{ groups['wazuh-master'][0] }}"
+        port: 1514
+        protocol: tcp
+        max_retries: 5
+        retry_interval: 5
+    install_root_cert: true

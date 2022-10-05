@@ -1,9 +1,112 @@
 ---
-- hosts: managers
+
+- hosts: localhost
+  tasks:
+    - ansible.builtin.set_fact:
+        wazuh_secrets: "{{ lookup('hashi_vault', 'secret=kv/data/wazuh') }}"
+    - ansible.builtin.set_fact:
+        wazuh_cluster_key: "{{ wazuh_secrets['data']['cluster_key'] }}"
+        wazuh_username: "{{ wazuh_secrets['data']['username'] }}"
+        wazuh_password: "{{ wazuh_secrets['data']['password'] }}"
+
+- hosts: tag_Name_wazuh_master_1a
+  become: true
   roles:
-    - role: ../roles/wazuh/ansible-wazuh-manager
-    - role: ../roles/wazuh/ansible-filebeat-oss
-      filebeat_output_indexer_hosts:
-      - "<indexer-node-1>:9200"
-      - "<indexer-node-2>:9200"
-      - "<indexer-node-2>:9200"
+    - name: joom.common.wazuh.wazuh_manager
+  vars:
+    wazuh_manager_connection:
+      - type: 'secure'
+        port: '1514'
+        protocol: 'tcp'
+
+    wazuh_manager_cluster:
+      disable: "no"
+      name: "wazuh"
+      node_name: "{{ inventory_hostname_short }}"
+      node_type: "master"
+      key: "{{ hostvars['localhost']['wazuh_cluster_key'] }}"
+      port: "1516"
+      bind_addr: '0.0.0.0'
+      nodes: "{{ groups['tag_Name_wazuh_master_1a'] }}"
+      hidden: "no"
+
+    wazuh_api_users:
+      - username: "{{ hostvars['localhost']['wazuh_username'] }}"
+        password: "{{ hostvars['localhost']['wazuh_password'] }}"
+
+    wazuh_manager_vulnerability_detector:
+      enabled: 'yes'
+      interval: '1h'
+      run_on_start: 'yes'
+      min_full_scan_interval: '12h'
+      providers:
+        - enabled: 'yes'
+          os:
+            - 'trusty'
+            - 'xenial'
+            - 'bionic'
+            - 'focal'
+            - 'jammy'
+          update_interval: '1h'
+          name: '"canonical"'
+        - enabled: 'yes'
+          os:
+            - 'wheezy'
+            - 'stretch'
+            - 'jessie'
+            - 'buster'
+          update_interval: '1h'
+          name: '"debian"'
+        - enabled: 'yes'
+          update_interval: '1h'
+          update_from_year: "2010"
+          name: '"nvd"'
+
+- hosts: tag_Name_wazuh_worker_1a
+  become: true
+  roles:
+    - name: joom.common.wazuh.wazuh_manager
+  vars:
+    wazuh_manager_connection:
+      - type: 'secure'
+        port: '1514'
+        protocol: 'tcp'
+
+    wazuh_manager_cluster:
+      disable: "no"
+      name: "wazuh"
+      node_name: "{{ inventory_hostname_short }}"
+      node_type: "worker"
+      key: "{{ hostvars['localhost']['wazuh_cluster_key'] }}"
+      port: "1516"
+      bind_addr: '0.0.0.0'
+      nodes: "{{ groups['tag_Name_wazuh_master_1a'] }}"
+      hidden: "no"
+
+    wazuh_manager_vulnerability_detector:
+      enabled: 'yes'
+      interval: '1h'
+      run_on_start: 'yes'
+      min_full_scan_interval: '12h'
+      providers:
+        - enabled: 'yes'
+          os:
+            - 'trusty'
+            - 'xenial'
+            - 'bionic'
+            - 'focal'
+            - 'jammy'
+          update_interval: '1h'
+          name: '"canonical"'
+        - enabled: 'yes'
+          os:
+            - 'wheezy'
+            - 'stretch'
+            - 'jessie'
+            - 'buster'
+          update_interval: '1h'
+          name: '"debian"'
+        - enabled: 'yes'
+          update_interval: '1h'
+          update_from_year: "2010"
+          name: '"nvd"'
