@@ -1,0 +1,1 @@
+ansible_shell_allow_world_readable_temp: true
