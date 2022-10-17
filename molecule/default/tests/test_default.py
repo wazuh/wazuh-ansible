@@ -11,7 +11,6 @@ def get_wazuh_version():
     return "4.5.0"
 
 
-
 def test_wazuh_packages_are_installed(host):
     """Test the main packages are installed."""
     manager = host.package("wazuh-manager")
