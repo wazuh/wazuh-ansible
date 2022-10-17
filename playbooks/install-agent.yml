@@ -1,0 +1,5 @@
+---
+- hosts: wazuh_agents
+  roles:
+    - agent
+    

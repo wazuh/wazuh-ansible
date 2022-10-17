@@ -1,0 +1,15 @@
+---
+# Certificates generation
+  - hosts: wazuh_aio
+    roles:
+      - role: indexer
+        perform_installation: false
+    tags:
+      - generate-certs
+# Single node
+  - hosts: wazuh_aio
+    roles:
+      - role: indexer
+      - role: manager
+      - role: filebeat
+      - role: dashboard

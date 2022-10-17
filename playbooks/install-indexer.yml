@@ -1,0 +1,5 @@
+---
+- hosts: wazuh_cluster
+  roles:
+    - role: indexer
+

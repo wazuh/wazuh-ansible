@@ -1,0 +1,5 @@
+---
+- hosts: wazuh_manager
+  roles:
+    - role: manager
+    - role: filebeat

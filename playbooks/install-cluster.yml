@@ -1,0 +1,36 @@
+---
+# Certificates generation
+- hosts: wazuh_cluster
+  roles:
+    - role: indexer
+      indexer_network_host: "{{ private_ip }}"
+      perform_installation: false
+  tags:
+    - generate-certs
+
+# Wazuh indexer cluster
+- hosts: wazuh_cluster
+  strategy: free
+  roles:
+    - role: indexer
+      indexer_network_host: "{{ private_ip }}"
+
+# Wazuh cluster
+- hosts: wazuh_manager
+  roles:
+    - role: manager
+    - role: filebeat
+      filebeat_node_name: node-4
+
+- hosts: wazuh_worker
+  roles:
+    - role: manager
+    - role: filebeat
+      filebeat_node_name: node-5
+        
+
+# Indexer + dashboard node
+- hosts: wazuh_dashboard
+  roles:
+    - role: indexer
+    - role: dashboard
