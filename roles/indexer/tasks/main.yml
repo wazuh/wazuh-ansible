@@ -3,10 +3,12 @@
   shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
   register: wazuh_latest_release
 
-- include_vars: ../../vars/repo.yml
+- name: Load Stable Repo Variables
+  include_vars: ../../vars/repo.yml
   when: "wazuh_latest_release.stdout is version(indexer_version, operator='ge')"
 
-- include_vars: ../../vars/repo_dev.yml
+- name: Load Development Repo Variables
+  include_vars: ../../vars/repo_dev.yml
   when: "wazuh_latest_release.stdout is version(indexer_version, operator='lt')"
 
 - import_tasks: local_actions.yml
@@ -45,13 +47,12 @@
         owner: root
         group: wazuh-indexer
         mode: 0640
-        force: yes
+        force: true
       tags: install
 
     - include_tasks: security_actions.yml
       tags:
         - security
-
 
     - name: Configure Wazuh indexer JVM memmory.
       template:
@@ -60,16 +61,16 @@
         owner: root
         group: wazuh-indexer
         mode: 0644
-        force: yes
+        force: true
       notify: restart wazuh-indexer
       tags: install
 
     - name: Ensure extra time for Wazuh indexer to start on reboots
       lineinfile:
         path: /usr/lib/systemd/system/wazuh-indexer.service
-        regexp: '^TimeoutStartSec='
+        regexp: "^TimeoutStartSec="
         line: "TimeoutStartSec={{ indexer_start_timeout }}"
-      become: yes
+      become: true
       tags: configure
 
     - name: Index files to remove
@@ -95,9 +96,9 @@
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
-        validate_certs: no
+        validate_certs: false
         status_code: 200,401
-        return_content: yes
+        return_content: true
         timeout: 4
       register: _result
       until:
@@ -114,9 +115,9 @@
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
-        validate_certs: no
+        validate_certs: false
         status_code: 200,401
-        return_content: yes
+        return_content: true
         timeout: 4
       register: _result
       until:
@@ -134,6 +135,6 @@
     - name: Reload systemd configuration
       systemd:
         daemon_reload: true
-      become: yes
+      become: true
       notify: restart wazuh-indexer
   when: perform_installation
