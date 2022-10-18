@@ -1,5 +1,4 @@
 ---
-
 # Dashboard configuration
 indexer_http_port: 9200
 indexer_api_protocol: https
@@ -11,7 +10,7 @@ dashboard_server_name: "dashboard"
 wazuh_version: 4.3.9
 indexer_cluster_nodes:
   - 127.0.0.1
-  
+
 # The Wazuh dashboard package repository
 dashboard_version: "4.3.9"
 

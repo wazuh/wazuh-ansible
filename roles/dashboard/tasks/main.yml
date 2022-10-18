@@ -3,10 +3,12 @@
   shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
   register: wazuh_latest_release
 
-- include_vars: ../../vars/repo.yml
+- name: Load Stable Repo Variables
+  include_vars: ../../vars/repo.yml
   when: "wazuh_latest_release.stdout is version(dashboard_version, operator='ge')"
 
-- include_vars: ../../vars/repo_dev.yml
+- name: Load Development Repo Variables
+  include_vars: ../../vars/repo_dev.yml
   when: "wazuh_latest_release.stdout is version(dashboard_version, operator='lt')"
 
 - import_tasks: RedHat.yml
@@ -31,7 +33,7 @@
     group: wazuh-dashboard
     owner: wazuh-dashboard
     mode: 0640
-    force: yes
+    force: true
   notify: restart wazuh-dashboard
   tags:
     - install
@@ -44,7 +46,7 @@
     state: directory
     owner: wazuh-dashboard
     group: wazuh-dashboard
-    recurse: yes
+    recurse: true
 
 - name: Wait for Wazuh-Indexer port
   wait_for: host={{ indexer_network_host }} port={{ indexer_http_port }}
@@ -59,18 +61,18 @@
     method: DELETE
     user: "admin"
     password: "{{ indexer_admin_password }}"
-    validate_certs: no
+    validate_certs: false
     status_code: 200, 404
 
 - name: Create Wazuh Plugin config directory
   file:
     path: /usr/share/wazuh-dashboard/data/wazuh/config/
     state: directory
-    recurse: yes
+    recurse: true
     owner: wazuh-dashboard
     group: wazuh-dashboard
     mode: 0751
-  changed_when: False
+  changed_when: false
 
 - name: Configure Wazuh Dashboard Plugin
   template:
@@ -79,14 +81,14 @@
     owner: wazuh-dashboard
     group: wazuh-dashboard
     mode: 0751
-  changed_when: False
+  changed_when: false
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore
   shell: >-
     echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
   args:
     executable: /bin/bash
-  become: yes
+  become: true
 
 - name: Ensure Wazuh dashboard started and enabled
   service:
