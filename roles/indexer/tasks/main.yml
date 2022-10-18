@@ -4,11 +4,11 @@
   register: wazuh_latest_release
 
 - name: Load Stable Repo Variables
-  include_vars: ../../vars/repo.yml
+  include_vars: vars/repo.yml
   when: "wazuh_latest_release.stdout is version(indexer_version, operator='ge')"
 
 - name: Load Development Repo Variables
-  include_vars: ../../vars/repo_dev.yml
+  include_vars: vars/repo_dev.yml
   when: "wazuh_latest_release.stdout is version(indexer_version, operator='lt')"
 
 - import_tasks: local_actions.yml
