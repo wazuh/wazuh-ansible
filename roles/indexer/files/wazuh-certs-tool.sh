@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Wazuh installer
 # Copyright (C) 2015, Wazuh Inc.
