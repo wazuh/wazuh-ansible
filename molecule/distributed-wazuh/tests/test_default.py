@@ -31,7 +31,7 @@ def test_wazuh_services_are_running(host):
     # assert api.is_running
     output = host.check_output(
         'ps aux | grep ossec | tr -s " " | cut -d" " -f11'
-        )
+    )
     assert 'ossec-authd' in output
     assert 'wazuh-modulesd' in output
     assert 'wazuh-db' in output
