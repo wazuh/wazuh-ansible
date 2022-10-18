@@ -1,15 +1,15 @@
 ---
-  - block:
-      - name: Install Wazuh Manager from .deb packages
-        apt:
-          deb: "{{ wazuh_custom_packages_installation_manager_deb_url }}"
-          state: present
-        when:
-          - wazuh_custom_packages_installation_manager_enabled
-    when:
-      - ansible_os_family|lower == "debian"
+- block:
+    - name: Install Wazuh Manager from .deb packages
+      apt:
+        deb: "{{ wazuh_custom_packages_installation_manager_deb_url }}"
+        state: present
+      when:
+        - wazuh_custom_packages_installation_manager_enabled
+  when:
+    - ansible_os_family|lower == "debian"
 
-  - block:
+- block:
     - name: Install Wazuh Manager from .rpm packages | yum
       yum:
         name: "{{ wazuh_custom_packages_installation_manager_rpm_url }}"
@@ -27,5 +27,5 @@
         - wazuh_custom_packages_installation_manager_enabled
         - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
           (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
-    when:
-      - ansible_os_family|lower == "redhat"
+  when:
+    - ansible_os_family|lower == "redhat"
