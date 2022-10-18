@@ -1,4 +1,4 @@
 ---
-- hosts: wazuh_dashboard
+- hosts: '{{target|default("wazuh_dashboard")}}'
   roles:
     - role: dashboard

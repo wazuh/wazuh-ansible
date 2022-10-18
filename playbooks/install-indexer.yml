@@ -1,4 +1,4 @@
 ---
-- hosts: wazuh_cluster
+- hosts: '{{target|default("wazuh_indexer")}}'
   roles:
     - role: indexer

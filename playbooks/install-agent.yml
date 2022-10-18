@@ -1,4 +1,4 @@
 ---
-- hosts: wazuh_agents
+- hosts: '{{target|default("wazuh_agents")}}'
   roles:
     - agent

@@ -1,5 +1,5 @@
 ---
-- hosts: wazuh_manager
+- hosts: '{{target|default("wazuh_manager")}}'
   roles:
     - role: manager
     - role: filebeat

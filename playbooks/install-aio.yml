@@ -1,6 +1,6 @@
 ---
 # Certificates generation
-  - hosts: wazuh_aio
+  - hosts: '{{target|default("wazuh_aio")}}'
     roles:
       - role: indexer
         perform_installation: false
