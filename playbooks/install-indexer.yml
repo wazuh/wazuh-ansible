@@ -1,4 +1,4 @@
 ---
 - hosts: wazuh_cluster
   roles:
-    - role: ../roles/indexer
+    - role: indexer
