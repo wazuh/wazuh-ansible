@@ -580,103 +580,12 @@ function common_logger() {
     fi
 
 }
-function common_checkRoot() {
-
-    if [ "$EUID" -ne 0 ]; then
-        echo "This script must be run as root."
-        exit 1;
-    fi
-
-}
-function common_checkInstalled() {
-
-    wazuh_installed=""
-    indexer_installed=""
-    filebeat_installed=""
-    dashboard_installed=""
-
-    if [ "${sys_type}" == "yum" ]; then
-        wazuh_installed=$(yum list installed 2>/dev/null | grep wazuh-manager)
-    elif [ "${sys_type}" == "apt-get" ]; then
-        wazuh_installed=$(apt list --installed  2>/dev/null | grep wazuh-manager)
-    fi
-
-    if [ -d "/var/ossec" ]; then
-        wazuh_remaining_files=1
-    fi
-
-    if [ "${sys_type}" == "yum" ]; then
-        indexer_installed=$(yum list installed 2>/dev/null | grep wazuh-indexer)
-    elif [ "${sys_type}" == "apt-get" ]; then
-        indexer_installed=$(apt list --installed 2>/dev/null | grep wazuh-indexer)
-    fi
-
-    if [ -d "/var/lib/wazuh-indexer/" ] || [ -d "/usr/share/wazuh-indexer" ] || [ -d "/etc/wazuh-indexer" ] || [ -f "${base_path}/search-guard-tlstool*" ]; then
-        indexer_remaining_files=1
-    fi
-
-    if [ "${sys_type}" == "yum" ]; then
-        filebeat_installed=$(yum list installed 2>/dev/null | grep filebeat)
-    elif [ "${sys_type}" == "apt-get" ]; then
-        filebeat_installed=$(apt list --installed  2>/dev/null | grep filebeat)
-    fi
-
-    if [ -d "/var/lib/filebeat/" ] || [ -d "/usr/share/filebeat" ] || [ -d "/etc/filebeat" ]; then
-        filebeat_remaining_files=1
-    fi
-
-    if [ "${sys_type}" == "yum" ]; then
-        dashboard_installed=$(yum list installed 2>/dev/null | grep wazuh-dashboard)
-    elif [ "${sys_type}" == "apt-get" ]; then
-        dashboard_installed=$(apt list --installed  2>/dev/null | grep wazuh-dashboard)
-    fi
-
-    if [ -d "/var/lib/wazuh-dashboard/" ] || [ -d "/usr/share/wazuh-dashboard" ] || [ -d "/etc/wazuh-dashboard" ] || [ -d "/run/wazuh-dashboard/" ]; then
-        dashboard_remaining_files=1
-    fi
-
-}
-function common_checkSystem() {
-
-    if [ -n "$(command -v yum)" ]; then
-        sys_type="yum"
-        sep="-"
-    elif [ -n "$(command -v apt-get)" ]; then
-        sys_type="apt-get"
-        sep="="
-    else
-        common_logger -e "Couldn'd find type of system"
-        exit 1
-    fi
-
-}
 function common_checkWazuhConfigYaml() {
 
     filecorrect=$(cert_parseYaml "${config_file}" | grep -Ev '^#|^\s*$' | grep -Pzc "\A(\s*(nodes_indexer__name|nodes_indexer__ip|nodes_server__name|nodes_server__ip|nodes_server__node_type|nodes_dashboard__name|nodes_dashboard__ip)=.*?)+\Z")
     if [[ "${filecorrect}" -ne 1 ]]; then
         common_logger -e "The configuration file ${config_file} does not have a correct format."
         exit 1
-    fi
-
-}
-function common_remove_gpg_key() {
-    
-    if [ "${sys_type}" == "yum" ]; then
-        if { rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh"; } >/dev/null ; then
-            key=$(rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep "Wazuh Signing Key" | awk '{print $1}' )
-            rpm -e "${key}"
-        else
-            common_logger "Wazuh GPG key not found in the system"
-            return 1
-        fi
-    elif [ "${sys_type}" == "apt-get" ]; then
-        if { apt-key list | grep "Wazuh"; } >/dev/null 2>&1; then
-            key=$(apt-key list  2>/dev/null | grep -B 1 "Wazuh" | head -1)
-            apt-key del "${key}" >/dev/null 2>&1
-        else
-            common_logger "Wazuh GPG key not found in the system"
-            return 1
-        fi
     fi
 
 }
