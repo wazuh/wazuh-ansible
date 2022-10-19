@@ -16,7 +16,10 @@
 
     - name: Install Wazuh dashboard dependencies
       apt:
-        name: ["libnss3-dev", "fonts-liberation", "libfontconfig1"]
+        name:
+          - "libnss3-dev"
+          - "fonts-liberation"
+          - "libfontconfig1"
         state: present
 
     - name: Install Wazuh dashboard

@@ -28,18 +28,23 @@
     - not wazuh_custom_packages_installation_manager_enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
-  package: name={{ item }} state=present
+  package:
+    name: "{{ item }}"
+    state: present
   with_items:
     - openscap-scanner
   register: wazuh_manager_openscp_packages_installed
   until: wazuh_manager_openscp_packages_installed is succeeded
   tags:
     - init
-  when: not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA") and
-        not (ansible_distribution == "CentOS" and ansible_distribution_major_version == "8")
+  when:
+    not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA") and
+    not (ansible_distribution == "CentOS" and ansible_distribution_major_version == "8")
 
 - name: CentOS 6 | Install Software Collections (SCL) Repository
-  package: name=centos-release-scl state=present
+  package:
+    name: centos-release-scl
+    state: present
   register: wazuh_manager_scl_packages_installed
   until: wazuh_manager_scl_packages_installed is succeeded
   when:
@@ -56,7 +61,9 @@
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: CentOS/RedHat 6 | Install Python 2.7
-  package: name=python27 state=present
+  package:
+    name: python27
+    state: present
   register: wazuh_manager_python_package_installed
   until: wazuh_manager_python_package_installed is succeeded
   when:
@@ -64,7 +71,9 @@
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
-  yum: name=java-1.8.0-openjdk state=present
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
@@ -95,7 +104,15 @@
 
 - name: Install dependencies to build from sources
   yum:
-    name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'openssl-devel', 'gcc-c++']
+    name:
+      - "make"
+      - "gcc"
+      - "automake"
+      - "autoconf"
+      - "libtool"
+      - "tar"
+      - "openssl-devel"
+      - "gcc-c++"
     state: present
   when: wazuh_manager_sources_installation.enabled
 
@@ -124,7 +141,7 @@
   replace:
     path: /etc/init.d/wazuh-manager
     regexp: 'echo -n "Starting Wazuh-manager: "'
-    replace: "echo -n \"Starting Wazuh-manager (EL6): \"; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ wazuh_dir }}/framework/lib"
+    replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ wazuh_dir }}/framework/lib'
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'

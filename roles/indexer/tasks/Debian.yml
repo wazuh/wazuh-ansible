@@ -9,13 +9,11 @@
     - name: Install Wazuh indexer dependencies
       apt:
         name:
-          [
-            "unzip",
-            "wget",
-            "curl",
-            "apt-transport-https",
-            software-properties-common,
-          ]
+          - "unzip"
+          - "wget"
+          - "curl"
+          - "apt-transport-https"
+          - software-properties-common
         state: present
 
 - name: Add Wazuh indexer repository

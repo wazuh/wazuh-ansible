@@ -65,25 +65,32 @@
   when: wazuh_manager_config.authd.ssl_agent_ca is not none
 
 - name: Verifying for old init authd service
-  stat: path=/etc/init.d/ossec-authd
+  stat:
+    path: /etc/init.d/ossec-authd
   register: old_authd_service
   tags:
     - config
 
 - name: Verifying for old systemd authd service
-  stat: path=/lib/systemd/system/ossec-authd.service
+  stat:
+    path: /lib/systemd/system/ossec-authd.service
   register: old_authd_service
   tags:
     - config
 
 - name: Ensure ossec-authd service is disabled
-  service: name=ossec-authd enabled=no state=stopped
+  service:
+    name: ossec-authd
+    enabled: false
+    state: stopped
   when: old_authd_service.stat.exists
   tags:
     - config
 
 - name: Removing old init authd services
-  file: path="{{ item }}" state=absent
+  file:
+    path: "{{ item }}"
+    state: absent
   with_items:
     - "/etc/init.d/ossec-authd"
     - "/lib/systemd/system/ossec-authd.service"
@@ -92,11 +99,12 @@
     - config
 
 - name: Installing the local_rules.xml (default local_rules.xml)
-  template: src=var-ossec-rules-local_rules.xml.j2
-    dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
-    owner=wazuh
-    group=wazuh
-    mode=0640
+  template:
+    src: var-ossec-rules-local_rules.xml.j2
+    dest: "{{ wazuh_dir }}/etc/rules/local_rules.xml"
+    owner: wazuh
+    group: wazuh
+    mode: 0640
   notify: restart wazuh-manager
   tags:
     - init
@@ -104,11 +112,12 @@
     - rules
 
 - name: Adding local rules files
-  copy: src="{{ wazuh_manager_config.ruleset.rules_path }}"
-    dest="{{ wazuh_dir }}/etc/rules/"
-    owner=wazuh
-    group=wazuh
-    mode=0640
+  copy:
+    src: "{{ wazuh_manager_config.ruleset.rules_path }}"
+    dest: "{{ wazuh_dir }}/etc/rules/"
+    owner: wazuh
+    group: wazuh
+    mode: 0640
   notify: restart wazuh-manager
   tags:
     - init
@@ -116,11 +125,12 @@
     - rules
 
 - name: Installing the local_decoder.xml
-  template: src=var-ossec-rules-local_decoder.xml.j2
-    dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
-    owner=wazuh
-    group=wazuh
-    mode=0640
+  template:
+    src: var-ossec-rules-local_decoder.xml.j2
+    dest: "{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
+    owner: wazuh
+    group: wazuh
+    mode: 0640
   notify: restart wazuh-manager
   tags:
     - init
@@ -128,11 +138,12 @@
     - rules
 
 - name: Adding local decoders files
-  copy: src="{{ wazuh_manager_config.ruleset.decoders_path }}"
-    dest="{{ wazuh_dir }}/etc/decoders/"
-    owner=wazuh
-    group=wazuh
-    mode=0640
+  copy:
+    src: "{{ wazuh_manager_config.ruleset.decoders_path }}"
+    dest: "{{ wazuh_dir }}/etc/decoders/"
+    owner: wazuh
+    group: wazuh
+    mode: 0640
   notify: restart wazuh-manager
   tags:
     - init
@@ -155,11 +166,12 @@
     - shared_agent_config is defined
 
 - name: Installing the local_internal_options.conf
-  template: src=var-ossec-etc-local-internal-options.conf.j2
-    dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
-    owner=root
-    group=wazuh
-    mode=0640
+  template:
+    src: var-ossec-etc-local-internal-options.conf.j2
+    dest: "{{ wazuh_dir }}/etc/local_internal_options.conf"
+    owner: root
+    group: wazuh
+    mode: 0640
   notify: restart wazuh-manager
   tags:
     - init
@@ -176,7 +188,8 @@
     - config
 
 - name: Check if syslog output is enabled
-  set_fact: syslog_output=true
+  set_fact:
+    syslog_output: true
   when: item.server is not none
   with_items:
     - "{{ wazuh_manager_config.syslog_outputs }}"
@@ -228,7 +241,8 @@
     - config
 
 - name: Checking alert log output settings
-  fail: msg="Please enable json_output or alerts_log options."
+  fail:
+    msg: "Please enable json_output or alerts_log options."
   when:
     - wazuh_manager_config.json_output == 'no'
     - wazuh_manager_config.alerts_log == 'no'

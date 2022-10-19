@@ -49,7 +49,9 @@
     recurse: true
 
 - name: Wait for Wazuh-Indexer port
-  wait_for: host={{ indexer_network_host }} port={{ indexer_http_port }}
+  wait_for:
+    host: "{{ indexer_network_host }}"
+    port: "{{ indexer_http_port }}"
 
 - name: Select correct API protocol
   set_fact:
