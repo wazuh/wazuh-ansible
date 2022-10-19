@@ -5,7 +5,7 @@ indexer_version: 4.3.9
 single_node: false
 indexer_node_name: node-1
 indexer_cluster_name: wazuh
-indexer_network_host: '0.0.0.0'
+indexer_network_host: "0.0.0.0"
 
 indexer_node_master: true
 indexer_node_data: true
@@ -17,7 +17,7 @@ indexer_cluster_nodes:
 indexer_discovery_nodes:
   - 127.0.0.1
 
-local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+local_certs_path: "{{ playbook_dir }}files/indexer/certificates"
 
 # Minimum master nodes in cluster, 2 for 3 nodes Wazuh indexer cluster
 minimum_master_nodes: 2
