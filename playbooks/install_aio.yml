@@ -1,6 +1,7 @@
 ---
 # Certificates generation
 - hosts: '{{target|default("wazuh_aio")}}'
+  become: false
   roles:
     - role: indexer
       perform_installation: false
@@ -9,6 +10,7 @@
 
 # Single node
 - hosts: '{{target|default("wazuh_aio")}}'
+  become: true
   roles:
     - role: indexer
     - role: manager
