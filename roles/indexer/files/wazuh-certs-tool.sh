@@ -209,37 +209,37 @@ function cert_readConfig() {
 
         eval "server_node_types=( $(cert_parseYaml "${config_file}" | grep nodes_server__node_type | sed 's/nodes_server__node_type=//' | sed -r 's/\s+//g') )"
 
-        unique_names=($(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_names=("$(echo "${indexer_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_names[@]}" -ne "${#indexer_node_names[@]}" ]; then 
             common_logger -e "Duplicated indexer node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_ips=("$(echo "${indexer_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_ips[@]}" -ne "${#indexer_node_ips[@]}" ]; then 
             common_logger -e "Duplicated indexer node ips."
             exit 1
         fi
 
-        unique_names=($(echo "${server_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_names=("$(echo "${server_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_names[@]}" -ne "${#server_node_names[@]}" ]; then 
             common_logger -e "Duplicated Wazuh server node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${server_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_ips=("$(echo "${server_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_ips[@]}" -ne "${#server_node_ips[@]}" ]; then 
             common_logger -e "Duplicated Wazuh server node ips."
             exit 1
         fi
 
-        unique_names=($(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_names=("$(echo "${dashboard_node_names[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_names[@]}" -ne "${#dashboard_node_names[@]}" ]; then
             common_logger -e "Duplicated dashboard node names."
             exit 1
         fi
 
-        unique_ips=($(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        unique_ips=("$(echo "${dashboard_node_ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')")
         if [ "${#unique_ips[@]}" -ne "${#dashboard_node_ips[@]}" ]; then
             common_logger -e "Duplicated dashboard node ips."
             exit 1
@@ -573,7 +573,7 @@ function common_logger() {
 
     if [ -z "${debugLogger}" ] || { [ -n "${debugLogger}" ] && [ -n "${debugEnabled}" ]; }; then
         if [ "$EUID" -eq 0 ] && [ -z "${nolog}" ]; then
-            printf "%s\n" "${now} ${mtype} ${message}" | tee -a ${logfile}
+            printf "%s\n" "${now} ${mtype} ${message}" | tee -a "${logfile}"
         else
             printf "%b\n" "${now} ${mtype} ${message}"
         fi
