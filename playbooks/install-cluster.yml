@@ -26,8 +26,7 @@
   roles:
     - role: manager
     - role: filebeat
-      filebeat_node_name: node-5
-        
+      filebeat_node_name: node-5   
 
 # Indexer + dashboard node
 - hosts: '{{target|default("wazuh_dashboard")}}'
