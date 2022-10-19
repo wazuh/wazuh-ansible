@@ -1,0 +1,19 @@
+#### Worker
+filebeat_node_name: node-5
+
+wazuh_manager_config:
+  connection:
+    - type: "secure"
+      port: "1514"
+      protocol: "tcp"
+      queue_size: 131072
+  api:
+    https: "yes"
+  cluster:
+    disable: "no"
+    node_name: "worker_01"
+    node_type: "worker"
+    key: "c98b62a9b6169ac5f67dae55ae4a9088"
+    nodes:
+      - "{{ hostvars.manager.private_ip }}"
+    hidden: "no"
