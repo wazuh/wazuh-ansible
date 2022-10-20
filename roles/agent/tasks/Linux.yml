@@ -200,6 +200,7 @@
         OSSEC_AGENT_KEY: "{{ api_agent_post.json.data.key }}"
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
+      changed_when: false
       vars:
         agent_name: "{{ target_manager.agent_name | default(ansible_hostname) }}"
       notify: restart wazuh-agent
