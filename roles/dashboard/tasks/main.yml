@@ -1,7 +1,10 @@
 ---
 - name: Get latest wazuh release
-  shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
+  shell: |
+    set -o pipefail
+    "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
   register: wazuh_latest_release
+  changed_when: false
 
 - name: Load Stable Repo Variables
   include_vars: vars/repo.yml
@@ -87,9 +90,11 @@
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore
   shell: >-
+    set -o pipefail
     echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
   args:
     executable: /bin/bash
+  changed_when: false
   become: true
 
 - name: Ensure Wazuh dashboard started and enabled

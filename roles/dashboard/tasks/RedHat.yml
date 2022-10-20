@@ -10,7 +10,7 @@
         gpgcheck: true
 
     - name: Install Wazuh dashboard dependencies
-      yum:
+      package:
         name:
           - "libnss3.so"
           - "xorg-x11-fonts-100dpi"
@@ -22,7 +22,7 @@
           - "fontconfig"
           - "freetype"
         state: present
-      ignore_errors: true
+        update_cache: true
 
     - name: Install Wazuh dashboard
       package:
