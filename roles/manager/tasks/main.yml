@@ -27,10 +27,12 @@
     config_layer: "{{ wazuh_manager_config | default({}) }}"
   when: wazuh_manager_config_overlay | bool
 
-- include_tasks: "RedHat.yml"
+- name: Include RedHat Tasks
+  include_tasks: "RedHat.yml"
   when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
 
-- include_tasks: "Debian.yml"
+- name: Include Debian Tasks
+  include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
 - name: Install expect
