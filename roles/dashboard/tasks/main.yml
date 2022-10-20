@@ -87,9 +87,7 @@
   changed_when: false
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore
-  shell: >-
-    set -o pipefail
-    echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
+  shell: "set -o pipefail && echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password"
   args:
     executable: /bin/bash
   changed_when: false
