@@ -27,6 +27,14 @@
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
+- name: AlmaLinux 9
+  when: (ansible_facts['distribution'] == "AlmaLinux" and ansible_facts['distribution_major_version'] == "9")
+  block:
+    - name: Install Wazuh manager dependencies
+      yum:
+        name: "chkconfig"
+        state: present
+
 - name: RedHat/CentOS/Fedora | Install openscap
   package:
     name: "{{ item }}"
@@ -129,11 +137,13 @@
   tags:
     - init
 
-- include_tasks: "../tasks/installation_from_sources.yml"
+- name: Install from Source
+  include_tasks: "../tasks/installation_from_sources.yml"
   when:
     - wazuh_manager_sources_installation.enabled
 
-- include_tasks: "../tasks/installation_from_custom_packages.yml"
+- name: Install from Custom Packages
+  include_tasks: "../tasks/installation_from_custom_packages.yml"
   when:
     - wazuh_custom_packages_installation_manager_enabled
 
