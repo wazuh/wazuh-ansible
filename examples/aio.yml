@@ -15,3 +15,43 @@ filebeat_node_name: node-1
 filebeat_output_indexer_hosts:
   - 127.0.0.1
 ansible_shell_allow_world_readable_temp: true
+
+#### Manager
+## Alerts
+wazuh_manager_log_level: 3
+wazuh_manager_email_level: 12
+
+## Email
+wazuh_manager_email_notification: "no"
+wazuh_manager_mailto:
+  - "admin@example.net"
+
+wazuh_manager_email_smtp_server: smtp.example.wazuh.com
+wazuh_manager_email_from: wazuh@example.wazuh.com
+wazuh_manager_email_maxperhour: 12
+wazuh_manager_email_queue_size: 131072
+wazuh_manager_email_log_source: "alerts.log"
+
+wazuh_manager_extra_emails:
+  - enable: false
+    mail_to: "recipient@example.wazuh.com"
+    format: full
+    level: 7
+    event_location: null
+    group: null
+    do_not_delay: false
+    do_not_group: false
+    rule_id: null
+
+wazuh_manager_reports:
+  - enable: false
+    category: "syscheck"
+    title: "Daily report: File changes"
+    email_to: "recipient@example.wazuh.com"
+    location: null
+    group: null
+    rule: null
+    level: null
+    srcip: null
+    user: null
+    showlogs: null
