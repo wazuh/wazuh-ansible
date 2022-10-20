@@ -37,7 +37,8 @@
           become: true
 
         - name: Update vm.max_map_count
-          shell: sysctl -p
+          command: sysctl -p
+          changed_when: false
           become: true
 
       when:

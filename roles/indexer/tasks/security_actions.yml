@@ -51,6 +51,7 @@
         export JAVA_HOME=/usr/share/wazuh-indexer/jdk
         {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ indexer_admin_password }}'
       register: indexer_admin_password_hashed
+      changed_when: false
       no_log: "{{ indexer_nolog_sensible | bool }}"
 
     - name: Set the Admin user password
@@ -67,6 +68,7 @@
         export JAVA_HOME=/usr/share/wazuh-indexer/jdk
         {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ dashboard_password }}'
       register: indexer_kibanaserver_password_hashed
+      changed_when: false
       no_log: "{{ indexer_nolog_sensible | bool }}"
 
     - name: Set the kibanaserver user password
@@ -93,6 +95,7 @@
       delay: 5
       register: result
       until: result.rc == 0
+      changed_when: false
   run_once: true
 
 - name: Create custom user
