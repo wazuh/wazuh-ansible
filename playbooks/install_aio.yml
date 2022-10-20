@@ -6,6 +6,7 @@
     - role: indexer
       perform_installation: false
   tags:
+    - setup-all
     - generate-certs
 
 # Single node
@@ -16,3 +17,6 @@
     - role: manager
     - role: filebeat
     - role: dashboard
+  tags:
+    - setup-all
+    - install-wazuh

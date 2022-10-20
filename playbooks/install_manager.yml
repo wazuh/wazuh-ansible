@@ -3,3 +3,6 @@
   roles:
     - role: manager
     - role: filebeat
+  tags:
+    - setup-all
+    - install-manager

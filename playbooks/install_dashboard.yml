@@ -2,3 +2,6 @@
 - hosts: '{{target|default("wazuh_dashboard")}}'
   roles:
     - role: dashboard
+  tags:
+    - setup-all
+    - install-dashboard
