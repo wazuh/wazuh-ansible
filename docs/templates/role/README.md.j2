@@ -1,0 +1,40 @@
+{% if not append | deep_get(role, "internal.append") %}
+{% set meta = role.meta | default({}) %}
+# Ansible Playbook - Wazuh {{ meta.name.value | save_join(" ") }}
+{% endif %}
+{% if description | deep_get(meta, "description.value") %}
+
+{{ meta.description.value | save_join(" ") }}
+{% endif %}
+
+{#      TOC      #}
+{% include '_toc.j2' %}
+
+{#      Todo      #}
+{% include '_requirements.j2' %}
+
+{#      Todo      #}
+{% include '_instructions.j2' %}
+
+{#      Vars      #}
+{% include '_defaultvars.j2' %}
+
+{#      Vars      #}
+{% include '_vars.j2' %}
+
+{#      Todo      #}
+{% include '_tag.j2' %}
+
+{#      Todo      #}
+{% include '_todo.j2' %}
+
+{#      Meta      #}
+{% include '_meta.j2' %}
+
+### Based on previous work from dj-wasabi
+
+  - https://github.com/dj-wasabi/ansible-ossec-server
+
+### Modified by Wazuh
+
+The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.

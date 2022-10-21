@@ -1,0 +1,31 @@
+{% set meta = role.meta | default({}) %}
+{% if meta %}
+## <span style="color:#5dbaebff">Dependencies</span>
+
+{% if meta | deep_get(meta, "dependencies.value") %}
+{% if meta.dependencies.value is mapping %}
+{% set deps = meta.dependencies.value.dependencies %}
+{% else %}
+{% set deps = meta.dependencies.value %}
+{% endif %}
+{% for item in deps %}
+{% if item is string or item.role %}
+- {{ item if item is string else item.role }}
+{% endif %}
+{% endfor %}
+{% else %}
+None.
+{% endif %}
+{% if license | deep_get(meta, "license.value") %}
+
+## <span style="color:#5dbaebff">License</span>
+
+{{ meta.license.value }}
+{% endif %}
+{% if author | deep_get(meta, "author.value") %}
+
+## <span style="color:#5dbaebff">Author</span>
+
+{{ meta.author.value | save_join(" ") }}
+{% endif %}
+{% endif %}

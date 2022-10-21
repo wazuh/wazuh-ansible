@@ -1,0 +1,41 @@
+{% set var = role.var | default({}) %}
+{% if var %}
+
+## Default Variables
+{% for key, item in var | dictsort %}
+
+### {{ key }}
+{% if item.description is defined and item.description %}
+
+{{ item.description | save_join(" ") }}
+{% endif %}
+{% if item.value is defined and item.value %}
+
+#### Default value
+
+```YAML
+{% if item.value is mapping %}
+{{ item.value | to_nice_yaml(indent=2) }}
+{% else %}
+{% for ve_line in item.value %}
+{{ ve_line | replace("\n\n", "\n") }}
+{% endfor %}
+{% endif %}
+```
+{% endif %}
+{% if item.example is defined and item.example %}
+
+#### Example usage
+
+```YAML
+{% if item.example is mapping %}
+{{ item.example | to_nice_yaml(indent=2) }}
+{% else %}
+{% for ex_line in item.example %}
+{{ ex_line | replace("\n\n", "\n") }}
+{% endfor %}
+{% endif %}
+```
+{% endif %}
+{% endfor %}
+{% endif %}
