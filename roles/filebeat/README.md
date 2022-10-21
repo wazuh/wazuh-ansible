@@ -174,7 +174,7 @@ indexer_security_user: admin
 #### Default value
 
 ```YAML
-local_certs_path: '{{ playbook_dir }}/indexer/certificates'
+local_certs_path: '{{ playbook_dir }}/files/indexer/certificates'
 ```
 
 ### wazuh_template_branch
