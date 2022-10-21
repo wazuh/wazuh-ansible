@@ -176,6 +176,7 @@ wazuh_agent_api_validate: true
 
 ### wazuh_agent_authd
 Collection with the settings to register an agent using authd.
+
 #### Default value
 
 ```YAML

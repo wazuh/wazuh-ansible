@@ -232,7 +232,7 @@ indexer_version: 4.3.9
 #### Default value
 
 ```YAML
-local_certs_path: '{{ playbook_dir }}/indexer/certificates'
+local_certs_path: '{{ playbook_dir }}/files/indexer/certificates'
 ```
 
 ### minimum_master_nodes

@@ -140,7 +140,7 @@ indexer_http_port: 9200
 #### Default value
 
 ```YAML
-local_certs_path: '{{ playbook_dir }}/indexer/certificates'
+local_certs_path: '{{ playbook_dir }}/files/indexer/certificates'
 ```
 
 ### wazuh_api_credentials
