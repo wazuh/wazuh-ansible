@@ -1,0 +1,8 @@
+---
+- hosts: '{{target|default("wazuh_manager")}}'
+  roles:
+    - role: manager
+    - role: filebeat
+  tags:
+    - setup-all
+    - install-manager

@@ -1,0 +1,44 @@
+---
+# Certificates generation
+- hosts: '{{target|default("wazuh_indexer")}}'
+  roles:
+    - role: indexer
+      perform_installation: false
+  tags:
+    - setup-all
+    - generate-certs
+
+# Wazuh indexer cluster
+- hosts: '{{target|default("wazuh_indexer")}}'
+  strategy: free
+  roles:
+    - role: indexer
+  tags:
+    - setup-all
+    - install-indexer
+
+# Wazuh cluster
+- hosts: '{{target|default("wazuh_manager")}}'
+  roles:
+    - role: manager
+    - role: filebeat
+  tags:
+    - setup-all
+    - install-manager
+
+- hosts: '{{target|default("wazuh_worker")}}'
+  roles:
+    - role: manager
+    - role: filebeat
+  tags:
+    - setup-all
+    - install-worker
+
+# Indexer + dashboard node
+- hosts: '{{target|default("wazuh_dashboard")}}'
+  roles:
+    - role: indexer
+    - role: dashboard
+  tags:
+    - setup-all
+    - install-dashboard

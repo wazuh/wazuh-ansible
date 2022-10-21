@@ -1,0 +1,7 @@
+---
+- hosts: '{{target|default("wazuh_indexer")}}'
+  roles:
+    - role: indexer
+  tags:
+    - setup-all
+    - install-indexer
