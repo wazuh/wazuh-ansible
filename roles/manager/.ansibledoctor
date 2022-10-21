@@ -1,0 +1,30 @@
+---
+# Auto-detect if the given directory is a role, can be disabled
+# to parse loose files instead.
+role_detection: False
+# Don't write anything to file system
+dry_run: False
+
+logging:
+    # Possible options debug | info | warning | error | critical
+    level: "warning"
+    # Json logging can be enabled if a parsable output is required
+    json: False
+
+template_dir: ../../docs/templates
+template: role
+
+# Don't ask to overwrite if output file exists.
+force_overwrite: False
+# Load custom header from given file and append template output to it before write.
+custom_header: ""
+
+exclude_files: []
+# Examples
+# exclude_files:
+#   - molecule/
+#   - files/**/*.py
+
+# Exclude tags from automatic detection. Configured tags are only skipped
+# if the tag is not used in an annotation.
+exclude_tags: []
