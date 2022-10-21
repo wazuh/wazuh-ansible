@@ -175,6 +175,7 @@ wazuh_agent_api_validate: true
 ```
 
 ### wazuh_agent_authd
+
 Collection with the settings to register an agent using authd.
 
 #### Default value
@@ -649,6 +650,7 @@ wazuh_dir: /var/ossec
 ```
 
 ### wazuh_managers
+
 Collection of Wazuh Managers' IP address, port, and protocol used by the agent
 
 #### Default value

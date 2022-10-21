@@ -73,6 +73,9 @@ wazuh_agent_address: '{{ "any" if wazuh_agent_nat else ansible_default_ipv4.addr
 
 # List of managers. The first one with register variable declared *and* set to true
 # is the one used to register the agent. Otherwise, the first one in the list will be used.
+
+# @var wazuh_managers:description: Collection of Wazuh Managers' IP address, port, and protocol used by the agent
+
 wazuh_managers:
   - address: 127.0.0.1
     port: 1514
@@ -106,6 +109,8 @@ wazuh_agent_enrollment:
   use_source_ip: "no"
 
 ## Authentication Method: invoking agent-auth
+
+# @var wazuh_agent_authd:description: Collection with the settings to register an agent using authd.
 
 # For more information see:
 # * https://documentation.wazuh.com/current/user-manual/registering/password-authorization-registration.html
