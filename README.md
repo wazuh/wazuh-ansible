@@ -14,7 +14,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 ## Compatibility Matrix
 
 | Wazuh version | Elastic | ODFE   |
-|---------------|---------|--------|
+| ------------- | ------- | ------ |
 | v4.3.9        |         |        |
 | v4.3.8        |         |        |
 | v4.3.7        |         |        |
@@ -44,25 +44,27 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ## Directory structure
 
-    ├── wazuh-ansible
+    ├── wazuh
     │ ├── roles
-    │ │ ├── wazuh
-    │ │ │ ├── ansible-filebeat-oss
-    │ │ │ ├── ansible-wazuh-manager
-    │ │ │ ├── ansible-wazuh-agent
-    │ │ │ ├── wazuh-dashboard
-    │ │ │ ├── wazuh-indexer
+    │ │ ├── filebeat
+    │ │ ├── manager
+    │ │ ├── agent
+    │ │ ├── dashboard
+    │ │ ├── indexer
     │ │
-    │ │ ├── ansible-galaxy
-    │ │ │ ├── meta
-    │
     │ ├── playbooks
-    │ │ ├── wazuh-agent.yml
-    │ │ ├── wazuh-dashboard.yml
-    │ │ ├── wazuh-indexer.yml
-    │ │ ├── wazuh-manager-oss.yml
-    | | ├── wazuh-production-ready
-    │ │ ├── wazuh-single.yml
+    │ │ ├── agent
+    │ │ │ ├── install.yml
+    │ │ ├── dashboard.yml
+    │ │ │ ├── install.yml
+    │ │ ├── indexer
+    │ │ │ ├── install.yml
+    │ │ ├── manager
+    │ │ │ ├── install.yml
+    | | ├── cluster
+    │ │ │ ├── install.yml
+    │ │ ├── aio
+    │ │ │ ├── install.yml
     │
     │ ├── README.md
     │ ├── VERSION
@@ -79,7 +81,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 # Certificates generation
     - hosts: wi1
       roles:
-        - role: ../roles/wazuh/wazuh-indexer
+        - role: wazuh.wazuh.indexer
           indexer_network_host: "{{ private_ip }}"
           indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
@@ -127,7 +129,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
     - hosts: wi_cluster
       strategy: free
       roles:
-        - role: ../roles/wazuh/wazuh-indexer
+        - role: wazuh.wazuh.indexer
           indexer_network_host: "{{ private_ip }}"
       become: yes
       become_user: root
@@ -172,8 +174,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 # Wazuh cluster
     - hosts: manager
       roles:
-        - role: "../roles/wazuh/ansible-wazuh-manager"
-        - role: "../roles/wazuh/ansible-filebeat-oss"
+        - role: "wazuh.wazuh.manager"
+        - role: "wazuh.wazuh.filebeat"
           filebeat_node_name: node-4
       become: yes
       become_user: root
@@ -204,8 +206,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 
     - hosts: worker
       roles:
-        - role: "../roles/wazuh/ansible-wazuh-manager"
-        - role: "../roles/wazuh/ansible-filebeat-oss"
+        - role: "wazuh.wazuh.manager"
+        - role: "wazuh.wazuh.filebeat"
           filebeat_node_name: node-5
       become: yes
       become_user: root
@@ -234,8 +236,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 # Indexer + dashboard node
     - hosts: dashboard
       roles:
-        - role: "../roles/wazuh/wazuh-indexer"
-        - role: "../roles/wazuh/wazuh-dashboard"
+        - role: "wazuh.wazuh.indexer"
+        - role: "wazuh.wazuh.dashboard"
       become: yes
       become_user: root
       vars:
@@ -333,7 +335,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
 # Certificates generation
   - hosts: aio
     roles:
-      - role: ../roles/wazuh/wazuh-indexer
+      - role: wazuh.wazuh.indexer
         perform_installation: false
     become: no
     #become_user: root
@@ -351,10 +353,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
     become: yes
     become_user: root
     roles:
-      - role: ../roles/wazuh/wazuh-indexer
-      - role: ../roles/wazuh/ansible-wazuh-manager
-      - role: ../roles/wazuh/ansible-filebeat-oss
-      - role: ../roles/wazuh/wazuh-dashboard
+      - role: wazuh.wazuh.indexer
+      - role: wazuh.wazuh.manager
+      - role: wazuh.wazuh.filebeat
+      - role: wazuh.wazuh.dashboard
     vars:
       single_node: true
       minimum_master_nodes: 1
