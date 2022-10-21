@@ -1,7 +1,0 @@
----
-- hosts: '{{target|default("wazuh_agents")}}'
-  roles:
-    - agent
-  tags:
-    - setup-all
-    - install-agent
