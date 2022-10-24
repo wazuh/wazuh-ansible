@@ -1,7 +1,10 @@
 {% set var = role.var | default({}) %}
 {% if var %}
 
-## Other Variables
+## Default Variables
+
+Available variables are listed below, along with default values (see `defaults/main.yml`):
+
 {% for key, item in var | dictsort %}
 
 ### {{ key }}
@@ -11,7 +14,7 @@
 {% endif %}
 {% if item.value is defined and item.value %}
 
-#### Value
+#### Default Value
 
 ```YAML
 {% if item.value is mapping %}
