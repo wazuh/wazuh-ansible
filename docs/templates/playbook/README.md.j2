@@ -1,21 +1,15 @@
-# Wazuh Collection Playbook
+# Wazuh Collection
 
 {% if not append | deep_get(role, "internal.append") %}
 
 {% set meta = role.meta | default({}) %}
-# {{ meta.name.value | save_join(" ") }}
+## {{ meta.name.value | save_join(" ") }}
 {% endif %}
 
 {% if description | deep_get(meta, "description.value") %}
 
 {{ meta.description.value | save_join(" ") }}
 {% endif %}
-
-## <div style="text-align: right"></div>
-
-## <div style="text-align: right"><span style="color:#5dbaebff">Runbook: </span>{{ meta.name.value | save_join(" ") }}</div>
-
-### <div style="text-align: right"><span style="color:red">Last Updated:</span>2022-06-21</div>
 
 </br>
 </br>
