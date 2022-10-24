@@ -1,4 +1,4 @@
-# indexer
+# Ansible Playbook - Wazuh indexer
 
 Installing and maintaining Wazuh indexer.
 
@@ -39,11 +39,30 @@ Installing and maintaining Wazuh indexer.
 
 ---
 
+## OS Requirements
+
+This role is compatible with:
+
+* Red Hat
+
+* CentOS
+
+* Fedora
+
+* Debian
+
+* Ubuntu
+
+
+
 ## Default Variables
+
+Available variables are listed below, along with default values (see `defaults/main.yml`):
+
 
 ### dashboard_password
 
-#### Default value
+#### Default Value
 
 ```YAML
 dashboard_password: changeme
@@ -51,7 +70,7 @@ dashboard_password: changeme
 
 ### domain_name
 
-#### Default value
+#### Default Value
 
 ```YAML
 domain_name: wazuh.com
@@ -59,7 +78,7 @@ domain_name: wazuh.com
 
 ### generate_certs
 
-#### Default value
+#### Default Value
 
 ```YAML
 generate_certs: true
@@ -67,7 +86,7 @@ generate_certs: true
 
 ### indexer_admin_password
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_admin_password: changeme
@@ -75,7 +94,7 @@ indexer_admin_password: changeme
 
 ### indexer_cluster_name
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_cluster_name: wazuh
@@ -83,7 +102,7 @@ indexer_cluster_name: wazuh
 
 ### indexer_cluster_nodes
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_cluster_nodes:
@@ -92,7 +111,7 @@ indexer_cluster_nodes:
 
 ### indexer_conf_path
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_conf_path: /etc/wazuh-indexer/
@@ -100,7 +119,7 @@ indexer_conf_path: /etc/wazuh-indexer/
 
 ### indexer_custom_user
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_custom_user: ''
@@ -108,7 +127,7 @@ indexer_custom_user: ''
 
 ### indexer_custom_user_role
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_custom_user_role: admin
@@ -116,7 +135,7 @@ indexer_custom_user_role: admin
 
 ### indexer_discovery_nodes
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_discovery_nodes:
@@ -125,7 +144,7 @@ indexer_discovery_nodes:
 
 ### indexer_http_port
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_http_port: 9200
@@ -133,7 +152,7 @@ indexer_http_port: 9200
 
 ### indexer_index_path
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_index_path: /var/lib/wazuh-indexer/
@@ -141,7 +160,7 @@ indexer_index_path: /var/lib/wazuh-indexer/
 
 ### indexer_jvm_xms
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_jvm_xms:
@@ -149,7 +168,7 @@ indexer_jvm_xms:
 
 ### indexer_network_host
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_network_host: 0.0.0.0
@@ -157,7 +176,7 @@ indexer_network_host: 0.0.0.0
 
 ### indexer_node_data
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_node_data: true
@@ -165,7 +184,7 @@ indexer_node_data: true
 
 ### indexer_node_ingest
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_node_ingest: true
@@ -173,7 +192,7 @@ indexer_node_ingest: true
 
 ### indexer_node_master
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_node_master: true
@@ -181,7 +200,7 @@ indexer_node_master: true
 
 ### indexer_node_name
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_node_name: node-1
@@ -189,7 +208,7 @@ indexer_node_name: node-1
 
 ### indexer_nolog_sensible
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_nolog_sensible: true
@@ -197,7 +216,7 @@ indexer_nolog_sensible: true
 
 ### indexer_sec_plugin_conf_path
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_sec_plugin_conf_path: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig
@@ -205,7 +224,7 @@ indexer_sec_plugin_conf_path: /usr/share/wazuh-indexer/plugins/opensearch-securi
 
 ### indexer_sec_plugin_tools_path
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_sec_plugin_tools_path: /usr/share/wazuh-indexer/plugins/opensearch-security/tools
@@ -213,7 +232,7 @@ indexer_sec_plugin_tools_path: /usr/share/wazuh-indexer/plugins/opensearch-secur
 
 ### indexer_start_timeout
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_start_timeout: 90
@@ -221,7 +240,7 @@ indexer_start_timeout: 90
 
 ### indexer_version
 
-#### Default value
+#### Default Value
 
 ```YAML
 indexer_version: 4.3.9
@@ -229,7 +248,7 @@ indexer_version: 4.3.9
 
 ### local_certs_path
 
-#### Default value
+#### Default Value
 
 ```YAML
 local_certs_path: '{{ playbook_dir }}/files/indexer/certificates'
@@ -237,7 +256,7 @@ local_certs_path: '{{ playbook_dir }}/files/indexer/certificates'
 
 ### minimum_master_nodes
 
-#### Default value
+#### Default Value
 
 ```YAML
 minimum_master_nodes: 2
@@ -245,7 +264,7 @@ minimum_master_nodes: 2
 
 ### perform_installation
 
-#### Default value
+#### Default Value
 
 ```YAML
 perform_installation: true
@@ -253,7 +272,7 @@ perform_installation: true
 
 ### single_node
 
-#### Default value
+#### Default Value
 
 ```YAML
 single_node: false
@@ -280,6 +299,19 @@ None.
 
 license (GPLv3)
 
+# Copyright
+
+WAZUH Copyright (C) 2016, Wazuh Inc.
+
 ## Author
 
 Wazuh
+
+
+### Based on previous work from dj-wasabi
+
+- https://github.com/dj-wasabi/ansible-ossec-server
+
+### Modified by Wazuh
+
+The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.

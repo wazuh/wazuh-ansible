@@ -21,3 +21,261 @@ galaxy_info:
   galaxy_tags:
     - monitoring
 dependencies: []
+# @meta name: Ansible Playbook - Wazuh manager
+
+# @meta requirements: >
+# ## OS Requirements
+#
+# This role is compatible with:
+#
+#  * Red Hat
+#
+#  * CentOS
+#
+#  * Fedora
+#
+#  * Debian
+#
+#  * Ubuntu
+# @end
+
+# @meta instructions: >
+# ## Example Playbook
+#
+# Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+#
+#     - hosts: wazuh-server.example.com
+#
+#       roles:
+#
+#          - { role: ansible-wazuh-server }
+#
+# ## Default config
+#
+# ### defaults/main.yml
+#
+# ```
+#
+# ---
+#
+# wazuh_manager_fqdn: "wazuh-server"
+#
+# wazuh_manager_config:
+#
+#   json_output: 'yes'
+#
+#   alerts_log: 'yes'
+#
+#   logall: 'no'
+#
+#   authd:
+#
+#     enable: false
+#
+#   email_notification: no
+#
+#   mail_to:
+#
+#     - admin@example.net
+#
+#   mail_smtp_server: localhost
+#
+#   mail_from: wazuh-server@example.com
+#
+#   syscheck:
+#
+#     frequency: 43200
+#
+#     scan_on_start: 'yes'
+#
+#     ignore:
+#
+#       - /etc/mtab
+#
+#       - /etc/mnttab
+#
+#       - /etc/hosts.deny
+#
+#       - /etc/mail/statistics
+#
+#       - /etc/random-seed
+#
+#       - /etc/random.seed
+#
+#       - /etc/adjtime
+#
+#       - /etc/httpd/logs
+#
+#       - /etc/utmpx
+#
+#       - /etc/wtmpx
+#
+#       - /etc/cups/certs
+#
+#       - /etc/dumpdates
+#
+#       - /etc/svc/volatile
+#
+#     no_diff:
+#
+#       - /etc/ssl/private.key
+#
+#     directories:
+#
+#       - dirs: /etc,/usr/bin,/usr/sbin
+#
+#         checks: 'check_all="yes"'
+#
+#       - dirs: /bin,/sbin
+#
+#         checks: 'check_all="yes"'
+#
+#   rootcheck:
+#
+#     frequency: 43200
+#
+#   openscap:
+#
+#     timeout: 1800
+#
+#     interval: '1d'
+#
+#     scan_on_start: 'yes'
+#
+#   log_level: 1
+#
+#   email_level: 12
+#
+#   localfiles:
+#
+#     - format: 'syslog'
+#
+#       location: '/var/log/messages'
+#
+#     - format: 'syslog'
+#
+#       location: '/var/log/secure'
+#
+#     - format: 'command'
+#
+#       command: 'df -P'
+#
+#       frequency: '360'
+#
+#     - format: 'full_command'
+#
+#       command: 'netstat -tln | grep -v 127.0.0.1 | sort'
+#
+#       frequency: '360'
+#
+#     - format: 'full_command'
+#
+#       command: 'last -n 20'
+#
+#       frequency: '360'
+#
+#   globals:
+#
+#     - '127.0.0.1'
+#
+#     - '192.168.2.1'
+#
+#   connection:
+#
+#     - type: 'secure'
+#
+#       port: '1514'
+#
+#       protocol: 'tcp'
+#
+#   commands:
+#
+#     - name: 'disable-account'
+#
+#       executable: 'disable-account.sh'
+#
+#       expect: 'user'
+#
+#       timeout_allowed: 'yes'
+#
+#     - name: 'restart-ossec'
+#
+#       executable: 'restart-ossec.sh'
+#
+#       expect: ''
+#
+#       timeout_allowed: 'no'
+#
+#     - name: 'firewall-drop'
+#
+#       executable: 'firewall-drop.sh'
+#
+#       expect: 'srcip'
+#
+#       timeout_allowed: 'yes'
+#
+#     - name: 'host-deny'
+#
+#       executable: 'host-deny.sh'
+#
+#       expect: 'srcip'
+#
+#       timeout_allowed: 'yes'
+#
+#     - name: 'route-null'
+#
+#       executable: 'route-null.sh'
+#
+#       expect: 'srcip'
+#
+#       timeout_allowed: 'yes'
+#
+#     - name: 'win_route-null'
+#
+#       executable: 'route-null.cmd'
+#
+#       expect: 'srcip'
+#
+#       timeout_allowed: 'yes'
+#
+#   active_responses:
+#
+#     - command: 'host-deny'
+#
+#       location: 'local'
+#
+#       level: 6
+#
+#       timeout: 600
+#
+# #### Custom variables:
+#
+# You can create a YAML file and change the default variables for this role, to later using it with `-e` option in `ansible-playbooks`, for example:
+#
+# ```
+#
+# ---
+#
+# wazuh_manager_fqdn: "wazuh-server"
+#
+# wazuh_manager_config:
+#
+#   email_notification: yes
+#
+#   mail_to:
+#
+#     - myadmin@mydomain.com
+#
+#   mail_smtp_server: mysmtp.mydomain.com
+#
+# ```
+
+# @meta misc: >
+# ### Based on previous work from dj-wasabi
+#
+#   - https://github.com/dj-wasabi/ansible-ossec-server
+#
+# ### Modified by Wazuh
+#
+# The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+# @end

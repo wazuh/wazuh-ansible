@@ -21,3 +21,30 @@ galaxy_info:
   galaxy_tags:
     - monitoring
 dependencies: []
+# @meta name: Ansible Playbook - Wazuh dashboard
+
+# @meta requirements: >
+# ## OS Requirements
+#
+# This role is compatible with:
+#
+#  * Red Hat
+#
+#  * CentOS
+#
+#  * Fedora
+#
+#  * Debian
+#
+#  * Ubuntu
+# @end
+
+# @meta misc: >
+# ### Based on previous work from dj-wasabi
+#
+#   - https://github.com/dj-wasabi/ansible-ossec-server
+#
+# ### Modified by Wazuh
+#
+# The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+# @end

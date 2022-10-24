@@ -1,7 +1,7 @@
 ---
 # Auto-detect if the given directory is a role, can be disabled
 # to parse loose files instead.
-role_detection: False
+role_detection: true
 # Don't write anything to file system
 dry_run: False
 

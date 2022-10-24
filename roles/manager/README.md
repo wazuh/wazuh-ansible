@@ -1,113 +1,113 @@
 # Ansible Playbook - Wazuh manager
 
-This role will install the Wazuh manager on a host.
+Installing, deploying and configuring Wazuh Manager.
 
 ## Table of content
 
 - [Ansible Playbook - Wazuh manager](#ansible-playbook---wazuh-manager)
   - [Table of content](#table-of-content)
-  - [Requirements](#requirements)
+  - [OS Requirements](#os-requirements)
   - [Example Playbook](#example-playbook)
   - [Default config](#default-config)
     - [defaults/main.yml](#defaultsmainyml)
     - [wazuh\_custom\_packages\_installation\_manager\_deb\_url](#wazuh_custom_packages_installation_manager_deb_url)
-      - [Default value](#default-value)
+      - [Default Value](#default-value)
     - [wazuh\_custom\_packages\_installation\_manager\_enabled](#wazuh_custom_packages_installation_manager_enabled)
-      - [Default value](#default-value-1)
+      - [Default Value](#default-value-1)
     - [wazuh\_custom\_packages\_installation\_manager\_rpm\_url](#wazuh_custom_packages_installation_manager_rpm_url)
-      - [Default value](#default-value-2)
+      - [Default Value](#default-value-2)
     - [wazuh\_dir](#wazuh_dir)
-      - [Default value](#default-value-3)
+      - [Default Value](#default-value-3)
     - [wazuh\_manager\_agent\_disconnection\_time](#wazuh_manager_agent_disconnection_time)
-      - [Default value](#default-value-4)
+      - [Default Value](#default-value-4)
     - [wazuh\_manager\_agents\_disconnection\_alert\_time](#wazuh_manager_agents_disconnection_alert_time)
-      - [Default value](#default-value-5)
+      - [Default Value](#default-value-5)
     - [wazuh\_manager\_alerts\_log](#wazuh_manager_alerts_log)
-      - [Default value](#default-value-6)
+      - [Default Value](#default-value-6)
     - [wazuh\_manager\_api](#wazuh_manager_api)
-      - [Default value](#default-value-7)
+      - [Default Value](#default-value-7)
     - [wazuh\_manager\_authd](#wazuh_manager_authd)
-      - [Default value](#default-value-8)
+      - [Default Value](#default-value-8)
     - [wazuh\_manager\_ciscat](#wazuh_manager_ciscat)
-      - [Default value](#default-value-9)
+      - [Default Value](#default-value-9)
     - [wazuh\_manager\_cluster](#wazuh_manager_cluster)
-      - [Default value](#default-value-10)
+      - [Default Value](#default-value-10)
     - [wazuh\_manager\_commands](#wazuh_manager_commands)
-      - [Default value](#default-value-11)
+      - [Default Value](#default-value-11)
     - [wazuh\_manager\_config\_defaults](#wazuh_manager_config_defaults)
-      - [Default value](#default-value-12)
+      - [Default Value](#default-value-12)
     - [wazuh\_manager\_config\_overlay](#wazuh_manager_config_overlay)
-      - [Default value](#default-value-13)
+      - [Default Value](#default-value-13)
     - [wazuh\_manager\_connection](#wazuh_manager_connection)
-      - [Default value](#default-value-14)
+      - [Default Value](#default-value-14)
     - [wazuh\_manager\_email\_from](#wazuh_manager_email_from)
-      - [Default value](#default-value-15)
+      - [Default Value](#default-value-15)
     - [wazuh\_manager\_email\_level](#wazuh_manager_email_level)
-      - [Default value](#default-value-16)
+      - [Default Value](#default-value-16)
     - [wazuh\_manager\_email\_log\_source](#wazuh_manager_email_log_source)
-      - [Default value](#default-value-17)
+      - [Default Value](#default-value-17)
     - [wazuh\_manager\_email\_maxperhour](#wazuh_manager_email_maxperhour)
-      - [Default value](#default-value-18)
+      - [Default Value](#default-value-18)
     - [wazuh\_manager\_email\_notification](#wazuh_manager_email_notification)
-      - [Default value](#default-value-19)
+      - [Default Value](#default-value-19)
     - [wazuh\_manager\_email\_queue\_size](#wazuh_manager_email_queue_size)
-      - [Default value](#default-value-20)
+      - [Default Value](#default-value-20)
     - [wazuh\_manager\_email\_smtp\_server](#wazuh_manager_email_smtp_server)
-      - [Default value](#default-value-21)
+      - [Default Value](#default-value-21)
     - [wazuh\_manager\_extra\_emails](#wazuh_manager_extra_emails)
-      - [Default value](#default-value-22)
+      - [Default Value](#default-value-22)
     - [wazuh\_manager\_fqdn](#wazuh_manager_fqdn)
-      - [Default value](#default-value-23)
+      - [Default Value](#default-value-23)
     - [wazuh\_manager\_globals](#wazuh_manager_globals)
-      - [Default value](#default-value-24)
+      - [Default Value](#default-value-24)
     - [wazuh\_manager\_integrations](#wazuh_manager_integrations)
-      - [Default value](#default-value-25)
+      - [Default Value](#default-value-25)
     - [wazuh\_manager\_json\_output](#wazuh_manager_json_output)
-      - [Default value](#default-value-26)
+      - [Default Value](#default-value-26)
     - [wazuh\_manager\_labels](#wazuh_manager_labels)
-      - [Default value](#default-value-27)
+      - [Default Value](#default-value-27)
     - [wazuh\_manager\_localfiles](#wazuh_manager_localfiles)
-      - [Default value](#default-value-28)
+      - [Default Value](#default-value-28)
     - [wazuh\_manager\_log\_format](#wazuh_manager_log_format)
-      - [Default value](#default-value-29)
+      - [Default Value](#default-value-29)
     - [wazuh\_manager\_log\_level](#wazuh_manager_log_level)
-      - [Default value](#default-value-30)
+      - [Default Value](#default-value-30)
     - [wazuh\_manager\_logall](#wazuh_manager_logall)
-      - [Default value](#default-value-31)
+      - [Default Value](#default-value-31)
     - [wazuh\_manager\_logall\_json](#wazuh_manager_logall_json)
-      - [Default value](#default-value-32)
+      - [Default Value](#default-value-32)
     - [wazuh\_manager\_mailto](#wazuh_manager_mailto)
-      - [Default value](#default-value-33)
+      - [Default Value](#default-value-33)
     - [wazuh\_manager\_monitor\_aws](#wazuh_manager_monitor_aws)
-      - [Default value](#default-value-34)
+      - [Default Value](#default-value-34)
     - [wazuh\_manager\_openscap](#wazuh_manager_openscap)
-      - [Default value](#default-value-35)
+      - [Default Value](#default-value-35)
     - [wazuh\_manager\_osquery](#wazuh_manager_osquery)
-      - [Default value](#default-value-36)
+      - [Default Value](#default-value-36)
     - [wazuh\_manager\_package\_state](#wazuh_manager_package_state)
-      - [Default value](#default-value-37)
+      - [Default Value](#default-value-37)
     - [wazuh\_manager\_reports](#wazuh_manager_reports)
-      - [Default value](#default-value-38)
+      - [Default Value](#default-value-38)
     - [wazuh\_manager\_rootcheck](#wazuh_manager_rootcheck)
-      - [Default value](#default-value-39)
+      - [Default Value](#default-value-39)
     - [wazuh\_manager\_rule\_exclude](#wazuh_manager_rule_exclude)
-      - [Default value](#default-value-40)
+      - [Default Value](#default-value-40)
     - [wazuh\_manager\_ruleset](#wazuh_manager_ruleset)
-      - [Default value](#default-value-41)
+      - [Default Value](#default-value-41)
     - [wazuh\_manager\_sca](#wazuh_manager_sca)
-      - [Default value](#default-value-42)
+      - [Default Value](#default-value-42)
     - [wazuh\_manager\_sources\_installation](#wazuh_manager_sources_installation)
-      - [Default value](#default-value-43)
+      - [Default Value](#default-value-43)
     - [wazuh\_manager\_syscheck](#wazuh_manager_syscheck)
-      - [Default value](#default-value-44)
+      - [Default Value](#default-value-44)
     - [wazuh\_manager\_syscollector](#wazuh_manager_syscollector)
-      - [Default value](#default-value-45)
+      - [Default Value](#default-value-45)
     - [wazuh\_manager\_syslog\_outputs](#wazuh_manager_syslog_outputs)
-      - [Default value](#default-value-46)
+      - [Default Value](#default-value-46)
     - [wazuh\_manager\_version](#wazuh_manager_version)
-      - [Default value](#default-value-47)
+      - [Default Value](#default-value-47)
     - [wazuh\_manager\_vulnerability\_detector](#wazuh_manager_vulnerability_detector)
-      - [Default value](#default-value-48)
+      - [Default Value](#default-value-48)
   - [Vault variables](#vault-variables)
     - [vars/agentless\_creds.yml](#varsagentless_credsyml)
     - [vars/wazuh\_api\_creds.yml](#varswazuh_api_credsyml)
@@ -115,155 +115,268 @@ This role will install the Wazuh manager on a host.
   - [\`\`\`](#)
   - [Discovered Tags](#discovered-tags)
   - [Dependencies](#dependencies)
-  - [License and copyright](#license-and-copyright)
+  - [License](#license)
+- [Copyright](#copyright)
+  - [Author](#author)
     - [Based on previous work from dj-wasabi](#based-on-previous-work-from-dj-wasabi)
     - [Modified by Wazuh](#modified-by-wazuh)
 
 ---
 
-Requirements
-------------
+## OS Requirements
 
-This role will work on:
- * Red Hat
- * CentOS
- * Fedora
- * Debian
- * Ubuntu
+This role is compatible with:
 
-Example Playbook
-----------------
+* Red Hat
+
+* CentOS
+
+* Fedora
+
+* Debian
+
+* Ubuntu
+
+
+## Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: wazuh-server.example.com
-      roles:
-         - { role: ansible-wazuh-server }
+- hosts: wazuh-server.example.com
 
-Default config
---------------
+roles:
+
+- { role: ansible-wazuh-server }
+
+## Default config
 
 ### defaults/main.yml
+
 ```
+
 ---
+
 wazuh_manager_fqdn: "wazuh-server"
 
 wazuh_manager_config:
-  json_output: 'yes'
-  alerts_log: 'yes'
-  logall: 'no'
-  authd:
-    enable: false
-  email_notification: no
-  mail_to:
-    - admin@example.net
-  mail_smtp_server: localhost
-  mail_from: wazuh-server@example.com
-  syscheck:
-    frequency: 43200
-    scan_on_start: 'yes'
-    ignore:
-      - /etc/mtab
-      - /etc/mnttab
-      - /etc/hosts.deny
-      - /etc/mail/statistics
-      - /etc/random-seed
-      - /etc/random.seed
-      - /etc/adjtime
-      - /etc/httpd/logs
-      - /etc/utmpx
-      - /etc/wtmpx
-      - /etc/cups/certs
-      - /etc/dumpdates
-      - /etc/svc/volatile
-    no_diff:
-      - /etc/ssl/private.key
-    directories:
-      - dirs: /etc,/usr/bin,/usr/sbin
-        checks: 'check_all="yes"'
-      - dirs: /bin,/sbin
-        checks: 'check_all="yes"'
-  rootcheck:
-    frequency: 43200
-  openscap:
-    timeout: 1800
-    interval: '1d'
-    scan_on_start: 'yes'
-  log_level: 1
-  email_level: 12
-  localfiles:
-    - format: 'syslog'
-      location: '/var/log/messages'
-    - format: 'syslog'
-      location: '/var/log/secure'
-    - format: 'command'
-      command: 'df -P'
-      frequency: '360'
-    - format: 'full_command'
-      command: 'netstat -tln | grep -v 127.0.0.1 | sort'
-      frequency: '360'
-    - format: 'full_command'
-      command: 'last -n 20'
-      frequency: '360'
-  globals:
-    - '127.0.0.1'
-    - '192.168.2.1'
-  connection:
-    - type: 'secure'
-      port: '1514'
-      protocol: 'tcp'
-  commands:
-    - name: 'disable-account'
-      executable: 'disable-account.sh'
-      expect: 'user'
-      timeout_allowed: 'yes'
-    - name: 'restart-ossec'
-      executable: 'restart-ossec.sh'
-      expect: ''
-      timeout_allowed: 'no'
-    - name: 'firewall-drop'
-      executable: 'firewall-drop.sh'
-      expect: 'srcip'
-      timeout_allowed: 'yes'
-    - name: 'host-deny'
-      executable: 'host-deny.sh'
-      expect: 'srcip'
-      timeout_allowed: 'yes'
-    - name: 'route-null'
-      executable: 'route-null.sh'
-      expect: 'srcip'
-      timeout_allowed: 'yes'
-    - name: 'win_route-null'
-      executable: 'route-null.cmd'
-      expect: 'srcip'
-      timeout_allowed: 'yes'
-  active_responses:
-    - command: 'host-deny'
-      location: 'local'
-      level: 6
-      timeout: 600
+
+json_output: 'yes'
+
+alerts_log: 'yes'
+
+logall: 'no'
+
+authd:
+
+enable: false
+
+email_notification: no
+
+mail_to:
+
+- admin@example.net
+
+mail_smtp_server: localhost
+
+mail_from: wazuh-server@example.com
+
+syscheck:
+
+frequency: 43200
+
+scan_on_start: 'yes'
+
+ignore:
+
+- /etc/mtab
+
+- /etc/mnttab
+
+- /etc/hosts.deny
+
+- /etc/mail/statistics
+
+- /etc/random-seed
+
+- /etc/random.seed
+
+- /etc/adjtime
+
+- /etc/httpd/logs
+
+- /etc/utmpx
+
+- /etc/wtmpx
+
+- /etc/cups/certs
+
+- /etc/dumpdates
+
+- /etc/svc/volatile
+
+no_diff:
+
+- /etc/ssl/private.key
+
+directories:
+
+- dirs: /etc,/usr/bin,/usr/sbin
+
+checks: 'check_all="yes"'
+
+- dirs: /bin,/sbin
+
+checks: 'check_all="yes"'
+
+rootcheck:
+
+frequency: 43200
+
+openscap:
+
+timeout: 1800
+
+interval: '1d'
+
+scan_on_start: 'yes'
+
+log_level: 1
+
+email_level: 12
+
+localfiles:
+
+- format: 'syslog'
+
+location: '/var/log/messages'
+
+- format: 'syslog'
+
+location: '/var/log/secure'
+
+- format: 'command'
+
+command: 'df -P'
+
+frequency: '360'
+
+- format: 'full_command'
+
+command: 'netstat -tln | grep -v 127.0.0.1 | sort'
+
+frequency: '360'
+
+- format: 'full_command'
+
+command: 'last -n 20'
+
+frequency: '360'
+
+globals:
+
+- '127.0.0.1'
+
+- '192.168.2.1'
+
+connection:
+
+- type: 'secure'
+
+port: '1514'
+
+protocol: 'tcp'
+
+commands:
+
+- name: 'disable-account'
+
+executable: 'disable-account.sh'
+
+expect: 'user'
+
+timeout_allowed: 'yes'
+
+- name: 'restart-ossec'
+
+executable: 'restart-ossec.sh'
+
+expect: ''
+
+timeout_allowed: 'no'
+
+- name: 'firewall-drop'
+
+executable: 'firewall-drop.sh'
+
+expect: 'srcip'
+
+timeout_allowed: 'yes'
+
+- name: 'host-deny'
+
+executable: 'host-deny.sh'
+
+expect: 'srcip'
+
+timeout_allowed: 'yes'
+
+- name: 'route-null'
+
+executable: 'route-null.sh'
+
+expect: 'srcip'
+
+timeout_allowed: 'yes'
+
+- name: 'win_route-null'
+
+executable: 'route-null.cmd'
+
+expect: 'srcip'
+
+timeout_allowed: 'yes'
+
+active_responses:
+
+- command: 'host-deny'
+
+location: 'local'
+
+level: 6
+
+timeout: 600
 
 #### Custom variables:
+
 You can create a YAML file and change the default variables for this role, to later using it with `-e` option in `ansible-playbooks`, for example:
 
 ```
+
 ---
+
 wazuh_manager_fqdn: "wazuh-server"
 
 wazuh_manager_config:
-  email_notification: yes
-  mail_to:
-    - myadmin@mydomain.com
-  mail_smtp_server: mysmtp.mydomain.com
+
+email_notification: yes
+
+mail_to:
+
+- myadmin@mydomain.com
+
+mail_smtp_server: mysmtp.mydomain.com
+
 ```
+
 
 ## Default Variables
 
-This role has some variables which you can or need to override.
+Available variables are listed below, along with default values (see `defaults/main.yml`):
+
 
 ### agent_groups
 
-#### Default value
+#### Default Value
 
 ```YAML
 agent_groups: []
@@ -271,7 +384,7 @@ agent_groups: []
 
 ### wazuh_custom_packages_installation_manager_deb_url
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_custom_packages_installation_manager_deb_url: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/
@@ -279,7 +392,7 @@ wazuh_custom_packages_installation_manager_deb_url: https://s3-us-west-1.amazona
 
 ### wazuh_custom_packages_installation_manager_enabled
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_custom_packages_installation_manager_enabled: false
@@ -287,7 +400,7 @@ wazuh_custom_packages_installation_manager_enabled: false
 
 ### wazuh_custom_packages_installation_manager_rpm_url
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_custom_packages_installation_manager_rpm_url: https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/
@@ -295,7 +408,7 @@ wazuh_custom_packages_installation_manager_rpm_url: https://s3-us-west-1.amazona
 
 ### wazuh_dir
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_dir: /var/ossec
@@ -303,7 +416,7 @@ wazuh_dir: /var/ossec
 
 ### wazuh_manager_agent_disconnection_time
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_agent_disconnection_time: 20s
@@ -311,7 +424,7 @@ wazuh_manager_agent_disconnection_time: 20s
 
 ### wazuh_manager_agents_disconnection_alert_time
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_agents_disconnection_alert_time: 100s
@@ -319,7 +432,7 @@ wazuh_manager_agents_disconnection_alert_time: 100s
 
 ### wazuh_manager_alerts_log
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_alerts_log: yes
@@ -327,7 +440,7 @@ wazuh_manager_alerts_log: yes
 
 ### wazuh_manager_api
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_api:
@@ -361,7 +474,7 @@ wazuh_manager_api:
 
 ### wazuh_manager_authd
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_authd:
@@ -385,7 +498,7 @@ wazuh_manager_authd:
 
 ### wazuh_manager_ciscat
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_ciscat:
@@ -400,7 +513,7 @@ wazuh_manager_ciscat:
 
 ### wazuh_manager_cluster
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_cluster:
@@ -418,7 +531,7 @@ wazuh_manager_cluster:
 
 ### wazuh_manager_commands
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_commands:
@@ -447,7 +560,7 @@ wazuh_manager_commands:
 
 ### wazuh_manager_config_defaults
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_config_defaults:
@@ -496,7 +609,7 @@ wazuh_manager_config_defaults:
 
 ### wazuh_manager_config_overlay
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_config_overlay: true
@@ -504,7 +617,7 @@ wazuh_manager_config_overlay: true
 
 ### wazuh_manager_connection
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_connection:
@@ -516,7 +629,7 @@ wazuh_manager_connection:
 
 ### wazuh_manager_email_from
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_from: wazuh@example.wazuh.com
@@ -524,7 +637,7 @@ wazuh_manager_email_from: wazuh@example.wazuh.com
 
 ### wazuh_manager_email_level
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_level: 12
@@ -532,7 +645,7 @@ wazuh_manager_email_level: 12
 
 ### wazuh_manager_email_log_source
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_log_source: alerts.log
@@ -540,7 +653,7 @@ wazuh_manager_email_log_source: alerts.log
 
 ### wazuh_manager_email_maxperhour
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_maxperhour: 12
@@ -548,7 +661,7 @@ wazuh_manager_email_maxperhour: 12
 
 ### wazuh_manager_email_notification
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_notification: no
@@ -556,7 +669,7 @@ wazuh_manager_email_notification: no
 
 ### wazuh_manager_email_queue_size
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_queue_size: 131072
@@ -564,7 +677,7 @@ wazuh_manager_email_queue_size: 131072
 
 ### wazuh_manager_email_smtp_server
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_email_smtp_server: smtp.example.wazuh.com
@@ -572,7 +685,7 @@ wazuh_manager_email_smtp_server: smtp.example.wazuh.com
 
 ### wazuh_manager_extra_emails
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_extra_emails:
@@ -589,7 +702,7 @@ wazuh_manager_extra_emails:
 
 ### wazuh_manager_fqdn
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_fqdn: wazuh-server
@@ -597,7 +710,7 @@ wazuh_manager_fqdn: wazuh-server
 
 ### wazuh_manager_globals
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_globals:
@@ -608,7 +721,7 @@ wazuh_manager_globals:
 
 ### wazuh_manager_integrations
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_integrations:
@@ -624,7 +737,7 @@ wazuh_manager_integrations:
 
 ### wazuh_manager_json_output
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_json_output: yes
@@ -632,7 +745,7 @@ wazuh_manager_json_output: yes
 
 ### wazuh_manager_labels
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_labels:
@@ -644,7 +757,7 @@ wazuh_manager_labels:
 
 ### wazuh_manager_localfiles
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_localfiles:
@@ -687,7 +800,7 @@ wazuh_manager_localfiles:
 
 ### wazuh_manager_log_format
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_log_format: plain
@@ -695,7 +808,7 @@ wazuh_manager_log_format: plain
 
 ### wazuh_manager_log_level
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_log_level: 3
@@ -703,7 +816,7 @@ wazuh_manager_log_level: 3
 
 ### wazuh_manager_logall
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_logall: no
@@ -711,7 +824,7 @@ wazuh_manager_logall: no
 
 ### wazuh_manager_logall_json
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_logall_json: no
@@ -719,7 +832,7 @@ wazuh_manager_logall_json: no
 
 ### wazuh_manager_mailto
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_mailto:
@@ -728,7 +841,7 @@ wazuh_manager_mailto:
 
 ### wazuh_manager_monitor_aws
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_monitor_aws:
@@ -747,7 +860,7 @@ wazuh_manager_monitor_aws:
 
 ### wazuh_manager_openscap
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_openscap:
@@ -759,7 +872,7 @@ wazuh_manager_openscap:
 
 ### wazuh_manager_osquery
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_osquery:
@@ -772,7 +885,7 @@ wazuh_manager_osquery:
 
 ### wazuh_manager_package_state
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_package_state: present
@@ -780,7 +893,7 @@ wazuh_manager_package_state: present
 
 ### wazuh_manager_reports
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_reports:
@@ -799,7 +912,7 @@ wazuh_manager_reports:
 
 ### wazuh_manager_rootcheck
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_rootcheck:
@@ -808,7 +921,7 @@ wazuh_manager_rootcheck:
 
 ### wazuh_manager_rule_exclude
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_rule_exclude:
@@ -817,7 +930,7 @@ wazuh_manager_rule_exclude:
 
 ### wazuh_manager_ruleset
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_ruleset:
@@ -831,7 +944,7 @@ wazuh_manager_ruleset:
 
 ### wazuh_manager_sca
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_sca:
@@ -846,7 +959,7 @@ wazuh_manager_sca:
 
 ### wazuh_manager_sources_installation
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_sources_installation:
@@ -877,7 +990,7 @@ wazuh_manager_sources_installation:
 
 ### wazuh_manager_syscheck
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_syscheck:
@@ -925,7 +1038,7 @@ wazuh_manager_syscheck:
 
 ### wazuh_manager_syscollector
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_syscollector:
@@ -942,7 +1055,7 @@ wazuh_manager_syscollector:
 
 ### wazuh_manager_syslog_outputs
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_syslog_outputs:
@@ -953,7 +1066,7 @@ wazuh_manager_syslog_outputs:
 
 ### wazuh_manager_version
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_version: 4.3.9
@@ -961,7 +1074,7 @@ wazuh_manager_version: 4.3.9
 
 ### wazuh_manager_vulnerability_detector
 
-#### Default value
+#### Default Value
 
 ```YAML
 wazuh_manager_vulnerability_detector:
@@ -1043,13 +1156,22 @@ authd_pass: foobar
 
 None.
 
-## License and copyright
+## License
 
-WAZUH Copyright (C) 2016, Wazuh Inc. (License GPLv3)
+license (GPLv3)
+
+# Copyright
+
+WAZUH Copyright (C) 2016, Wazuh Inc.
+
+## Author
+
+Wazuh
+
 
 ### Based on previous work from dj-wasabi
 
- - https://github.com/dj-wasabi/ansible-ossec-server
+- https://github.com/dj-wasabi/ansible-ossec-server
 
 ### Modified by Wazuh
 

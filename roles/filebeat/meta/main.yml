@@ -3,15 +3,15 @@ dependencies: []
 
 galaxy_info:
   author: Wazuh
-  description: Installing and maintaining Filebeat-oss.
+  description: An Ansible Role that installs [Filebeat-oss](https://www.elastic.co/products/beats/filebeat), this can be used in conjunction with [ansible-wazuh-manager](https://github.com/wazuh/wazuh-ansible/ansible-wazuh-server).
   company: wazuh.com
   license: license (GPLv3)
-  min_ansible_version: 2.0
+  min_ansible_version: "2.0"
   platforms:
     - name: EL
       versions:
-        - 6
-        - 7
+        - "6"
+        - "7"
     - name: Fedora
       versions:
         - all
@@ -27,3 +27,30 @@ galaxy_info:
     - web
     - system
     - monitoring
+# @meta name: Ansible Role - Filebeat for Elastic Stack
+
+# @meta requirements: >
+# ## OS Requirements
+#
+# This role is compatible with:
+#
+#  * Red Hat
+#
+#  * CentOS
+#
+#  * Fedora
+#
+#  * Debian
+#
+#  * Ubuntu
+# @end
+
+# @meta misc: >
+# ### Based on previous work from geerlingguy
+#
+#   - https://github.com/geerlingguy/ansible-role-filebeat
+#
+# ### Modified by Wazuh
+#
+# The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+# @end
