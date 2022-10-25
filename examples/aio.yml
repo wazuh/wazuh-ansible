@@ -3,6 +3,12 @@ single_node: true
 minimum_master_nodes: 1
 indexer_network_host: 127.0.0.1
 
+indexer_admin_password: <changeme>
+dashboard_password: <changeme>
+
+indexer_security_user: admin
+indexer_security_password: changeme
+
 indexer_node_master: true
 instances:
   node1:
@@ -17,6 +23,69 @@ filebeat_output_indexer_hosts:
 ansible_shell_allow_world_readable_temp: true
 
 #### Manager
+## groups to create
+agent_groups:
+  - "windows"
+  - "linux"
+  - "ubuntu"
+  - "server"
+  - "vm"
+  - "workstation"
+  - "network"
+
+## Woodles
+wazuh_manager_openscap:
+  disable: "no"
+  timeout: 1800
+  interval: "1d"
+  scan_on_start: "yes"
+
+wazuh_manager_ciscat:
+  disable: "no"
+  install_java: "yes"
+  timeout: 1800
+  interval: "1d"
+  scan_on_start: "yes"
+  java_path: "/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin"
+  ciscat_path: "wodles/ciscat"
+
+wazuh_manager_osquery:
+  disable: "no"
+  run_daemon: "yes"
+  log_path: "/var/log/osquery/osqueryd.results.log"
+  config_path: "/etc/osquery/osquery.conf"
+  ad_labels: "yes"
+
+## Vulnerability Detector
+wazuh_manager_vulnerability_detector:
+  enabled: "yes"
+  interval: "5m"
+  run_on_start: "yes"
+  providers:
+    - enabled: "no"
+      os:
+        - "trusty"
+        - "xenial"
+        - "bionic"
+      update_interval: "1h"
+      name: '"canonical"'
+    - enabled: "yes"
+      os:
+        - "wheezy"
+        - "stretch"
+        - "jessie"
+        - "buster"
+      update_interval: "1h"
+      name: '"debian"'
+    - enabled: "no"
+      update_from_year: "2010"
+      update_interval: "1h"
+      name: '"redhat"'
+    - enabled: "no"
+      update_from_year: "2010"
+      update_interval: "1h"
+      name: '"nvd"'
+
 ## Alerts
 wazuh_manager_log_level: 3
 wazuh_manager_email_level: 12
