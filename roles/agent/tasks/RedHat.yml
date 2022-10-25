@@ -7,6 +7,7 @@
     gpgkey: "{{ wazuh_agent_config.repo.gpg }}-5"
     gpgcheck: true
   changed_when: false
+  become: true
   when:
     - (ansible_facts['os_family']|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
@@ -22,6 +23,7 @@
     gpgkey: "{{ wazuh_agent_config.repo.gpg }}"
     gpgcheck: true
   changed_when: false
+  become: true
   when:
     - repo_v5_installed is skipped
     - not wazuh_agent_sources_installation.enabled
@@ -31,6 +33,7 @@
   yum:
     name: java-1.8.0-openjdk
     state: present
+  become: true
   when:
     - wazuh_agent_config.cis_cat.disable == 'no'
     - wazuh_agent_config.cis_cat.install_java == 'yes'
@@ -65,6 +68,7 @@
   package:
     name: openscap-scanner
     state: present
+  become: true
   register: wazuh_agent_openscap_package_install
   until: wazuh_agent_openscap_package_install is succeeded
   when: wazuh_agent_config.openscap.disable == 'no'

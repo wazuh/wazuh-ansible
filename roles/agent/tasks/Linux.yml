@@ -18,6 +18,7 @@
     name: wazuh-agent-{{ wazuh_agent_version }}
     state: present
     lock_timeout: "{{ wazuh_agent_yum_lock_timeout }}"
+  become: true
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_agent_sources_installation.enabled
@@ -30,6 +31,7 @@
     name: "wazuh-agent={{ wazuh_agent_version }}-*"
     state: present
     cache_valid_time: 3600
+  become: true
   when:
     - ansible_os_family|lower != "redhat"
     - not wazuh_agent_sources_installation.enabled
@@ -104,6 +106,7 @@
         - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
 
+  become: true
   when:
     - wazuh_agent_authd.enable | bool
     - wazuh_agent_config.enrollment.enabled != 'yes'
@@ -204,6 +207,7 @@
       vars:
         agent_name: "{{ target_manager.agent_name | default(ansible_hostname) }}"
       notify: restart wazuh-agent
+  become: true
   when:
     - not ( wazuh_agent_authd.enable | bool )
     - wazuh_agent_config.enrollment.enabled != 'yes'
@@ -221,6 +225,7 @@
   ansible.builtin.group:
     name: wazuh
     state: present
+  become: true
 
 - name: Linux | Installing agent configuration (ossec.conf)
   template:
@@ -229,6 +234,7 @@
     owner: root
     group: wazuh
     mode: 0644
+  become: true
   notify: restart wazuh-agent
   tags:
     - init
@@ -241,6 +247,7 @@
     owner: root
     group: wazuh
     mode: 0640
+  become: true
   notify: restart wazuh-agent
   tags:
     - init
@@ -253,6 +260,7 @@
     owner: wazuh
     group: wazuh
     mode: 0640
+  become: true
   when:
     - wazuh_agent_config.enrollment.enabled == 'yes'
     - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
@@ -265,6 +273,7 @@
     name: wazuh-agent
     enabled: true
     state: started
+  become: true
   tags: config
 
 - include_tasks: "RMRedHat.yml"

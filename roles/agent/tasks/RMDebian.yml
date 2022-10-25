@@ -3,4 +3,5 @@
   apt_repository:
     repo: "{{ wazuh_agent_config.repo.apt }}"
     state: absent
+  become: true
   changed_when: false

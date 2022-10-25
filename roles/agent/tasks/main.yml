@@ -1,7 +1,7 @@
 ---
 - name: Get latest Wazuh release
   become: false
-  shell: "set -o pipefail && curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
+  shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
   register: wazuh_latest_release
   changed_when: false
   delegate_to: localhost

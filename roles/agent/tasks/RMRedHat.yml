@@ -3,4 +3,5 @@
   yum_repository:
     name: wazuh_repo
     state: absent
+  become: true
   changed_when: false

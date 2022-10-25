@@ -7,6 +7,7 @@
       - acl
       - gnupg
     state: present
+  become: true
   register: wazuh_agent_ca_package_install
   until: wazuh_agent_ca_package_install is succeeded
 
@@ -29,6 +30,7 @@
   apt_key:
     url: "{{ wazuh_agent_config.repo.gpg }}"
     id: "{{ wazuh_agent_config.repo.key_id }}"
+  become: true
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_agent_sources_installation.enabled
@@ -40,6 +42,7 @@
     repo: "{{ wazuh_agent_config.repo.apt }}"
     state: present
     update_cache: true
+  become: true
   when:
     - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
@@ -54,6 +57,7 @@
     repo: "ppa:openjdk-r/ppa"
     state: present
     update_cache: true
+  become: true
   when:
     - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
@@ -66,6 +70,7 @@
         name: openjdk-8-jre
         state: present
         cache_valid_time: 3600
+  become: true
   tags:
     - init
 
@@ -75,6 +80,7 @@
       - libopenscap8
       - xsltproc
     state: present
+  become: true
   when: wazuh_agent_config.openscap.disable == 'no'
   tags:
     - init

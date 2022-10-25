@@ -9,21 +9,25 @@
       - libtool
       - tar
     state: present
+  become: true
 
 - name: Removing old files
   file:
     path: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
     state: absent
+  become: true
 
 - name: Removing old folders
   file:
     path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
     state: absent
+  become: true
 
 - name: Installing policycoreutils-python (RedHat families)
   package:
     name:
       - policycoreutils-python
+  become: true
   when:
     - ansible_os_family|lower == "redhat"
 
@@ -33,6 +37,7 @@
       - libc6-dev
       - curl
       - policycoreutils
+  become: true
   when:
     - ansible_os_family|lower == "debian"
 
@@ -40,6 +45,7 @@
   get_url:
     url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
     dest: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+  become: true
   delegate_to: "{{ inventory_hostname }}"
   changed_when: false
 
@@ -48,6 +54,7 @@
     path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
     mode: 0755
     state: directory
+  become: true
   changed_when: false
 
 - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
@@ -55,6 +62,7 @@
     tar -xzvf /tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz
     --strip 1
     --directory /tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}
+  become: true
   register: wazuh_untar
   changed_when: false
   args:
@@ -67,6 +75,7 @@
   with_items:
     - "clean"
     - "clean-deps"
+  become: true
   register: clean_result
   changed_when: clean_result.rc == 0
   failed_when: false
@@ -78,10 +87,12 @@
     owner: root
     group: root
     mode: 0644
+  become: true
   changed_when: false
 
 - name: Executing "install.sh" script to build and install the Wazuh Agent
   shell: ./install.sh > /tmp/build_agent_log.txt
+  become: true
   register: installation_result
   changed_when: installation_result == 0
   args:
@@ -91,10 +102,12 @@
   file:
     path: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
     state: absent
+  become: true
   changed_when: false
 
 - name: Cleanup created folders
   file:
     path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
     state: absent
+  become: true
   changed_when: false
