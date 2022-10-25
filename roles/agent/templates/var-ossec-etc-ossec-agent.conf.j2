@@ -416,7 +416,9 @@
       <log_format>{{ localfile.format }}</log_format>
   {% if localfile.format == 'eventchannel' %}
       <location>{{ localfile.location }}</location>
+    {% if localfile.query is defined  %}
       <query>{{ localfile.query}}</query>
+    {% endif %}
   {% else %}
       <location>{{ localfile.location }}</location>
       {% if localfile.format == 'json' %}
