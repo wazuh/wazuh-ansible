@@ -43,6 +43,7 @@
 - name: Linux | Check if client.keys exists
   stat:
     path: "{{ wazuh_dir }}/etc/client.keys"
+  become: true
   register: client_keys_file
   tags:
     - config
