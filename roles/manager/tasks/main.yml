@@ -222,9 +222,7 @@
     - config
 
 - name: Check if ossec-agentlessd is enabled
-  shell: |
-    set -o pipefail
-    "grep -c 'ossec-agentlessd' {{ wazuh_dir }}/bin/.process_list | xargs echo"
+  shell: "set -o pipefail && grep -c 'ossec-agentlessd' {{ wazuh_dir }}/bin/.process_list | xargs echo"
   args:
     removes: "{{ wazuh_dir }}/bin/.process_list"
     executable: /bin/bash
