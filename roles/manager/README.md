@@ -160,191 +160,220 @@ wazuh_manager_fqdn: "wazuh-server"
 
 wazuh_manager_config:
 
-json_output: 'yes'
+  json_output: 'yes'
 
-alerts_log: 'yes'
+  alerts_log: 'yes'
 
-logall: 'no'
+  logall: 'no'
 
-authd:
+  authd:
 
-enable: false
+    enable: false
 
-email_notification: no
+  email_notification: no
 
-mail_to:
+  mail_to:
 
-- admin@example.net
+    - admin@example.net
 
-mail_smtp_server: localhost
+  mail_smtp_server: localhost
 
-mail_from: wazuh-server@example.com
+  mail_from: wazuh-server@example.com
 
-syscheck:
+  syscheck:
 
-frequency: 43200
+    frequency: 43200
 
-scan_on_start: 'yes'
+    scan_on_start: 'yes'
 
-ignore:
+    ignore:
 
-- /etc/mtab
+      - /etc/mtab
 
-- /etc/mnttab
+      - /etc/mnttab
 
-- /etc/hosts.deny
+      - /etc/hosts.deny
 
-- /etc/mail/statistics
+      - /etc/mail/statistics
 
-- /etc/random-seed
+      - /etc/random-seed
 
-- /etc/random.seed
+      - /etc/random.seed
 
-- /etc/adjtime
+      - /etc/adjtime
 
-- /etc/httpd/logs
+      - /etc/httpd/logs
 
-- /etc/utmpx
+      - /etc/utmpx
 
-- /etc/wtmpx
+      - /etc/wtmpx
 
-- /etc/cups/certs
+      - /etc/cups/certs
 
-- /etc/dumpdates
+      - /etc/dumpdates
 
-- /etc/svc/volatile
+      - /etc/svc/volatile
 
-no_diff:
+    no_diff:
 
-- /etc/ssl/private.key
+      - /etc/ssl/private.key
 
-directories:
+    directories:
 
-- dirs: /etc,/usr/bin,/usr/sbin
+      - dirs: /etc,/usr/bin,/usr/sbin
 
-checks: 'check_all="yes"'
+        checks: 'check_all="yes"'
 
-- dirs: /bin,/sbin
+      - dirs: /bin,/sbin
 
-checks: 'check_all="yes"'
+        checks: 'check_all="yes"'
 
-rootcheck:
+  rootcheck:
 
-frequency: 43200
+    frequency: 43200
 
-openscap:
+  openscap:
 
-timeout: 1800
+    timeout: 1800
 
-interval: '1d'
+    interval: '1d'
 
-scan_on_start: 'yes'
+    scan_on_start: 'yes'
 
-log_level: 1
+  log_level: 1
 
-email_level: 12
+  email_level: 12
 
-localfiles:
+  localfiles:
 
-- format: 'syslog'
+    - format: 'syslog'
 
-location: '/var/log/messages'
+      location: '/var/log/messages'
 
-- format: 'syslog'
+    - format: 'syslog'
 
-location: '/var/log/secure'
+      location: '/var/log/secure'
 
-- format: 'command'
+    - format: 'command'
 
-command: 'df -P'
+      command: 'df -P'
 
-frequency: '360'
+      frequency: '360'
 
-- format: 'full_command'
+    - format: 'full_command'
 
-command: 'netstat -tln | grep -v 127.0.0.1 | sort'
+      command: 'netstat -tln | grep -v 127.0.0.1 | sort'
 
-frequency: '360'
+      frequency: '360'
 
-- format: 'full_command'
+    - format: 'full_command'
 
-command: 'last -n 20'
+      command: 'last -n 20'
 
-frequency: '360'
+      frequency: '360'
 
-globals:
+  globals:
 
-- '127.0.0.1'
+    - '127.0.0.1'
 
-- '192.168.2.1'
+    - '192.168.2.1'
 
-connection:
+  connection:
 
-- type: 'secure'
+    - type: 'secure'
 
-port: '1514'
+      port: '1514'
 
-protocol: 'tcp'
+      protocol: 'tcp'
 
-commands:
+  commands:
 
-- name: 'disable-account'
+    - name: 'disable-account'
 
-executable: 'disable-account.sh'
+      executable: 'disable-account.sh'
 
-expect: 'user'
+      expect: 'user'
 
-timeout_allowed: 'yes'
+      timeout_allowed: 'yes'
 
-- name: 'restart-ossec'
+    - name: 'restart-ossec'
 
-executable: 'restart-ossec.sh'
+      executable: 'restart-ossec.sh'
 
-expect: ''
+      expect: ''
 
-timeout_allowed: 'no'
+      timeout_allowed: 'no'
 
-- name: 'firewall-drop'
+    - name: 'firewall-drop'
 
-executable: 'firewall-drop.sh'
+      executable: 'firewall-drop.sh'
 
-expect: 'srcip'
+      expect: 'srcip'
 
-timeout_allowed: 'yes'
+      timeout_allowed: 'yes'
 
-- name: 'host-deny'
+    - name: 'host-deny'
 
-executable: 'host-deny.sh'
+      executable: 'host-deny.sh'
 
-expect: 'srcip'
+      expect: 'srcip'
 
-timeout_allowed: 'yes'
+      timeout_allowed: 'yes'
 
-- name: 'route-null'
+    - name: 'route-null'
 
-executable: 'route-null.sh'
+      executable: 'route-null.sh'
 
-expect: 'srcip'
+      expect: 'srcip'
 
-timeout_allowed: 'yes'
+      timeout_allowed: 'yes'
 
-- name: 'win_route-null'
+    - name: 'win_route-null'
 
-executable: 'route-null.cmd'
+      executable: 'route-null.cmd'
 
-expect: 'srcip'
+      expect: 'srcip'
 
-timeout_allowed: 'yes'
+      timeout_allowed: 'yes'
 
-active_responses:
+  active_responses:
 
-- command: 'host-deny'
+    - command: 'host-deny'
 
-location: 'local'
+      location: 'local'
 
-level: 6
+      level: 6
 
-timeout: 600
+      timeout: 600
+
+  shared_agent_config:
+    - type: os
+      type_value: linux
+      frequency_check: 79200
+      ignore_files:
+        - /etc/mtab
+        - /etc/mnttab
+        - /etc/hosts.deny
+        - /etc/mail/statistics
+        - /etc/svc/volatile
+      directories:
+        - check_all: yes
+          dirs: /etc,/usr/bin,/usr/sbin
+        - check_all: yes
+          dirs: /bin,/sbin
+      localfiles:
+        - format: 'syslog'
+          location: '/var/log/messages'
+        - format: 'syslog'
+          location: '/var/log/secure'
+        - format: 'syslog'
+          location: '/var/log/maillog'
+        - format: 'apache'
+          location: '/var/log/httpd/error_log'
+        - format: 'apache'
+          location: '/var/log/httpd/access_log'
+        - format: 'apache'
+          location: '/var/ossec/logs/active-responses.log'
 
 #### Custom variables:
 
@@ -362,7 +391,7 @@ email_notification: yes
 
 mail_to:
 
-- myadmin@mydomain.com
+  - myadmin@mydomain.com
 
 mail_smtp_server: mysmtp.mydomain.com
 
