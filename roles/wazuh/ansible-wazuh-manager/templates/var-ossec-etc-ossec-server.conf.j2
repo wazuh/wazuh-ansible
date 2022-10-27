@@ -559,7 +559,7 @@
 {% endfor %}
 {% endif %}
 
-{% if monitor_aws is defined and monitor_aws.disabled == "no" %}
+{% if monitor_aws is defined and monitor_aws.s3_disabled == "no" %}
   <!-- S3 -->
   <wodle name="aws-s3">
     <disabled>{{ monitor_aws.disabled }}</disabled>
@@ -586,7 +586,7 @@
       {% endif %}
     </bucket>
     {% endfor %}
-  {% if monitor_aws is defined and monitor_aws.disable_service_block is defined and monitor_aws.disable_service_block == "no" %}
+  {% if monitor_aws is defined and monitor_aws.s3_service_disabled == "no" %}
     {% for service in monitor_aws.s3_service %}
     <service type="{{ service.service_type }}">
       {% if service.aws_log_groups is defined %}

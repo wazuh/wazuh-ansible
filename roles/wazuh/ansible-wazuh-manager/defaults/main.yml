@@ -154,11 +154,11 @@ wazuh_manager_syscollector:
   processes: 'yes'
 
 wazuh_manager_monitor_aws:
-  disabled: 'yes'
+  s3_disabled: 'yes'
   interval: '10m'
   run_on_start: 'yes'
   skip_on_error: 'yes'
-  disable_service_block: 'yes' # not present in conf file, only for template condition.
+  s3_service_disabled: 'yes' # not present in conf file, only for template condition.
   s3:
     - name: null
       bucket_type: null
