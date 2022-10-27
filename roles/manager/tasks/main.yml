@@ -101,6 +101,18 @@
   tags:
     - config
 
+- name: Copy wazuh healthcheck script
+  copy:
+    src: wazuh_healthcheck.sh
+    dest: /opt/wazuh_healthcheck.sh
+    owner: root
+    group: root
+    mode: "0770"
+  become: true
+  tags:
+    - init
+    - config
+
 - name: Installing the local_rules.xml (default local_rules.xml)
   template:
     src: var-ossec-rules-local_rules.xml.j2

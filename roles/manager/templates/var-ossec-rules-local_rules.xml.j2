@@ -3,17 +3,84 @@
 <!-- Modify it at your will. -->
 <!-- Copyright (C) 2016, Wazuh Inc. -->
 
-<!-- Example -->
-<group name="local,syslog,sshd,">
-
-  <!--
-  Dec 10 01:02:02 host sshd[1234]: Failed none for root from 1.1.1.1 port 1066 ssh2
-  -->
-  <rule id="100001" level="5">
-    <if_sid>5716</if_sid>
-    <srcip>1.1.1.1</srcip>
-    <description>sshd: authentication failed from IP 1.1.1.1.</description>
-    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+<!-- Manager Healthcheck Rules -->
+<group name="wazuh,healthcheck">
+  <rule id="100010" level="5">
+    <decoded_as>json</decoded_as>
+    <field name="healthy">\.+</field>
+    <description>Wazuh Health Check</description>
+    <options>no_full_log</options>
   </rule>
-
+  <rule id="100011" level="5">
+    <if_sid>100010</if_sid>
+    <field name="healthy">yes</field>
+    <description>All Wazuh Services Are Healthy</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100012" level="5">
+    <if_sid>100010</if_sid>
+    <field name="healthy">attempting_restart</field>
+    <description>Wazuh Service $(wazuhprocess) is in a failed state. Attempting a restart</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100013" level="12">
+    <if_sid>100010</if_sid>
+    <field name="healthy">no</field>
+    <description>Wazuh Service $(wazuhprocess) is in a failed state</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100014" level="5">
+    <decoded_as>json</decoded_as>
+    <field name="cpu">\.+</field>
+    <description>Metrics Health Check</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100015" level="12">
+    <if_sid>100014</if_sid>
+    <field name="ram">^8\.+|^9\.+|^100\.+</field>
+    <description>Memory Usage is High $(ram)</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100016" level="12">
+    <if_sid>100014</if_sid>
+    <field name="cpu">^8\.+|^9\.+|^100\.+</field>
+    <description>CPU Usage is High $(cpu)</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100017" level="12">
+    <if_sid>100014</if_sid>
+    <field name="disk">^7\.+|^8\.+|^9\.+|^100\.+</field>
+    <description>Disk Space is Running Low $(disk)</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100018" level="5">
+    <decoded_as>json</decoded_as>
+    <field name="client_health">\.+</field>
+    <description>Wazuh Clients Health Check</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100019" level="5">
+    <if_sid>100018</if_sid>
+    <field name="client_health">yes</field>
+    <description>Client $(client_id) - $(client_name) ($(client_ip)) is $(client_status) </description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100020" level="12">
+    <if_sid>100018</if_sid>
+    <field name="client_health">no</field>
+    <description>Client $(client_id) - $(client_name) ($(client_ip)) is $(client_status)</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100021" level="12">
+    <decoded_as>json</decoded_as>
+    <field name="clients_disconnected">\.+</field>
+    <description>Clients Test Failed - Connected: $(clients_connected) Disconnected: $(clients_disconnected)</description>
+    <options>no_full_log</options>
+  </rule>
+  <rule id="100022" level="5">
+    <if_sid>100021</if_sid>
+    <field name="clients_disconnected">0</field>
+    <description>All Clients are Connected - Connected: $(clients_connected) Disconnected: $(clients_disconnected)</description>
+    <options>no_full_log</options>
+  </rule>
 </group>

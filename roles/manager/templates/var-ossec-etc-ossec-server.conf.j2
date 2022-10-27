@@ -234,6 +234,36 @@
     <processes>{{ wazuh_manager_config.syscollector.processes }}</processes>
   </wodle>
 
+  <wodle name="command">
+    <disabled>{{ wazuh_manager_config.healthcheck.disable }}</disabled>
+    <tag>{{ wazuh_manager_config.healthcheck.tag }}</tag>
+    <command>{{ wazuh_manager_config.healthcheck.command }}</command>
+    <interval>{{ wazuh_manager_config.healthcheck.interval }}</interval>
+    <ignore_output>{{ wazuh_manager_config.healthcheck.ignore_output }}</ignore_output>
+    <run_on_start>{{ wazuh_manager_config.healthcheck.run_on_start }}</run_on_start>
+    <timeout>{{ wazuh_manager_config.healthcheck.timeout }}</timeout>
+  </wodle>
+
+  <wodle name="command">
+    <disabled>{{ wazuh_manager_config.metric.disable }}</disabled>
+    <tag>{{ wazuh_manager_config.metric.tag }}</tag>
+    <command>{{ wazuh_manager_config.metric.command }}</command>
+    <interval>{{ wazuh_manager_config.metric.interval }}</interval>
+    <ignore_output>{{ wazuh_manager_config.metric.ignore_output }}</ignore_output>
+    <run_on_start>{{ wazuh_manager_config.metric.run_on_start }}</run_on_start>
+    <timeout>{{ wazuh_manager_config.metric.timeout }}</timeout>
+  </wodle>
+
+  <wodle name="command">
+    <disabled>no</disabled>
+    <tag>healthcheck</tag>
+    <command>/opt/metric.sh</command>
+    <interval>12h</interval>
+    <ignore_output>yes</ignore_output>
+    <run_on_start>yes</run_on_start>
+    <timeout>0</timeout>
+  </wodle>
+
   <sca>
   {% if wazuh_manager_config.sca.enabled | length > 0 %}
     <enabled>{{ wazuh_manager_config.sca.enabled }}</enabled>
