@@ -233,7 +233,7 @@ wazuh_agent_syscheck:
       checks: ""
   win_directories:
     - dirs: "%WINDIR%"
-      checks: 'recursion_level="0" restrict="regedit.exe$|system.ini$|win.ini$"'
+      checks: 'check_all="yes" whodata="yes" recursion_level="0" restrict="regedit.exe$|system.ini$|win.ini$"'
     - dirs: '%WINDIR%\SysNative'
       checks: >-
         recursion_level="0" restrict="at.exe$|attrib.exe$|cacls.exe$|cmd.exe$|eventcreate.exe$|ftp.exe$|lsass.exe$|
