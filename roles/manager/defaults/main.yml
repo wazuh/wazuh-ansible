@@ -250,15 +250,6 @@ wazuh_manager_healthcheck:
   run_on_start: "yes"
   timeout: 0
 
-wazuh_manager_metric:
-  disable: "no"
-  tag: "healthcheck"
-  command: /opt/metric.sh
-  interval: 12h
-  ignore_output: "yes"
-  run_on_start: "yes"
-  timeout: 0
-
 ## Command
 wazuh_manager_commands:
   - name: "disable-account"
@@ -460,7 +451,6 @@ wazuh_manager_config_defaults:
   osquery: "{{ wazuh_manager_osquery }}"
   syscollector: "{{ wazuh_manager_syscollector }}"
   healthcheck: "{{ wazuh_manager_healthcheck }}"
-  metric: "{{ wazuh_manager_metric }}"
   sca: "{{ wazuh_manager_sca }}"
   vulnerability_detector: "{{ wazuh_manager_vulnerability_detector }}"
   log_level: "{{ wazuh_manager_log_level }}"

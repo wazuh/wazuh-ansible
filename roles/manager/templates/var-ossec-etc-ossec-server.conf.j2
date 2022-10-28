@@ -245,16 +245,6 @@
   </wodle>
 
   <wodle name="command">
-    <disabled>{{ wazuh_manager_config.metric.disable }}</disabled>
-    <tag>{{ wazuh_manager_config.metric.tag }}</tag>
-    <command>{{ wazuh_manager_config.metric.command }}</command>
-    <interval>{{ wazuh_manager_config.metric.interval }}</interval>
-    <ignore_output>{{ wazuh_manager_config.metric.ignore_output }}</ignore_output>
-    <run_on_start>{{ wazuh_manager_config.metric.run_on_start }}</run_on_start>
-    <timeout>{{ wazuh_manager_config.metric.timeout }}</timeout>
-  </wodle>
-
-  <wodle name="command">
     <disabled>no</disabled>
     <tag>healthcheck</tag>
     <command>/opt/metric.sh</command>
