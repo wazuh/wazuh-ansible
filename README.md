@@ -8,8 +8,9 @@
 These playbooks install and configure Wazuh agent, manager and indexer and dashboard.
 
 ## Branches
-* `master` branch contains the latest code, be aware of possible bugs on this branch.
-* `stable` branch on correspond to the last Wazuh stable version.
+
+- `master` branch contains the latest code, be aware of possible bugs on this branch.
+- `stable` branch on correspond to the last Wazuh stable version.
 
 ## Compatibility Matrix
 
@@ -39,8 +40,8 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ## Documentation
 
-* [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
-* [Full documentation](http://documentation.wazuh.com)
+- [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
+- [Full documentation](http://documentation.wazuh.com)
 
 ## Directory structure
 
@@ -414,4 +415,4 @@ Copyright (C) 2016, Wazuh Inc.  (License GPLv2)
 
 ## Web references
 
-* [Wazuh website](http://wazuh.com)
+- [Wazuh website](http://wazuh.com)
