@@ -8,8 +8,9 @@
 These playbooks install and configure Wazuh agent, manager and indexer and dashboard.
 
 ## Branches
-* `master` branch contains the latest code, be aware of possible bugs on this branch.
-* `stable` branch on correspond to the last Wazuh stable version.
+
+- `master` branch contains the latest code, be aware of possible bugs on this branch.
+- `stable` branch on correspond to the last Wazuh stable version.
 
 ## Compatibility Matrix
 
@@ -39,8 +40,8 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ## Documentation
 
-* [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
-* [Full documentation](http://documentation.wazuh.com)
+- [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
+- [Full documentation](http://documentation.wazuh.com)
 
 ## Directory structure
 
@@ -68,10 +69,10 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
     │ ├── VERSION
     │ ├── CHANGELOG.md
 
-
 ## Example: production-ready distributed environment
 
 ### Playbook
+
 The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 Wazuh indexer nodes and a mixed Wazuh dashboard node (Wazuh indexer data node + Wazuh dashboard).
 
 ```yaml
@@ -326,6 +327,7 @@ After the playbook execution, the Wazuh UI should be reachable through `https://
 ## Example: single-host environment
 
 ### Playbook
+
 The hereunder example playbook uses the `wazuh-ansible` role to provision a single-host Wazuh environment. This architecture includes all the Wazuh and Opensearch components in a single node.
 
 ```yaml
@@ -414,4 +416,4 @@ Copyright (C) 2016, Wazuh Inc.  (License GPLv2)
 
 ## Web references
 
-* [Wazuh website](http://wazuh.com)
+- [Wazuh website](http://wazuh.com)
