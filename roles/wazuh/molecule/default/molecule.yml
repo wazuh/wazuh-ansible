@@ -21,7 +21,7 @@ driver:
   tf_base_dir: ${MOLECULE_SCENARIO_DIRECTORY}/../../../../../../collections/ansible_collections/joom/common/molecule/resources/terraform
   tf_ec2_stack: ec2_terraform
   tf_vault_stack: vault_terraform
-  tf_workspace: collection-intg-test-${BUILD_NUMBER:-$USER}-wazuh-default
+  tf_workspace: molecule-${BUILD_NUMBER:-$USER}-wazuh-default
 
 # lint: |
 #         yamllint .
@@ -36,10 +36,10 @@ platforms:
       - wazuh-worker
   - name: molecule-${BUILD_NUMBER:-$USER}-wazuh-default-2.joom.d
     groups:
-      - wazuh-agent-ubuntu
-  - name: molecule-${BUILD_NUMBER:-$USER}-wazuh-default-m6g-medium-3.joom.d
+      - wazuh-agent
+  - name: molecule-${BUILD_NUMBER:-$USER}-wazuh-default-m6g-medium-0.joom.d
     groups:
-      - wazuh-agent-graviton
+      - wazuh-agent
 
 
 provisioner:
