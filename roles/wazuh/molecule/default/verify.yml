@@ -14,18 +14,13 @@
         that:
           - "{{ cluster_control_output.stdout_lines|length }} >= 3"
 
-    - name: Get status of the agent 001
+    - name: Get status of the agents
       ansible.builtin.command:
-        cmd: "/var/ossec/bin/agent_control -i 001"
-      register: agent_control_output_001
-
-    - name: Get status of the agent 002
-      ansible.builtin.command:
-        cmd: "/var/ossec/bin/agent_control -i 002"
-      register: agent_control_output_002
+        cmd: "/var/ossec/bin/agent_control -l"
+      register: agent_control_output
 
     - name: Assert that wazuh agent is registered on the cluster
       ansible.builtin.assert:
         that:
-          - "{{ groups['wazuh-agent'][0] in agent_control_output_001.stdout }}"
-          - "{{ groups['wazuh-agent'][1] in agent_control_output_002.stdout }}"
+          - "{{ groups['wazuh-agent'][0] in agent_control_output.stdout }}"
+          - "{{ groups['wazuh-agent'][1] in agent_control_output.stdout }}"
