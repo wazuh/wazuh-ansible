@@ -27,6 +27,7 @@ checkPackages(){
         ## If it does not exist set EXISTS to 1 (false)
         if [ "$PACKAGE" != "200" ]; then
             EXISTS=1
+            #echo $PACKAGES_URL$URI "does not exist"
             return $EXISTS
         fi
     done < packages_uri_new.txt
@@ -44,4 +45,7 @@ elif checkPackages "pre-release"; then
 elif checkPackages "staging"; then
     echo "staging"
     exit 0
+else
+    echo "Failed"
+    exit 1
 fi
