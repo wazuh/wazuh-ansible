@@ -1,7 +1,7 @@
 yum/wazuh-manager-VERSION-1.x86_64.rpm
 yum/filebeat-oss-7.10.2-x86_64.rpm
 yum/wazuh-dashboard-VERSION-1.x86_64.rpm
-yum/wazuh-indexer-VERSION-1.x86_64.rp
-apt/pool/main/w/wazuh-agent/wazuh-agent_VERSION-1_ppc64el.deb
+yum/wazuh-indexer-VERSION-1.x86_64.rpm
+apt/pool/main/w/wazuh-agent/wazuh-agent_VERSION-1_amd64.deb
 windows/wazuh-agent-VERSION-1.msi
 yum/wazuh-agent-VERSION-1.x86_64.rpm

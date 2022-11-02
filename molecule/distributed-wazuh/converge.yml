@@ -79,6 +79,10 @@
   become: true
   become_user: root
   roles:
+    # 1. Check packages
+    - role: ../../roles/wazuh/check-packages
+      become: no
+      delegate_to: localhost
     # 1. Wazuh indexer
     - role: ../../roles/wazuh/wazuh-indexer
       when: inventory_hostname in groups['indexer']
