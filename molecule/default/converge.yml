@@ -19,7 +19,7 @@
     - role: ../../roles/wazuh/check-packages
       become: no
       delegate_to: localhost
-      when: inventory_hostname in groups['indexer'][0]
+      when: inventory_hostname in groups['managers'][0]
       run_once: true
     # 2. Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
