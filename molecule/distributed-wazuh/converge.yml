@@ -83,24 +83,25 @@
     - role: ../../roles/wazuh/check-packages
       become: no
       delegate_to: localhost
-    # 1. Wazuh indexer
+      when: "inventory_hostname in {{ groups['indexer'] | first }}"
+    # 2. Wazuh indexer
     - role: ../../roles/wazuh/wazuh-indexer
       when: inventory_hostname in groups['indexer']
-    # 2. Managers
+    # 3. Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
       when: inventory_hostname in groups['managers']
     - role: ../../roles/wazuh/ansible-filebeat-oss
       when: inventory_hostname in groups['managers']
-    # 3. Wazuh dashboard
+    # 4. Wazuh dashboard
     - role: ../../roles/wazuh/wazuh-dashboard
       when: inventory_hostname in groups['dashboard']
-    # 4. Agents:
+    # 5. Agents:
     - role: ../../roles/wazuh/ansible-wazuh-agent
       vars:
         wazuh_managers: '{{ wazuh_managers_list }}'
       when: inventory_hostname in groups['agents']
   vars:
-    instances: 
+    instances:
       node1:
         name: wazuh-es01       # Important: must be equal to indexer_node_name.
         ip: "{{ hostvars.molecule_wazuh_indexer_centos7.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
