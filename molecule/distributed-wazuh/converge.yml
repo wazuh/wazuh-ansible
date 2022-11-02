@@ -83,7 +83,6 @@
     - role: ../../roles/wazuh/check-packages
       become: no
       delegate_to: localhost
-      when: inventory_hostname in groups['indexer'][0]
       run_once: true
     # 2. Wazuh indexer
     - role: ../../roles/wazuh/wazuh-indexer
