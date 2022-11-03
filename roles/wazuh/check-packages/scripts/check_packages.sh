@@ -41,7 +41,11 @@ replaceVars(){
 }
 
 ## Call the checkPackages function for each repository
-if checkPackages "pre-release"; then
+if checkPackages "production"; then
+    echo "production"
+    replaceVars "production"
+    exit 0
+elif checkPackages "pre-release"; then
     echo "pre-release"
     replaceVars "pre-release"
     exit 0
