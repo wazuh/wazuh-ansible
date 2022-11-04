@@ -8,11 +8,25 @@ sed 's,VERSION,'$VERSION',g' ../files/packages_uri.txt > ../files/packages_uri_n
 checkPackages(){
     ## Set S3 Bucket URL
     if [ $1 == "production" ]; then
+        echo "production"
         PACKAGES_URL=https://packages.wazuh.com/4.x/
     elif [ $1 == "pre-release" ]; then
+        echo "pre-release"
         PACKAGES_URL=https://packages-dev.wazuh.com/pre-release/
     elif [ $1 == "staging" ]; then
+        echo "staging"
         PACKAGES_URL=https://packages-dev.wazuh.com/staging/
+        CHECK_WIN_PACKAGE=$(grep windows ../files/packages_uri_new.txt)
+        echo $CHECK_WIN_PACKAGE
+        if [ -n "$CHECK_WIN_PACKAGE" ]; then
+            WIN_AGENT_URI="windows/"$(aws s3 ls s3://packages-dev.wazuh.com/staging/windows/wazuh-agent-$VERSION --region=us-west-1 | tail -1 | awk '{printf $4}')
+            if [ $WIN_AGENT_URI == "windows/" ]; then
+                echo "Windows agent package for version " $VERSION " does not exist in the staging repository"
+                exit 1
+            fi
+        fi
+        echo $WIN_AGENT_URI "check"
+        sed -i 's,windows/.*,'$WIN_AGENT_URI',g' ../files/packages_uri_new.txt
     fi
 
     ## Set EXISTS to 0 (true)
