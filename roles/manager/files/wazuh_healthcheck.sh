@@ -53,17 +53,17 @@ check_agents () {
       fi
 
       json='{"client_id":"'"${data[0]}"'", "client_name":"'"${data[1]}"'", "client_ip":"'"${data[2]}"'", "client_status":"'"${data[3]}"'", "client_health":"'"$health"'"}'
-      echo -e "$json"
+      echo -e "$json" >> /tmp/health.json
 
     done
 
     json='{"clients_connected":"'"$connected"'", "clients_disconnected":"'"$disconnected"'"}'
-    echo -e "$json"
+    echo -e "$json" >> /tmp/health.json
 
 }
 
 check_wazuh () {
-    processes=('wazuh-authd' 'wazuh-db' 'wazuh-execd' 'wazuh-analysisd' 'wazuh-syscheckd' 'wazuh-remoted' 'wazuh-logcollector' 'wazuh-monitord' 'wazuh-modulesd')
+    processes=('wazuh-authd' 'wazuh-db' 'wazuh-execd' 'wazuh-analysisd' 'wazuh-syscheckd' 'wazuh-remoted' 'wazuh-monitord' 'wazuh-modulesd')
     
     for process in "${processes[@]}"
     do
