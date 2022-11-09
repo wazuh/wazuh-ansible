@@ -31,7 +31,7 @@
   when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "9")
   block:
 
-  - name: Install Wazuh manager dependencies
+  - name: Install Wazuh manager dependencies RHEL9
     yum:
       name: 'chkconfig'
       state: present
