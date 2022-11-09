@@ -35,19 +35,19 @@
     <description>Metrics Health Check</description>
     <options>no_full_log</options>
   </rule>
-  <rule id="100015" level="12">
+  <rule id="100015" level="10">
     <if_sid>100014</if_sid>
     <field name="ram">^8\.+|^9\.+|^100\.+</field>
     <description>Memory Usage is High $(ram)</description>
     <options>no_full_log</options>
   </rule>
-  <rule id="100016" level="12">
+  <rule id="100016" level="10">
     <if_sid>100014</if_sid>
     <field name="cpu">^8\.+|^9\.+|^100\.+</field>
     <description>CPU Usage is High $(cpu)</description>
     <options>no_full_log</options>
   </rule>
-  <rule id="100017" level="12">
+  <rule id="100017" level="10">
     <if_sid>100014</if_sid>
     <field name="disk">^7\.+|^8\.+|^9\.+|^100\.+</field>
     <description>Disk Space is Running Low $(disk)</description>
@@ -65,13 +65,13 @@
     <description>Client $(client_id) - $(client_name) ($(client_ip)) is $(client_status) </description>
     <options>no_full_log</options>
   </rule>
-  <rule id="100020" level="12">
+  <rule id="100020" level="10">
     <if_sid>100018</if_sid>
     <field name="client_health">no</field>
     <description>Client $(client_id) - $(client_name) ($(client_ip)) is $(client_status)</description>
     <options>no_full_log</options>
   </rule>
-  <rule id="100021" level="12">
+  <rule id="100021" level="10">
     <decoded_as>json</decoded_as>
     <field name="clients_disconnected">\.+</field>
     <description>Clients Test Failed - Connected: $(clients_connected) Disconnected: $(clients_disconnected)</description>
