@@ -27,8 +27,8 @@
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
-- name: AlmaLinux 9
-  when: (ansible_facts['distribution'] == "AlmaLinux" and ansible_facts['distribution_major_version'] == "9")
+- name: Redhat 9 dependencies
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "9")
   block:
 
   - name: Install Wazuh manager dependencies
