@@ -22,5 +22,4 @@
     - name: Assert that wazuh agent is registered on the cluster
       ansible.builtin.assert:
         that:
-          - "{{ groups['wazuh-agent'][0] in agent_control_output.stdout }}"
-          - "{{ groups['wazuh-agent'][1] in agent_control_output.stdout }}"
+          - "{{ agent_control_output.stdout_lines | length }} >= 8"

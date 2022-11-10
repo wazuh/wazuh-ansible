@@ -40,13 +40,15 @@ platforms:
   - name: molecule-${BUILD_NUMBER:-$USER}-wazuh-default-m6g-medium-0.joom.d
     groups:
       - wazuh-agent
-
+  - name: molecule-${BUILD_NUMBER:-$USER}-wazuh-default-centos-0.joom.d
+    groups:
+      - wazuh-agent
 
 provisioner:
   name: ansible
   config_options:
     defaults:
-      verbosity: 0
+      verbosity: 2
   inventory:
     links:
       group_vars: ../inventory/group_vars/

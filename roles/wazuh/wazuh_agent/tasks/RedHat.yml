@@ -1,4 +1,22 @@
 ---
+- name: Install wazuh-agent
+  block:
+    - name: Check if new repo is configured (RedHat)
+      block:
+        - name: Get content of the repo file (RedHat)
+          ansible.builtin.shell:
+            cmd: "cat /etc/yum.repos.d/CentOS-Linux-AppStream.repo"
+          register: repo_config
+          changed_when: false
+
+        - name: Change repo cuz Centos 8 is EOL (RedHat)
+          ansible.builtin.shell:
+            cmd: "{{ item }}"
+          with_items:
+            - "sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*"
+            - "sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*"
+          when: '"baseurl=http://vault.centos.org" not in repo_config.stdout'
+
 - name: RedHat/CentOS 5 | Install Wazuh repo
   yum_repository:
     name: wazuh_repo
