@@ -1,0 +1,76 @@
+- name: Install Postfix and its dependencies
+  package:
+    name:
+      - postfix
+      - mailutils
+      - libsasl2-2
+      - ca-certificates
+      - libsasl2-modules
+    state: present
+  become: true
+  tags:
+    - init
+
+- name: Install Postfix and its dependencies
+  package:
+    name:
+      - postfix
+      - snail-x
+      - cyrus-sasl
+      - cyrus-sasl-plain
+    state: present
+  become: true
+  tags:
+    - init
+
+- name: Configure Postfix
+  blockinfile:
+    path: /etc/postfix/main.cf
+    block: |
+      relayhost = [{{ wazuh_manager_external_email_smtp_server }}]:{{ wazuh_manager_external_email_smtp_port }}
+      smtp_sasl_auth_enable = yes
+      smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+      smtp_sasl_security_options = noanonymous
+      smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+      smtp_use_tls = {{ wazuh_manager_external_email_smtp_use_tls }}
+    owner: root
+    group: root
+    mode: 0770
+  become: true
+
+- name: Configure postfix relay username and password
+  copy:
+    contents: "[{{ wazuh_manager_external_email_smtp_server }}]:{{ wazuh_manager_external_email_smtp_port }} {{ wazuh_manager_email_from }}:{{ wazuh_manager_email_password }}"
+    dest: /etc/postfix/sasl_passwd
+    owner: root
+    group: root
+    mode: 0770
+  become: true
+
+# postmap /etc/postfix/sasl_passwd
+
+- name: Set file permissions
+  file:
+    path: /etc/postfix/sasl_passwd
+    owner: root
+    group: root
+    mode: 0600
+  become: true
+
+- name: Set file permissions
+  file:
+    path: /etc/postfix/sasl_passwd.db
+    owner: root
+    group: root
+    mode: 0600
+  become: true
+
+- name: Restart postfix
+  service:
+    name: postfix
+    state: restarted
+    enable: true
+  become: true
+
+- name: Send Test Email
+  command: echo "Test mail from postfix" | mail -s "Test Postfix" -r "{{ wazuh_manager_email_from }}" {{ wazuh_manager_email_to }}
