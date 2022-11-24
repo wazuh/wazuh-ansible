@@ -454,4 +454,4 @@ wazuh_manager_config_defaults:
   agents_disconnection_time: '{{ wazuh_manager_agent_disconnection_time }}'
   agents_disconnection_alert_time: '{{ wazuh_manager_agents_disconnection_alert_time }}'
 
-wazuh_secrets: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=kv/data/wazuh')['data'] }}"
+wazuh_secrets: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=kv/data/wazuh') }}"
