@@ -31,3 +31,5 @@ nodes:
       ip: {{ value.ip }}
 {% endif %}
 {% endfor %}
+    - name: fake-dashboard  # Fake localhost dashboard necessary for generic certificate creation
+      ip: 127.0.0.1
