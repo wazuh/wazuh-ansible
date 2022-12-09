@@ -260,7 +260,7 @@
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
+    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_os_family == "Windows" %}
     {% for directory in wazuh_agent_config.syscheck.win_directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
@@ -280,7 +280,7 @@
     {% endfor %}
     {% endif %}
 
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
+    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_os_family == "Windows" %}
     {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
     <ignore type="sregex">{{ ignore }}</ignore>
     {% endfor %}

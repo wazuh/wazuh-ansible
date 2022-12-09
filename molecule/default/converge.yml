@@ -15,6 +15,12 @@
 - name: ConvergeInstall
   hosts: all
   roles:
+    # 1. Check packages
+    - role: ../../roles/wazuh/check-packages
+      become: no
+      delegate_to: localhost
+      run_once: true
+    # 2. Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
       vars:
     - { role: ../../roles/wazuh/ansible-filebeat-oss, filebeat_output_indexer_hosts: "indexer_centos7:9200" }

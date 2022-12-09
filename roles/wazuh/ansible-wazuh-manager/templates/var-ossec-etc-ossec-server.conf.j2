@@ -265,9 +265,6 @@
   {% if wazuh_manager_config.vulnerability_detector.interval is defined %}
     <interval>{{ wazuh_manager_config.vulnerability_detector.interval }}</interval>
   {% endif %}
-  {% if wazuh_manager_config.vulnerability_detector.ignore_time is defined %}
-    <ignore_time>{{ wazuh_manager_config.vulnerability_detector.ignore_time }}</ignore_time>
-  {% endif %}
   {% if wazuh_manager_config.vulnerability_detector.run_on_start is defined %}
     <run_on_start>{{ wazuh_manager_config.vulnerability_detector.run_on_start }}</run_on_start>
   {% endif %}
