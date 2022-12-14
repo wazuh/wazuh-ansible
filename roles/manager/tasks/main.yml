@@ -8,15 +8,15 @@
       - curl
     state: present
 
-- include_vars: ../../vars/repo_vars.yml
+- include_vars: repo_vars.yml
 
-- include_vars: ../../vars/repo.yml
+- include_vars: repo.yml
   when: packages_repository == 'production'
 
-- include_vars: ../../vars/repo_pre-release.yml
+- include_vars: repo_pre-release.yml
   when: packages_repository == 'pre-release'
 
-- include_vars: ../../vars/repo_staging.yml
+- include_vars: repo_staging.yml
   when: packages_repository == 'staging'
 
 - name: Overlay wazuh_manager_config on top of defaults
