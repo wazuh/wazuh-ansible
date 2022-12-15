@@ -8,6 +8,7 @@
       - libsasl2-modules
     state: present
   become: true
+  when: ansible_os_family == "Debian"
   tags:
     - init
 
@@ -20,6 +21,7 @@
       - cyrus-sasl-plain
     state: present
   become: true
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
   tags:
     - init
 
