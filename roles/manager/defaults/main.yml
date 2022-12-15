@@ -60,6 +60,12 @@ wazuh_manager_email_maxperhour: 12
 wazuh_manager_email_queue_size: 131072
 wazuh_manager_email_log_source: "alerts.log"
 
+wazuh_manager_external_email_smtp_enable: false
+wazuh_manager_external_email_smtp_server: smtp.example.wazuh.com
+wazuh_manager_external_email_smtp_port: 587
+wazuh_manager_external_email_smtp_use_tls: "yes"
+wazuh_manager_email_password: "changem3"
+
 wazuh_manager_globals:
   - "127.0.0.1"
   - "^localhost.localdomain$"

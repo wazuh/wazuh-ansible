@@ -99,6 +99,10 @@
   tags:
     - config
 
+- name: Include External Postfix Tasks
+  include_tasks: "postfix.yml"
+  when: wazuh_manager_external_email_smtp_enable
+
 - name: Copy wazuh healthcheck script
   copy:
     src: wazuh_healthcheck.sh
