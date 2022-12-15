@@ -72,7 +72,7 @@
   service:
     name: postfix
     state: restarted
-    enable: true
+    enabled: true
   become: true
 
 - name: Send Test Email
