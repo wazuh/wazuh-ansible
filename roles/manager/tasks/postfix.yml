@@ -16,7 +16,7 @@
   package:
     name:
       - postfix
-      - snail-x
+      - snail
       - cyrus-sasl
       - cyrus-sasl-plain
     state: present
