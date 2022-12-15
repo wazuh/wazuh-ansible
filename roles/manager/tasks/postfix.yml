@@ -33,7 +33,6 @@
       smtp_sasl_auth_enable = yes
       smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
       smtp_sasl_security_options = noanonymous
-      smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
       smtp_use_tls = {{ wazuh_manager_external_email_smtp_use_tls }}
     owner: root
     group: root
@@ -51,6 +50,7 @@
 
 - name: Create postfix database
   command: postmap /etc/postfix/sasl_passwd
+  become: true
 
 - name: Set file permissions for config file
   file:
@@ -75,6 +75,12 @@
     enabled: true
   become: true
 
-- name: Send Test Email
-  command: echo "Test mail from postfix" | mail -s "Test Postfix" -r "{{ wazuh_manager_email_from }} {{ wazuh_manager_mailto }}"
-  loop: wazuh_manager_mailto
+- name: Sending test e-mail notifications via external smtp server
+  community.general.mail:
+    subject: Postfix Test
+    body: Test email from postfix
+    from: "{{ wazuh_manager_email_from }}"
+    to: "{{ item }}"
+  become: true
+  loop: "{{ wazuh_manager_mailto }}"
+
