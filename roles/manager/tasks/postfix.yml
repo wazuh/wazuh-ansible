@@ -52,7 +52,7 @@
 - name: Create postfix database
   command: postmap /etc/postfix/sasl_passwd
 
-- name: Set file permissions
+- name: Set file permissions for config file
   file:
     path: /etc/postfix/sasl_passwd
     owner: root
@@ -60,7 +60,7 @@
     mode: 0600
   become: true
 
-- name: Set file permissions
+- name: Set file permissions for database
   file:
     path: /etc/postfix/sasl_passwd.db
     owner: root
