@@ -76,5 +76,5 @@
   become: true
 
 - name: Send Test Email
-  command: echo "Test mail from postfix" | mail -s "Test Postfix" -r "{{ wazuh_manager_email_from }}" {{ item }}
+  command: echo "Test mail from postfix" | mail -s "Test Postfix" -r "{{ wazuh_manager_email_from }} {{ wazuh_manager_mailto }}"
   loop: wazuh_manager_mailto
