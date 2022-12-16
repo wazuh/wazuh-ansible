@@ -20,8 +20,5 @@
     config_layer: '{{ wazuh_agent_config | default({}) }}'
   when: wazuh_agent_config_overlay | bool
 
-- include_tasks: "Windows.yml"
-  when: ansible_os_family == "Windows"
-
 - include_tasks: "Linux.yml"
   when: ansible_system == "Linux"
