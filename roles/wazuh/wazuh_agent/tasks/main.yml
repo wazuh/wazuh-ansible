@@ -8,10 +8,10 @@
   changed_when: false
 
 - include_vars: ../../vars/repo.yml
-  when: "{{ wazuh_latest_release.stdout is version(wazuh_agent_version, operator='ge') }}"
+  # when: "{{ wazuh_latest_release.stdout is version(wazuh_agent_version, operator='ge') }}"
 
-- include_vars: ../../vars/repo_dev.yml
-  when: "{{ wazuh_latest_release.stdout is version(wazuh_agent_version, operator='lt') }}"
+# - include_vars: ../../vars/repo_dev.yml
+#   when: "{{ wazuh_latest_release.stdout is version(wazuh_agent_version, operator='lt') }}"
 
 - name: Overlay wazuh_agent_config on top of defaults
   set_fact:
