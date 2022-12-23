@@ -1,3 +1,4 @@
 ---
 - name: restart wazuh-agent
   service: name=wazuh-agent state=restarted enabled=yes
+  when: not ansible_check_mode
