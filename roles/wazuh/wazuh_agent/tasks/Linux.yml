@@ -246,6 +246,7 @@
   tags:
     - init
     - config
+  when: not ansible_check_mode
 
 - name: Create auto-enrollment password file
   template:
