@@ -5,6 +5,9 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
+- ansible.builtin.debug:
+    msg: "Install wazuh agent version {{ wazuh_agent_version }}"
+
 - include_tasks: "installation_from_sources.yml"
   when:
     - wazuh_agent_sources_installation.enabled
