@@ -8,6 +8,9 @@
 - ansible.builtin.debug:
     msg: "Install wazuh agent version {{ wazuh_agent_version }}"
 
+- ansible.builtin.debug:
+    var: wazuh_agent_version
+
 - include_tasks: "installation_from_sources.yml"
   when:
     - wazuh_agent_sources_installation.enabled
