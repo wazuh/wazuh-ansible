@@ -10,6 +10,7 @@
 
 - ansible.builtin.debug:
     var: wazuh_agent_version
+    verbosity: 4
 
 - include_tasks: "installation_from_sources.yml"
   when:
