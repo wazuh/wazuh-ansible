@@ -190,10 +190,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
           api:
               https: 'yes'
           cluster:
-              disable: 'no'
               node_name: 'master'
               node_type: 'master'
-              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
@@ -222,10 +220,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
           api:
               https: 'yes'
           cluster:
-              disable: 'no'
               node_name: 'worker_01'
               node_type: 'worker'
-              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'

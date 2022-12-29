@@ -669,11 +669,8 @@
 {% endif %}
 
   <cluster>
-    <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
-    <name>{{ wazuh_manager_config.cluster.name }}</name>
     <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
     <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
-    <key>{{ wazuh_manager_config.cluster.key }}</key>
     {% if wazuh_manager_config.cluster.interval is defined %}
     <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
     {% endif %}
