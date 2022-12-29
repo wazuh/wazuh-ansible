@@ -8,7 +8,6 @@
     gpgcheck: true
   changed_when: false
   when:
-    - repo_v5_manager_installed is skipped
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
