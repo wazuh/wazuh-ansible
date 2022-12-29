@@ -359,15 +359,12 @@ wazuh_manager_authd:
 
 ## Cluster
 wazuh_manager_cluster:
-  disable: 'yes'
-  name: 'wazuh'
-  node_name: 'manager_01'
+  node_name: '{{ ansible_hostname }}'
   node_type: 'master'
-  key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
   port: '1516'
   bind_addr: '0.0.0.0'
   nodes:
-    - 'manager'
+    - '127.0.0.1'
   hidden: 'no'
 
 ## Wazuh API setup
