@@ -86,7 +86,7 @@
       with_items: "{{ files_to_delete.files }}"
 
     - name: Ensure Wazuh indexer started and enabled
-      service:
+      ansible.builtin.sysvinit:
         name: wazuh-indexer
         enabled: true
         state: started

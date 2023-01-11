@@ -77,7 +77,7 @@
     - config
 
 - name: Ensure ossec-authd service is disabled
-  service: name=ossec-authd enabled=no state=stopped
+  ansible.builtin.sysvinit: name=ossec-authd enabled=no state=stopped
   when: old_authd_service.stat.exists
   tags:
     - config

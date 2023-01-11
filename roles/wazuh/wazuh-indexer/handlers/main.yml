@@ -1,5 +1,5 @@
 ---
 - name: restart wazuh-indexer
-  service:
+  ansible.builtin.sysvinit:
     name: wazuh-indexer
     state: restarted

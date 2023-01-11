@@ -262,7 +262,7 @@
     - config
 
 - name: Linux | Ensure Wazuh Agent service is started and enabled
-  service:
+  ansible.builtin.sysvinit:
     name: wazuh-agent
     enabled: true
     state: started

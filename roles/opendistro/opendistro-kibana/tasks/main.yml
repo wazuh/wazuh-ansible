@@ -114,11 +114,11 @@
     mode: 0751
   changed_when: False
 
-#- name: Ensure Kibana started and enabled
-#  service:
-#    name: kibana
-#    enabled: true
-#    state: started
+- name: Ensure Kibana started and enabled
+  ansible.builtin.sysvinit:
+    name: kibana
+    enabled: true
+    state: started
 
 - import_tasks: RMRedHat.yml
   when: ansible_os_family == 'RedHat'

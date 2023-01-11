@@ -65,11 +65,11 @@
 - include_tasks: security_actions.yml
   when: filebeat_security
 
-#- name: Ensure Filebeat is started and enabled at boot.
-#  service:
-#    name: filebeat
-#    state: started
-#    enabled: true
+- name: Ensure Filebeat is started and enabled at boot.
+  ansible.builtin.sysvinit:
+    name: filebeat
+    state: started
+    enabled: true
 
 - include_tasks: "RMRedHat.yml"
   when: ansible_os_family == "RedHat"

@@ -1,12 +1,12 @@
 ---
 - name: restart wazuh-manager
-  service:
+  ansible.builtin.sysvinit:
     name: wazuh-manager
     state: restarted
     enabled: true
 
 - name: restart wazuh-api
-  service:
+  ansible.builtin.sysvinit:
     name: wazuh-api
     state: restarted
     enabled: true
