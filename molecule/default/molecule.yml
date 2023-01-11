@@ -15,6 +15,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
+    cgroupns_mode: host
     memory_reservation: 512m
     memory: 1024m
     ulimits:
@@ -28,6 +29,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
+    cgroupns_mode: host
     memory_reservation: 512m
     memory: 1024m
     groups:
