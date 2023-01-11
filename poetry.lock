@@ -483,16 +483,6 @@ category = "main"
 optional = false
 python-versions = ">=3.8"
 
-[package.dependencies]
-jsonschema = ">=4.6.0"
-packaging = "*"
-PyYAML = "*"
-subprocess-tee = ">=0.3.5"
-
-[package.extras]
-docs = ["myst-parser", "sphinx (>=5.3.0)", "sphinx-ansible-theme", "sphinx-autobuild (>=2021.3.14)"]
-test = ["coverage", "flaky", "pip-tools", "pytest (>=7.2.0)", "pytest-mock", "pytest-plus"]
-
 [[package]]
 name = "pluggy"
 version = "0.13.1"
