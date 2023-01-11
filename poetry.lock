@@ -388,7 +388,7 @@ version = "4.0.4"
 description = "Molecule aids in the development and testing of Ansible roles"
 category = "dev"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
 ansible-lint = ">=5.0.12"
@@ -424,11 +424,11 @@ version = "2.1.0"
 description = "Molecule aids in the development and testing of Ansible roles"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
 docker = ">=4.3.1"
-molecule = ">=3.3.0"
+molecule = ">=4.0.0"
 selinux = {version = "*", markers = "sys_platform == \"linux\" or sys_platform == \"linux2\""}
 
 [package.extras]

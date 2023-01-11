@@ -5,7 +5,7 @@ description = ""
 authors = ["neonmei <neonmei@pm.me>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.8,<4.0"
 
 # Pin ansible version to that currently present on awx
 ansible = "==4.10.0"
