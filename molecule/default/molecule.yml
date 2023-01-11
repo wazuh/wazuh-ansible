@@ -11,7 +11,7 @@ lint: |
 platforms:
   - name: wazuh_manager_centos7
     hostname: wazuh-mgr01
-    image: geerlingguy/docker-amazonlinux2-ansible
+    image: geerlingguy/docker-centos7-ansible
     command: /sbin/init
     pre_build_image: true
     cgroupns_mode: host
