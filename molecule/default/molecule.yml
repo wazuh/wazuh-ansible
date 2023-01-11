@@ -21,7 +21,8 @@ platforms:
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: wazuh_manager_debian9
     hostname: wazuh-mgr02
@@ -37,7 +38,8 @@ platforms:
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
 provisioner:
   name: ansible
