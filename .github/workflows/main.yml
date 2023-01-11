@@ -1,6 +1,6 @@
 ---
 name: Molecule tests for Wazuh Ansible
-on: [pull_request, workflow_dispatch, release]
+on: [pr, pull_request, workflow_dispatch, release]
 
 jobs:
 
