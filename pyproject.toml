@@ -20,7 +20,7 @@ yamllint = "^1.26.3"
 
 # minimum version is 3.0.3, because we need docker memory limitation
 # https://github.com/ansible-community/molecule/pull/2615
-molecule = {extras = ["docker"], version = "==3.3.4"}
+molecule = {extras = ["docker"], version = "==4.0.4"}
 testinfra = "^6.0.0"
 
 [build-system]
