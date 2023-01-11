@@ -89,11 +89,11 @@
     executable: /bin/bash
   become: yes
 
-- name: Ensure Wazuh dashboard started and enabled
-  service:
-    name: wazuh-dashboard
-    enabled: true
-    state: started
+#- name: Ensure Wazuh dashboard started and enabled
+#  service:
+#    name: wazuh-dashboard
+#    enabled: true
+#    state: started
 
 - import_tasks: RMRedHat.yml
   when: ansible_os_family == 'RedHat'
