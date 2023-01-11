@@ -384,11 +384,11 @@ python-versions = "*"
 
 [[package]]
 name = "molecule"
-version = "3.3.4"
+version = "4.0.4"
 description = "Molecule aids in the development and testing of Ansible roles"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.9"
 
 [package.dependencies]
 ansible-lint = ">=5.0.12"
@@ -420,7 +420,7 @@ windows = ["pywinrm"]
 
 [[package]]
 name = "molecule-docker"
-version = "0.3.4"
+version = "2.1.0"
 description = "Molecule aids in the development and testing of Ansible roles"
 category = "dev"
 optional = false
