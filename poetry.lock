@@ -1120,8 +1120,8 @@ molecule = [
     {file = "molecule-4.0.4.tar.gz", hash = "sha256:5794d0b39e695c4544c714ac90ab90901f22d8c9f623c2fee665b8b2dc2ce6cc"},
 ]
 molecule-docker = [
-    {file = "molecule-docker-0.3.4.tar.gz", hash = "sha256:dc9a8ad60b70ede303805cd6865deb5fb9c162e67ff5e7d1a45eb7e58cd36b88"},
-    {file = "molecule_docker-0.3.4-py3-none-any.whl", hash = "sha256:9d65761052a7a5dad6deee25e2ce9597148913532a10542c3ad8c342f56fe3b2"},
+    {file = "molecule-docker-2.1.0.tar.gz", hash = "sha256:195b97673cbc2335cfa6810816de5cbf807507bf350a9d16ca98b224b1647145"},
+    {file = "molecule_docker-2.1.0-py3-none-any.whl", hash = "sha256:9d65761052a7a5dad6deee25e2ce9597148913532a10542c3ad8c342f56fe3b2"},
 ]
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
