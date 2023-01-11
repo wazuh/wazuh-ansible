@@ -314,13 +314,13 @@
   tags:
     - config
 
-- name: Ensure Wazuh Manager service is started and enabled.
-  service:
-    name: "wazuh-manager"
-    enabled: true
-    state: started
-  tags:
-    - config
+#- name: Ensure Wazuh Manager service is started and enabled.
+#  service:
+#    name: "wazuh-manager"
+#    enabled: true
+#    state: started
+#  tags:
+#    - config
 
 - name: Create agent groups
   command: "{{ wazuh_dir }}/bin/agent_groups -a -g {{ item }} -q"
