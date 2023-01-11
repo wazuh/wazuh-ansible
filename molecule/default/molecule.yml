@@ -16,8 +16,6 @@ platforms:
     pre_build_image: true
     cgroupns_mode: host
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
     ulimits:
       - nofile:262144:262144
     volumes:
@@ -31,8 +29,6 @@ platforms:
     pre_build_image: true
     privileged: true
     cgroupns_mode: host
-    memory_reservation: 512m
-    memory: 1024m
     groups:
       - managers
     ulimits:
