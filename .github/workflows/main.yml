@@ -27,7 +27,9 @@ jobs:
         run: pip3 install poetry
 
       - name: Install dependencies
-        run: poetry install
+        run: |
+        poetry lock --no-update
+        poetry install
 
       - name: Run Molecule tests.
         run: poetry run molecule test -s default
