@@ -315,7 +315,7 @@
     - config
 
 - name: Ensure Wazuh Manager service is started and enabled.
-  ansible.builtin.service:
+  ansible.builtin.sysvinit:
     name: "wazuh-manager"
     enabled: true
     state: started
