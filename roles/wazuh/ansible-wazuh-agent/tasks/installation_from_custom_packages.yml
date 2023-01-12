@@ -39,21 +39,27 @@
     when: ansible_os_family == "Darwin"
 
 # Solaris
-  - name: Create noask file
-    lineinfile:
-      path: "/export/home/vagrant/noaskfile"
-      line: action=nocheck
-      create: yes
-    when: ansible_os_family == "Solaris"
-
-  - name: Install solaris wazuh agent custom package
+  - name: Install Solaris 10 wazuh agent custom package
     become: true
-    shell: pkgadd -a noaskfile -d wazuh-* -n all
+    shell: pkgadd -d wazuh*
     environment:
       PATH: "/opt/python3/bin/:/usr/sbin:/usr/bin:/usr/sbin/:/opt/csw/gnu/:/usr/sfw/bin/:/opt/csw/bin/"
     args:
       chdir: "/export/home/vagrant"
-    when: ansible_os_family == 'Solaris'
+    when:
+      - ansible_os_family == 'Solaris'
+      - wazuh_custom_packages_installation_agent_solaris_10_url is defined
+
+  - name: Install Solaris 11 wazuh agent custom package
+    become: true
+    shell: pkg install -g wazuh* wazuh-agent
+    environment:
+      PATH: "/opt/python3/bin/:/usr/sbin:/usr/bin:/usr/sbin/:/opt/csw/gnu/:/usr/sfw/bin/:/opt/csw/bin/"
+    args:
+      chdir: "/export/home/vagrant"
+    when:
+      - ansible_os_family == 'Solaris'
+      - wazuh_custom_packages_installation_agent_solaris_11_url is defined
 
 # Windows
   - name: Donwload Windows agent msi

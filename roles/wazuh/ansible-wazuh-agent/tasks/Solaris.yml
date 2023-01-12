@@ -1,8 +1,16 @@
-- name: Download agent package
+- name: Download Solaris 11 agent package
   get_url:
-    url: "{{ wazuh_custom_packages_installation_agent_solaris_url }}"
+    url: "{{ wazuh_custom_packages_installation_agent_solaris_11_url }}"
     dest: /export/home/vagrant
     validate_certs: no
+  when: wazuh_custom_packages_installation_agent_solaris_11_url is defined
+
+- name: Download Solaris 10 agent package
+  get_url:
+    url: "{{ wazuh_custom_packages_installation_agent_solaris_11_url }}"
+    dest: /export/home/vagrant
+    validate_certs: no
+  when: wazuh_custom_packages_installation_agent_solaris_10_url is defined
 
 - include_tasks: "installation_from_custom_packages.yml"
   when: wazuh_custom_packages_installation_agent_enabled
