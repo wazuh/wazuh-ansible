@@ -16,7 +16,7 @@ setup.ilm.enabled: false
 output.elasticsearch:
   hosts:
 {% for item in filebeat_output_indexer_hosts %}
-  - {{ item }}:9200
+  - {{ item }}
 {% endfor %}
 
 {% if filebeat_security %}
