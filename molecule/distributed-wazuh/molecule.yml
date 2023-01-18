@@ -22,7 +22,6 @@ platforms:
     hostname: wazuh-mgr01
     image: wazuh/docker-centos7-ansible
     command: /sbin/init
-    pre_build_image: true
     cgroupns_mode: host
     privileged: true
     groups:
@@ -55,7 +54,6 @@ platforms:
     hostname: wazuh-es01
     image: wazuh/docker-centos7-ansible
     command: /sbin/init
-    pre_build_image: true
     privileged: true
     cgroupns_mode: host
     groups:
@@ -70,7 +68,6 @@ platforms:
     hostname: wazuh-es02
     image: wazuh/docker-centos7-ansible
     command: /sbin/init
-    pre_build_image: true
     privileged: true
     cgroupns_mode: host
     groups:
@@ -88,7 +85,6 @@ platforms:
     hostname: wazuh-agent01
     image: wazuh/docker-centos7-ansible
     command: /sbin/init
-    pre_build_image: true
     privileged: true
     cgroupns_mode: host
     groups:
@@ -118,7 +114,6 @@ platforms:
     hostname: wazuh-dash01
     image: wazuh/docker-centos7-ansible
     command: /sbin/init
-    pre_build_image: true
     privileged: true
     cgroupns_mode: host
     groups:
