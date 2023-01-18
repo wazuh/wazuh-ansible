@@ -34,7 +34,7 @@
     - admin.pem
 
 - name: Restart Wazuh indexer with security configuration
-  systemd:
+  ansible.builtin.sysvinit:
     name: wazuh-indexer
     state: restarted
 
