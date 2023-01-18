@@ -23,9 +23,8 @@ platforms:
     image: wazuh/docker-centos7-ansible
     command: /sbin/init
     pre_build_image: true
+    cgroupns_mode: host
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
     groups:
       - managers
     ulimits:
@@ -39,8 +38,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
+    cgroupns_mode: host
     groups:
       - managers
     ulimits:
@@ -57,8 +55,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 4096m
-    memory_reservation: 2048m
+    cgroupns_mode: host
     groups:
       - indexer
     ulimits:
@@ -72,8 +69,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 4096m
-    memory_reservation: 2048m
+    cgroupns_mode: host
     groups:
       - indexer
     ulimits:
@@ -90,8 +86,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 1024m
-    memory_reservation: 512m
+    cgroupns_mode: host
     groups:
       - agents
     volumes:
@@ -103,8 +98,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 1024m
-    memory_reservation: 512m
+    cgroupns_mode: host
     groups:
       - agents
     volumes:
@@ -120,8 +114,7 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 2048m
-    memory_reservation: 512m
+    cgroupns_mode: host
     groups:
       - dashboard
     volumes:
