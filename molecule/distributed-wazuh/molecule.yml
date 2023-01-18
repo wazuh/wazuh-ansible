@@ -56,7 +56,7 @@ platforms:
     pre_build_image: true
     privileged: true
     groups:
-      - managers
+      - indexer
     ulimits:
       - nofile:262144:262144
     volumes:
