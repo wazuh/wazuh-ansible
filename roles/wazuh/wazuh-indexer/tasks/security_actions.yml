@@ -38,6 +38,14 @@
     name: wazuh-indexer
     state: restarted
 
+- name: create Opensearch security internal path
+  file:
+    path: "{{ indexer_sec_plugin_conf_path }}"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 500
+
 - name: Copy the Opensearch security internal users template
   template:
     src: "templates/internal_users.yml.j2"
@@ -83,7 +91,7 @@
       JAVA_HOME=/usr/share/wazuh-indexer/jdk
       {{ indexer_sec_plugin_tools_path }}/securityadmin.sh
       -cd {{ indexer_sec_plugin_conf_path }}/
-      -icl -p 9300 -cd {{ indexer_sec_plugin_conf_path }}/
+      -icl -p 9200 -cd {{ indexer_sec_plugin_conf_path }}/
       -nhnv
       -cacert {{ indexer_conf_path }}/certs/root-ca.pem
       -cert {{ indexer_conf_path }}/certs/admin.pem

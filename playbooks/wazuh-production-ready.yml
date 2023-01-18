@@ -7,13 +7,11 @@
           indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
           indexer_discovery_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
           perform_installation: false
-      become: no
+      become: yes
       vars:
         indexer_node_master: true
         instances:
@@ -22,12 +20,8 @@
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
-            name: node-2
-            ip: "{{ hostvars.wi2.private_ip }}"
-            role: indexer
-          node3:
-            name: node-3
-            ip: "{{ hostvars.wi3.private_ip }}"
+            name: node-2       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi2.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node4:
             name: node-4
@@ -58,11 +52,9 @@
         indexer_cluster_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
-          - "{{ hostvars.wi3.private_ip }}"
         indexer_discovery_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
-          - "{{ hostvars.wi3.private_ip }}"
         indexer_node_master: true
         instances:
           node1:
@@ -70,12 +62,8 @@
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
-            name: node-2
-            ip: "{{ hostvars.wi2.private_ip }}"
-            role: indexer
-          node3:
-            name: node-3
-            ip: "{{ hostvars.wi3.private_ip }}"
+            name: node-2       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi2.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node4:
             name: node-4
@@ -102,6 +90,8 @@
       become_user: root
       vars:
         wazuh_manager_config:
+          authd:
+            use_password: 'yes'
           connection:
               - type: 'secure'
                 port: '1514'
@@ -123,7 +113,6 @@
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
-                - "{{ hostvars.wi3.private_ip }}"
 
     - hosts: worker
       roles:
@@ -152,7 +141,6 @@
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
-                - "{{ hostvars.wi3.private_ip }}"
 
 # Indexer + dashboard node
     - hosts: dashboard
@@ -170,11 +158,9 @@
         indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
         indexer_discovery_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
         dashboard_node_name: node-6
         wazuh_api_credentials:
           - id: default
@@ -188,12 +174,8 @@
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
-            name: node-2
-            ip: "{{ hostvars.wi2.private_ip }}"
-            role: indexer
-          node3:
-            name: node-3
-            ip: "{{ hostvars.wi3.private_ip }}"
+            name: node-2       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi2.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node4:
             name: node-4

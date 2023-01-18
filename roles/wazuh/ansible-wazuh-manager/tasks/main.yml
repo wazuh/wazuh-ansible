@@ -254,7 +254,6 @@
     owner: wazuh
     group: wazuh
     mode: 0640
-  no_log: true
   notify: restart wazuh-manager
   when:
     - wazuh_manager_config.authd.use_password is defined

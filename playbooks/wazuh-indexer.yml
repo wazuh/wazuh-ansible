@@ -2,19 +2,12 @@
 - hosts: wi_cluster
   roles:
     - role: ../roles/wazuh/wazuh-indexer
-
+  remote_user: ubuntu
   vars:
+    ansible_ssh_private_key_file: "/home/ef/.ssh/security"
     instances:           # A certificate will be generated for every node using the name as CN.
       node1:
         name: node-1
-        ip: <node-1 IP>
-        role: indexer
-      node2:
-        name: node-2
-        ip: <node-2 IP>
-        role: indexer
-      node3:
-        name: node-3
-        ip: <node-3 IP>
+        ip: 10.30.33.7
         role: indexer
 
