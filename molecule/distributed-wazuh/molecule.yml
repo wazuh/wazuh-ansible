@@ -30,7 +30,8 @@ platforms:
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: molecule_wazuh_manager_debian9
     hostname: wazuh-mgr02
@@ -44,7 +45,8 @@ platforms:
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   ################################################
   # Wazuh indexer Cluster
@@ -61,7 +63,8 @@ platforms:
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: molecule_wazuh_indexer_centos7_2
     hostname: wazuh-es02
@@ -75,7 +78,8 @@ platforms:
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   ################################################
   # Wazuh Agents
@@ -90,7 +94,8 @@ platforms:
     groups:
       - agents
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: molecule_wazuh_agent_debian9
     hostname: wazuh-agent02
@@ -102,7 +107,8 @@ platforms:
     groups:
       - agents
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   ################################################
   # Wazuh dashboard
@@ -118,7 +124,8 @@ platforms:
     groups:
       - dashboard
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
 provisioner:
   name: ansible
