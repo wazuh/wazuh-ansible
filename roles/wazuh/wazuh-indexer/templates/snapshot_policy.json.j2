@@ -1,0 +1,49 @@
+{
+  "description": "Weekly snapshot policy",
+  "creation": {
+    "schedule": {
+      "cron": {
+        "expression": "0 8 * * *",
+        "timezone": "UTC"
+      }
+    },
+    "time_limit": "1h"
+  },
+  "deletion": {
+    "schedule": {
+      "cron": {
+        "expression": "0 1 * * *",
+        "timezone": "America/Los_Angeles"
+      }
+    },
+    "condition": {
+      "max_age": "7d",
+      "max_count": 21,
+      "min_count": 7
+    },
+    "time_limit": "1h"
+  },
+  "snapshot_config": {
+    "date_format": "yyyy-MM-dd-HH:mm",
+    "timezone": "America/Los_Angeles",
+    "indices": "wazuh-alerts*",
+    "repository": "wazuh-snapshot-s3",
+    "ignore_unavailable": "true",
+    "include_global_state": "false",
+    "partial": "true",
+    "metadata": {
+      "any_key": "any_value"
+    }
+  },
+  "notification": {
+    "channel": {
+      "id": "sswFxIUB-oosMQ2oybwL"
+    },
+    "conditions": {
+      "creation": true,
+      "deletion": true,
+      "failure": true,
+      "time_limit_exceeded": true
+    }
+  }
+}
