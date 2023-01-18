@@ -116,6 +116,14 @@
 {% endfor %}
 {% endif %}
 
+  <!-- cloudtrail alerts slack webhook -->
+  <integration>
+        <name>custom-cloudtrail</name>
+        <hook_url>https://hooks.slack.com/services/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</hook_url>
+        <alert_format>json</alert_format>
+        <rule_id>80200,80201,80202,80203,80204,80205,80206,80207,80208,80209,80210,80211,80212,80213,80214,80215,80216,80217,80218,80219,80220,80221,80222,80223,80224,80225,80226,80227,80228,80229,80230,80231,80232,80233,80234,80235,80236,80237,80238,80239,80240,80241,80242,80243,80244,80245,80246,80247,80248,80249,80250,80251,80252,80253,80254,80255,80256,80257,80258,80259,80260,80261,80262,80263,80264,80265,80266,80267,80268,80269,80270,80271,80272,80273,80274,80275,80276,80277,80278,80279,80280,80281,80282,80283,80284,80285,80286,80287,80288,80289,80290,80291,80292,80293,80294,80295,80296,80297,80298,80299,80300,80301,80302,80303,80304,80305,80306,80307,80308,80309,80310,80311,80312,80313,80314,80315,80316,80317,80318,80319,80320,80321,80322,80323,80324,80325,80326,80327,80328,80329,80330,80331,80332,80333,80334,80335,80336,80337,80338,80339,80340,80341,80342,80343,80344,80345,80346,80347,80348,80349,80350,80351,80352,80353,80354,80355,80356,80357,80358,80359,80360,80361,80362,80363,80364,80365,80366,80367,80368,80369,80370,80371,80372,80373,80374,80375,80376,80377,80378,80379,80380,80381,80382,80383,80384,80385,80386,80387,80388,80389,80390,80391,80392,80393,80394,80395,80396,80397,80398,80399,80400,80401,80402,80403,80404,80405,80406,80407,80408,80409,80410,80411,80412,80413,80414,80415,80416,80417,80418,80419,80420,80421,80422,80423,80424,80425,80426,80427,80428,80429,80430,80431,80432,80433,80434,80435,80436,80437,80438,80439,80440,80441,80442,80443,80444,80445,80446,80447,80448,80449,80450,80451,80452,80453,80454,80455,80456,80457,80458,80459,80460,80461,80462,80463,80464,80465,80466,80467,80468,80469,80470,80471,80472,80473,80474,80475,80476,80477,80478,80479,80480,80481,80482,80483,80484,80485,80486,80487,80488,80489,80490,80491,80492,80493,80494,80495,80496,80497,80498,80499</rule_id>
+  </integration>
+
   <!-- Policy monitoring -->
   <rootcheck>
     <disabled>no</disabled>
@@ -211,6 +219,266 @@
     {% endif %}
     <ciscat_path>{{ wazuh_manager_config.cis_cat.ciscat_path }}</ciscat_path>
   </wodle>
+
+  <wodle name="aws-s3">
+        <disabled>no</disabled>
+        <interval>10m</interval>
+        <run_on_start>yes</run_on_start>
+        <skip_on_error>yes</skip_on_error>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/413160811392/GuardDuty/ap-south-1/</path>
+                <aws_account_id>413160811392</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/102717430092/GuardDuty/ap-south-1/</path>
+                <aws_account_id>102717430092</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/240673475153/GuardDuty/ap-south-1/</path>
+                <aws_account_id>240673475153</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/305044270112/GuardDuty/ap-south-1/</path>
+                <aws_account_id>305044270112</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/366873573630/GuardDuty/ap-south-1/</path>
+                <aws_account_id>366873573630</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/406142726310/GuardDuty/ap-south-1/</path>
+                <aws_account_id>406142726310</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/413160811392/GuardDuty/ap-south-1/</path>
+                <aws_account_id>413160811392</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/432457413665/GuardDuty/ap-south-1/</path>
+                <aws_account_id>432457413665</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/557084297251/GuardDuty/ap-south-1/</path>
+                <aws_account_id>557084297251</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/571894593668/GuardDuty/ap-south-1/</path>
+                <aws_account_id>571894593668</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/632884248997/GuardDuty/ap-south-1/</path>
+                <aws_account_id>632884248997</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/680882203760/GuardDuty/ap-south-1/</path>
+                <aws_account_id>680882203760</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/724996008770/GuardDuty/ap-south-1/</path>
+                <aws_account_id>724996008770</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/743500974312/GuardDuty/ap-south-1/</path>
+                <aws_account_id>743500974312</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/752238033976/GuardDuty/ap-south-1/</path>
+                <aws_account_id>752238033976</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/765178000501/GuardDuty/ap-south-1/</path>
+                <aws_account_id>765178000501</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/785240676363/GuardDuty/ap-south-1/</path>
+                <aws_account_id>785240676363</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/854002675954/GuardDuty/ap-south-1/</path>
+                <aws_account_id>854002675954</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/896881360318/GuardDuty/ap-south-1/</path>
+                <aws_account_id>896881360318</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="guardduty">
+                <name>wazuh-firehose-2</name>
+                <path>AWSLogs/974376127827/GuardDuty/ap-south-1/</path>
+                <aws_account_id>974376127827</aws_account_id>
+                <regions>ap-south-1</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>102717430092</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>240673475153</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>305044270112</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>366873573630</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>406142726310</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>413160811392</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>432457413665</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>557084297251</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>571894593668</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>632884248997</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>680882203760</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>724996008770</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>743500974312</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>752238033976</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>765178000501</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>785240676363</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>854002675954</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>896881360318</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+        <bucket type="cloudtrail">
+                <name>epifi-audit-replicated</name>
+                <path>audit-writes/</path>
+                <aws_account_id>974376127827</aws_account_id>
+                <aws_organization_id>o-rqsv7xoeja</aws_organization_id>
+                <regions>ap-northeast-1,ap-northeast-2,ap-northeast-3,ap-south-1,ap-southeast-1,ap-southeast-2,ca-central-1,eu-central-1,eu-north-1,eu-west-1,eu-west-2,eu-west-3,sa-east-1,us-east-1,us-east-2,us-west-1,us-west-2</regions>
+        </bucket>
+   </wodle>
 
   <!-- Osquery integration -->
   <wodle name="osquery">
