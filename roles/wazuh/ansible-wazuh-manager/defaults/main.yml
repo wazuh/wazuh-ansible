@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.5.0
+wazuh_manager_version: 4.4.0
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -349,7 +349,7 @@ wazuh_manager_authd:
     disconnected_time: '1h'
     after_registration_time: '1h'
   purge: 'yes'
-  use_password: 'no'
+  use_password: 'yes'
   ciphers: 'HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH'
   ssl_agent_ca: null
   ssl_verify_host: 'no'

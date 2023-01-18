@@ -3,6 +3,11 @@
   shell: "curl --silent https://api.github.com/repos/wazuh/wazuh/releases/latest | grep '\"tag_name\":' | sed -E 's/.*\"([^\"]+)\".*/\\1/'| cut -c 2-"
   register: wazuh_latest_release
 
+- debug:
+    msg: "{{ wazuh_latest_release }}"
+
+- debug:
+    msg: "{{ indexer_version }}"
 - include_vars: ../../vars/repo.yml
   when: "wazuh_latest_release.stdout is version(indexer_version, operator='ge')"
 
@@ -18,6 +23,7 @@
       when: ansible_os_family == 'RedHat'
 
     - import_tasks: Debian.yml
+      become: yes
       when: ansible_os_family == 'Debian'
 
     - name: Remove performance analyzer plugin from Wazuh indexer
@@ -36,6 +42,7 @@
       file:
         path: "{{ indexer_conf_path }}/opensearch.yml"
         state: absent
+      become: yes
       tags: install
 
     - name: Copy Opensearch Configuration File
@@ -46,6 +53,7 @@
         group: wazuh-indexer
         mode: 0640
         force: yes
+      become: yes
       tags: install
 
     - include_tasks: security_actions.yml
