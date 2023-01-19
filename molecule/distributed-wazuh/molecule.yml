@@ -96,6 +96,7 @@ platforms:
     image: geerlingguy/docker-debian9-ansible
     pre_build_image: true
     privileged: true
+    command: /sbin/init
     cgroupns_mode: host
     groups:
       - agents
