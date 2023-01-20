@@ -34,7 +34,7 @@
     - admin.pem
 
 - name: Restart Wazuh indexer with security configuration
-  systemd:
+  service:
     name: wazuh-indexer
     state: restarted
 

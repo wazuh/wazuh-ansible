@@ -5,7 +5,7 @@ description = ""
 authors = ["neonmei <neonmei@pm.me>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.8,<4.0"
 
 # Pin ansible version to that currently present on awx
 ansible = "==4.10.0"
@@ -20,7 +20,7 @@ yamllint = "^1.26.3"
 
 # minimum version is 3.0.3, because we need docker memory limitation
 # https://github.com/ansible-community/molecule/pull/2615
-molecule = {extras = ["docker"], version = "==3.3.4"}
+molecule = {extras = ["docker"], version = "==4.0.4"}
 testinfra = "^6.0.0"
 
 [build-system]

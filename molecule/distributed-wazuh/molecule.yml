@@ -21,17 +21,16 @@ platforms:
   - name: molecule_wazuh_manager_centos7
     hostname: wazuh-mgr01
     image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
-    pre_build_image: true
+    cgroupns_mode: host
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
+    pre_build_image: true
     groups:
       - managers
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: molecule_wazuh_manager_debian9
     hostname: wazuh-mgr02
@@ -39,14 +38,14 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
+    cgroupns_mode: host
     groups:
       - managers
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   ################################################
   # Wazuh indexer Cluster
@@ -54,32 +53,30 @@ platforms:
   - name: molecule_wazuh_indexer_centos7
     hostname: wazuh-es01
     image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
+    cgroupns_mode: host
     pre_build_image: true
     privileged: true
-    memory: 4096m
-    memory_reservation: 2048m
     groups:
       - indexer
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: molecule_wazuh_indexer_centos7_2
     hostname: wazuh-es02
     image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 4096m
-    memory_reservation: 2048m
+    cgroupns_mode: host
     groups:
       - indexer
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   ################################################
   # Wazuh Agents
@@ -87,28 +84,27 @@ platforms:
   - name: molecule_wazuh_agent_centos7
     hostname: wazuh-agent01
     image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
-    pre_build_image: true
     privileged: true
-    memory: 1024m
-    memory_reservation: 512m
+    pre_build_image: true
+    cgroupns_mode: host
     groups:
       - agents
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: molecule_wazuh_agent_debian9
     hostname: wazuh-agent02
     image: geerlingguy/docker-debian9-ansible
-    command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory: 1024m
-    memory_reservation: 512m
+    command: /sbin/init
+    cgroupns_mode: host
     groups:
       - agents
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   ################################################
   # Wazuh dashboard
@@ -117,15 +113,14 @@ platforms:
   - name: molecule_wazuh_dashboard_centos7
     hostname: wazuh-dash01
     image: geerlingguy/docker-centos7-ansible
-    command: /sbin/init
-    pre_build_image: true
     privileged: true
-    memory: 2048m
-    memory_reservation: 512m
+    pre_build_image: true
+    cgroupns_mode: host
     groups:
       - dashboard
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
 provisioner:
   name: ansible

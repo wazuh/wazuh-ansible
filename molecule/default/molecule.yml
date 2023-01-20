@@ -11,16 +11,16 @@ lint: |
 platforms:
   - name: wazuh_manager_centos7
     hostname: wazuh-mgr01
-    image: geerlingguy/docker-centos7-ansible
+    image: wazuh/docker-centos7-ansible
     command: /sbin/init
     pre_build_image: true
+    cgroupns_mode: host
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
   - name: wazuh_manager_debian9
     hostname: wazuh-mgr02
@@ -28,14 +28,14 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
-    memory_reservation: 512m
-    memory: 1024m
+    cgroupns_mode: host
     groups:
       - managers
     ulimits:
       - nofile:262144:262144
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /var/lib/containerd
 
 provisioner:
   name: ansible
