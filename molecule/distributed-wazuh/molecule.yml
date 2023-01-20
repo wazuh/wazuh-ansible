@@ -20,9 +20,10 @@ platforms:
   ################################################
   - name: molecule_wazuh_manager_centos7
     hostname: wazuh-mgr01
-    image: wazuh/docker-centos7-ansible
+    image: geerlingguy/docker-centos7-ansible
     cgroupns_mode: host
     privileged: true
+    pre_build_image: true
     groups:
       - managers
     ulimits:
@@ -51,7 +52,8 @@ platforms:
   ################################################
   - name: molecule_wazuh_indexer_centos7
     hostname: wazuh-es01
-    image: wazuh/docker-centos7-ansible
+    image: geerlingguy/docker-centos7-ansible
+    cgroupns_mode: host
     pre_build_image: true
     privileged: true
     groups:
@@ -64,7 +66,7 @@ platforms:
 
   - name: molecule_wazuh_indexer_centos7_2
     hostname: wazuh-es02
-    image: wazuh/docker-centos7-ansible
+    image: geerlingguy/docker-centos7-ansible
     pre_build_image: true
     privileged: true
     cgroupns_mode: host
@@ -81,7 +83,7 @@ platforms:
   ################################################
   - name: molecule_wazuh_agent_centos7
     hostname: wazuh-agent01
-    image: wazuh/docker-centos7-ansible
+    image: geerlingguy/docker-centos7-ansible
     privileged: true
     pre_build_image: true
     cgroupns_mode: host
@@ -110,7 +112,7 @@ platforms:
 
   - name: molecule_wazuh_dashboard_centos7
     hostname: wazuh-dash01
-    image: wazuh/docker-centos7-ansible
+    image: geerlingguy/docker-centos7-ansible
     privileged: true
     pre_build_image: true
     cgroupns_mode: host
