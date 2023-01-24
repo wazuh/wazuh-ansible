@@ -36,8 +36,17 @@ jobs:
     needs: start-runner # required to start the main job when the runner is ready
     runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
     steps:
-      - name: Hello World
-        run: echo 'Hello World!'
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+      - name: Hack to get setup-python to work on act. See act issue 251
+        run: |
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
   stop-runner:
     name: Stop self-hosted EC2 runner
     needs:
