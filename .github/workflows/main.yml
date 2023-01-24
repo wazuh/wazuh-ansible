@@ -47,6 +47,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+      - name: Ansible Playbook run Wazuh Single node instance
+        run: ansible-playbook ./.github/playbooks/single-wazuh.yml
   stop-runner:
     name: Stop self-hosted EC2 runner
     needs:
