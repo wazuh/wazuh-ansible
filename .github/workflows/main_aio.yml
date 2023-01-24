@@ -28,7 +28,9 @@ jobs:
           aws-resource-tags: > # optional, requires additional permissions
             [
               {"Key": "Name", "Value": "wazuh-ansible-gh-runner-aio"},
-              {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
+              {"Key": "GitHubRepository", "Value": "${{ github.repository }}"},
+              {"Key": "team", "Value": "CICD"},
+              {"Key": "termination_Date", "Value": "N/A"}
             ]
   install-aio-single-instance:
     name: Installs AIO single instance
