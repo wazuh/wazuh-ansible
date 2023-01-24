@@ -16,7 +16,6 @@
             name: wazuh-mgr01
             ip: "127.0.0.1"
             role: wazuh
-            node_type: master
           node5:
             name: wazuh-dash01
             ip: "127.0.0.1"
