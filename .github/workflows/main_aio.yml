@@ -22,7 +22,7 @@ jobs:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           ec2-image-id: ${{ secrets.CENTOS8_AMI_ID }}
-          ec2-instance-type: t3.small
+          ec2-instance-type: t3a.large
           subnet-id: ${{ secrets.SUBNET_ID }}
           security-group-id: ${{ secrets.SG_ID }}
           #iam-role-name: my-role-name # optional, requires additional permissions
