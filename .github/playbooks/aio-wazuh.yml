@@ -39,6 +39,7 @@
     - role: ../../roles/wazuh/wazuh-indexer
       vars:
         indexer_node_name: "wazuh-es01"
+        single_node: true
     # 3. Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
     - role: ../../roles/wazuh/ansible-filebeat-oss
