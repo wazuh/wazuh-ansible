@@ -1,5 +1,5 @@
 ---
-name: do-the-job
+name: AIO-Single-Instance
 on: [push, pull_request, workflow_dispatch, release]
 jobs:
   start-runner:
@@ -25,14 +25,13 @@ jobs:
           ec2-instance-type: t3a.large
           subnet-id: ${{ secrets.SUBNET_ID }}
           security-group-id: ${{ secrets.SG_ID }}
-          #iam-role-name: my-role-name # optional, requires additional permissions
           aws-resource-tags: > # optional, requires additional permissions
             [
-              {"Key": "Name", "Value": "ec2-github-runner"},
+              {"Key": "Name", "Value": "wazuh-ansible-gh-runner-aio"},
               {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
             ]
-  do-the-job:
-    name: Do the job on the runner
+  install-aio-single-instance:
+    name: Installs AIO single instance
     needs: start-runner # required to start the main job when the runner is ready
     runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
     steps:
@@ -47,7 +46,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      - name: Ansible Playbook run Wazuh AIO
+      - name: Ansible Playbook run Wazuh AIO Single instance
         run: ansible-playbook ./.github/playbooks/aio-wazuh.yml
         env:
           PY_COLORS: '1'
@@ -56,7 +55,7 @@ jobs:
     name: Stop self-hosted EC2 runner
     needs:
       - start-runner # required to get output from the start-runner job
-      - do-the-job # required to wait when the main job is done
+      - install-aio-single-instance # required to wait when the main job is done
     runs-on: ubuntu-latest
     if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
