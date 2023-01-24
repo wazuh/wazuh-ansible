@@ -418,3 +418,5 @@ Copyright (C) 2016, Wazuh Inc.  (License GPLv2)
 ## Web references
 
 - [Wazuh website](http://wazuh.com)
+
+TEST
