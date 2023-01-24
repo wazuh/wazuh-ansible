@@ -37,11 +37,19 @@
       run_once: true
     # 2. Wazuh indexer
     - role: ../../roles/wazuh/wazuh-indexer
+      vars:
+        indexer_node_name: "wazuh-es01"
     # 3. Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
     - role: ../../roles/wazuh/ansible-filebeat-oss
+      vars:
+        dashboard_node_name: "wazuh-mgr01"
+        filebeat_output_indexer_hosts:
+        - "localhost:9200"
     # 4. Wazuh dashboard
     - role: ../../roles/wazuh/wazuh-dashboard
+      vars:
+        dashboard_node_name: "wazuh-dash01"
     # 5. Agents:
 #    - role: ../../roles/wazuh/ansible-wazuh-agent
 #      vars:
