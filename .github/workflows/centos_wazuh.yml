@@ -1,6 +1,6 @@
 ---
 name: Wazuh-CentOS-Single-Instance
-on: [push, pull_request, workflow_dispatch, release]
+on: [pull_request, workflow_dispatch, release]
 jobs:
   start-runner:
     name: Start self-hosted EC2 runner
