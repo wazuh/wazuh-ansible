@@ -1,5 +1,5 @@
 ---
-name: Wazuh-Single-Instance
+name: Wazuh-Ubuntu-Single-Instance
 on: [push, pull_request, workflow_dispatch, release]
 jobs:
   start-runner:
