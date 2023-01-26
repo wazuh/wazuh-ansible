@@ -25,7 +25,7 @@
       vars:
     - role: ../../roles/wazuh/ansible-filebeat-oss
       vars:
-      - filebeat_output_indexer_hosts:
+        filebeat_output_indexer_hosts:
         - "indexer_centos7:9200"
   pre_tasks:
     - name: (converge) fix missing packages in cloud images

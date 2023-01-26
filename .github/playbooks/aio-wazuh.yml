@@ -51,11 +51,6 @@
     - role: ../../roles/wazuh/wazuh-dashboard
       vars:
         dashboard_node_name: "wazuh-dash01"
-    # 5. Agents:
-#    - role: ../../roles/wazuh/ansible-wazuh-agent
-#      vars:
-#        wazuh_managers: '{{ wazuh_managers_list }}'
-#      when: inventory_hostname in groups['agents']
   vars:
     instances:
       node1:
