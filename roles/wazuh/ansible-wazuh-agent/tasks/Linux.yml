@@ -125,7 +125,7 @@
     - name: Linux | Obtain JWT Token
       uri:
         url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/security/user/authenticate'
-        method: GET
+        method: POST
         url_username: '{{ target_manager.api_user }}'
         url_password: '{{ api_pass }}'
         status_code: 200
