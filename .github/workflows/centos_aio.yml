@@ -30,7 +30,7 @@ jobs:
               {"Key": "Name", "Value": "wazuh-ansible-gh-runner-aio"},
               {"Key": "GitHubRepository", "Value": "${{ github.repository }}"},
               {"Key": "team", "Value": "CICD"},
-              {"Key": "termination_Date", "Value": "N/A"}
+              {"Key": "termination_date", "Value": "2022-12-31 21:00:00"}
             ]
   install-aio-single-instance:
     name: Installs AIO single instance
