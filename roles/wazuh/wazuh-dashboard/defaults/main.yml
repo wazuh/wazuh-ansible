@@ -11,7 +11,7 @@ dashboard_server_name: "dashboard"
 wazuh_version: 4.5.0
 indexer_cluster_nodes:
   - 127.0.0.1
-  
+
 # The Wazuh dashboard package repository
 dashboard_version: "4.5.0"
 
