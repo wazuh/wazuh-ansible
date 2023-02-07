@@ -27,7 +27,7 @@
 
 - name: Linux Debian | Install wazuh-agent
   apt:
-    name: "wazuh-agent={{ wazuh_agent_version }}-*"
+    name: "wazuh-agent={{ wazuh_agent_version }}-4"
     state: present
     cache_valid_time: 3600
   when:
