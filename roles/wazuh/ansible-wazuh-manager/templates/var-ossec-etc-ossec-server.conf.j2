@@ -136,61 +136,61 @@
     <skip_nfs>yes</skip_nfs>
   </rootcheck>
 
-    {% if ansible_system == "Linux" and wazuh_manager_config.openscap.disable == 'no' %}
+    {% if ansible_facts.system == "Linux" and wazuh_manager_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
     <disabled>no</disabled>
     <timeout>{{ wazuh_manager_config.openscap.timeout }}</timeout>
     <interval>{{ wazuh_manager_config.openscap.interval }}</interval>
     <scan-on-start>{{ wazuh_manager_config.openscap.scan_on_start }}</scan-on-start>
-    {% if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial' %}
+    {% if ansible_facts.distribution == 'Ubuntu' and ansible_facts.distribution_release == 'xenial' %}
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
-    {% elif ansible_distribution == 'Debian' %}
-    {% if ansible_distribution_release == 'jessie' %}
+    {% elif ansible_facts.distribution == 'Debian' %}
+    {% if ansible_facts.distribution_release == 'jessie' %}
     {% if openscap_version_valid.stdout == "0" %}
     <content type="xccdf" path="ssg-debian-8-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
     </content>
     <content type="oval" path="cve-debian-8-oval.xml"/>
     {% endif %}
-    {% elif ansible_distribution_release == 'stretch' %}
+    {% elif ansible_facts.distribution_release == 'stretch' %}
     <content type="oval" path="cve-debian-9-oval.xml"/>
     {% endif %}
-    {% elif ansible_distribution == 'CentOS' %}
-      {% if ansible_distribution_major_version == '8' %}
+    {% elif ansible_facts.distribution == 'CentOS' %}
+      {% if ansible_facts.distribution_major_version == '8' %}
         {# Policy not available #}
-      {% elif ansible_distribution_major_version == '7' %}
+      {% elif ansible_facts.distribution_major_version == '7' %}
       <content type="xccdf" path="ssg-centos-7-ds.xml">
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
-      {% elif ansible_distribution_major_version == '6' %}
+      {% elif ansible_facts.distribution_major_version == '6' %}
       <content type="xccdf" path="ssg-centos-6-ds.xml">
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
       {% endif %}
-    {% elif ansible_distribution == 'RedHat' %}
-      {% if ansible_distribution_major_version == '8' %}
+    {% elif ansible_facts.distribution == 'RedHat' %}
+      {% if ansible_facts.distribution_major_version == '8' %}
         {# Policy not available #}
-      {% elif ansible_distribution_major_version == '7' %}
+      {% elif ansible_facts.distribution_major_version == '7' %}
       <content type="xccdf" path="ssg-rhel-7-ds.xml">
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
-      {% elif ansible_distribution_major_version == '6' %}
+      {% elif ansible_facts.distribution_major_version == '6' %}
       <content type="xccdf" path="ssg-rhel-6-ds.xml">
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
       </content>
       {% endif %}
-      {% if ansible_distribution_major_version == '7' %}
+      {% if ansible_facts.distribution_major_version == '7' %}
       <content type="oval" path="cve-redhat-7-ds.xml"/>
-      {% elif ansible_distribution_major_version == '6' %}
+      {% elif ansible_facts.distribution_major_version == '6' %}
       <content type="oval" path="cve-redhat-6-ds.xml"/>
       {% endif %}
-    {% elif ansible_distribution == 'Fedora' %}
+    {% elif ansible_facts.distribution == 'Fedora' %}
       <content type="xccdf" path="ssg-fedora-ds.xml">
         <profile>xccdf_org.ssgproject.content_profile_pci-dss</profile>
         <profile>xccdf_org.ssgproject.content_profile_common</profile>
@@ -431,7 +431,7 @@
   </localfile>
 {% endfor %}
 
-{% if ansible_os_family == "Debian" %}
+{% if ansible_facts.os_family == "Debian" %}
 {% for localfile in wazuh_manager_config.localfiles.debian %}
 
   <localfile>
@@ -470,7 +470,7 @@
 {% endfor %}
 {% endif -%}
 
-{% if ansible_os_family == "RedHat" %}
+{% if ansible_facts.os_family == "RedHat" %}
 {% for localfile in wazuh_manager_config.localfiles.centos %}
 
   <localfile>
