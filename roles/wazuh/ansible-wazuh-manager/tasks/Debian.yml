@@ -22,8 +22,8 @@
     executable: /bin/bash
   changed_when: false
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
+    - ansible_facts.distribution == "Ubuntu"
+    - ansible_facts.distribution_major_version | int == 14
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
@@ -32,7 +32,7 @@
     url: "{{ wazuh_manager_config.repo.gpg }}"
     id: "{{ wazuh_manager_config.repo.key_id }}"
   when:
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
@@ -57,7 +57,7 @@
     state: present
     update_cache: true
   when:
-    - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
 
 - when:
     - wazuh_manager_config.cis_cat.disable == 'no'

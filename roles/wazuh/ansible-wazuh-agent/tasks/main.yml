@@ -19,7 +19,7 @@
   when: wazuh_agent_config_overlay | bool
 
 - include_tasks: "Windows.yml"
-  when: ansible_os_family == "Windows"
+  when: ansible_facts.os_family == "Windows"
 
 - include_tasks: "Linux.yml"
-  when: ansible_system == "Linux"
+  when: ansible_facts.system == "Linux"

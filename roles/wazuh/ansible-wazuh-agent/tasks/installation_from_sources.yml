@@ -25,7 +25,7 @@
       name:
         - policycoreutils-python
     when:
-      - ansible_os_family|lower == "redhat"
+      - ansible_facts.os_family|lower == "redhat"
 
   - name: Installing policycoreutils-python-utils (Debian families)
     package:
@@ -34,7 +34,7 @@
         - curl
         - policycoreutils
     when:
-      - ansible_os_family|lower == "debian"
+      - ansible_facts.os_family|lower == "debian"
 
   - name: Download required packages from github.com/wazuh/wazuh
     get_url:
