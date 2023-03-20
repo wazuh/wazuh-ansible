@@ -136,6 +136,7 @@ wazuh_agent_client_buffer:
 
 ## Rootcheck
 wazuh_agent_rootcheck:
+  disable: 'no'
   frequency: 43200
 
 ## Wodles
@@ -189,6 +190,7 @@ wazuh_agent_sca:
 
 ## Syscheck
 wazuh_agent_syscheck:
+  disable: 'no'
   frequency: 43200
   scan_on_start: 'yes'
   auto_ignore: 'no'
