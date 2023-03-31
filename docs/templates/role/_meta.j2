@@ -1,0 +1,35 @@
+{% set meta = role.meta | default({}) %}
+{% if meta %}
+## Dependencies
+
+{% if meta | deep_get(meta, "dependencies.value") %}
+{% if meta.dependencies.value is mapping %}
+{% set deps = meta.dependencies.value.dependencies %}
+{% else %}
+{% set deps = meta.dependencies.value %}
+{% endif %}
+{% for item in deps %}
+{% if item is string or item.role %}
+- {{ item if item is string else item.role }}
+{% endif %}
+{% endfor %}
+{% else %}
+None.
+{% endif %}
+{% if license | deep_get(meta, "license.value") %}
+
+## License
+
+{{ meta.license.value }}
+
+# Copyright
+
+WAZUH Copyright (C) 2016, Wazuh Inc.
+{% endif %}
+{% if author | deep_get(meta, "author.value") %}
+
+## Author
+
+{{ meta.author.value | save_join(" ") }}
+{% endif %}
+{% endif %}

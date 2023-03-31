@@ -1,0 +1,19 @@
+{% set todo = role.todo | default({}) %}
+{% if todo %}
+## Open Tasks
+
+{% for key, item in todo | dictsort %}
+{% for line in item %}
+{% if line.value is defined and line.value | save_join(" ") | striptags and key == "default" %}
+- {{ line.value | save_join(" ") | striptags }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% for key, item in todo | dictsort %}
+{% for line in item %}
+{% if line.value is defined and line.value | save_join(" ") | striptags and key != "default" %}
+- ({{ key }}): {{ line.value | save_join(" ") | striptags }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}

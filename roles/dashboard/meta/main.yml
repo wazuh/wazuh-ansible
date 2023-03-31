@@ -1,0 +1,50 @@
+---
+galaxy_info:
+  author: Wazuh
+  description: Installing, deploying and configuring Wazuh Agent.
+  company: wazuh.com
+  license: license (GPLv3)
+  min_ansible_version: "2.0"
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+  galaxy_tags:
+    - monitoring
+dependencies: []
+# @meta name: Ansible Playbook - Wazuh dashboard
+
+# @meta requirements: >
+# ## OS Requirements
+#
+# This role is compatible with:
+#
+#  * Red Hat
+#
+#  * CentOS
+#
+#  * Fedora
+#
+#  * Debian
+#
+#  * Ubuntu
+# @end
+
+# @meta misc: >
+# ### Based on previous work from dj-wasabi
+#
+#   - https://github.com/dj-wasabi/ansible-ossec-server
+#
+# ### Modified by Wazuh
+#
+# The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+# @end

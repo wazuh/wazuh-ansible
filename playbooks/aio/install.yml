@@ -1,0 +1,22 @@
+---
+# Certificates generation
+- hosts: '{{target|default("wazuh_aio")}}'
+  become: false
+  roles:
+    - role: indexer
+      perform_installation: false
+  tags:
+    - setup-all
+    - generate-certs
+
+# Single node
+- hosts: '{{target|default("wazuh_aio")}}'
+  become: true
+  roles:
+    - role: indexer
+    - role: manager
+    - role: filebeat
+    - role: dashboard
+  tags:
+    - setup-all
+    - install-wazuh

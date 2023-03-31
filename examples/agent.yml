@@ -1,0 +1,9 @@
+wazuh_managers:
+  - address: <your manager IP>
+    port: 1514
+    protocol: tcp
+    api_port: 55000
+    api_proto: "http"
+    api_user: ansible
+    max_retries: 5
+    retry_interval: 5

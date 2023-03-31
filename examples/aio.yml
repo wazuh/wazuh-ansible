@@ -1,0 +1,126 @@
+#### Indexer
+single_node: true
+minimum_master_nodes: 1
+indexer_network_host: 127.0.0.1
+
+indexer_admin_password: <changeme>
+dashboard_password: <changeme>
+
+indexer_security_user: admin
+indexer_security_password: changeme
+
+indexer_node_master: true
+instances:
+  node1:
+    name: node-1 # Important: must be equal to indexer_node_name.
+    ip: 127.0.0.1
+    role: indexer
+
+#### Filebeat
+filebeat_node_name: node-1
+filebeat_output_indexer_hosts:
+  - 127.0.0.1
+ansible_shell_allow_world_readable_temp: true
+
+#### Manager
+## groups to create
+agent_groups:
+  - "windows"
+  - "linux"
+  - "ubuntu"
+  - "server"
+  - "vm"
+  - "workstation"
+  - "network"
+
+## Woodles
+wazuh_manager_openscap:
+  disable: "no"
+  timeout: 1800
+  interval: "1d"
+  scan_on_start: "yes"
+
+wazuh_manager_ciscat:
+  disable: "no"
+  install_java: "yes"
+  timeout: 1800
+  interval: "1d"
+  scan_on_start: "yes"
+  java_path: "/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin"
+  ciscat_path: "wodles/ciscat"
+
+wazuh_manager_osquery:
+  disable: "no"
+  run_daemon: "yes"
+  log_path: "/var/log/osquery/osqueryd.results.log"
+  config_path: "/etc/osquery/osquery.conf"
+  ad_labels: "yes"
+
+## Vulnerability Detector
+wazuh_manager_vulnerability_detector:
+  enabled: "yes"
+  interval: "5m"
+  run_on_start: "yes"
+  providers:
+    - enabled: "no"
+      os:
+        - "trusty"
+        - "xenial"
+        - "bionic"
+      update_interval: "1h"
+      name: '"canonical"'
+    - enabled: "yes"
+      os:
+        - "wheezy"
+        - "stretch"
+        - "jessie"
+        - "buster"
+      update_interval: "1h"
+      name: '"debian"'
+    - enabled: "no"
+      update_from_year: "2010"
+      update_interval: "1h"
+      name: '"redhat"'
+    - enabled: "no"
+      update_from_year: "2010"
+      update_interval: "1h"
+      name: '"nvd"'
+
+## Alerts
+wazuh_manager_log_level: 3
+wazuh_manager_email_level: 12
+
+## Email
+wazuh_manager_email_notification: "no"
+wazuh_manager_mailto:
+  - "admin@example.net"
+
+wazuh_manager_email_smtp_server: smtp.example.wazuh.com
+wazuh_manager_email_from: wazuh@example.wazuh.com
+wazuh_manager_email_maxperhour: 12
+wazuh_manager_email_queue_size: 131072
+wazuh_manager_email_log_source: "alerts.log"
+
+wazuh_manager_extra_emails:
+  - enable: false
+    mail_to: "recipient@example.wazuh.com"
+    format: full
+    level: 7
+    event_location: null
+    group: null
+    do_not_delay: false
+    do_not_group: false
+    rule_id: null
+
+wazuh_manager_reports:
+  - enable: false
+    category: "syscheck"
+    title: "Daily report: File changes"
+    email_to: "recipient@example.wazuh.com"
+    location: null
+    group: null
+    rule: null
+    level: null
+    srcip: null
+    user: null
+    showlogs: null

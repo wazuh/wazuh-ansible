@@ -1,0 +1,12 @@
+{% set tag = role.tag | default({}) %}
+{% if tag %}
+## Discovered Tags
+{% for key, item in tag | dictsort %}
+{% set is_desc = item.description is defined and item.description | save_join(" ") | striptags %}
+
+**_{{ key }}_**{{ "\\" if is_desc else "" }}
+{% if is_desc %}
+&emsp;{{ item.description | save_join(" ") | striptags }}
+{% endif %}
+{% endfor %}
+{% endif %}
