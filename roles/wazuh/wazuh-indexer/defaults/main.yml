@@ -1,6 +1,6 @@
 ---
 # Cluster Settings
-indexer_version: 4.3.10
+indexer_version: 4.4.0
 
 single_node: false
 indexer_node_name: node-1
@@ -26,9 +26,9 @@ minimum_master_nodes: 2
 # Example es1.example.com, es2.example.com
 domain_name: wazuh.com
 
-indexer_sec_plugin_conf_path: /usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig
+indexer_sec_plugin_conf_path: /etc/wazuh-indexer/opensearch-security
 indexer_sec_plugin_tools_path: /usr/share/wazuh-indexer/plugins/opensearch-security/tools
-indexer_conf_path: /etc/wazuh-indexer/
+indexer_conf_path: /etc/wazuh-indexer
 indexer_index_path: /var/lib/wazuh-indexer/
 
 # Security password
