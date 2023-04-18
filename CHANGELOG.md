@@ -13,6 +13,12 @@ All notable changes to this project will be documented in this file.
 
 - Update to [Wazuh v4.5.0](https://github.com/wazuh/wazuh/blob/v4.5.0/CHANGELOG.md#v450)
 
+## [v4.4.1]
+
+### Added
+
+- Update to [Wazuh v4.4.1](https://github.com/wazuh/wazuh/blob/v4.4.1/CHANGELOG.md#v441)
+
 ## [v4.4.0]
 
 ### Added
