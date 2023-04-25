@@ -115,6 +115,11 @@
   </rootcheck>
   {% endif %}
 
+  {% if ansible_system == "Linux" and wazuh_agent_config.docker_listener.disable == 'no' %}
+  <wodle name="docker-listener">
+    <disabled>no</disabled>
+  </wodle>
+  {% endif %}
 
   {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
