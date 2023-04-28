@@ -16,6 +16,8 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
+| v4.4.1        |         |        |
+| v4.4.0        |         |        |
 | v4.3.11       |         |        |
 | v4.3.10       |         |        |
 | v4.3.9        |         |        |
@@ -28,6 +30,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 | v4.3.2        |         |        |
 | v4.3.1        |         |        |
 | v4.3.0        |         |        |
+| v4.2.6        | 7.10.2  | 1.13.2 |
 | v4.2.5        | 7.10.2  | 1.13.2 |
 | v4.2.4        | 7.10.2  | 1.13.2 |
 | v4.2.3        | 7.10.2  | 1.13.2 |
@@ -394,6 +397,124 @@ sudo ansible-playbook wazuh-single.yml -i inventory
 ```
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<your server host>`
+
+## Example: Wazuh server cluster (without Filebeat)
+
+### Playbook
+
+The hereunder example playbook uses the `wazuh-ansible` role to provision a Wazuh server cluster without Filebeat. This architecture includes 2 Wazuh servers distributed in two different nodes.
+
+```yaml
+---
+# Wazuh cluster without Filebeat
+    - hosts: manager
+      roles:
+        - role: "../roles/wazuh/ansible-wazuh-manager"
+      become: yes
+      become_user: root
+      vars:
+        wazuh_manager_config:
+          connection:
+              - type: 'secure'
+                port: '1514'
+                protocol: 'tcp'
+                queue_size: 131072
+          api:
+              https: 'yes'
+          cluster:
+              disable: 'no'
+              node_name: 'master'
+              node_type: 'master'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
+              nodes:
+                  - "{{ hostvars.manager.private_ip }}"
+              hidden: 'no'
+        wazuh_api_users:
+          - username: custom-user
+            password: SecretPassword1!
+
+    - hosts: worker01
+      roles:
+        - role: "../roles/wazuh/ansible-wazuh-manager"
+      become: yes
+      become_user: root
+      vars:
+        wazuh_manager_config:
+          connection:
+              - type: 'secure'
+                port: '1514'
+                protocol: 'tcp'
+                queue_size: 131072
+          api:
+              https: 'yes'
+          cluster:
+              disable: 'no'
+              node_name: 'worker_01'
+              node_type: 'worker'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
+              nodes:
+                  - "{{ hostvars.manager.private_ip }}"
+              hidden: 'no'
+```
+
+### Inventory file
+
+```ini
+[manager]
+<your manager master server host>
+
+[worker01]
+<your manager worker01 server host>
+
+[all:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file=/path/to/ssh/key.pem
+ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+```
+
+### Adding additional workers
+
+Add the following block at the end of the playbook
+
+```yaml
+    - hosts: worker02
+      roles:
+        - role: "../roles/wazuh/ansible-wazuh-manager"
+      become: yes
+      become_user: root
+      vars:
+        wazuh_manager_config:
+          connection:
+              - type: 'secure'
+                port: '1514'
+                protocol: 'tcp'
+                queue_size: 131072
+          api:
+              https: 'yes'
+          cluster:
+              disable: 'no'
+              node_name: 'worker_02'
+              node_type: 'worker'
+              key: 'c98b62a9b6169ac5f67dae55ae4a9088'
+              nodes:
+                  - "{{ hostvars.manager.private_ip }}"
+              hidden: 'no'
+```
+
+NOTE: `hosts` and `wazuh_manager_config.cluster_node_name` are the only parameters that differ from the `worker01` configuration.
+
+Add the following lines to the inventory file:
+
+```ini
+[worker02]
+<your manager worker02 server host>
+```
+
+### Launching the playbook
+
+```bash
+sudo ansible-playbook wazuh-manager-oss-cluster.yml -i inventory
+```
 
 ## Contribute
 
