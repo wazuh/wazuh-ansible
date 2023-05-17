@@ -1,0 +1,53 @@
+---
+kibana_node_name: node-1
+
+elasticsearch_http_port: "9200"
+elasticsearch_network_host: "127.0.0.1"
+kibana_server_host: "0.0.0.0"
+kibana_server_port: "5601"
+kibana_conf_path: /etc/kibana
+elastic_stack_version: 7.10.2
+wazuh_version: 4.4.1
+wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
+
+elasticrepo:
+  apt: 'https://artifacts.elastic.co/packages/7.x/apt'
+  yum: 'https://artifacts.elastic.co/packages/7.x/yum'
+  gpg: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+  key_id: '46095ACC8548582C1A2699A9D27D666CD88E42B4'
+
+# API credentials
+wazuh_api_credentials:
+  - id: "default"
+    url: "https://localhost"
+    port: 55000
+    username: "wazuh"
+    password: "wazuh"
+
+# Xpack Security
+kibana_xpack_security: false
+kibana_ssl_verification_mode: "full"
+
+elasticsearch_xpack_security_user: elastic
+elasticsearch_xpack_security_password: elastic_pass
+
+node_certs_destination: /etc/kibana/certs
+
+# CA Generation
+master_certs_path: "{{ playbook_dir }}/es_certs"
+generate_CA: true
+ca_cert_name: ""
+
+# Nodejs
+nodejs:
+  repo_dict:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_10.x"
+
+# Build from sources
+build_from_sources: false
+wazuh_plugin_branch: 4.1-7.10
+
+#Nodejs NODE_OPTIONS
+node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536

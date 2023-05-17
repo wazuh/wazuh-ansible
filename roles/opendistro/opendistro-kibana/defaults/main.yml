@@ -1,0 +1,60 @@
+---
+
+# Kibana configuration
+elasticsearch_http_port: 9200
+elastic_api_protocol: https
+kibana_conf_path: /etc/kibana
+kibana_node_name: node-1
+kibana_server_host: "0.0.0.0"
+kibana_server_port: "5601"
+kibana_server_name: "kibana"
+kibana_max_payload_bytes: 1048576
+elastic_stack_version: 7.10.2
+wazuh_version: 4.4.1
+wazuh_app_url: https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana
+
+# The OpenDistro package repository
+kibana_opendistro_version: 1.13.2-1 # Version includes the - for RedHat family compatibility, replace with = for Debian hosts
+
+package_repos:
+  yum:
+    opendistro:
+      baseurl: 'https://packages.wazuh.com/4.x/yum/'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+  apt:
+    opendistro:
+      baseurl: 'deb https://packages.wazuh.com/4.x/apt/ stable main'
+      gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
+
+# API credentials
+wazuh_api_credentials:
+  - id: "default"
+    url: "https://localhost"
+    port: 55000
+    username: "wazuh"
+    password: "wazuh"
+
+# opendistro Security
+kibana_opendistro_security: true
+kibana_newsfeed_enabled: "false"
+kibana_telemetry_optin: "false"
+kibana_telemetry_enabled: "false"
+
+opendistro_admin_password: changeme
+opendistro_kibana_user: kibanaserver
+opendistro_kibana_password: changeme
+local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
+
+# Nodejs
+nodejs:
+  repo_dict:
+      debian: "deb"
+      redhat: "rpm"
+  repo_url_ext: "nodesource.com/setup_10.x"
+
+# Build from sources
+build_from_sources: false
+wazuh_plugin_branch: 4.1-7.10
+
+#Nodejs NODE_OPTIONS
+node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536
