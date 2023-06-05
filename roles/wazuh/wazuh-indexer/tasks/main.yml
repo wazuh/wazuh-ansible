@@ -109,6 +109,7 @@
       tags: debug
       when:
         - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
+        - not ansible_check_mode
 
     - name: Wait for Wazuh indexer API (Private IP)
       uri:
@@ -128,6 +129,7 @@
       tags: debug
       when:
         - hostvars[inventory_hostname]['private_ip'] is defined and hostvars[inventory_hostname]['private_ip']
+        - not ansible_check_mode
 
     - import_tasks: "RMRedHat.yml"
       when: ansible_os_family == "RedHat"
