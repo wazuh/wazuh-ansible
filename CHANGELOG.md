@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [v4.7.0]
+
+### Added
+
+- Update to [Wazuh v4.7.0](https://github.com/wazuh/wazuh/blob/v4.7.0/CHANGELOG.md#v470)
+
 ## [v4.6.0]
 
 ### Added
