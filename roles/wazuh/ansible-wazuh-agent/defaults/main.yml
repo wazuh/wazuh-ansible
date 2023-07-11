@@ -1,6 +1,5 @@
 ---
-
-wazuh_agent_version: 4.5.1
+wazuh_agent_version: 4.6.0
 
 # Custom packages installation
 
@@ -12,7 +11,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 
 wazuh_agent_sources_installation:
   enabled: false
-  branch: "v4.5.1"
+  branch: "v4.6.0"
   user_language: "y"
   user_no_stop: "y"
   user_install_type: "agent"
