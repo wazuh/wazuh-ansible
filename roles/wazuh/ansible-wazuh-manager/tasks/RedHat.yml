@@ -8,8 +8,8 @@
     gpgcheck: true
   changed_when: false
   when:
-    - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
-    - (ansible_distribution_major_version|int <= 5)
+    - (ansible_facts.os_family|lower == 'redhat') and (ansible_facts.distribution|lower != 'amazon')
+    - (ansible_facts.distribution_major_version|int <= 5)
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
   register: repo_v5_manager_installed
@@ -35,15 +35,15 @@
   until: wazuh_manager_openscp_packages_installed is succeeded
   tags:
     - init
-  when: not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA") and
-        not (ansible_distribution == "CentOS" and ansible_distribution_major_version == "8")
+  when: not (ansible_facts.distribution == "Amazon" and ansible_facts.distribution_major_version == "NA") and
+        not (ansible_facts.distribution == "CentOS" and ansible_facts.distribution_major_version == "8")
 
 - name: CentOS 6 | Install Software Collections (SCL) Repository
   package: name=centos-release-scl state=present
   register: wazuh_manager_scl_packages_installed
   until: wazuh_manager_scl_packages_installed is succeeded
   when:
-    - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+    - ansible_facts.distribution == 'CentOS' and ansible_facts.distribution_major_version == '6'
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: RedHat 6 | Enabling Red Hat Software Collections (RHSCL)
@@ -52,7 +52,7 @@
     - rhui-REGION-rhel-server-rhscl
     - rhel-server-rhscl-6-rpms
   when:
-    - ansible_distribution == 'RedHat' and  ansible_distribution_major_version == '6'
+    - ansible_facts.distribution == 'RedHat' and  ansible_facts.distribution_major_version == '6'
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: CentOS/RedHat 6 | Install Python 2.7
@@ -60,7 +60,7 @@
   register: wazuh_manager_python_package_installed
   until: wazuh_manager_python_package_installed is succeeded
   when:
-    - ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' ) and ansible_distribution_major_version == '6'
+    - ( ansible_facts.distribution == 'CentOS' or ansible_facts.distribution == 'RedHat' ) and ansible_facts.distribution_major_version == '6'
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
@@ -74,24 +74,24 @@
 - name: Set Distribution CIS filename for RHEL5/CentOS-5
   set_fact:
     cis_distribution_filename: cis_rhel5_linux_rcl.txt
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == '5'
+  when: ansible_facts.os_family == "RedHat" and ansible_facts.distribution_major_version == '5'
 
 - name: Set Distribution CIS filename for RHEL6/CentOS-6
   set_fact:
     cis_distribution_filename: cis_rhel6_linux_rcl.txt
-  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == '6'
+  when: ansible_facts.os_family == "RedHat" and ansible_facts.distribution_major_version == '6'
 
 - name: Set Distribution CIS filename for RHEL7/CentOS-7
   set_fact:
     cis_distribution_filename: cis_rhel7_linux_rcl.txt
   when:
-    - ansible_os_family == "RedHat" and ansible_distribution_major_version == '7'
+    - ansible_facts.os_family == "RedHat" and ansible_facts.distribution_major_version == '7'
 
 - name: Set Distribution CIS filename for RHEL7/CentOS-7 (Amazon)
   set_fact:
     cis_distribution_filename: cis_rhel7_linux_rcl.txt
   when:
-    - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
+    - ansible_facts.distribution == "Amazon" and ansible_facts.distribution_major_version == "NA"
 
 - name: Install dependencies to build from sources
   yum:
@@ -106,7 +106,7 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ansible_os_family|lower == "redhat"
+    - ansible_facts.os_family|lower == "redhat"
     - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
   tags:
@@ -126,7 +126,7 @@
     regexp: 'echo -n "Starting Wazuh-manager: "'
     replace: "echo -n \"Starting Wazuh-manager (EL6): \"; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ wazuh_dir }}/framework/lib"
   when:
-    - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
+    - ansible_facts.distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_facts.distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: Install expect (EL5)
@@ -138,7 +138,7 @@
   register: wazuh_manager_main_packages_installed
   until: wazuh_manager_main_packages_installed is succeeded
   when:
-    - ansible_os_family|lower == "RedHat"
-    - ansible_distribution_major_version|int < 6
+    - ansible_facts.os_family|lower == "RedHat"
+    - ansible_facts.distribution_major_version|int < 6
   tags:
     - init

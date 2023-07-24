@@ -33,7 +33,7 @@
         become: yes
 
     when:
-      - ansible_distribution == 'Amazon'
+      - ansible_facts.distribution == 'Amazon'
 
   - name: RedHat/CentOS/Fedora | Install Indexer dependencies
     yum:

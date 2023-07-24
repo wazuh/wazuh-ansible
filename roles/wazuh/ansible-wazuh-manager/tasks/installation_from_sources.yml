@@ -36,7 +36,7 @@
           name:
             - policycoreutils-python
         when:
-          - ansible_os_family|lower == "redhat"
+          - ansible_facts.os_family|lower == "redhat"
 
       - name: Installing policycoreutils-python-utils (Debian families)
         package:
@@ -45,7 +45,7 @@
             - curl
             - policycoreutils
         when:
-          - ansible_os_family|lower == "debian"
+          - ansible_facts.os_family|lower == "debian"
 
       - name: Remove old repository folder
         file:
