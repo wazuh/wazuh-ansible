@@ -49,11 +49,10 @@ jobs:
         with:
           python-version: '3.x'
       - name: Ansible Playbook run Wazuh AIO Single instance
-        run: ansible-playbook ./.github/playbooks/aio-wazuh.yml
+        run: ansible-playbook ./.github/playbooks/aio-wazuh.yml -vvvv
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
-          ANSIBLE_VERBOSE: 'vvvvv'
   stop-runner:
     name: Stop self-hosted EC2 runner
     needs:

@@ -1,9 +1,5 @@
 ---
 
-- name: Pause for 5 minutes to build app cache
-  pause:
-    seconds: 5
-
 - name: "Install dependencies"
   package:
     name:
