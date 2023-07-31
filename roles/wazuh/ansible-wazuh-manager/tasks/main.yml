@@ -8,6 +8,8 @@
       - tar
       - curl
     state: present
+  register: package_status
+  until: package_status is success
 
 - include_vars: ../../vars/repo_vars.yml
 
