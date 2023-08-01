@@ -1,4 +1,4 @@
 ---
 - name: restart wazuh-agent
   service: name=wazuh-agent state=restarted enabled=yes
-  when: not ansible_check_mode
+  when: not ansible_check_mode and not (wazuh_agent__packer_next_provision | bool)

@@ -285,13 +285,21 @@
   tags:
     - init
 
-- name: Linux | Ensure Wazuh Agent service is started and enabled
+- name: Linux | Ensure Wazuh Agent service is started and enabled (regular install)
   service:
     name: wazuh-agent
     enabled: true
     state: started
   tags: config
   when: not ansible_check_mode
+
+- name: Linux | Ensure Wazuh Agent service is stopped and disabled (packer-next provision)
+  service:
+    name: wazuh-agent
+    enabled: false
+    state: stopped
+  tags: config
+  when: (wazuh_agent__packer_next_provision | bool) and not ansible_check_mode
 
 - include_tasks: "RMRedHat.yml"
   when:
