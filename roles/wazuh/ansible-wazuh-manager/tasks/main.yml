@@ -9,7 +9,10 @@
       - curl
     state: present
   register: package_status
-  until: package_status is success
+  until: package_status is success  
+  retries: 6
+  delay: 10
+
 
 - include_vars: ../../vars/repo_vars.yml
 
