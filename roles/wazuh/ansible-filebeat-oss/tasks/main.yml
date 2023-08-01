@@ -24,7 +24,7 @@
   - install
   - init
   until: "install is not failed"  
-  retries: 6
+  retries: 10
   delay: 10
   when: ansible_facts.os_family == 'Debian'
 
