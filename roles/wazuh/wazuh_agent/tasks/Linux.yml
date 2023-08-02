@@ -298,8 +298,8 @@
 - name: Linux | Ensure Wazuh Agent service is in the desired state
   service:
     name: wazuh-agent
-    enabled: "{{ not wazuh_agent__packer_next_provision | ternary(true, false) }}"
-    state: "{{ not wazuh_agent__packer_next_provision | ternary('started', 'stopped') }}"
+    enabled: "{{ wazuh_agent__packer_next_provision | ternary(false, true) | bool }}"
+    state: "{{ wazuh_agent__packer_next_provision | ternary('stopped', 'started') }}"
   tags: config
   when: not ansible_check_mode
 
