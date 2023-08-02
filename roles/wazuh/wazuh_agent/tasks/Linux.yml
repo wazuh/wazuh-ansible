@@ -285,21 +285,23 @@
   tags:
     - init
 
-- name: Linux | Ensure Wazuh Agent service is started and enabled (regular install)
+- name: Linux | Print message about a call from packer-next provisioner
+  debug:
+    msg: |
+      Wazuh Agent has been installed and configured. It will be disabled.
+      During the bootstrap process, the agent will be enabled and started.
+  when: wazuh_agent__packer_next_provision
+  tags: config
+
+# If wazuh_agent__packer_next_provision is true, then stop and disable wazuh-agent service
+# otherwise, start and enable wazuh-agent service
+- name: Linux | Ensure Wazuh Agent service is in the desired state
   service:
     name: wazuh-agent
-    enabled: true
-    state: started
+    enabled: "{{ not wazuh_agent__packer_next_provision | ternary(true, false) }}"
+    state: "{{ not wazuh_agent__packer_next_provision | ternary('started', 'stopped') }}"
   tags: config
   when: not ansible_check_mode
-
-- name: Linux | Ensure Wazuh Agent service is stopped and disabled (packer-next provision)
-  service:
-    name: wazuh-agent
-    enabled: false
-    state: stopped
-  tags: config
-  when: (wazuh_agent__packer_next_provision | bool) and not ansible_check_mode
 
 - include_tasks: "RMRedHat.yml"
   when:
