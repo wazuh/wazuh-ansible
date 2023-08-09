@@ -191,6 +191,12 @@ wazuh_manager_vulnerability_detector:
       update_interval: '1h'
       name: '"debian"'
     - enabled: 'no'
+      os:
+        - '8'
+        - '9'
+      update_interval: '1h'
+      name: '"almalinux"'
+    - enabled: 'no'
       update_from_year: '2010'
       update_interval: '1h'
       name: '"redhat"'
