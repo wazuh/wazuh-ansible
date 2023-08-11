@@ -3,6 +3,12 @@
   become: true
   become_user: root
   roles:
+    # 1. Check packages
+    - role: ../../roles/wazuh/check-packages
+      become: no
+      delegate_to: localhost
+      run_once: true
+    # 2. Generate certificates
     - role: ../../roles/wazuh/wazuh-indexer
       vars:
         generate_certs: true
@@ -30,24 +36,19 @@
   become: true
   become_user: root
   roles:
-    # 1. Check packages
-    - role: ../../roles/wazuh/check-packages
-      become: no
-      delegate_to: localhost
-      run_once: true
-    # 2. Wazuh indexer
+    # 1. Wazuh indexer
     - role: ../../roles/wazuh/wazuh-indexer
       vars:
         indexer_node_name: "wazuh-es01"
         single_node: true
-    # 3. Managers
+    # 2. Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
     - role: ../../roles/wazuh/ansible-filebeat-oss
       vars:
         filebeat_node_name: "wazuh-mgr01"
         filebeat_output_indexer_hosts:
         - "localhost:9200"
-    # 4. Wazuh dashboard
+    # 3. Wazuh dashboard
     - role: ../../roles/wazuh/wazuh-dashboard
       vars:
         dashboard_node_name: "wazuh-dash01"

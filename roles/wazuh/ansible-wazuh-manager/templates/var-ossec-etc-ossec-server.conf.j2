@@ -265,6 +265,9 @@
   {% if wazuh_manager_config.vulnerability_detector.interval is defined %}
     <interval>{{ wazuh_manager_config.vulnerability_detector.interval }}</interval>
   {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.min_full_scan_interval is defined %}
+    <min_full_scan_interval>{{ wazuh_manager_config.vulnerability_detector.min_full_scan_interval }}</min_full_scan_interval>
+  {% endif %}
   {% if wazuh_manager_config.vulnerability_detector.run_on_start is defined %}
     <run_on_start>{{ wazuh_manager_config.vulnerability_detector.run_on_start }}</run_on_start>
   {% endif %}
