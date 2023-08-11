@@ -23,6 +23,9 @@
   tags:
   - install
   - init
+  until: "install is not failed"  
+  retries: 10
+  delay: 10
   when: ansible_os_family == 'Debian'
 
 - name: Checking if Filebeat Module folder file exists

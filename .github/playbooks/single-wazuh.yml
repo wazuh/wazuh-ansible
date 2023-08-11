@@ -2,6 +2,10 @@
 - name: ConvergeCerts
   hosts: localhost
   roles:
+    - role: ../../roles/wazuh/check-packages
+      become: no
+      delegate_to: localhost
+      run_once: true
     - role: ../../roles/wazuh/wazuh-indexer
       perform_installation: false
   vars:
@@ -15,12 +19,7 @@
 - name: ConvergeInstall
   hosts: localhost
   roles:
-    # 1. Check packages
-    - role: ../../roles/wazuh/check-packages
-      become: no
-      delegate_to: localhost
-      run_once: true
-    # 2. Managers
+    # Managers
     - role: ../../roles/wazuh/ansible-wazuh-manager
       vars:
     - role: ../../roles/wazuh/ansible-filebeat-oss

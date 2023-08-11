@@ -8,6 +8,10 @@
       - tar
       - curl
     state: present
+  register: package_status
+  until: "package_status is not failed"  
+  retries: 10
+  delay: 10
 
 - include_vars: ../../vars/repo_vars.yml
 
