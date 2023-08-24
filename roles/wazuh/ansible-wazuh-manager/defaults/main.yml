@@ -1,6 +1,6 @@
 ---
 
-wazuh_manager_version: 4.5.1
+wazuh_manager_version: 4.5.2
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -13,7 +13,7 @@ wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazon
 # Sources installation
 wazuh_manager_sources_installation:
   enabled: false
-  branch: "v4.5.1"
+  branch: "v4.5.2"
   user_language: "en"
   user_no_stop: "y"
   user_install_type: "server"
@@ -174,6 +174,7 @@ wazuh_manager_sca:
 wazuh_manager_vulnerability_detector:
   enabled: 'no'
   interval: '5m'
+  min_full_scan_interval: '6h'
   run_on_start: 'yes'
   providers:
     - enabled: 'no'
@@ -181,19 +182,47 @@ wazuh_manager_vulnerability_detector:
         - 'trusty'
         - 'xenial'
         - 'bionic'
+        - 'focal'
+        - 'jammy'
       update_interval: '1h'
       name: '"canonical"'
     - enabled: 'no'
       os:
-        - 'wheezy'
-        - 'stretch'
-        - 'jessie'
         - 'buster'
+        - 'bullseye'
       update_interval: '1h'
       name: '"debian"'
     - enabled: 'no'
+      os:
+        - '5'
+        - '6'
+        - '7'
+        - '8'
+        - '9'
       update_interval: '1h'
       name: '"redhat"'
+    - enabled: 'no'
+      os:
+        - 'amazon-linux'
+        - 'amazon-linux-2'
+      update_interval: '1h'
+      name: '"alas"'
+    - enabled: 'no'
+      os:
+        - '11-server'
+        - '11-desktop'
+        - '12-server'
+        - '12-desktop'
+        - '15-server'
+        - '15-desktop'
+      update_interval: '1h'
+      name: '"suse"'
+    - enabled: 'no'
+      update_interval: '1h'
+      name: '"arch"'
+    - enabled: 'no'
+      update_interval: '1h'
+      name: '"msu"'
     - enabled: 'no'
       update_interval: '1h'
       name: '"nvd"'
