@@ -5,6 +5,7 @@ wazuh_repo:
   key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
 wazuh_winagent_config_url: "https://packages.wazuh.com/4.x/windows/wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 wazuh_winagent_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.msi"
+wazuh_winagent_sha512_url: "https://packages.wazuh.com/4.x/checksums/wazuh/{{ wazuh_agent_version }}/wazuh-agent-{{ wazuh_agent_version }}-1.msi.sha512"
 
 certs_gen_tool_version: 4.6
 
