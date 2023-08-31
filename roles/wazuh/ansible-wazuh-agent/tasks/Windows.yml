@@ -107,3 +107,8 @@
   win_file:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
     state: absent
+
+- name: Windows | Delete downloaded checksum file
+  win_file:
+    path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}.sha512"
+    state: absent
