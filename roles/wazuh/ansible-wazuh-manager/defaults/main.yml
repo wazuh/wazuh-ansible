@@ -210,6 +210,7 @@ wazuh_manager_vulnerability_detector:
       os:
         - 'amazon-linux'
         - 'amazon-linux-2'
+        - 'amazon-linux-2023'
       update_interval: '1h'
       name: '"alas"'
     - enabled: 'no'
