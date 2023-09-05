@@ -61,6 +61,9 @@
     -p {{ wazuh_agent_authd.port }}
     {% if wazuh_agent_authd.agent_name is not none %}-A {{ wazuh_agent_authd.agent_name }} {% endif %}
     {% if authd_pass | length > 0 %} -P {{ authd_pass }}{% endif %}
+    {% if wazuh_agent_authd.groups is defined and wazuh_agent_authd.groups | length > 0 %}
+    -G "{{ wazuh_agent_authd.groups | join(',') }}"
+    {% endif %}
   register: agent_auth_output
   notify: Windows | Restart Wazuh Agent
   when:
