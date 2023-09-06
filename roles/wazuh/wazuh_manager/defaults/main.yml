@@ -69,8 +69,8 @@ wazuh_manager_agent_disconnection_time: '20s'
 wazuh_manager_agents_disconnection_alert_time: '100s'
 
 ## Alerts
-wazuh_manager_log_level: 3
-wazuh_manager_email_level: 12
+wazuh_manager_log_level: 10
+wazuh_manager_email_level: 16
 
 ## Logging
 wazuh_manager_log_format: 'plain'
