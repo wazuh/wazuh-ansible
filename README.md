@@ -18,6 +18,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 |---------------|---------|--------|
 | v4.7.0        |         |        |
 | v4.6.0        |         |        |
+| v4.5.3        |         |        |
 | v4.5.2        |         |        |
 | v4.5.1        |         |        |
 | v4.5.0        |         |        |
