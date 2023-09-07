@@ -30,17 +30,29 @@
   when:
     - not wazuh_package_downloaded.stat.exists
 
+- name: Windows | Download SHA512 checksum file
+  win_get_url:
+    url: "{{ wazuh_winagent_sha512_url }}"
+    dest: "{{ wazuh_winagent_config.download_dir }}"
+  when:
+    - wazuh_winagent_config.check_sha512
+  
+- name: Extract checksum from SHA512 file
+  win_shell: Get-Content "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}.sha512" | ForEach-Object { $_.Split(' ')[0] }
+  register: extracted_checksum
+  when:
+    - wazuh_winagent_config.check_sha512
+
 - name: Windows | Verify the Wazuh Agent installer
   win_stat:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
     get_checksum: true
-    checksum_algorithm: md5
+    checksum_algorithm: sha512
   register: wazuh_agent_status
   failed_when:
-    - wazuh_agent_status.stat.checksum != wazuh_winagent_config.md5
+    - wazuh_agent_status.stat.checksum != extracted_checksum.stdout_lines[0]
   when:
-    - wazuh_winagent_config.check_md5
-
+    - wazuh_winagent_config.check_sha512
 
 - name: Windows | Install Agent if not already installed
   win_package:
@@ -94,4 +106,9 @@
 - name: Windows | Delete downloaded Wazuh agent installer file
   win_file:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
+    state: absent
+
+- name: Windows | Delete downloaded checksum file
+  win_file:
+    path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}.sha512"
     state: absent
