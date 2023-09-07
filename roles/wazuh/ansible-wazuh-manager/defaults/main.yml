@@ -189,6 +189,7 @@ wazuh_manager_vulnerability_detector:
       os:
         - 'buster'
         - 'bullseye'
+        - 'bookworm'
       update_interval: '1h'
       name: '"debian"'
     - enabled: 'no'
