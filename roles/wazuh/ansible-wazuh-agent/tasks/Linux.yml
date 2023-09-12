@@ -149,7 +149,6 @@
         body:
           name: '{{ agent_name }}'
           ip: '{{ wazuh_agent_address }}'
-          force_time: 1
         headers:
           Authorization: 'Bearer {{ jwt_token }}'
         status_code: 200
