@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 4.3.8
+wazuh_agent_version: 4.5.2
 
 # Custom flag to disable wazuh-agent after install if role is called from packer-next
 
