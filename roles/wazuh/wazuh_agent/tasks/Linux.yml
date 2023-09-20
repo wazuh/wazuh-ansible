@@ -255,6 +255,18 @@
     - config
   when: not ansible_check_mode
 
+- name: Linux | Copy SCA rulesets to wazuh agent
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ wazuh_agent_sources_installation.user_dir }}/ruleset/sca/"
+    mode: 0640
+    owner: root
+    group: wazuh
+  with_fileglob:
+    - "files/sca/*"
+  tags:
+    - config
+
 - name: Create auto-enrollment password file
   template:
     src: authd_pass.j2

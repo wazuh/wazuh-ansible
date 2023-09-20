@@ -1,0 +1,30 @@
+policy:
+  id: "sshd_misconfiguration"
+  file: "sshd_misconfiguration.yml"
+  name: "sshd_misconfiguration"
+  description: "Sets of checks for sshd configuration"
+
+variables:
+  $sshd_file: /etc/ssh/sshd_config
+
+requirements:
+  title: "Check whether it's linux and sshd_config exists"
+  description: ""
+  condition: all
+  rules:
+    - "f:/proc/sys/kernel/ostype -> Linux"
+    - "f:$sshd_file"
+
+checks:
+  - id: 1
+    title: "Disable password auth"
+    description: "Check for sshd_config for disabled password auth"
+    condition: all
+    rules:
+      - "f:$sshd_file -> r:^PasswordAuthentication no"
+  - id: 2
+    title: "Disable root logon"
+    description: "Check for sshd_config for disabled root logon"
+    condition: all
+    rules:
+      - "f:$sshd_file -> r:^PermitRootLogin no"
