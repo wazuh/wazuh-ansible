@@ -85,8 +85,8 @@ wazuh_managers:
     api_port: 55000
     api_proto: https
     api_user: wazuh
-    max_retries: 5
-    retry_interval: 5
+    max_retries: 1000000
+    retry_interval: 1800
     register: yes
 
 ## Authentication Method: Enrollment section (4.x)
