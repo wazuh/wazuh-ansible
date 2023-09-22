@@ -30,8 +30,8 @@
 
   - name: Local action | Prepare the certificates generation template file
     template:
-      src: "templates/wazuh-config.yml.j2"
-      dest: "{{ local_certs_path }}/wazuh-config.yml"
+      src: "templates/config.yml.j2"
+      dest: "{{ local_certs_path }}/config.yml"
       mode: 0644
     register: tlsconfig_template
 
