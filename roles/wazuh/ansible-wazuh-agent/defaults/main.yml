@@ -54,6 +54,11 @@ wazuh_winagent_config:
   auth_path_x86: C:\'Program Files (x86)'\ossec-agent\agent-auth.exe
   check_sha512: True
 
+# macOS deployment
+wazuh_macos_config:
+  download_dir: /
+  install_dir: /Library/Ossec/
+
 wazuh_dir: "/var/ossec"
 
 # This is deprecated, see: wazuh_agent_address
