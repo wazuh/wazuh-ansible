@@ -56,7 +56,7 @@ wazuh_winagent_config:
 
 # macOS deployment
 wazuh_macos_config:
-  download_dir: /
+  download_dir: /tmp/
   install_dir: /Library/Ossec/
 
 wazuh_dir: "/var/ossec"

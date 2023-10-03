@@ -16,3 +16,17 @@
   stat:
     path: "{{ wazuh_macos_config.download_dir }}{{ wazuh_macos_package_name }}"
   register: wazuh_package_downloaded
+
+- name: macOS | Download Wazuh Agent package
+  get_url:
+    url: "{{ wazuh_macos_package_url }}"
+    dest: "{{ wazuh_macos_config.download_dir }}"
+  when:
+    - not wazuh_package_downloaded.stat.exists
+
+- name: macOS | Delete downloaded Wazuh agent installer file
+  file:
+    path: "{{ wazuh_macos_config.download_dir }}{{ wazuh_macos_package_name }}"
+    state: absent
+  when:
+    - wazuh_package_downloaded.stat.exists
