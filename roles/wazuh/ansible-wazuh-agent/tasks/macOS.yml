@@ -1,0 +1,18 @@
+---
+- name: macOS | Check architecture
+  command: "/usr/bin/uname -m"
+  register: uname_result
+
+- name: macOS | Set architecture variable
+  set_fact:
+    macos_architecture: "{{ 'arm' if uname_result.stdout == 'arm64' else 'intel' }}"
+
+- name: macOS | Set package name and URL based on architecture
+  set_fact:
+    wazuh_macos_package_url: "{{ wazuh_macos_intel_package_url if macos_architecture == 'intel' else wazuh_macos_arm_package_url }}"
+    wazuh_macos_package_name: "{{ wazuh_macos_intel_package_name if macos_architecture == 'intel' else wazuh_macos_arm_package_name }}"
+
+- name: macOS | Check if Wazuh installer is already downloaded
+  stat:
+    path: "{{ wazuh_macos_config.download_dir }}{{ wazuh_macos_package_name }}"
+  register: wazuh_package_downloaded
