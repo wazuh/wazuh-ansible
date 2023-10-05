@@ -1,19 +1,19 @@
-
 ---
-
 - name: Update cache
   apt:
     update_cache: yes
 
-- name: Debian 9 (Stretch)
-  when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
+- name: Install Debian/Ubuntu pacakges dependencies
   block:
-
     - name: Install Wazuh indexer dependencies
       apt:
-        name: [
-          'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
-        ]
+        name:
+          - unzip
+          - wget
+          - curl
+          - apt-transport-https
+          - software-properties-common
+          - gnupg
         state: present
 
 - name: Add Wazuh indexer repository
@@ -27,7 +27,7 @@
       apt_repository:
         repo: "{{ wazuh_repo.apt }}"
         state: present
-        filename: 'wazuh-indexer'
+        filename: "wazuh-indexer"
         update_cache: yes
 
 - name: Install Wazuh indexer
