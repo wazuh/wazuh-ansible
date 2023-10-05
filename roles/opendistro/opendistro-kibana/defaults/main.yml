@@ -52,9 +52,6 @@ nodejs:
       redhat: "rpm"
   repo_url_ext: "nodesource.com/setup_10.x"
 
-# Build from sources
-build_from_sources: false
-wazuh_plugin_branch: 4.1-7.10
 
 #Nodejs NODE_OPTIONS
 node_options: --no-warnings --max-old-space-size=2048 --max-http-header-size=65536

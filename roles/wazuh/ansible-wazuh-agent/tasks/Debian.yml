@@ -30,7 +30,6 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
@@ -39,7 +38,6 @@
     id: "{{ wazuh_agent_config.repo.key_id }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
@@ -49,7 +47,6 @@
     state: present
     update_cache: true
   when:
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
