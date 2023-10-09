@@ -5,10 +5,6 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
-- include_tasks: "installation_from_sources.yml"
-  when:
-    - wazuh_agent_sources_installation.enabled
-
 - include_tasks: "installation_from_custom_packages.yml"
   when:
     - wazuh_custom_packages_installation_agent_enabled
@@ -20,7 +16,6 @@
     lock_timeout: '{{ wazuh_agent_yum_lock_timeout }}'
   when:
     - ansible_os_family|lower == "redhat"
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
   tags:
     - init
@@ -32,7 +27,6 @@
     cache_valid_time: 3600
   when:
     - ansible_os_family|lower != "redhat"
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
     - not ansible_check_mode
   tags:
@@ -271,9 +265,7 @@
 - include_tasks: "RMRedHat.yml"
   when:
     - ansible_os_family == "RedHat"
-    - not wazuh_agent_sources_installation.enabled
 
 - include_tasks: "RMDebian.yml"
   when:
     - ansible_os_family == "Debian"
-    - not wazuh_agent_sources_installation.enabled
