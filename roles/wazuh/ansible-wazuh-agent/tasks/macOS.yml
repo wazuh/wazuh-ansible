@@ -107,6 +107,105 @@
     - config
     - authd
 
+- name: macOS | Agent registration via rest-API
+  block:
+
+    - name: macOS | Establish target Wazuh Manager for registration task
+      set_fact:
+        target_manager: '{{ manager_primary | length | ternary(manager_primary, manager_fallback) | first }}'
+      vars:
+        manager_primary: "{{ wazuh_managers | selectattr('register','true') | list }}"
+        manager_fallback: "{{ wazuh_managers | list }}"
+
+    - name: macOS | Obtain JWT Token
+      uri:
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/security/user/authenticate'
+        method: POST
+        url_username: '{{ target_manager.api_user }}'
+        url_password: '{{ api_pass }}'
+        status_code: 200
+        return_content: yes
+        force_basic_auth: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: '{{ inventory_hostname if wazuh_api_reachable_from_agent else "localhost" }}'
+      changed_when: api_jwt_result.json.error == 0
+      register: api_jwt_result
+      become: no
+      tags:
+        - config
+        - api
+
+    - name: macOS | Create the agent key via rest-API
+      uri:
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/agents'
+        method: POST
+        body_format: json
+        body:
+          name: '{{ agent_name }}'
+        headers:
+          Authorization: 'Bearer {{ jwt_token }}'
+        status_code: 200
+        return_content: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
+      become: no
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: '{{ inventory_hostname if wazuh_api_reachable_from_agent else "localhost" }}'
+      changed_when: api_agent_post.json.error == 0
+      register: api_agent_post
+      vars:
+        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
+        jwt_token: '{{ api_jwt_result.json.data.token }}'
+      tags:
+        - config
+        - api
+
+    - name: macOS | Validate registered agent key matches manager record
+      uri:
+        url: '{{ target_manager.api_proto }}://{{ target_manager.address }}:{{ target_manager.api_port }}/agents/{{ agent_id }}/key'
+        method: GET
+        headers:
+          Authorization: 'Bearer {{ jwt_token }}'
+        status_code: 200
+        return_content: yes
+        validate_certs: '{{ target_manager.validate_certs | default(false) }}'
+      become: no
+      no_log: '{{ wazuh_agent_nolog_sensible | bool }}'
+      delegate_to: '{{ inventory_hostname if wazuh_api_reachable_from_agent else "localhost" }}'
+      register: api_agent_validation
+      vars:
+        agent_id: '{{ api_agent_post.json.data.id }}'
+        agent_key: '{{ api_agent_post.json.data.key }}'
+        jwt_token: '{{ api_jwt_result.json.data.token }}'
+      failed_when: api_agent_validation.json.data.affected_items[0].key != agent_key
+      when:
+      - wazuh_agent_api_validate | bool
+      - api_agent_post.json.error == 0
+      tags:
+        - config
+        - api
+
+    - name: macOS | Import Key (via rest-API)
+      command: "{{ wazuh_macos_config.install_dir }}/bin/manage_agents"
+      environment:
+        OSSEC_ACTION: i
+        OSSEC_AGENT_NAME: '{{ agent_name }}'
+        OSSEC_AGENT_IP: '{{ wazuh_agent_address }}'
+        OSSEC_AGENT_ID: '{{ api_agent_post.json.data.id }}'
+        OSSEC_AGENT_KEY: '{{ api_agent_post.json.data.key }}'
+        OSSEC_ACTION_CONFIRMED: y
+      register: manage_agents_output
+      vars:
+        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
+      notify: macOS | Restart Wazuh Agent
+  when:
+    - not ( wazuh_agent_authd.enable | bool )
+    - wazuh_agent_config.enrollment.enabled != 'yes'
+    - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
+  tags:
+    - config
+    - api
+
 - name: macOS | Installing agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
@@ -132,6 +231,6 @@
     - config
 
 - name: macOS | Delete downloaded Wazuh agent installer file
-   file:
+  file:
      path: "{{ wazuh_macos_config.download_dir }}{{ wazuh_macos_package_name }}"
      state: absent
