@@ -40,6 +40,7 @@ authd_pass: ''
 wazuh_api_reachable_from_agent: yes
 wazuh_profile_centos: 'centos, centos7, centos7.6'
 wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
+wazuh_profile_macos: 'darwin, darwin21, darwin21.1'
 wazuh_auto_restart: 'yes'
 
 wazuh_notify_time: '10'
@@ -230,6 +231,11 @@ wazuh_agent_syscheck:
       checks: ''
     - dirs: /bin,/sbin,/boot
       checks: ''
+  macos_directories:
+    - dirs: /etc,/usr/bin,/usr/sbin
+      checks: ''
+    - dirs: /bin,/sbin
+      checks: ''
   win_directories:
     - dirs: '%WINDIR%'
       checks: 'recursion_level="0" restrict="regedit.exe$|system.ini$|win.ini$"'
@@ -332,6 +338,17 @@ wazuh_agent_localfiles:
       command: netstat -tulpn | sed 's/\([[:alnum:]]\+\)\ \+[[:digit:]]\+\ \+[[:digit:]]\+\ \+\(.*\):\([[:digit:]]*\)\ \+\([0-9\.\:\*]\+\).\+\ \([[:digit:]]*\/[[:alnum:]\-]*\).*/\1 \2 == \3 == \4 \5/' | sort -k 4 -g | sed 's/ == \(.*\) ==/:\1/' | sed 1,2d
       alias: 'netstat listening ports'
       frequency: '360'
+  macos:
+    - format: 'full_command'
+      command: netstat -an | awk '{if ((/^(tcp|udp)/) && ($4 != "*.*") && ($5 == "*.*")) {print $1" "$4" "$5}}' | sort -u
+      alias: 'netstat listening ports'
+      frequency: '360'
+    - format: 'macos'
+      location: 'macos'
+      query:
+        type: 'trace,log,activity'
+        level: 'info'
+        value: (process == "sudo") or (process == "sessionlogoutd" and message contains "logout is complete.") or (process == "sshd") or (process == "tccd" and message contains "Update Access Record") or (message contains "SessionAgentNotificationCenter") or (process == "screensharingd" and message contains "Authentication") or (process == "securityd" and eventMessage contains "Session" and subsystem == "com.apple.securityd")
   windows:
     - format: 'eventlog'
       location: 'Application'
@@ -355,6 +372,7 @@ wazuh_agent_active_response:
   ar_disabled: 'no'
   ca_store: "{{ wazuh_dir }}/etc/wpk_root.pem"
   ca_store_win: 'wpk_root.pem'
+  ca_store_macos: 'etc/wpk_root.pem'
   ca_verification: 'yes'
 
 ## Logging
