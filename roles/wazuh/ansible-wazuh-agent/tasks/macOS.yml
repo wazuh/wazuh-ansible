@@ -206,6 +206,16 @@
     - config
     - api
 
+- name: macOS | Agent registration via auto-enrollment
+  debug:
+    msg: Agent registration will be performed through enrollment option in templated ossec.conf
+  when:  wazuh_agent_config.enrollment.enabled == 'yes'
+
+- name: macOS | Ensure group "wazuh" exists
+  ansible.builtin.group:
+    name: wazuh
+    state: present
+
 - name: macOS | Installing agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
@@ -228,6 +238,20 @@
   notify: macOS | Restart Wazuh Agent
   tags:
     - init
+    - config
+
+- name: Create auto-enrollment password file
+  template:
+    src: authd_pass.j2
+    dest: "{{ wazuh_macos_config.install_dir }}/etc/authd.pass"
+    owner: wazuh
+    group: wazuh
+    mode: 0640
+  when:
+    - wazuh_agent_config.enrollment.enabled == 'yes'
+    - wazuh_agent_config.enrollment.authorization_pass_path_macos | length > 0
+    - authd_pass | length > 0
+  tags:
     - config
 
 - name: macOS | Delete downloaded Wazuh agent installer file

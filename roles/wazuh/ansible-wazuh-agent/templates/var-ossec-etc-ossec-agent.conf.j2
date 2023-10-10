@@ -67,8 +67,10 @@
       {% if wazuh_agent_config.enrollment.agent_key_path | length > 0 %}
       <agent_key_path>{{ wazuh_agent_config.enrollment.agent_key_path }}</agent_key_path>
       {% endif %}
-      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 %}
+      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 and ansible_system != "Darwin" %}
       <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path }}</authorization_pass_path>
+      {% else %}
+      <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path_macos }}</authorization_pass_path>
       {% endif %}
       {% if wazuh_agent_config.enrollment.auto_method | length > 0 %}
       <auto_method>{{ wazuh_agent_config.enrollment.auto_method }}</auto_method>
