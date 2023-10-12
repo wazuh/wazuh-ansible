@@ -1,12 +1,12 @@
 ---
-- hosts: <your wazuh agents hosts>
+- hosts: wazuh_clients:!wazuh_aio
   become: yes
   become_user: root
   roles:
     - ../roles/wazuh/ansible-wazuh-agent
   vars:
     wazuh_managers:
-      - address: <your manager IP>
+      - address: wazuh_aio
         port: 1514
         protocol: tcp
         api_port: 55000
@@ -14,3 +14,4 @@
         api_user: ansible
         max_retries: 5
         retry_interval: 5
+
