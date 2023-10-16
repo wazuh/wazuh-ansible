@@ -106,6 +106,7 @@ wazuh_agent_enrollment:
   agent_certificate_path: ''
   agent_key_path: ''
   authorization_pass_path: "{{ wazuh_dir }}/etc/authd.pass"
+  authorization_pass_path_macos: "/etc/authd.pass"
   auto_method: 'no'
   delay_after_enrollment: 20
   use_source_ip: 'no'
