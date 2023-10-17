@@ -43,26 +43,6 @@
 
 - name: macOS | Agent registration via authd
   block:
-
-    - name: Copy CA root certificate to verify authd
-      copy:
-        src: "{{ wazuh_agent_authd.ssl_agent_ca }}"
-        dest: "{{ wazuh_macos_config.install_dir }}/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
-        mode: 0644
-      when:
-        - wazuh_agent_authd.ssl_agent_ca is not none
-
-    - name: Copy TLS/SSL certificate for agent verification
-      copy:
-        src: "{{ item }}"
-        dest: "{{ wazuh_macos_config.install_dir }}/etc/{{ item | basename }}"
-        mode: 0644
-      with_items:
-        - "{{ wazuh_agent_authd.ssl_agent_cert }}"
-        - "{{ wazuh_agent_authd.ssl_agent_key }}"
-      when:
-        - wazuh_agent_authd.ssl_agent_cert is not none
-        - wazuh_agent_authd.ssl_agent_key is not none
     - name: macOS | Register agent (via authd)
       shell: >
         {{ wazuh_macos_config.install_dir }}/bin/agent-auth
@@ -73,15 +53,6 @@
         -p {{ wazuh_agent_authd.port }}
         {% if wazuh_agent_nat %} -I "any" {% endif %}
         {% if authd_pass | length > 0 %} -P {{ authd_pass }} {% endif %}
-        {% if wazuh_agent_authd.ssl_agent_ca is defined and wazuh_agent_authd.ssl_agent_ca != None %}
-        -v "{{ wazuh_macos_config.install_dir }}/etc/{{ wazuh_agent_authd.ssl_agent_ca | basename }}"
-        {% endif %}
-        {% if wazuh_agent_authd.ssl_agent_cert is defined and wazuh_agent_authd.ssl_agent_cert != None %}
-        -x "{{ wazuh_macos_config.install_dir }}/etc/{{ wazuh_agent_authd.ssl_agent_cert | basename }}"
-        {% endif %}
-        {% if wazuh_agent_authd.ssl_agent_key is defined and wazuh_agent_authd.ssl_agent_key != None  %}
-        -k "{{ wazuh_macos_config.install_dir }}/etc/{{ wazuh_agent_authd.ssl_agent_key | basename }}"
-        {% endif %}
         {% if wazuh_agent_authd.ssl_auto_negotiate == 'yes' %} -a {% endif %}
         {% if wazuh_agent_authd.groups is defined and wazuh_agent_authd.groups | length > 0 %}
         -G "{{ wazuh_agent_authd.groups | join(',') }}"
