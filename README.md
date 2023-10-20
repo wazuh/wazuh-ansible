@@ -248,7 +248,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
                 - "{{ hostvars.wi2.private_ip }}"
                 - "{{ hostvars.wi3.private_ip }}"
 
-# dashboard node
+# Wazuh dashboard node
     - hosts: dashboard
       roles:
         - role: "../roles/wazuh/wazuh-indexer"
