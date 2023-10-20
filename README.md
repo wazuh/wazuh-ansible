@@ -89,7 +89,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ### Playbook
 
-The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 Wazuh indexer nodes and a mixed Wazuh dashboard node (Wazuh indexer data node + Wazuh dashboard).
+The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 Wazuh indexer nodes, and a Wazuh dashboard node.
 
 ```yaml
 ---
@@ -248,7 +248,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
                 - "{{ hostvars.wi2.private_ip }}"
                 - "{{ hostvars.wi3.private_ip }}"
 
-# Indexer + dashboard node
+# dashboard node
     - hosts: dashboard
       roles:
         - role: "../roles/wazuh/wazuh-indexer"
