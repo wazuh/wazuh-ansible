@@ -6,6 +6,11 @@ wazuh_repo:
 wazuh_winagent_config_url: "https://packages-dev.wazuh.com/staging/windows/wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 wazuh_winagent_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 
+wazuh_macos_intel_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.intel64.pkg"
+wazuh_macos_arm_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.arm64.pkg"
+wazuh_macos_intel_package_url: "https://packages-dev.wazuh.com/staging/macos/{{ wazuh_macos_intel_package_name }}"
+wazuh_macos_arm_package_url: "https://packages-dev.wazuh.com/staging/macos/{{ wazuh_macos_arm_package_name }}"
+
 certs_gen_tool_version: 4.8
 
 # Url of certificates generator tool
