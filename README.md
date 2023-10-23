@@ -158,6 +158,33 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
           - "{{ hostvars.wi2.private_ip }}"
           - "{{ hostvars.wi3.private_ip }}"
         indexer_node_master: true
+        instances:
+          node1:
+            name: node-1       # Important: must be equal to indexer_node_name.
+            ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
+            role: indexer
+          node2:
+            name: node-2
+            ip: "{{ hostvars.wi2.private_ip }}"
+            role: indexer
+          node3:
+            name: node-3
+            ip: "{{ hostvars.wi3.private_ip }}"
+            role: indexer
+          node4:
+            name: node-4
+            ip: "{{ hostvars.manager.private_ip }}"
+            role: wazuh
+            node_type: master
+          node5:
+            name: node-5
+            ip: "{{ hostvars.worker.private_ip }}"
+            role: wazuh
+            node_type: worker
+          node6:
+            name: node-6
+            ip: "{{ hostvars.dashboard.private_ip }}"
+            role: dashboard
 
 # Wazuh cluster
     - hosts: manager
@@ -228,6 +255,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       become: yes
       become_user: root
       vars:
+        indexer_network_host: "{{ hostvars.wi1.private_ip }}"
         dashboard_node_name: node-6
         wazuh_api_credentials:
           - id: default
@@ -235,7 +263,6 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
             port: 55000
             username: custom-user
             password: SecretPassword1!
-        instances:
         ansible_shell_allow_world_readable_temp: true
 ```
 
