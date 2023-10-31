@@ -91,7 +91,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ### Playbook
 
-The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 Wazuh indexer nodes and a mixed Wazuh dashboard node (Wazuh indexer data node + Wazuh dashboard).
+The hereunder example playbook uses the `wazuh-ansible` role to provision a production-ready Wazuh environment. The architecture includes 2 Wazuh nodes, 3 Wazuh indexer nodes, and a Wazuh dashboard node.
 
 ```yaml
 ---
@@ -250,27 +250,14 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
                 - "{{ hostvars.wi2.private_ip }}"
                 - "{{ hostvars.wi3.private_ip }}"
 
-# Indexer + dashboard node
+# Wazuh dashboard node
     - hosts: dashboard
       roles:
-        - role: "../roles/wazuh/wazuh-indexer"
         - role: "../roles/wazuh/wazuh-dashboard"
       become: yes
       become_user: root
       vars:
-        indexer_network_host: "{{ hostvars.dashboard.private_ip }}"
-        indexer_node_name: node-6
-        indexer_node_master: false
-        indexer_node_ingest: false
-        indexer_node_data: false
-        indexer_cluster_nodes:
-            - "{{ hostvars.wi1.private_ip }}"
-            - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
-        indexer_discovery_nodes:
-            - "{{ hostvars.wi1.private_ip }}"
-            - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
+        indexer_network_host: "{{ hostvars.wi1.private_ip }}"
         dashboard_node_name: node-6
         wazuh_api_credentials:
           - id: default
@@ -278,33 +265,6 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
             port: 55000
             username: custom-user
             password: SecretPassword1!
-        instances:
-          node1:
-            name: node-1
-            ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
-            role: indexer
-          node2:
-            name: node-2
-            ip: "{{ hostvars.wi2.private_ip }}"
-            role: indexer
-          node3:
-            name: node-3
-            ip: "{{ hostvars.wi3.private_ip }}"
-            role: indexer
-          node4:
-            name: node-4
-            ip: "{{ hostvars.manager.private_ip }}"
-            role: wazuh
-            node_type: master
-          node5:
-            name: node-5
-            ip: "{{ hostvars.worker.private_ip }}"
-            role: wazuh
-            node_type: worker
-          node6:
-            name: node-6
-            ip: "{{ hostvars.dashboard.private_ip }}"
-            role: dashboard
         ansible_shell_allow_world_readable_temp: true
 ```
 
