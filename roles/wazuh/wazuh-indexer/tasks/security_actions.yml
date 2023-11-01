@@ -98,10 +98,17 @@
     get_url:
       url: "{{ rollover_alias_url }}"
       dest: "{{ indexer_conf_path }}/indexerRolloverAlias.sh"
+      mode: 744
 
   - name: Initialize Rollover alias
     command: >
-      INDEXER_PASSWORD={{ indexer_admin_password }} INDEXER_HOSTNAME={{ target_address }}  ./{{ indexer_conf_path }}/indexerRolloverAlias.sh
+      {{ indexer_conf_path }}/indexerRolloverAlias.sh
+    environment:
+      INDEXER_PASSWORD: "{{ indexer_admin_password }}"
+      INDEXER_HOSTNAME: "{{ target_address }}"
+    become: yes
+    become_user: root
+
   run_once: true
 
 - name: Create custom user
