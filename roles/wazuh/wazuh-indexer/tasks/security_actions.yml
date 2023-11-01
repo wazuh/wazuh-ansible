@@ -93,8 +93,16 @@
     delay: 5
     register: result
     until: result.rc == 0
-  run_once: true
 
+  - name: Download Rollover alias script
+    get_url:
+      url: "{{ rollover_alias_url }}"
+      dest: "{{ indexer_conf_path }}/indexerRolloverAlias.sh"
+
+  - name: Initialize Rollover alias
+    command: >
+      INDEXER_PASSWORD={{ indexer_admin_password }} INDEXER_HOSTNAME={{ target_address }}  ./{{ indexer_conf_path }}/indexerRolloverAlias.sh
+  run_once: true
 
 - name: Create custom user
   uri:
