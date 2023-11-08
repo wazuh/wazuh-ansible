@@ -52,7 +52,7 @@
       {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ indexer_admin_password }}'
     register: indexer_admin_password_hashed
     no_log: '{{ indexer_nolog_sensible | bool }}'
-  
+
   - name: Set the Admin user password
     replace:
       path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
@@ -60,7 +60,7 @@
       replace: "{{ indexer_password_hash | quote }}"
     vars:
       indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
-  
+
   # this can also be achieved with password_hash, but it requires dependencies on the controller
   - name: Hash the kibanaserver role/user pasword
     shell: |
@@ -68,7 +68,7 @@
       {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ dashboard_password }}'
     register: indexer_kibanaserver_password_hashed
     no_log: '{{ indexer_nolog_sensible | bool }}'
-  
+
   - name: Set the kibanaserver user password
     replace:
       path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
@@ -76,7 +76,7 @@
       replace: "{{ indexer_password_hash | quote }}"
     vars:
       indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
-  
+
   - name: Initialize the Opensearch security index in Wazuh indexer
     command: >
       sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
@@ -94,18 +94,11 @@
     register: result
     until: result.rc == 0
 
-  - name: Download Rollover alias script
-    get_url:
-      url: "{{ rollover_alias_url }}"
-      dest: "{{ indexer_conf_path }}/indexerRolloverAlias.sh"
-      mode: 744
-
   - name: Initialize Rollover alias
     command: >
-      {{ indexer_conf_path }}/indexerRolloverAlias.sh
-    environment:
-      INDEXER_PASSWORD: "{{ indexer_admin_password }}"
-      INDEXER_HOSTNAME: "{{ target_address }}"
+      {{ indexer_bin_path }}/indexer-ism-init.sh
+      -p {{ indexer_admin_password }}
+      -i {{ target_address }}
     become: yes
     become_user: root
 

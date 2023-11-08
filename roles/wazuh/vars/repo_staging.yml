@@ -15,8 +15,3 @@ certs_gen_tool_version: 4.8
 
 # Url of certificates generator tool
 certs_gen_tool_url: "https://packages-dev.wazuh.com/{{ certs_gen_tool_version }}/wazuh-certs-tool.sh"
-
-rollover_alias_tool_version: 4.8
-
-# Url of certificates generator tool
-rollover_alias_url: "https://packages-dev.wazuh.com/{{ rollover_alias_tool_version }}/indexerRolloverInit.sh"
