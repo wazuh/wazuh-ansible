@@ -94,7 +94,7 @@
     register: result
     until: result.rc == 0
 
-  - name: Initialize Rollover alias
+  - name: Initialize ISM script
     command: >
       {{ indexer_bin_path }}/indexer-ism-init.sh
       -p {{ indexer_admin_password }}
