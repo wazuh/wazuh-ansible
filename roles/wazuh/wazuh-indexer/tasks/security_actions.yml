@@ -77,20 +77,44 @@
     vars:
       indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
   
+  - name: Create date timestamp
+    shell: date +%Y%m%d_%H%M%S
+    register: timestamp
+
+  - name: Try to init Opensearch security index
+    debug:
+      msg: "Try to run the following command: 
+            sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
+            JAVA_HOME=/usr/share/wazuh-indexer/jdk
+            bash -c '{{ indexer_sec_plugin_tools_path }}/securityadmin.sh
+            -dg -cd {{ indexer_sec_plugin_conf_path }}/
+            -icl -p {{ OpenSearch_cluster_http_port }}
+            -nhnv
+            -cacert {{ indexer_conf_path }}/certs/root-ca.pem
+            -cert {{ indexer_conf_path }}/certs/admin.pem
+            -key {{ indexer_conf_path }}/certs/admin-key.pem
+            -h {{ target_address }} > /tmp/securityadmin{{ timestamp.stdout }}.log'
+            In case of errors check /tmp/securityadmin{{ timestamp.stdout }}.log or 
+            securityadmin_diag_trace in /tmp path"
+
   - name: Initialize the Opensearch security index in Wazuh indexer
     command: >
       sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
       JAVA_HOME=/usr/share/wazuh-indexer/jdk
-      {{ indexer_sec_plugin_tools_path }}/securityadmin.sh
-      -cd {{ indexer_sec_plugin_conf_path }}/
-      -icl -p 9200 -cd {{ indexer_sec_plugin_conf_path }}/
+      bash -c '{{ indexer_sec_plugin_tools_path }}/securityadmin.sh
+      -dg -cd {{ indexer_sec_plugin_conf_path }}/
+      -icl -p {{ OpenSearch_cluster_http_port }}
       -nhnv
       -cacert {{ indexer_conf_path }}/certs/root-ca.pem
       -cert {{ indexer_conf_path }}/certs/admin.pem
       -key {{ indexer_conf_path }}/certs/admin-key.pem
-      -h {{ target_address }}
+      -h {{ target_address }} > /tmp/securityadmin{{ timestamp.stdout }}.log'
+    args:
+      chdir: /tmp
     retries: 2
     delay: 5
+    async: 60
+    poll: 5
     register: result
     until: result.rc == 0
   run_once: true
