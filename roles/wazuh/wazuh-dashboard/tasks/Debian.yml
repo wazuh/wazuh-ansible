@@ -1,7 +1,5 @@
 ---
 - block:
-
-  - include_vars: debian.yml
   - name: Add apt repository signing key
     apt_key:
       url: "{{ wazuh_repo.gpg }}"
