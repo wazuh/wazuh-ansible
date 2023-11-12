@@ -1,6 +1,6 @@
 ---
 
-- include_vars: ../../vars/repo_vars.yml
+- include_vars: "{{repo_vars_path}}"
 
 - include_vars: ../../vars/repo.yml
   when: packages_repository == 'production'

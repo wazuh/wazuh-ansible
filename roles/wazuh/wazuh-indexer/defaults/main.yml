@@ -1,4 +1,6 @@
 ---
+repo_vars_path: "../../vars/repo_vars.yml"
+
 # Cluster Settings
 indexer_version: 4.9.0
 

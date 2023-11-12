@@ -1,6 +1,8 @@
 ---
 wazuh_agent_version: 4.9.0
 
+repo_vars_path: "../../vars/repo_vars.yml"
+
 # Custom packages installation
 
 wazuh_custom_packages_installation_agent_enabled: false

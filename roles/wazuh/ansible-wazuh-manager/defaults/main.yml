@@ -1,6 +1,8 @@
 ---
 wazuh_manager_version: 4.9.0
 
+repo_vars_path: "../../vars/repo_vars.yml"
+
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
 

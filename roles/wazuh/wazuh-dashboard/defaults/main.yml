@@ -1,4 +1,5 @@
 ---
+repo_vars_path: "../../vars/repo_vars.yml"
 
 # Dashboard configuration
 indexer_http_port: 9200
