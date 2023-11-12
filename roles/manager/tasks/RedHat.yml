@@ -103,7 +103,7 @@
   tags:
     - init
 
-- include_tasks: "../tasks/installation_from_custom_packages.yml"
+- include_tasks: "installation_from_custom_packages.yml"
   when:
     - wazuh_custom_packages_installation_manager_enabled
 
