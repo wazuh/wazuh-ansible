@@ -9,7 +9,7 @@ filebeat_output_indexer_hosts:
   - "localhost:9200"
 
 filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
-filebeat_module_package_name: wazuh-filebeat-0.2.tar.gz
+filebeat_module_package_name: wazuh-filebeat-0.3.tar.gz
 filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module
 filebeat_module_folder: /usr/share/filebeat/module/wazuh
