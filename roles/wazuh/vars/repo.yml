@@ -6,6 +6,7 @@ wazuh_repo:
 wazuh_winagent_config_url: "https://packages.wazuh.com/4.x/windows/wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 wazuh_winagent_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 wazuh_winagent_sha512_url: "https://packages.wazuh.com/4.x/checksums/wazuh/{{ wazuh_agent_version }}/wazuh-agent-{{ wazuh_agent_version }}-1.msi.sha512"
+filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
 
 certs_gen_tool_version: 4.7
 
