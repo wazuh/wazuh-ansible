@@ -2,9 +2,6 @@
 - include_tasks: "RedHat.yml"
   when: ansible_os_family == "RedHat"
 
-- include_tasks: "Debian.yml"
-  when: ansible_os_family == "Debian"
-
 - include_tasks: "installation_from_custom_packages.yml"
   when:
     - wazuh_custom_packages_installation_agent_enabled
@@ -17,18 +14,6 @@
   when:
     - ansible_os_family|lower == "redhat"
     - not wazuh_custom_packages_installation_agent_enabled
-  tags:
-    - init
-
-- name: Linux Debian | Install wazuh-agent
-  apt:
-    name: "wazuh-agent={{ wazuh_agent_version }}-*"
-    state: present
-    cache_valid_time: 3600
-  when:
-    - ansible_os_family|lower != "redhat"
-    - not wazuh_custom_packages_installation_agent_enabled
-    - not ansible_check_mode
   tags:
     - init
 
@@ -265,7 +250,3 @@
 - include_tasks: "RMRedHat.yml"
   when:
     - ansible_os_family == "RedHat"
-
-- include_tasks: "RMDebian.yml"
-  when:
-    - ansible_os_family == "Debian"
