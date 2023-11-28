@@ -64,3 +64,4 @@
   when: wazuh_agent_config.openscap.disable == 'no'
   tags:
     - init
+  with_items: "{{ openscap.packages.RedHat }}"

@@ -125,6 +125,12 @@ wazuh_agent_openscap:
   timeout: 1800
   interval: '1d'
   scan_on_start: 'yes'
+  packages:
+    Debian:
+      - libopenscap8
+      - xsltproc
+    RedHat:
+      - openscap-scanner
 
 wazuh_agent_cis_cat:
   disable: 'yes'
