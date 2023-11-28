@@ -125,6 +125,90 @@ wazuh_agent_openscap:
   timeout: 1800
   interval: '1d'
   scan_on_start: 'yes'
+  packages:
+    Debian:
+      - libopenscap8
+      - xsltproc
+    RedHat:
+      - openscap-scanner
+  config:
+    CentOS:
+      6:
+        - type: xccdf
+          policy: ssg-centos-6-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+      7:
+        - type: xccdf
+          policy: ssg-centos-7-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+    Debian:
+      8: # Jessie
+        - type: xccdf
+          policy: ssg-debian-8-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_common
+        - type: oval
+          path:
+          policy: cve-debian-8-oval.xml
+      9: # Stretch
+        - type: oval
+          path:
+          policy: cve-debian-9-oval.xml
+    Fedora:
+      37:
+        - type: xccdf
+          policy: ssg-fedora-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+      38:
+        - type: xccdf
+          policy: ssg-fedora-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+      39:
+        - type: xccdf
+          policy: ssg-fedora-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+    RedHat:
+      6:
+        - type: xccdf
+          policy: ssg-rhel-6-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+        - type: oval
+          policy: cve-redhat-6-ds.xml
+      7:
+        - type: xccdf
+          policy: ssg-rhel-7-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_pci-dss
+            - xccdf_org.ssgproject.content_profile_common
+        - type: oval
+          policy: cve-redhat-7-ds.xml
+    Ubuntu:
+      16: # Xenial
+        - type: xccdf
+          policy: ssg-ubuntu-1604-ds.xml
+          path:
+          profiles:
+            - xccdf_org.ssgproject.content_profile_common
 
 wazuh_agent_cis_cat:
   disable: 'yes'

@@ -229,6 +229,46 @@
     - init
     - config
 
+- when: >
+    wazuh_agent_config.openscap.disable == 'no' and
+    ansible_distribution in wazuh_agent_config.openscap.config and 
+    (ansible_distribution_major_version | int) in wazuh_agent_config.openscap.config[ansible_distribution]
+  block:
+  - name: Collect openscap configuration files
+    set_fact:
+      paths: "{{ (paths | default([])) + [{'path': playbook_dir + '/' + item.path + item.policy, 'policy': item.policy}] }}"
+    with_items: "{{ wazuh_agent_config.openscap.config[ansible_distribution][ansible_distribution_major_version | int] }}"
+
+  - name: Checking openscap configuration file existance
+    delegate_to: localhost
+    become: no
+    stat:
+      path: "{{ item.path }}"
+    with_items: "{{ paths }}"
+    register: checked_paths
+
+  - name: Filter for openscap files that exist
+    set_fact:
+      config_paths: "{{ checked_paths.results | selectattr('stat.exists', 'equalto', true) | map(attribute='item') }}"
+
+  - name: Debian/Ubuntu | Create the oscap policies directory
+    file:
+      path: "{{ wazuh_dir }}/wodles/oscap/content/"
+      state: directory
+      owner: root
+      group: wazuh
+      mode: 0644
+      recurse: yes
+
+  - name: Debian/Ubuntu | Copy oscap policies
+    copy:
+      src: "{{ item.path }}"
+      dest: "{{ wazuh_dir }}/wodles/oscap/content/{{ item.policy }}"
+      owner: root
+      group: wazuh
+      mode: 0644
+    with_items: "{{ config_paths }}"
+
 - name: Linux | Installing local_internal_options.conf
   template:
     src: var-ossec-etc-local-internal-options.conf.j2

@@ -79,9 +79,7 @@
 
 - name: Debian/Ubuntu | Install OpenScap
   apt:
-    name:
-      - libopenscap8
-      - xsltproc
+    name: "{{ wazuh_agent_config.openscap.packages.Debian }}"
     state: present
   when: wazuh_agent_config.openscap.disable == 'no'
   tags:

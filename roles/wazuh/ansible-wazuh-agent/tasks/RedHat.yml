@@ -58,9 +58,10 @@
     - ansible_distribution_major_version == "NA"
 
 - name: RedHat/CentOS/RedHat | Install openscap
-  package: name=openscap-scanner state=present
+  package: "name={{ item }} state=present"
   register: wazuh_agent_openscap_package_install
   until: wazuh_agent_openscap_package_install is succeeded
   when: wazuh_agent_config.openscap.disable == 'no'
   tags:
     - init
+  with_items: "{{ wazuh_agent_config.openscap.packages.RedHat }}"
