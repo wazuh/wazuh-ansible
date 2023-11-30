@@ -121,6 +121,11 @@
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
 
+    <system_audit>/var/ossec/etc/shared/system_audit_rcl.txt</system_audit>
+    <system_audit>/var/ossec/etc/shared/system_audit_ssh.txt</system_audit>
+    {% if ansible_system == "Debian" %}
+    <system_audit>/var/ossec/etc/shared/cis_debian_linux_rcl.txt</system_audit>
+    {% endif %}
   </rootcheck>
   {% endif %}
 
