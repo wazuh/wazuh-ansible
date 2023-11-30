@@ -419,7 +419,7 @@
      <location>{{ localfile.location }}</location>
      {% if localfile.format == 'eventchannel' %}
      {% if localfile.only_future_events is defined %}
-     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     <only-future-events>{{ localfile.only_future_events }}</only-future-events>
      {% endif %}
      {% if localfile.query is defined %}
      <query>{{ localfile.query }}</query>
@@ -457,7 +457,7 @@
      <location>{{ localfile.location }}</location>
      {% if localfile.format == 'eventchannel' %}
      {% if localfile.only_future_events is defined %}
-     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     <only-future-events>{{ localfile.only_future_events }}</only-future-events>
      {% endif %}
      {% if localfile.query is defined %}
      <query>{{ localfile.query }}</query>
@@ -496,7 +496,7 @@
      <location>{{ localfile.location }}</location>
      {% if localfile.format == 'eventchannel' %}
      {% if localfile.only_future_events is defined %}
-     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+     <only-future-events>{{ localfile.only_future_events }}</only-future-events>
      {% endif %}
      {% if localfile.query is defined %}
      <query>{{ localfile.query }}</query>
@@ -623,7 +623,7 @@
       {% if wazuh_manager_config.authd.force.enabled is not none %}
       <enabled>{{wazuh_manager_config.authd.force.enabled}}</enabled>
       {% else %}
-      <enabledport>yes</enabled>
+      <enabledport>yes</enabledport>
       {% endif %}
       {% if wazuh_manager_config.authd.force.key_mismatch is not none %}
       <key_mismatch>{{wazuh_manager_config.authd.force.key_mismatch}}</key_mismatch>
