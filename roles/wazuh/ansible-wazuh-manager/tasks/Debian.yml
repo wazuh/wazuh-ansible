@@ -67,9 +67,7 @@
 
 - name: Debian/Ubuntu | Install OpenScap
   apt:
-    name:
-      - libopenscap8
-      - xsltproc
+    name: "{{ wazuh_agent_config.openscap.packages.Debian }}"
     state: present
     cache_valid_time: 3600
     install_recommends: false

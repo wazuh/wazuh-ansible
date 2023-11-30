@@ -26,9 +26,8 @@
     - not wazuh_custom_packages_installation_manager_enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
-  package: name={{ item }} state=present
-  with_items:
-    - openscap-scanner
+  package: "name={{ item }} state=present"
+  with_items: "{{ wazuh_agent_config.openscap.packages.RedHat }}"
   register: wazuh_manager_openscp_packages_installed
   until: wazuh_manager_openscp_packages_installed is succeeded
   tags:
