@@ -1,7 +1,7 @@
 ---
 filebeat_version: 7.10.2
 
-wazuh_template_branch: v4.7.1
+wazuh_template_branch: v4.7.2
 
 filebeat_node_name: node-1
 
