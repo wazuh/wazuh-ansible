@@ -116,10 +116,12 @@
     <rootkit_trojans>{{ wazuh_dir }}/etc/shared/rootkit_trojans.txt</rootkit_trojans>
     {% endif %}
     <skip_nfs>yes</skip_nfs>
+    {% endif %}
     {% if ansible_os_family == "Windows" %}
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
+
 
   </rootcheck>
   {% endif %}
