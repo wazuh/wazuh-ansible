@@ -510,3 +510,5 @@ wazuh_manager_config_defaults:
 #         format: 'eventchannel'
 #       - location: 'System'
 #         format: 'eventlog'
+
+filebeat_ssl_dir: /etc/pki/filebeat

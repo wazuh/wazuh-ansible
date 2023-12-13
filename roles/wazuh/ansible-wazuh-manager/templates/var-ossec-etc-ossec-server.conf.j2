@@ -258,6 +258,7 @@
   {% endif %}
   </sca>
 
+<!--
   <vulnerability-detector>
   {% if wazuh_manager_config.vulnerability_detector.enabled is defined %}
     <enabled>{{ wazuh_manager_config.vulnerability_detector.enabled }}</enabled>
@@ -289,6 +290,31 @@
   {% endfor %}
   {% endif %}
   </vulnerability-detector>
+-->
+
+  <vulnerability-detection>
+    <enabled>yes</enabled>
+    <index-status>yes</index-status>
+    <feed-update-interval>60m</feed-update-interval>
+  </vulnerability-detection>
+
+  <indexer>
+    <enabled>yes</enabled>
+    <hosts>
+    {% for item in filebeat_output_indexer_hosts %}
+      <host>https://{{ item }}:9200</host>
+    {% endfor %}
+    </hosts>
+    <username>{{ indexer_security_user }}</username>
+    <password>"{{ indexer_security_password }}"</password>
+    <ssl>
+      <certificate_authorities>
+        <ca>{{ filebeat_ssl_dir }}/root-ca.pem</ca>
+      </certificate_authorities>
+      <certificate>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem</certificate>
+      <key>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem</key>
+    </ssl>
+  </indexer>
 
   <!-- File integrity monitoring -->
   <syscheck>
