@@ -159,8 +159,7 @@ wazuh_manager_vulnerability_detection:
 
 wazuh_manager_indexer:
   enabled: 'yes'
-  hosts:
-    - "{{ filebeat_output_indexer_hosts }}"
+  hosts: "{{ filebeat_output_indexer_hosts }}"
 
 ## Syscheck
 wazuh_manager_syscheck:
