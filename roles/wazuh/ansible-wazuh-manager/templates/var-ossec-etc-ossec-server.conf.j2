@@ -551,6 +551,12 @@
     {% if integration.rule_id is defined %}
     <rule_id>{{ integration.rule_id }}</rule_id>
     {% endif %}
+    {% if integration.group is defined %}
+    <group>{{ integration.group }}</group>
+    {% endif %}
+    {% if integration.event_location is defined %}
+    <event_location>{{ integration.event_location }}</event_location>
+    {% endif %}
   </integration>
 {% endif %}
 {% endfor %}
