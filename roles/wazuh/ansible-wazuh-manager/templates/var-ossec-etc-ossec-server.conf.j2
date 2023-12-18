@@ -259,13 +259,13 @@
   </sca>
 
   <vulnerability-detection>
-    <enabled>{{ wazuh_manager_config.vulnerability_detection.enabled }}</enabled>
+    <enabled>{% if wazuh_manager_config.vulnerability_detection.enabled == 'yes' and wazuh_manager_config.wazuh_manager_indexer.enabled == 'yes' %}yes{% else %}no{% endif %}</enabled>
     <indexer-status>{{ wazuh_manager_config.vulnerability_detection.indexer_status }}</indexer-status>
     <feed-update-interval>{{ wazuh_manager_config.vulnerability_detection.feed_update_interval }}</feed-update-interval>
   </vulnerability-detection>
 
   <indexer>
-    <enabled>{{ wazuh_manager_config.wazuh_manager_indexer.enabled }}</enabled>
+    <enabled>{% if wazuh_manager_config.vulnerability_detection.enabled == 'yes' and wazuh_manager_config.wazuh_manager_indexer.enabled == 'yes' %}yes{% else %}no{% endif %}</enabled>
     <hosts>
     {% for item in wazuh_manager_indexer.hosts %} 
       <host>https://{{ item }}:{{filebeat_output_indexer_port}}</host> 
