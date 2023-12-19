@@ -1,6 +1,6 @@
 ---
 # Certificates generation
-  - hosts: aio
+  - hosts: ubuntu
     roles:
       - role: ../roles/wazuh/wazuh-indexer
         perform_installation: false
@@ -16,7 +16,7 @@
     tags:
       - generate-certs
 # Single node
-  - hosts: aio
+  - hosts: ubuntu
     become: yes
     become_user: root
     roles:

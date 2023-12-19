@@ -98,7 +98,7 @@
 - name: Debian/Ubuntu | Install wazuh-manager
   apt:
     name:
-      - "wazuh-manager={{ wazuh_manager_version }}-*"
+      - "wazuh-manager={{ wazuh_manager_version }}-1"
     state: present
   tags: init
   when:
