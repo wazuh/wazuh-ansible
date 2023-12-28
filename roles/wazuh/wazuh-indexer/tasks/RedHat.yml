@@ -44,7 +44,7 @@
 
   - name: Install Wazuh indexer
     package:
-      name: wazuh-indexer-{{ indexer_version }}
+      name: wazuh-indexer-{{ indexer_version }}-wp2697
       state: present
     register: install
     tags: install

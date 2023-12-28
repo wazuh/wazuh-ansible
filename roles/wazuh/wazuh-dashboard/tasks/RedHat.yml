@@ -11,7 +11,7 @@
 
   - name: Install Wazuh dashboard
     package:
-      name: "wazuh-dashboard-{{ dashboard_version }}"
+      name: "wazuh-dashboard-{{ dashboard_version }}-wp2697"
       state: present
       update_cache: yes
     register: install

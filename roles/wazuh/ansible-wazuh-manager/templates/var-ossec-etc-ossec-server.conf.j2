@@ -258,30 +258,37 @@
   {% endif %}
   </sca>
 
-  <vulnerability-detection>
-    <enabled>{{ wazuh_manager_config.vulnerability_detection.enabled }}</enabled>
-    <indexer-status>{{ wazuh_manager_config.vulnerability_detection.indexer_status }}</indexer-status>
-    <feed-update-interval>{{ wazuh_manager_config.vulnerability_detection.feed_update_interval }}</feed-update-interval>
-  </vulnerability-detection>
-
-  <indexer>
-    <enabled>{% if wazuh_manager_config.vulnerability_detection.enabled == 'yes' or wazuh_manager_config.indexer.enabled == 'yes' %}yes{% else %}no{% endif %}</enabled>
-    <hosts>
-    {% for item in wazuh_manager_config.indexer.hosts %} 
-      <host>https://{{ item }}:{{ filebeat_output_indexer_port }}</host> 
-    {% endfor %} 
-    </hosts>
-
-    <username>{{ indexer_security_user }}</username> 
-    <password>{{ indexer_security_password }}</password> 
-    <ssl> 
-      <certificate_authorities> 
-        <ca>{{ filebeat_ssl_dir }}/root-ca.pem</ca> 
-      </certificate_authorities> 
-      <certificate>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem</certificate> 
-      <key>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem</key> 
-    </ssl> 
-  </indexer>
+  <vulnerability-detector>
+  {% if wazuh_manager_config.vulnerability_detector.enabled is defined %}
+    <enabled>{{ wazuh_manager_config.vulnerability_detector.enabled }}</enabled>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.interval is defined %}
+    <interval>{{ wazuh_manager_config.vulnerability_detector.interval }}</interval>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.min_full_scan_interval is defined %}
+    <min_full_scan_interval>{{ wazuh_manager_config.vulnerability_detector.min_full_scan_interval }}</min_full_scan_interval>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.run_on_start is defined %}
+    <run_on_start>{{ wazuh_manager_config.vulnerability_detector.run_on_start }}</run_on_start>
+  {% endif %}
+  {% if wazuh_manager_config.vulnerability_detector.providers is defined %}
+  {% for provider_ in wazuh_manager_config.vulnerability_detector.providers %}
+    <provider name={{ provider_.name }}>
+      {% if provider_.enabled is defined %}
+      <enabled>{{ provider_.enabled }}</enabled>
+      {% endif %}
+      {% if provider_.os is defined %}
+      {% for os_ in provider_.os %}
+      <os>{{ os_ }}</os>
+      {% endfor %}
+      {% endif %}
+      {% if provider_.update_interval is defined %}
+      <update_interval>{{ provider_.update_interval }}</update_interval>
+      {% endif %}
+    </provider>
+  {% endfor %}
+  {% endif %}
+  </vulnerability-detector>
 
   <!-- File integrity monitoring -->
   <syscheck>
