@@ -101,8 +101,7 @@
       -i {{ target_address }}
     become: yes
     become_user: root
-
-  run_once: true
+    run_once: true
 
 - name: Create custom user
   uri:
