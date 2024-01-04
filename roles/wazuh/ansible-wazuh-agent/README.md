@@ -12,6 +12,8 @@ This role is compatible with:
  * Fedora
  * Debian
  * Ubuntu
+ * Windows
+ * macOS
 
 
 Role Variables

@@ -10,7 +10,6 @@
   when:
     - (ansible_facts['os_family']|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
   register: repo_v5_installed
 
@@ -24,7 +23,6 @@
   changed_when: false
   when:
     - repo_v5_installed is skipped
-    - not wazuh_agent_sources_installation.enabled
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8

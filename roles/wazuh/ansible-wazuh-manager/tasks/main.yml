@@ -336,4 +336,3 @@
 
 - name: Run uninstall tasks
   include_tasks: uninstall.yml
-  when: not wazuh_manager_sources_installation.enabled
