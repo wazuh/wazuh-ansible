@@ -102,7 +102,7 @@
     become: yes
     become_user: root
 
-  run_once: true
+  when: inventory_hostname == ansible_play_hosts[0]
 
 - name: Create custom user
   uri:
