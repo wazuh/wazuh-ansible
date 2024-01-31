@@ -11,7 +11,7 @@
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
   yum:
-    name: wazuh-agent-{{ wazuh_agent_version }}
+    name: wazuh-agent-{{ wazuh_agent_version }}-1
     state: present
     lock_timeout: '{{ wazuh_agent_yum_lock_timeout }}'
   when:
@@ -22,7 +22,7 @@
 
 - name: Linux Debian | Install wazuh-agent
   apt:
-    name: "wazuh-agent={{ wazuh_agent_version }}-*"
+    name: "wazuh-agent={{ wazuh_agent_version }}-1"
     state: present
     cache_valid_time: 3600
   when:
