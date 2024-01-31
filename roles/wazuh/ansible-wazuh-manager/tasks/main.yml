@@ -254,7 +254,7 @@
 
 - name: Generate the wazuh-keystore
   shell: >
-    /var/ossec/bin/wazuh-keystore -f indexer -k user -v {{ indexer_security_user }}
+    /var/ossec/bin/wazuh-keystore -f indexer -k username -v {{ indexer_security_user }}
     /var/ossec/bin/wazuh-keystore -f indexer -k password -v {{ indexer_security_password }}
   notify: restart wazuh-manager
   tags:
