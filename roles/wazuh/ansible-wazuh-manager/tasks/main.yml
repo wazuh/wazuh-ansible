@@ -37,6 +37,22 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
+- name: Generate the wazuh-keystore (username)
+  shell: >
+    /var/ossec/bin/wazuh-keystore -f indexer -k username -v {{ indexer_security_user }}
+  notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+
+- name: Generate the wazuh-keystore (password)
+  shell: >
+    /var/ossec/bin/wazuh-keystore -f indexer -k password -v {{ indexer_security_password }}
+  notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+  
 - name: Install expect
   package:
     name: expect
@@ -247,15 +263,6 @@
     owner: root
     group: wazuh
     mode: 0644
-  notify: restart wazuh-manager
-  tags:
-    - init
-    - config
-
-- name: Generate the wazuh-keystore
-  shell: >
-    /var/ossec/bin/wazuh-keystore -f indexer -k username -v {{ indexer_security_user }}
-    /var/ossec/bin/wazuh-keystore -f indexer -k password -v {{ indexer_security_password }}
   notify: restart wazuh-manager
   tags:
     - init
