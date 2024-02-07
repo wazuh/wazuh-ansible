@@ -267,20 +267,18 @@
   <indexer>
     <enabled>{% if wazuh_manager_config.vulnerability_detection.enabled == 'yes' or wazuh_manager_config.indexer.enabled == 'yes' %}yes{% else %}no{% endif %}</enabled>
     <hosts>
-    {% for item in wazuh_manager_config.indexer.hosts %} 
-      <host>https://{{ item }}:{{ filebeat_output_indexer_port }}</host> 
-    {% endfor %} 
+    {% for item in wazuh_manager_config.indexer.hosts %}
+      <host>https://{{ item }}:{{ filebeat_output_indexer_port }}</host>
+    {% endfor %}
     </hosts>
 
-    <username>{{ indexer_security_user }}</username> 
-    <password>{{ indexer_security_password }}</password> 
-    <ssl> 
-      <certificate_authorities> 
-        <ca>{{ filebeat_ssl_dir }}/root-ca.pem</ca> 
-      </certificate_authorities> 
-      <certificate>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem</certificate> 
-      <key>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem</key> 
-    </ssl> 
+    <ssl>
+      <certificate_authorities>
+        <ca>{{ filebeat_ssl_dir }}/root-ca.pem</ca>
+      </certificate_authorities>
+      <certificate>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem</certificate>
+      <key>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem</key>
+    </ssl>
   </indexer>
 
   <!-- File integrity monitoring -->
