@@ -102,7 +102,7 @@
     become: yes
     become_user: root
 
-  run_once: true
+  when: inventory_hostname == ansible_play_hosts[0]
 
 - name: Create custom user
   uri:
@@ -122,5 +122,6 @@
     timeout: 4
   when:
     - indexer_custom_user is defined and indexer_custom_user
+    - inventory_hostname == ansible_play_hosts[0]
 
 
