@@ -94,14 +94,6 @@
     register: result
     until: result.rc == 0
 
-  - name: Initialize ISM script
-    command: >
-      {{ indexer_bin_path }}/indexer-ism-init.sh
-      -p {{ indexer_admin_password }}
-      -i {{ target_address }}
-    become: yes
-    become_user: root
-
   when: inventory_hostname == ansible_play_hosts[0]
 
 - name: Create custom user
