@@ -116,7 +116,7 @@
             dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
             owner=wazuh
             group=wazuh
-            mode=0640
+            mode=0660
   notify: restart wazuh-manager
   tags:
     - init
@@ -128,7 +128,7 @@
         dest="{{ wazuh_dir }}/etc/rules/"
         owner=wazuh
         group=wazuh
-        mode=0640
+        mode=0660
   notify: restart wazuh-manager
   tags:
     - init
@@ -140,7 +140,7 @@
             dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
             owner=wazuh
             group=wazuh
-            mode=0640
+            mode=0660
   notify: restart wazuh-manager
   tags:
     - init
@@ -152,7 +152,7 @@
         dest="{{ wazuh_dir }}/etc/decoders/"
         owner=wazuh
         group=wazuh
-        mode=0640
+        mode=0660
   notify: restart wazuh-manager
   tags:
     - init
@@ -165,7 +165,7 @@
     dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
     owner: wazuh
     group: wazuh
-    mode: 0640
+    mode: 0660
     validate: "{{ wazuh_dir }}/bin/verify-agent-conf -f %s"
   notify: restart wazuh-manager
   tags:
