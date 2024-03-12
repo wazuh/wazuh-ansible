@@ -33,6 +33,11 @@
   tags:
     - init
 
+- name: RedHat/CentOS/Fedora | Install yum-plugin-versionlock
+  yum: name=yum-plugin-versionlock state=present
+  tags:
+    - init
+
 - name: Set Distribution CIS filename for RHEL5
   set_fact:
     cis_distribution_filename: cis_rhel5_linux_rcl.txt
