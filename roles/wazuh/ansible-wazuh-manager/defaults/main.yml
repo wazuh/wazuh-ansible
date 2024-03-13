@@ -121,15 +121,25 @@ wazuh_manager_syscollector:
   processes: 'yes'
 
 wazuh_manager_monitor_aws:
-  disabled: 'yes'
+  s3_disabled: 'yes'
   interval: '10m'
   run_on_start: 'yes'
   skip_on_error: 'yes'
+  s3_service_disabled: 'yes' # not present in conf file, only for template condition.
   s3:
     - name: null
       bucket_type: null
       path: null
       only_logs_after: null
+      regions: null
+      access_key: null
+      secret_key: null
+  s3_service:
+    - service_type: null
+      aws_log_groups: null
+      only_logs_after: null
+      remove_log_streams: null
+      regions: null
       access_key: null
       secret_key: null
 
