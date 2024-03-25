@@ -310,6 +310,11 @@
       with_items:
         - "{{ wazuh_api_users }}"
 
+    - name: Delete create_user script
+      file:
+        path: "{{ wazuh_dir }}/framework/scripts/create_user.py"
+        state: absent
+
   tags:
     - config_api_users
   when:
