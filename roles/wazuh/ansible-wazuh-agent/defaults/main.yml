@@ -6,6 +6,7 @@ wazuh_agent_version: 5.0.0
 wazuh_custom_packages_installation_agent_enabled: false
 wazuh_custom_packages_installation_agent_deb_url: ""
 wazuh_custom_packages_installation_agent_rpm_url: ""
+wazuh_custom_packages_installation_agent_rpm_gpg_key_url: ""
 
 wazuh_agent_yum_lock_timeout: 30
 
