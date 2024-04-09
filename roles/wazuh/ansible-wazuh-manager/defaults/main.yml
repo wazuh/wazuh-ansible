@@ -178,59 +178,119 @@ wazuh_manager_vulnerability_detector:
   providers:
     - enabled: 'no'
       os:
-        - 'trusty'
-        - 'xenial'
-        - 'bionic'
-        - 'focal'
-        - 'jammy'
+        - name: 'trusty'
+          #os_url:
+          #os_path:
+        - name: 'xenial'
+          #os_url:
+          #os_path:
+        - name: 'bionic'
+          #os_url:
+          #os_path:
+        - name: 'focal'
+          #os_url:
+          #os_path:
+        - name: 'jammy'
+          #os_url:
+          #os_path:
       update_interval: '1h'
       name: '"canonical"'
     - enabled: 'no'
       os:
-        - 'buster'
-        - 'bullseye'
-        - 'bookworm'
+        - name: 'buster'
+          #os_url:
+          #os_path:
+        - name: 'bullseye'
+          #os_url:
+          #os_path:
+        - name: 'bookworm'
+          #os_url:
+          #os_path:
       update_interval: '1h'
       name: '"debian"'
     - enabled: 'no'
       os:
-        - '5'
-        - '6'
-        - '7'
-        - '8'
-        - '9'
+        - name: '5'
+          #os_url:
+          #os_path:
+        - name: '6'
+          #os_url:
+          #os_path:
+        - name: '7'
+          #os_url:
+          #os_path:
+        - name: '8'
+          #os_url:
+          #os_path:
+        - name: '9'
+          #os_url:
+          #os_path:
       update_interval: '1h'
       name: '"redhat"'
     - enabled: 'no'
       os:
-        - '8'
-        - '9'
+        - name: '8'
+          #os_url:
+          #os_path:
+        - name: '9'
+          #os_url:
+          #os_path:
       update_interval: '1h'
       name: '"almalinux"'
     - enabled: 'no'
       os:
-        - 'amazon-linux'
-        - 'amazon-linux-2'
-        - 'amazon-linux-2023'
+        - name: 'amazon-linux'
+          #os_url:
+          #os_path:
+        - name: 'amazon-linux-2'
+          #os_url:
+          #os_path:
+        - name: 'amazon-linux-2023'
+          #os_url:
+          #os_path:
       update_interval: '1h'
       name: '"alas"'
     - enabled: 'no'
       os:
-        - '11-server'
-        - '11-desktop'
-        - '12-server'
-        - '12-desktop'
-        - '15-server'
-        - '15-desktop'
+        - name: '11-server'
+          #os_url:
+          #os_path:
+        - name: '11-desktop'
+          #os_url:
+          #os_path:
+        - name: '12-server'
+          #os_url:
+          #os_path:
+        - name: '12-desktop'
+          #os_url:
+          #os_path:
+        - name: '15-server'
+          #os_url:
+          #os_path:
+        - name: '15-desktop'
+          #os_url:
+          #os_path:
       update_interval: '1h'
       name: '"suse"'
     - enabled: 'no'
+      os:
+        - name: '11-server'
+          #url:
+          #path:
       update_interval: '1h'
       name: '"arch"'
     - enabled: 'no'
+      os:
+        - name: '11-server'
+          #url:
+          #path:
       update_interval: '1h'
       name: '"msu"'
     - enabled: 'no'
+      os:
+        - name: '11-server'
+          #url:
+          #path:
       update_interval: '1h'
       name: '"nvd"'
 

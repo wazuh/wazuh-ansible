@@ -279,7 +279,19 @@
       {% endif %}
       {% if provider_.os is defined %}
       {% for os_ in provider_.os %}
-      <os>{{ os_ }}</os>
+      {% if os_ is defined %}
+      {% if os_.os_url is defined %}
+      <os url="{{ os_.os_url }}">{{ os_.name }}</os>
+      {% elif os_.os_path is defined %}
+      <os path="{{ os_.os_path }}">{{ os_.name}}</os>
+      {% elif os_.url is defined %}
+      <url>{{ os_.url }}</url>
+      {% elif os_.path is defined %}
+      <path>{{ os_.path }}"</path>     
+      {% else %}
+      <os>{{ os_.name }}</os>
+      {% endif %}
+      {% endif %}
       {% endfor %}
       {% endif %}
       {% if provider_.update_interval is defined %}
