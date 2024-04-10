@@ -274,21 +274,21 @@ wazuh_manager_vulnerability_detector:
       name: '"suse"'
     - enabled: 'no'
       os:
-        - name: '11-server'
+        - name: 'arch'
           #url:
           #path:
       update_interval: '1h'
       name: '"arch"'
     - enabled: 'no'
       os:
-        - name: '11-server'
+        - name: 'msu'
           #url:
           #path:
       update_interval: '1h'
       name: '"msu"'
     - enabled: 'no'
       os:
-        - name: '11-server'
+        - name: 'nvd'
           #url:
           #path:
       update_interval: '1h'
