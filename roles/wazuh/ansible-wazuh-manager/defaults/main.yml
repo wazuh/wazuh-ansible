@@ -154,7 +154,7 @@ filebeat_ssl_dir: /etc/pki/filebeat
 
 wazuh_manager_vulnerability_detection:
   enabled: 'yes'
-  indexer_status: 'yes'
+  index_status: 'yes'
   feed_update_interval: '60m'
 
 wazuh_manager_indexer:
