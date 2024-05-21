@@ -26,10 +26,26 @@
     - ansible_distribution_major_version | int == 14
     - not wazuh_custom_packages_installation_manager_enabled
 
-- name: Debian/Ubuntu | Installing Wazuh repository key
-  apt_key:
+- name: Debian/Ubuntu | Download Wazuh repository key
+  get_url:
     url: "{{ wazuh_manager_config.repo.gpg }}"
-    id: "{{ wazuh_manager_config.repo.key_id }}"
+    dest: "{{ wazuh_manager_config.repo.path }}"
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_custom_packages_installation_manager_enabled
+
+- name: Debian/Ubuntu | Import Wazuh GPG key
+  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_manager_config.repo.keyring_path }} --import {{ wazuh_manager_config.repo.path }}"
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_custom_packages_installation_manager_enabled
+  args:
+    creates: "{{ wazuh_manager_config.repo.keyring_path }}"
+
+- name: Debian/Ubuntu | Set permissions for Wazuh GPG key
+  file:
+    path: "{{ wazuh_manager_config.repo.keyring_path }}"
+    mode: '0644'
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_manager_enabled
