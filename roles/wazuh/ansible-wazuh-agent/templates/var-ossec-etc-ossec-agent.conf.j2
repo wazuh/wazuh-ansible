@@ -90,7 +90,7 @@
 
   {% if wazuh_agent_config.rootcheck is defined %}
   <rootcheck>
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.rootcheck.disable }}</disabled>
     {% if ansible_system == "Linux" %}
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
@@ -247,7 +247,7 @@
   <!-- Directories to check  (perform all possible verifications) -->
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
-    <disabled>no</disabled>
+    <disabled>{{ wazuh_agent_config.syscheck.disable }}</disabled>
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
     {% if ansible_system == "Linux" %}
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
