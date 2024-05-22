@@ -24,7 +24,6 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Installing Wazuh repository key
@@ -33,7 +32,6 @@
     id: "{{ wazuh_manager_config.repo.key_id }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
@@ -44,7 +42,6 @@
     update_cache: true
   changed_when: false
   when:
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
@@ -98,12 +95,6 @@
   tags:
     - config
 
-- name: Install dependencies to build from sources
-  apt:
-    name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'libssl-dev', 'g++']
-    state: present
-  when: wazuh_manager_sources_installation.enabled
-
 - name: Debian/Ubuntu | Install wazuh-manager
   apt:
     name:
@@ -111,12 +102,7 @@
     state: present
   tags: init
   when:
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
-
-- include_tasks: "installation_from_sources.yml"
-  when:
-    - wazuh_manager_sources_installation.enabled
 
 - include_tasks: "installation_from_custom_packages.yml"
   when:
