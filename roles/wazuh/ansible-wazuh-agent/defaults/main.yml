@@ -10,7 +10,7 @@ wazuh_custom_packages_installation_agent_rpm_url: ""
 wazuh_agent_yum_lock_timeout: 30
 
 # We recommend the use of ansible-vault to protect Wazuh, api, agentless and authd credentials.
-api_pass: wazuh-wui
+api_pass: wazuh
 authd_pass: ''
 
 wazuh_api_reachable_from_agent: yes
@@ -60,7 +60,7 @@ wazuh_managers:
     protocol: tcp
     api_port: 55000
     api_proto: https
-    api_user: wazuh-wui
+    api_user: wazuh
     max_retries: 5
     retry_interval: 5
     register: yes

@@ -11,6 +11,6 @@
         protocol: tcp
         api_port: 55000
         api_proto: 'https'
-        api_user: wazuh-wui
+        api_user: wazuh
         max_retries: 5
         retry_interval: 5
