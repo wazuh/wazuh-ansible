@@ -30,6 +30,9 @@
     <config-profile>{{ wazuh_profile_ubuntu }}</config-profile>
     {% endif %}
     {% endif %}
+    {% if ansible_system == "Darwin" %}
+    <config-profile>{{ wazuh_profile_macos }}</config-profile>
+    {% endif %}
     {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
@@ -64,8 +67,10 @@
       {% if wazuh_agent_config.enrollment.agent_key_path | length > 0 %}
       <agent_key_path>{{ wazuh_agent_config.enrollment.agent_key_path }}</agent_key_path>
       {% endif %}
-      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 %}
+      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 and ansible_system != "Darwin" %}
       <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path }}</authorization_pass_path>
+      {% else %}
+      <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path_macos }}</authorization_pass_path>
       {% endif %}
       {% if wazuh_agent_config.enrollment.auto_method | length > 0 %}
       <auto_method>{{ wazuh_agent_config.enrollment.auto_method }}</auto_method>
@@ -91,7 +96,7 @@
   {% if wazuh_agent_config.rootcheck is defined %}
   <rootcheck>
     <disabled>no</disabled>
-    {% if ansible_system == "Linux" %}
+    {% if ansible_system == "Linux" or ansible_system == "Darwin" %}
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
     <check_dev>yes</check_dev>
@@ -103,14 +108,20 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ wazuh_agent_config.rootcheck.frequency }}</frequency>
 
+    {% if ansible_system == "Darwin" %}
+    <rootkit_files>etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    {% else %}
     <rootkit_files>{{ wazuh_dir }}/etc/shared/rootkit_files.txt</rootkit_files>
     <rootkit_trojans>{{ wazuh_dir }}/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    {% endif %}
     <skip_nfs>yes</skip_nfs>
     {% endif %}
     {% if ansible_os_family == "Windows" %}
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
+
 
   </rootcheck>
   {% endif %}
@@ -179,6 +190,7 @@
   </wodle>
   {% endif %}
 
+  {% if ansible_system != "Darwin" %}
   <wodle name="cis-cat">
     <disabled>{{ wazuh_agent_config.cis_cat.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.cis_cat.timeout }}</timeout>
@@ -193,6 +205,7 @@
     {% endif %}
     <ciscat_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.cis_cat.ciscat_path_win }}{% else %}{{ wazuh_agent_config.cis_cat.ciscat_path }}{% endif %}</ciscat_path>
   </wodle>
+  {% endif %}
 
   <!-- Osquery integration -->
   <wodle name="osquery">
@@ -249,11 +262,15 @@
   <syscheck>
     <disabled>no</disabled>
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
-    {% if ansible_system == "Linux" %}
+    {% if ansible_system == "Linux" or ansible_system == "Darwin" %}
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
     <!-- Directories to check  (perform all possible verifications) -->
     {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
     {% for directory in wazuh_agent_config.syscheck.directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
+    {% endfor %}
+    {% elif ansible_system == "Darwin" %}
+    {% for directory in wazuh_agent_config.syscheck.macos_directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
     {% endif %}
@@ -267,7 +284,7 @@
     {% endif %}
 
     <!-- Files/directories to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Linux" %}
+    {% if wazuh_agent_config.syscheck.ignore is defined and (ansible_system == "Linux" or ansible_system == "Darwin") %}    
     {% for ignore in wazuh_agent_config.syscheck.ignore %}
     <ignore>{{ ignore }}</ignore>
     {% endfor %}
@@ -286,7 +303,7 @@
     {% endfor %}
     {% endif %}
 
-    {% if ansible_system == "Linux" %}
+    {% if ansible_system == "Linux" or ansible_system == "Darwin" %}
     <!-- Files no diff -->
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
@@ -359,6 +376,27 @@
     {% endfor %}
     {% endif %}
     {% endif %}
+  </localfile>
+  {% endfor %}
+  {% endif %}
+
+  {% if ansible_system == "Darwin" %}
+  {% for localfile in wazuh_agent_config.localfiles.macos %}
+
+  <localfile>
+    <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+    <command>{{ localfile.command }}</command>
+    <frequency>{{ localfile.frequency }}</frequency>
+    {% if localfile.alias is defined %}
+    <alias>{{ localfile.alias }}</alias>
+    {% endif %}
+  {% else %}
+    <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'macos' %}
+    <query type="{{ localfile.query.type }}" level="{{ localfile.query.level }}">{{ localfile.query.value }}</query>
+    {% endif %}
+  {% endif %}
   </localfile>
   {% endfor %}
   {% endif %}
@@ -439,7 +477,15 @@
 
   <active-response>
     <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
-    <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
+    <ca_store>
+    {% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}
+    {% else %}
+    {% if ansible_system == "Darwin" %}{{ wazuh_agent_config.active_response.ca_store_macos }}
+    {% else %}
+    {{ wazuh_agent_config.active_response.ca_store }}
+    {% endif %}
+    {% endif %}
+    </ca_store>
     <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
   </active-response>
 

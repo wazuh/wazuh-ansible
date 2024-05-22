@@ -1,5 +1,6 @@
 ---
-wazuh_manager_version: 4.7.5
+wazuh_manager_version: 4.8.0
+
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
@@ -8,32 +9,6 @@ wazuh_manager_package_state: present
 wazuh_custom_packages_installation_manager_enabled: false
 wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
 wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
-
-# Sources installation
-wazuh_manager_sources_installation:
-  enabled: false
-  branch: "v4.7.5"
-  user_language: "en"
-  user_no_stop: "y"
-  user_install_type: "server"
-  user_dir: "/var/ossec"
-  user_delete_dir: null
-  user_enable_active_response: null
-  user_enable_syscheck: "y"
-  user_enable_rootcheck: "y"
-  user_enable_openscap: "n"
-  user_enable_authd: "y"
-  user_generate_authd_cert: null
-  user_update: "y"
-  user_binaryinstall: null
-  user_enable_email: "n"
-  user_auto_start: "y"
-  user_email_address: null
-  user_email_smpt: null
-  user_enable_syslog: "n"
-  user_white_list: "n"
-  user_ca_store: null
-  threads: "2"
 
 wazuh_dir: "/var/ossec"
 
@@ -170,69 +145,22 @@ wazuh_manager_sca:
   time: ''
 
 ## Vulnerability Detector
-wazuh_manager_vulnerability_detector:
-  enabled: 'no'
-  interval: '5m'
-  min_full_scan_interval: '6h'
-  run_on_start: 'yes'
-  providers:
-    - enabled: 'no'
-      os:
-        - 'trusty'
-        - 'xenial'
-        - 'bionic'
-        - 'focal'
-        - 'jammy'
-      update_interval: '1h'
-      name: '"canonical"'
-    - enabled: 'no'
-      os:
-        - 'buster'
-        - 'bullseye'
-        - 'bookworm'
-      update_interval: '1h'
-      name: '"debian"'
-    - enabled: 'no'
-      os:
-        - '5'
-        - '6'
-        - '7'
-        - '8'
-        - '9'
-      update_interval: '1h'
-      name: '"redhat"'
-    - enabled: 'no'
-      os:
-        - '8'
-        - '9'
-      update_interval: '1h'
-      name: '"almalinux"'
-    - enabled: 'no'
-      os:
-        - 'amazon-linux'
-        - 'amazon-linux-2'
-        - 'amazon-linux-2023'
-      update_interval: '1h'
-      name: '"alas"'
-    - enabled: 'no'
-      os:
-        - '11-server'
-        - '11-desktop'
-        - '12-server'
-        - '12-desktop'
-        - '15-server'
-        - '15-desktop'
-      update_interval: '1h'
-      name: '"suse"'
-    - enabled: 'no'
-      update_interval: '1h'
-      name: '"arch"'
-    - enabled: 'no'
-      update_interval: '1h'
-      name: '"msu"'
-    - enabled: 'no'
-      update_interval: '1h'
-      name: '"nvd"'
+filebeat_node_name: node-1
+filebeat_output_indexer_hosts:
+  - "localhost"
+filebeat_output_indexer_port: 9200
+indexer_security_user: admin
+indexer_security_password: changeme
+filebeat_ssl_dir: /etc/pki/filebeat
+
+wazuh_manager_vulnerability_detection:
+  enabled: 'yes'
+  index_status: 'yes'
+  feed_update_interval: '60m'
+
+wazuh_manager_indexer:
+  enabled: 'yes'
+  hosts: "{{ filebeat_output_indexer_hosts }}"
 
 ## Syscheck
 wazuh_manager_syscheck:
@@ -474,7 +402,8 @@ wazuh_manager_config_defaults:
   osquery: '{{ wazuh_manager_osquery }}'
   syscollector: '{{ wazuh_manager_syscollector }}'
   sca: '{{ wazuh_manager_sca }}'
-  vulnerability_detector: '{{ wazuh_manager_vulnerability_detector }}'
+  vulnerability_detection: '{{ wazuh_manager_vulnerability_detection }}'
+  indexer: '{{ wazuh_manager_indexer }}'
   log_level: '{{ wazuh_manager_log_level }}'
   email_level: '{{ wazuh_manager_email_level }}'
   localfiles: '{{ wazuh_manager_localfiles }}'
