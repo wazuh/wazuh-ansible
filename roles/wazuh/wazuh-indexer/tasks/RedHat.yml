@@ -3,7 +3,6 @@
 
   - name: RedHat/CentOS/Fedora | Add Wazuh indexer repo
     yum_repository:
-      file: wazuh
       name: wazuh_repo
       description: Wazuh yum repository
       baseurl: "{{ wazuh_repo.yum }}"

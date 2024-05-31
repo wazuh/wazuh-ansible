@@ -19,9 +19,19 @@
 - name: Add Wazuh indexer repository
   block:
     - name: Add apt repository signing key
-      apt_key:
+      get_url:
         url: "{{ wazuh_repo.gpg }}"
-        state: present
+        dest: "{{ wazuh_repo.path }}"
+  
+    - name: Import Wazuh repository GPG key
+      command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
+      args:
+        creates: "{{ wazuh_repo.keyring_path }}"
+
+    - name: Set permissions for Wazuh repository GPG key
+      file:
+        path: "{{ wazuh_repo.keyring_path }}"
+        mode: '0644'
 
     - name: Add Wazuh indexer repository
       apt_repository:
