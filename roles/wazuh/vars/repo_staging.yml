@@ -1,8 +1,9 @@
 wazuh_repo:
-  apt: 'deb https://packages-dev.wazuh.com/staging/apt/ unstable main'
+  keyring_path: '/usr/share/keyrings/wazuh.gpg'
+  apt: 'deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages-dev.wazuh.com/staging/apt/ unstable main'
   yum: 'https://packages-dev.wazuh.com/staging/yum/'
   gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
-  key_id: '0DCFCA5547B19D2A6099506096B3EE5F29111145'
+  path: '/tmp/WAZUH-GPG-KEY'
 wazuh_winagent_config_url: "https://packages-dev.wazuh.com/staging/windows/wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 wazuh_winagent_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.msi"
 wazuh_winagent_sha512_url: "https://packages-dev.wazuh.com/staging/checksums/wazuh/{{ wazuh_agent_version }}/wazuh-agent-{{ wazuh_agent_version }}-1.msi.sha512"
