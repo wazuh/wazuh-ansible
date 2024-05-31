@@ -9,11 +9,20 @@
   register: filebeat_ca_packages_install
   until: filebeat_ca_packages_install is succeeded
 
-- name: Debian/Ubuntu | Add Elasticsearch apt key.
-  apt_key:
+- name: Debian/Ubuntu | Download Filebeat apt key.
+  get_url:
     url: "{{ filebeatrepo.gpg }}"
-    id: "{{ filebeatrepo.key_id }}"
-    state: present
+    dest: "{{ filebeatrepo.path }}"
+
+- name: Import Filebeat GPG key
+  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ filebeatrepo.keyring_path }} --import {{ filebeatrepo.path }}"
+  args:
+    creates: "{{ filebeatrepo.keyring_path }}"
+
+- name: Set permissions for Filebeat GPG key
+  file:
+    path: "{{ filebeatrepo.keyring_path }}"
+    mode: '0644'
 
 - name: Debian/Ubuntu | Add Filebeat-oss repository.
   apt_repository:
