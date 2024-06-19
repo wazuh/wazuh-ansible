@@ -1,5 +1,5 @@
 ---
-wazuh_manager_version: 4.9.0
+wazuh_manager_version: 4.10.0
 
 wazuh_manager_fqdn: "wazuh-server"
 wazuh_manager_package_state: present
