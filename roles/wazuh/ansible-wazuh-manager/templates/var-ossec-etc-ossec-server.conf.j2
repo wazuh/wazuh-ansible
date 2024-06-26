@@ -548,6 +548,18 @@
     {% if integration.event_location is defined %}
     <event_location>{{ integration.event_location }}</event_location>
     {% endif %}
+    {% if integration.max_log is defined %}
+    <max_log>{{ integration.max_log }}</max_log>
+    {% endif %}
+    {% if integration.options is defined %}
+    <options>{{ integration.options }}</options>
+    {% endif %}
+    {% if integration.timeout is defined %}
+    <timeout>{{ integration.timeout }}</timeout>
+    {% endif %}
+    {% if integration.retries is defined %}
+    <retries>{{ integration.retries }}</retries>
+    {% endif %}
   </integration>
 {% endif %}
 {% endfor %}
