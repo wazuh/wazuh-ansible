@@ -10,7 +10,6 @@
   when:
     - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
   register: repo_v5_manager_installed
 
@@ -24,7 +23,6 @@
   changed_when: false
   when:
     - repo_v5_manager_installed is skipped
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
@@ -93,12 +91,6 @@
   when:
     - ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA"
 
-- name: Install dependencies to build from sources
-  yum:
-    name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'openssl-devel', 'gcc-c++']
-    state: present
-  when: wazuh_manager_sources_installation.enabled
-
 - name: CentOS/RedHat/Amazon | Install wazuh-manager
   package:
     name: "wazuh-manager-{{ wazuh_manager_version }}"
@@ -107,14 +99,9 @@
   until: wazuh_manager_main_packages_installed is succeeded
   when:
     - ansible_os_family|lower == "redhat"
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
   tags:
     - init
-
-- include_tasks: "../tasks/installation_from_sources.yml"
-  when:
-    - wazuh_manager_sources_installation.enabled
 
 - include_tasks: "../tasks/installation_from_custom_packages.yml"
   when:
