@@ -35,7 +35,6 @@
       dest: "{{ local_certs_path }}/config.yml"
       mode: 0644
     register: tlsconfig_template
-    when: ansible_os_family != 'Darwin'
 
   - name: Local action | Generate the node & admin certificates in local
     command: >-
@@ -56,18 +55,19 @@
   - name: Local action | Run Docker container on macOS
     community.docker.docker_container:
       name: wazuh-cert-tool
-      image: "wazuh/wazuh-cert-tool"
+      image: "wazuh-certs-tool"
       state: started
       auto_remove: true
       volumes:
         - "{{ local_certs_path }}/config.yml:/config/certs.yml"
-        - "{{ local_certs_path }}/wazuh-certificates:/certificates/"
+        - "{{ local_certs_path }}/wazuh-certificates/:/certificates/"
     when: ansible_os_family == 'Darwin'
 
   - name: Local action | Remove Docker image after execution
     community.docker.docker_image:
-      name: "wazuh/wazuh-cert-tool"
+      name: "wazuh-certs-tool"
       state: absent
+      force_absent: yes
     when: ansible_os_family == 'Darwin'
 
   run_once: true
