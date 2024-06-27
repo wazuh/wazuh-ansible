@@ -55,7 +55,7 @@
   - name: Local action | Run Docker container on macOS
     community.docker.docker_container:
       name: wazuh-cert-tool
-      image: "wazuh-certs-tool"
+      image: "wazuh/wazuh-cert-tool"
       state: started
       auto_remove: true
       volumes:
@@ -65,7 +65,7 @@
 
   - name: Local action | Remove Docker image after execution
     community.docker.docker_image:
-      name: "wazuh-certs-tool"
+      name: "wazuh/wazuh-cert-tool"
       state: absent
       force_absent: yes
     when: ansible_os_family == 'Darwin'
