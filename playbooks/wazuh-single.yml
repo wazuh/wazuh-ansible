@@ -13,6 +13,7 @@
           name: node-1       # Important: must be equal to indexer_node_name.
           ip: 127.0.0.1
           role: indexer
+      macos_localhost: false
     tags:
       - generate-certs
 # Single node
