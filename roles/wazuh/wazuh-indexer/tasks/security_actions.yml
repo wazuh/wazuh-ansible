@@ -40,7 +40,7 @@
 
 - name: Copy the Opensearch security internal users template
   template:
-    src: "templates/internal_users.yml.j2"
+    src: "{{ wazuh_indexer_internal_users_template }}"
     dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
     mode: 0644
   run_once: true
