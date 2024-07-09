@@ -464,3 +464,13 @@ wazuh_manager_config_defaults:
 #         format: 'eventchannel'
 #       - location: 'System'
 #         format: 'eventlog'
+
+wazuh_manager_ossec_local_rules_template: 'var-ossec-rules-local_rules.xml.j2'
+wazuh_manager_ossec_local_decoder_template: 'var-ossec-rules-local_decoder.xml.j2'
+wazuh_manager_ossec_shared_agent_template: 'var-ossec-etc-shared-agent.conf.j2'
+wazuh_manager_ossec_local_internal_options_template: 'var-ossec-etc-local-internal-options.conf.j2'
+wazuh_manager_ossec_server_template: 'var-ossec-etc-ossec-server.conf.j2'
+wazuh_manager_ossec_authdpass_template: 'authd_pass.j2'
+wazuh_manager_adminjson_template: 'admin.json.j2'
+wazuh_manager_agentless_template: 'agentless.j2'
+wazuh_manager_create_user_script_file: 'create_user.py'

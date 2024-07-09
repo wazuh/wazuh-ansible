@@ -41,7 +41,7 @@
 
     - name: Copy Opensearch Configuration File
       template:
-        src: "templates/opensearch.yml.j2"
+        src: "{{ wazuh_indexer_opensearch_config_template }}"
         dest: "{{ indexer_conf_path }}/opensearch.yml"
         owner: root
         group: wazuh-indexer
@@ -54,9 +54,9 @@
         - security
 
 
-    - name: Configure Wazuh indexer JVM memmory.
+    - name: Configure Wazuh indexer JVM memory.
       template:
-        src: "templates/jvm.options.j2"
+        src: "{{ wazuh_indexer_jvm_options_template }}"
         dest: "{{ indexer_conf_path }}/jvm.options"
         owner: root
         group: wazuh-indexer

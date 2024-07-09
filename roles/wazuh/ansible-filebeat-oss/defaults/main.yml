@@ -27,3 +27,5 @@ filebeatrepo:
   yum: 'https://packages.wazuh.com/5.x/yum/'
   gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   path: '/tmp/WAZUH-GPG-KEY'
+
+filebeat_config_template: 'filebeat.yml.j2'
