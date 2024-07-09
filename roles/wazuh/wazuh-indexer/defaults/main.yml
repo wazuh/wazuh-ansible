@@ -48,3 +48,8 @@ generate_certs: true
 perform_installation: true
 
 indexer_nolog_sensible: true
+
+wazuh_indexer_internal_users_template: 'internal_users.yml.j2'
+wazuh_indexer_jvm_options_template: 'jvm.options.j2'
+wazuh_indexer_opensearch_config_template: 'opensearch.yml.j2'
+wazuh_indexer_certificates_generation_template: 'config.yml.j2'

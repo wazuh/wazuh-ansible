@@ -29,3 +29,6 @@ indexer_admin_password: changeme
 dashboard_user: kibanaserver
 dashboard_password: changeme
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+
+wazuh_dashboard_configuration_template: 'opensearch_dashboards.yml.j2'
+wazuh_dashboard_wazuh_plugin_template: 'wazuh.yml.j2'
