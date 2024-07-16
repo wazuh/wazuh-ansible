@@ -43,6 +43,7 @@
             name: node-6
             ip: "{{ hostvars.dashboard.private_ip }}"
             role: dashboard
+        macos_localhost: false
       tags:
         - generate-certs
 
