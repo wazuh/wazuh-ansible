@@ -1,17 +1,38 @@
 ---
 
 - name: "Install dependencies"
-  package:
-    name:
-      - unzip
-      - openssl
-      - tar
-      - curl
-    state: present
-  register: package_status
-  until: "package_status is not failed"  
-  retries: 10
-  delay: 10
+  block:
+    - name: "Install common dependencies"
+      package:
+        name:
+          - unzip
+          - openssl
+          - tar
+        state: present
+      register: package_status
+      until: "package_status is not failed"  
+      retries: 10
+      delay: 10
+
+    - name: "Install curl"
+      package:
+        name: curl
+        state: present
+      when: ansible_distribution != "Amazon" and ansible_distribution_version != "2023"
+      register: package_status
+      until: "package_status is not failed"  
+      retries: 10
+      delay: 10
+
+    - name: "Install curl minimal in AL2023"
+      package:
+        name: curl-minimal
+        state: present
+      when: ansible_distribution == "Amazon" and ansible_distribution_version == "2023"
+      register: package_status
+      until: "package_status is not failed"  
+      retries: 10
+      delay: 10
 
 - include_vars: ../../vars/repo_vars.yml
 
