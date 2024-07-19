@@ -12,15 +12,12 @@
 
 
 
-  - name: Amazon Linux | Configure system settings
+  - name: Amazon Linux | Install Amazon extras
     block:
-      - name: Install Amazon extras in Amazon Linux 2
+      - name: Install Amazon extras
         yum:
           name: amazon-linux-extras
           state: present
-        when: 
-          - ansible_distribution == 'Amazon'
-          - ansible_distribution_major_version == '2'
 
       - name: Configure vm.max_map_count
         lineinfile:
