@@ -320,7 +320,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
 ```yaml
 ---
 # Certificates generation
-  - hosts: aio
+  - hosts: wazuh_aio
     roles:
       - role: ../roles/wazuh/wazuh-indexer
         perform_installation: false
@@ -336,7 +336,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
     tags:
       - generate-certs
 # Single node
-  - hosts: aio
+  - hosts: wazuh_aio
     become: yes
     become_user: root
     roles:
@@ -363,7 +363,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
 ### Inventory file
 
 ```ini
-[aio]
+[wazuh_aio]
 <your server host>
 
 [all:vars]
