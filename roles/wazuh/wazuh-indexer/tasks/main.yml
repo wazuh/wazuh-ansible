@@ -1,29 +1,38 @@
 ---
-- include_vars: ../../vars/repo_vars.yml
+- name: Include repo vars
+  ansible.builtin.include_vars: ../../vars/repo_vars.yml
 
-- include_vars: ../../vars/repo.yml
+- name: Include repo vars (production)
+  ansible.builtin.include_vars: ../../vars/repo.yml
   when: packages_repository == 'production'
 
-- include_vars: ../../vars/repo_pre-release.yml
+- name: Include repo vars (pre-release)
+  ansible.builtin.include_vars: ../../vars/repo_pre-release.yml
   when: packages_repository == 'pre-release'
 
-- include_vars: ../../vars/repo_staging.yml
+- name: Include repo vars (staging)
+  ansible.builtin.include_vars: ../../vars/repo_staging.yml
   when: packages_repository == 'staging'
 
-- import_tasks: local_actions.yml
+- name: Import local actions tasks
+  ansible.builtin.import_tasks: local_actions.yml
   when:
     - generate_certs
 
-- block:
-    - import_tasks: RedHat.yml
+- name: Perform installation
+  when: perform_installation
+  block:
+    - name: Import RedHat tasks
+      ansible.builtin.import_tasks: RedHat.yml
       when: ansible_os_family == 'RedHat'
 
-    - import_tasks: Debian.yml
+    - name: Import Debian tasks
+      ansible.builtin.import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
 
     - name: Remove performance analyzer plugin from Wazuh indexer
       become: true
-      command: ./opensearch-plugin remove opensearch-performance-analyzer
+      ansible.builtin.command: ./opensearch-plugin remove opensearch-performance-analyzer
       ignore_errors: true
       args:
         chdir: /usr/share/wazuh-indexer/bin/
@@ -34,65 +43,66 @@
       changed_when: "remove_opensearch_performance_analyzer.rc == 0"
 
     - name: Remove Opensearch configuration file
-      file:
+      ansible.builtin.file:
         path: "{{ indexer_conf_path }}/opensearch.yml"
         state: absent
+        mode: "0644"
       tags: install
 
     - name: Copy Opensearch Configuration File
-      template:
+      ansible.builtin.template:
         src: "templates/opensearch.yml.j2"
         dest: "{{ indexer_conf_path }}/opensearch.yml"
         owner: root
         group: wazuh-indexer
-        mode: 0640
+        mode: "0640"
         force: yes
       tags: install
 
-    - include_tasks: security_actions.yml
+    - name: Include security actions
+      ansible.builtin.include_tasks: security_actions.yml
       tags:
         - security
 
-
     - name: Configure Wazuh indexer JVM memmory.
-      template:
+      ansible.builtin.template:
         src: "templates/jvm.options.j2"
         dest: "{{ indexer_conf_path }}/jvm.options"
         owner: root
         group: wazuh-indexer
-        mode: 0644
-        force: yes
-      notify: restart wazuh-indexer
+        mode: "0644"
+        force: true
+      notify: Restart wazuh-indexer
       tags: install
 
     - name: Ensure extra time for Wazuh indexer to start on reboots
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /usr/lib/systemd/system/wazuh-indexer.service
         regexp: '^TimeoutStartSec='
         line: "TimeoutStartSec={{ indexer_start_timeout }}"
-      become: yes
+      become: true
       tags: configure
 
     - name: Index files to remove
-      find:
+      ansible.builtin.find:
         paths: "{{ indexer_index_path }}"
         patterns: "*"
       register: files_to_delete
 
     - name: Remove Index Files
-      file:
+      ansible.builtin.file:
         path: "{{ item.path }}"
         state: absent
       with_items: "{{ files_to_delete.files }}"
 
     - name: Ensure Wazuh indexer started and enabled
-      service:
+      ansible.builtin.service:
         name: wazuh-indexer
         enabled: true
         state: started
 
     - name: Wait for Wazuh indexer API
-      uri:
+      ansible.builtin.uri:
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
@@ -111,7 +121,7 @@
         - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
 
     - name: Wait for Wazuh indexer API (Private IP)
-      uri:
+      ansible.builtin.uri:
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
         password: "{{ indexer_admin_password }}"
@@ -129,12 +139,12 @@
       when:
         - hostvars[inventory_hostname]['private_ip'] is defined and hostvars[inventory_hostname]['private_ip']
 
-    - import_tasks: "RMRedHat.yml"
+    - name: Import RMRedHat tasks
+      ansible.builtin.import_tasks: "RMRedHat.yml"
       when: ansible_os_family == "RedHat"
 
     - name: Reload systemd configuration
-      systemd:
+      ansible.builtin.systemd:
         daemon_reload: true
-      become: yes
-      notify: restart wazuh-indexer
-  when: perform_installation
+      become: true
+      notify: Restart wazuh-indexer
