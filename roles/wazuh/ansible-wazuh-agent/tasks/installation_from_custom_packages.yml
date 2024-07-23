@@ -7,6 +7,15 @@
       - ansible_os_family|lower == "debian"
       - wazuh_custom_packages_installation_agent_enabled
 
+  - name: Add RPM GPG key
+    ansible.builtin.rpm_key:
+      key: "{{ wazuh_custom_packages_installation_agent_rpm_gpg_key_url }}"
+    when:
+      - ansible_os_family|lower == "redhat"
+      - wazuh_custom_packages_installation_agent_enabled
+      - not (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8")
+      - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
+
   - name: Install Wazuh Agent from .rpm packages | yum
     yum:
       name: "{{ wazuh_custom_packages_installation_agent_rpm_url }}"
