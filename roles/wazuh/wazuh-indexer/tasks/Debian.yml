@@ -1,47 +1,45 @@
-
 ---
-
 - name: Update cache
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
 
 - name: Debian 9 (Stretch)
   when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
   block:
-
     - name: Install Wazuh indexer dependencies
-      apt:
+      ansible.builtin.apt:
         name: [
-          'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
+          'unzip', 'wget', 'curl', 'apt-transport-https', 'software-properties-common'
         ]
         state: present
 
 - name: Add Wazuh indexer repository
   block:
     - name: Add apt repository signing key
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ wazuh_repo.gpg }}"
         dest: "{{ wazuh_repo.path }}"
+        mode: "0644"
   
     - name: Import Wazuh repository GPG key
-      command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
+      ansible.builtin.command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
       args:
         creates: "{{ wazuh_repo.keyring_path }}"
 
     - name: Set permissions for Wazuh repository GPG key
-      file:
+      ansible.builtin.file:
         path: "{{ wazuh_repo.keyring_path }}"
-        mode: '0644'
+        mode: "0644"
 
     - name: Add Wazuh indexer repository
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: "{{ wazuh_repo.apt }}"
         state: present
-        filename: 'wazuh-indexer'
-        update_cache: yes
+        filename: "wazuh-indexer"
+        update_cache: true
 
 - name: Install Wazuh indexer
-  apt:
+  ansible.builtin.apt:
     name: wazuh-indexer={{ indexer_version }}-1
     state: present
   register: install
