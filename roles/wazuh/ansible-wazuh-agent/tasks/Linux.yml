@@ -236,6 +236,8 @@
     owner: root
     group: wazuh
     mode: 0640
+  vars:
+    local_internal_options: '{{ wazuh_agent_local_options_defaults | combine(wazuh_agent_local_options) }}'
   notify: restart wazuh-agent
   tags:
     - init
