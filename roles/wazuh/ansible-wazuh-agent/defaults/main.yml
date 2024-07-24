@@ -374,3 +374,8 @@ wazuh_agent_config_defaults:
 
   labels: '{{ wazuh_agent_labels }}'
   enrollment: '{{ wazuh_agent_enrollment }}'
+
+# additional configuration options for the internal_options.conf file
+wazuh_agent_local_options: {}
+wazuh_agent_local_options_defaults:
+  'logcollector.remote_commands': '1'
