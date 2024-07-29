@@ -1,6 +1,7 @@
 ---
 - name: restart wazuh-agent
   service: name=wazuh-agent state=restarted enabled=yes
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Windows | Restart Wazuh Agent
   win_service: name=WazuhSvc start_mode=auto state=restarted
