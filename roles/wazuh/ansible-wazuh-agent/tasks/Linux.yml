@@ -261,6 +261,7 @@
     enabled: true
     state: started
   tags: config
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - include_tasks: "RMRedHat.yml"
   when:
