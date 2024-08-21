@@ -18,7 +18,7 @@ dashboard_version: "4.10.0"
 # API credentials
 wazuh_api_credentials:
   - id: "default"
-    url: "https://localhost"
+    url: "https://127.0.0.1"
     port: 55000
     username: "wazuh"
     password: "wazuh"
