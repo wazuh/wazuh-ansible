@@ -5,9 +5,22 @@
 - include_tasks: "Debian.yml"
   when: ansible_os_family == "Debian"
 
+- name: Linux | Get installed wazuh-agent version
+  ansible.builtin.package_facts:
+    manager: auto
+
 - include_tasks: "installation_from_custom_packages.yml"
   when:
     - wazuh_custom_packages_installation_agent_enabled
+
+- name: Linux CentOS/RedHat | Version unlock wazuh-agent
+  community.general.yum_versionlock:
+    name: "wazuh-agent"
+    state: absent
+  when:
+    - ansible_os_family|lower == "redhat"
+    - "'wazuh-agent' in ansible_facts.packages"
+    - not ansible_facts.packages['wazuh-agent'][0]['version'].startswith(wazuh_agent_version)
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
   yum:
@@ -20,6 +33,22 @@
   tags:
     - init
 
+- name: Linux CentOS/RedHat | Version lock wazuh-agent
+  community.general.yum_versionlock:
+    name: "wazuh-agent"
+    state: present
+  when:
+    - ansible_os_family|lower == "redhat"
+
+- name: Linux Debian | Version unlock wazuh-agent
+  dpkg_selections:
+    name: "wazuh-agent"
+    selection: install
+  when:
+    - ansible_os_family|lower != "redhat"
+    - "'wazuh-agent' in ansible_facts.packages"
+    - not ansible_facts.packages['wazuh-agent'][0]['version'].startswith(wazuh_agent_version)
+
 - name: Linux Debian | Install wazuh-agent
   apt:
     name: "wazuh-agent={{ wazuh_agent_version }}-*"
@@ -31,6 +60,13 @@
     - not ansible_check_mode
   tags:
     - init
+
+- name: Linux Debian | Version lock wazuh-agent
+  dpkg_selections:
+    name: "wazuh-agent"
+    selection: hold
+  when:
+    - ansible_os_family|lower != "redhat"
 
 - name: Linux | Check if client.keys exists
   stat:
