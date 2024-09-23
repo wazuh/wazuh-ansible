@@ -284,7 +284,7 @@
     {% endif %}
 
     <!-- Files/directories to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore is defined and (ansible_system == "Linux" or ansible_system == "Darwin") %}    
+    {% if wazuh_agent_config.syscheck.ignore is defined and (ansible_system == "Linux" or ansible_system == "Darwin") %}
     {% for ignore in wazuh_agent_config.syscheck.ignore %}
     <ignore>{{ ignore }}</ignore>
     {% endfor %}
@@ -378,6 +378,10 @@
     {% endif %}
   </localfile>
   {% endfor %}
+  <localfile>
+    <log_format>journald</log_format>
+    <location>journald</location>
+  </localfile>
   {% endif %}
 
   {% if ansible_system == "Darwin" %}
