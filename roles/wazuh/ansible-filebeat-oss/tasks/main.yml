@@ -31,7 +31,7 @@
   tags:
   - install
   - init
-  until: "install is not failed"  
+  until: "install is not failed"
   retries: 10
   delay: 10
   when: ansible_os_family == 'Debian'
