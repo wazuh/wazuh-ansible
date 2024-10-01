@@ -50,7 +50,7 @@ wazuh_agent_config_overlay: yes
 
 # This is a middle ground between breaking existing uses of wazuh_agent_nat
 # and allow working with agents having several network interfaces
-wazuh_agent_address: '{{ "any" if wazuh_agent_nat else ansible_default_ipv4.address }}'
+wazuh_agent_address: '{{ "any" if wazuh_agent_nat else ansible_facts.default_ipv4.address }}'
 
 # List of managers. The first one with register variable declared *and* set to true
 # is the one used to register the agent. Otherwise, the first one in the list will be used.

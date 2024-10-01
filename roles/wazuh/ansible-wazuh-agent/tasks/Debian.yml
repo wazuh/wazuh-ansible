@@ -22,7 +22,7 @@
     state: present
   register: wazuh_agent_ca_package_install
   until: wazuh_agent_ca_package_install is succeeded
-  when: not (ansible_distribution == "Debian" and ansible_distribution_major_version in ['11'])
+  when: not (ansible_facts.distribution == "Debian" and ansible_facts.distribution_major_version in ['11'])
 
 - name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
   become: true
@@ -34,8 +34,8 @@
     executable: /bin/bash
   changed_when: false
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version | int == 14
+    - ansible_facts.distribution == "Ubuntu"
+    - ansible_facts.distribution_major_version | int == 14
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Download Wazuh repository key
@@ -43,13 +43,13 @@
     url: "{{ wazuh_agent_config.repo.gpg }}"
     dest: "{{ wazuh_agent_config.repo.path }}"
   when:
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Import Wazuh GPG key
   command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_agent_config.repo.keyring_path }} --import {{ wazuh_agent_config.repo.path }}"
   when:
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_agent_enabled
   args:
     creates: "{{ wazuh_agent_config.repo.keyring_path }}"
@@ -59,7 +59,7 @@
     path: "{{ wazuh_agent_config.repo.keyring_path }}"
     mode: '0644'
   when:
-    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
@@ -74,7 +74,7 @@
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 - name: Debian/Ubuntu | Install OpenJDK-8 repo
   apt_repository:
@@ -82,7 +82,7 @@
     state: present
     update_cache: true
   when:
-    - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
 
 - when:
     - wazuh_agent_config.cis_cat.disable == 'no'

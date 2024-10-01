@@ -19,8 +19,8 @@
           name: amazon-linux-extras
           state: present
         when: 
-          - ansible_distribution == 'Amazon'
-          - ansible_distribution_major_version == '2'
+          - ansible_facts.distribution == 'Amazon'
+          - ansible_facts.distribution_major_version == '2'
 
       - name: Configure vm.max_map_count
         lineinfile:
@@ -35,7 +35,7 @@
         become: yes
 
     when:
-      - ansible_distribution == 'Amazon'
+      - ansible_facts.distribution == 'Amazon'
 
   - name: RedHat/CentOS/Fedora | Install Indexer dependencies
     yum:
