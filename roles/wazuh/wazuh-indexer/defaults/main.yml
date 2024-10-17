@@ -1,6 +1,6 @@
 ---
 # Cluster Settings
-indexer_version: 4.10.2
+indexer_version: 5.0.0
 
 single_node: false
 indexer_node_name: node-1
@@ -48,3 +48,6 @@ generate_certs: true
 perform_installation: true
 
 indexer_nolog_sensible: true
+
+# Docker image for certificates generation on macOS
+wazuh_certs_tool_docker: "wazuh/wazuh-cert-tool:{{ indexer_version }}"
