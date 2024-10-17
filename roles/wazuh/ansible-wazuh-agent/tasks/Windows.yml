@@ -89,7 +89,7 @@
 
 - name: Windows | Installing agent configuration (ossec.conf)
   template: # noqa 208
-    src: var-ossec-etc-ossec-agent.conf.j2
+    src: "{{ wazuh_agent_ossec_configuration_template }}"
     dest: "{{ wazuh_agent_win_path }}ossec.conf"
   notify: Windows | Restart Wazuh Agent
   tags:
@@ -97,7 +97,7 @@
 
 - name: Windows | Installing local_internal_options.conf
   template:
-    src: var-ossec-etc-local-internal-options.conf.j2
+    src: "{{ wazuh_agent_ossec_local_internal_options_template }}"
     dest: "{{ wazuh_agent_win_path }}local_internal_options.conf"
   notify: Windows | Restart Wazuh Agent
   tags:
