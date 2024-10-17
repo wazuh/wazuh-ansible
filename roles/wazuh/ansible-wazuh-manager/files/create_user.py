@@ -29,7 +29,7 @@ except Exception as e:
 def read_user_file(path=USER_FILE_PATH):
     with open(path) as user_file:
         data = json.load(user_file)
-        return data["username"], data["password"]
+        return data
 
 
 def db_users():
@@ -66,36 +66,39 @@ if __name__ == "__main__":
     if not os.path.exists(USER_FILE_PATH):
         # abort if no user file detected
         sys.exit(0)
-    username, password = read_user_file()
+    admin_users = read_user_file()
 
     # create RBAC database
     check_database_integrity()
 
     initial_users = db_users()
-    if username not in initial_users:
-        # create a new user
-        create_user(username=username, password=password)
-        users = db_users()
-        uid = users[username]
-        roles = db_roles()
-        rid = roles["administrator"]
-        set_user_role(
-            user_id=[
-                str(uid),
-            ],
-            role_ids=[
-                str(rid),
-            ],
-        )
-    else:
-        # modify an existing user ("wazuh" or "wazuh-wui")
-        uid = initial_users[username]
-        update_user(
-            user_id=[
-                str(uid),
-            ],
-            password=password,
-        )
+    for user in admin_users:
+        username = user["username"]
+        password = user["password"]
+        if username not in initial_users:
+            # create a new user
+            create_user(username=username, password=password)
+            users = db_users()
+            uid = users[username]
+            roles = db_roles()
+            rid = roles["administrator"]
+            set_user_role(
+                user_id=[
+                    str(uid),
+                ],
+                role_ids=[
+                    str(rid),
+                ],
+            )
+        else:
+            # modify an existing user ("wazuh" or "wazuh-wui")
+            uid = initial_users[username]
+            update_user(
+                user_id=[
+                    str(uid),
+                ],
+                password=password,
+            )
     # disable unused default users
     #for def_user in ['wazuh', 'wazuh-wui']:
     #    if def_user != username:
