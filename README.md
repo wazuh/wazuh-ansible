@@ -206,10 +206,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
         - role: "../roles/wazuh/ansible-filebeat-oss"
-          filebeat_node_name: node-4
       become: yes
       become_user: root
       vars:
+        filebeat_node_name: node-4
         wazuh_manager_config:
           connection:
               - type: 'secure'
@@ -238,10 +238,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
         - role: "../roles/wazuh/ansible-filebeat-oss"
-          filebeat_node_name: node-5
       become: yes
       become_user: root
       vars:
+        filebeat_node_name: node-5
         wazuh_manager_config:
           connection:
               - type: 'secure'
