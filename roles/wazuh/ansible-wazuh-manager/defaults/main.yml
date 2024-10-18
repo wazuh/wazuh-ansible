@@ -272,7 +272,7 @@ wazuh_manager_syslog_outputs:
 wazuh_manager_integrations:
   # slack
   - name: null
-    hook_url: '<hook_url>'
+    hook_url: 'https://hook.slack.com/webhook/this-is-a-test'
     alert_level: 10
     alert_format: 'json'
     rule_id: null
