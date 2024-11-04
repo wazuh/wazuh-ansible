@@ -16,6 +16,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
+| v5.0.0        |         |        |
 | v4.10.2       |         |        |
 | v4.10.1       |         |        |
 | v4.10.0       |         |        |
@@ -206,10 +207,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
         - role: "../roles/wazuh/ansible-filebeat-oss"
-          filebeat_node_name: node-4
       become: yes
       become_user: root
       vars:
+        filebeat_node_name: node-4
         wazuh_manager_config:
           connection:
               - type: 'secure'
@@ -238,10 +239,10 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       roles:
         - role: "../roles/wazuh/ansible-wazuh-manager"
         - role: "../roles/wazuh/ansible-filebeat-oss"
-          filebeat_node_name: node-5
       become: yes
       become_user: root
       vars:
+        filebeat_node_name: node-5
         wazuh_manager_config:
           connection:
               - type: 'secure'
