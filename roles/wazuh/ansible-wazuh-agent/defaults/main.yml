@@ -1,5 +1,5 @@
 ---
-wazuh_agent_version: 4.9.2
+wazuh_agent_version: 4.10.0
 
 # Custom packages installation
 
