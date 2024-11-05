@@ -18,7 +18,7 @@
       package:
         name: curl
         state: present
-      when: ansible_distribution != "Amazon" and ansible_distribution_version != "2023"
+      when: ansible_facts.distribution != "Amazon" and ansible_facts.distribution_version != "2023"
       register: package_status
       until: "package_status is not failed"  
       retries: 10
@@ -28,7 +28,7 @@
       package:
         name: curl-minimal
         state: present
-      when: ansible_distribution == "Amazon" and ansible_distribution_version == "2023"
+      when: ansible_facts.distribution == "Amazon" and ansible_facts.distribution_version == "2023"
       register: package_status
       until: "package_status is not failed"  
       retries: 10
@@ -53,10 +53,10 @@
   when: wazuh_manager_config_overlay | bool
 
 - include_tasks: "RedHat.yml"
-  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_distribution == "Amazon")
+  when: (ansible_os_family == "RedHat" and ansible_facts.distribution_major_version|int > 5) or (ansible_os_family  == "RedHat" and ansible_facts.distribution == "Amazon")
 
 - include_tasks: "Debian.yml"
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 - name: Generate the wazuh-keystore (username)
   shell: >
@@ -79,8 +79,8 @@
     name: expect
     state: "{{ wazuh_manager_package_state }}"
   when:
-    - not (ansible_os_family|lower == "redhat" and ansible_distribution_major_version|int < 6) and
-      not (ansible_distribution|lower == "centos" and ansible_distribution_major_version|int == 8)
+    - not (ansible_os_family|lower == "redhat" and ansible_facts.distribution_major_version|int < 6) and
+      not (ansible_facts.distribution|lower == "centos" and ansible_facts.distribution_major_version|int == 8)
   tags: init
 
 - name: Generate SSL files for authd

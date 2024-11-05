@@ -94,7 +94,7 @@
     register: result
     until: result.rc == 0
 
-  when: inventory_hostname == ansible_play_hosts[0]
+  when: inventory_hostname == ansible_facts.play_hosts[0]
 
 - name: Create custom user
   uri:
@@ -116,4 +116,4 @@
   until: result.status in [200,201,401]
   when:
     - indexer_custom_user is defined and indexer_custom_user
-    - inventory_hostname == ansible_play_hosts[0]
+    - inventory_hostname == ansible_facts.play_hosts[0]

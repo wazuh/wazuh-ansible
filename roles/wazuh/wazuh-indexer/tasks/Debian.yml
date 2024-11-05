@@ -6,7 +6,7 @@
     update_cache: yes
 
 - name: Debian 9 (Stretch)
-  when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
+  when: (ansible_facts['distribution'] == "Debian" and ansible_facts.facts['distribution_major_version'] == "9")
   block:
 
     - name: Install Wazuh indexer dependencies
