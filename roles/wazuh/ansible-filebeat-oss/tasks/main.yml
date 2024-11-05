@@ -8,10 +8,10 @@
   when: packages_repository == 'pre-release'
 
 - include_tasks: RedHat.yml
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts.os_family == 'RedHat'
 
 - include_tasks: Debian.yml
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts.os_family == 'Debian'
 
 - name: Install Filebeat | Redhat
   yum:
@@ -21,7 +21,7 @@
   tags:
   - install
   - init
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts.os_family == 'RedHat'
 
 - name: Install Filebeat | Debian
   apt:
@@ -31,10 +31,10 @@
   tags:
   - install
   - init
-  until: "install is not failed"  
+  until: "install is not failed"
   retries: 10
   delay: 10
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts.os_family == 'Debian'
 
 - name: Checking if Filebeat Module folder file exists
   stat:
@@ -83,7 +83,7 @@
     enabled: true
 
 - include_tasks: "RMRedHat.yml"
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts.os_family == "RedHat"
 
 - include_tasks: "RMDebian.yml"
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"

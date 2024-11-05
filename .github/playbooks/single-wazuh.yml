@@ -34,4 +34,4 @@
           - gpg-agent
         state: present
         update_cache: yes
-      when: ansible_distribution == "Ubuntu"
+      when: ansible_facts.os_family == "Ubuntu"
