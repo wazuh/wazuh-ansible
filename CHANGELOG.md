@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Update to [Wazuh v5.0.0](https://github.com/wazuh/wazuh/blob/v5.0.0/CHANGELOG.md#500)
+- Enhance PR check workflows (All-in-one and Distributed) ([#1449](https://github.com/wazuh/wazuh-ansible/pull/1457)) \- (Workflows)
 
 ## [v4.10.2]
 
