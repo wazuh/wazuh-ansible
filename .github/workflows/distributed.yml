@@ -245,7 +245,7 @@ jobs:
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Ansible Playbook run Wazuh Distributed Production Ready
         run: |
-          ansible-playbook ./playbooks/wazuh-production-ready.yml -b -K \
+          ansible-playbook ./.github/playbooks/distributed-wazuh.yml -b -K \
           -i $ALLOCATOR_PATH/inventory_all \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
