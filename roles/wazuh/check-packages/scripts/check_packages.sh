@@ -58,23 +58,29 @@ replaceVars(){
 }
 
 ## Call the checkPackages function for each repository
-if checkPackages "production"; then
-    echo "production"
-    replaceVars "production"
-    exit 0
-elif checkPackages "pre-release"; then
-    echo "pre-release"
-    replaceVars "pre-release"
-    exit 0
-elif checkPackages "production"; then
-    echo "production"
-    replaceVars "production"
-    exit 0
-elif checkPackages "staging"; then
-    echo "staging"
-    replaceVars "staging"
-    exit 0
-else
-    echo "Failed"
-    exit 1
-fi
+# if checkPackages "production"; then
+#     echo "production"
+#     replaceVars "production"
+#     exit 0
+# elif checkPackages "pre-release"; then
+#     echo "pre-release"
+#     replaceVars "pre-release"
+#     exit 0
+# elif checkPackages "production"; then
+#     echo "production"
+#     replaceVars "production"
+#     exit 0
+# elif checkPackages "staging"; then
+#     echo "staging"
+#     replaceVars "staging"
+#     exit 0
+# else
+#     echo "Failed"
+#     exit 1
+# fi
+
+# Force to use pre-release
+
+echo "pre-release"
+replaceVars "pre-release"
+exit 0
