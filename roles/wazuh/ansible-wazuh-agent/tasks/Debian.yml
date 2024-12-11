@@ -1,10 +1,10 @@
 ---
 - name: Update apt-get repo and cache
-  apt: 
+  apt:
     update_cache: yes
     force_apt_get: yes
     cache_valid_time: 3600
-  
+
 - name: Debian/Ubuntu | Install ca-certificates and gnupg
   apt:
     name:
@@ -30,7 +30,7 @@
     set -o pipefail
     curl -s {{ wazuh_agent_config.repo.gpg }} | apt-key add -
   args:
-    warn: false
+    # warn: false
     executable: /bin/bash
   changed_when: false
   when:
