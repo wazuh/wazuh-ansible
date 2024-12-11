@@ -25,7 +25,7 @@ on:
   pull_request:
   release:
 env:
-  COMPOSITE_NAME: "linux-SUBNAME-amd64"
+  COMPOSITE_NAME: "linux-SUBNAME-arm64"
   ALLOCATOR_PATH: "/tmp/allocator_instance"
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 permissions:
