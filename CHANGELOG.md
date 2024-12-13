@@ -19,6 +19,10 @@ All notable changes to this project will be documented in this file.
 
 - Update to [Wazuh v4.10.0](https://github.com/wazuh/wazuh/blob/v4.10.0/CHANGELOG.md#v4100)
 
+### Fixed
+
+- Fix cert gen tool version variable assignment ([#1443](https://github.com/wazuh/wazuh-ansible/pull/1443))
+
 ## [v4.9.2]
 
 ### Added
