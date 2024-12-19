@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
+- Update AWS-credentials GHA action version ([#1480](https://github.com/wazuh/wazuh-ansible/pull/1480)) \- (PR Checks Workflows)
 
 ## [v4.10.2]
 
