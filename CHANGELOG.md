@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 
 - Update to [Wazuh v4.10.3](https://github.com/wazuh/wazuh/blob/v4.10.3/CHANGELOG.md#v4103)
 
+### Changed
+
+- Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
+
 ## [v4.10.2]
 
 ### Added
