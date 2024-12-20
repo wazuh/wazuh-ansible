@@ -15,7 +15,7 @@ wazuh_macos_arm_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.arm64.pkg
 wazuh_macos_intel_package_url: "https://packages-dev.wazuh.com/staging/macos/{{ wazuh_macos_intel_package_name }}"
 wazuh_macos_arm_package_url: "https://packages-dev.wazuh.com/staging/macos/{{ wazuh_macos_arm_package_name }}"
 
-certs_gen_tool_version: "4.10"
+certs_gen_tool_version: "4.12"
 
 # Url of certificates generator tool
 certs_gen_tool_url: "https://packages-dev.wazuh.com/{{ certs_gen_tool_version }}/wazuh-certs-tool.sh"
