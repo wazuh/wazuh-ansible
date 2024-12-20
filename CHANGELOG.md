@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Update to [Wazuh v5.0.0](https://github.com/wazuh/wazuh/blob/v5.0.0/CHANGELOG.md#500)
-- Enhance PR check workflows (All-in-one and Distributed) ([#1449](https://github.com/wazuh/wazuh-ansible/pull/1457)) \- (Workflows)
+- Enhance PR check workflows (All-in-one and Distributed) ([#1457](https://github.com/wazuh/wazuh-ansible/pull/1457)) \- (Workflows)
+
+### Changed
+
+- Update AWS credentials actions in GHA workflows to use 'v4' instead of 'v3' ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492)) \- (Workflows)
 
 ## [v4.10.2]
 
