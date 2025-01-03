@@ -1,7 +1,7 @@
 ---
 filebeat_version: 7.10.2
 
-wazuh_template_branch: v4.10.0
+wazuh_template_branch: v5.0.0
 
 filebeat_node_name: node-1
 
@@ -23,7 +23,7 @@ local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 
 filebeatrepo:
   keyring_path: '/usr/share/keyrings/wazuh.gpg'
-  apt: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main"
-  yum: 'https://packages.wazuh.com/4.x/yum/'
+  apt: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/5.x/apt/ stable main"
+  yum: 'https://packages.wazuh.com/5.x/yum/'
   gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
   path: '/tmp/WAZUH-GPG-KEY'
