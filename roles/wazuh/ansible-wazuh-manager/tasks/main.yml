@@ -326,10 +326,8 @@
     - name: Execute create_user script
       script:
         chdir: "{{ wazuh_dir }}/framework/scripts/"
-        cmd: create_user.py --username "{{ item.username }}" --password "{{ item.password }}"
+        cmd: create_user.py
         executable: "{{ wazuh_dir }}/framework/python/bin/python3"
-      with_items:
-        - "{{ wazuh_api_users }}"
 
     - name: Delete create_user script
       file:
