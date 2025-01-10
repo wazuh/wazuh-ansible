@@ -11,6 +11,24 @@ All notable changes to this project will be documented in this file.
 
 - Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
 
+## [4.11.0]
+
+### Added
+
+- none
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [v4.10.1]
 
 ### Added
