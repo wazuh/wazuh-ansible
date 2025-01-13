@@ -17,6 +17,7 @@
   yum:
     name: "filebeat-{{ filebeat_version }}"
     state: present
+    lock_timeout: 200
   register: install
   tags:
   - install
