@@ -27,7 +27,7 @@
 
 - name: Copy Configuration File
   template:
-    src: "templates/opensearch_dashboards.yml.j2"
+    src: "{{ wazuh_dashboard_configuration_template }}"
     dest: "{{ dashboard_conf_path }}/opensearch_dashboards.yml"
     group: wazuh-dashboard
     owner: wazuh-dashboard
@@ -75,7 +75,7 @@
 
 - name: Configure Wazuh Dashboard Plugin
   template:
-    src: wazuh.yml.j2
+    src: "{{ wazuh_dashboard_wazuh_plugin_template }}"
     dest: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
     owner: wazuh-dashboard
     group: wazuh-dashboard
