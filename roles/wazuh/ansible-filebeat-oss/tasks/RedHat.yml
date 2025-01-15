@@ -1,9 +1,0 @@
----
-- name: RedHat/CentOS/Fedora/Amazon Linux | Install Filebeats repo
-  yum_repository:
-    name: wazuh_repo
-    description: Wazuh Repo
-    baseurl: "{{ filebeatrepo.yum }}"
-    gpgkey: "{{ filebeatrepo.gpg }}"
-    gpgcheck: true
-  changed_when: false
