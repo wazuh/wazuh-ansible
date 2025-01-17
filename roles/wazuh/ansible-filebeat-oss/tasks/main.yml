@@ -17,6 +17,7 @@
   yum:
     name: "filebeat-{{ filebeat_version }}"
     state: present
+    lock_timeout: 200
   register: install
   tags:
   - install
@@ -31,7 +32,7 @@
   tags:
   - install
   - init
-  until: "install is not failed"  
+  until: "install is not failed"
   retries: 10
   delay: 10
   when: ansible_os_family == 'Debian'
