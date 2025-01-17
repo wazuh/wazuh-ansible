@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ## Deleted
 
-- Delete several files and configurations no longer needed ([#1505](https://github.com/wazuh/wazuh-ansible/pull/1505) \- (Overhaul)
+- Ansible MVP - Initial project cleanup and setup ([#1505](https://github.com/wazuh/wazuh-ansible/pull/1505) \- (Overhaul)
 
 ## [v4.10.2]
 
