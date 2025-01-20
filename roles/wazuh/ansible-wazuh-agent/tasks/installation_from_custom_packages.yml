@@ -11,6 +11,7 @@
     yum:
       name: "{{ wazuh_custom_packages_installation_agent_rpm_url }}"
       state: present
+      lock_timeout: 200
     when:
       - ansible_os_family|lower == "redhat"
       - wazuh_custom_packages_installation_agent_enabled
