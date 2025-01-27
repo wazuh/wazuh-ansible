@@ -1,0 +1,196 @@
+---
+
+- name: Cert-gen | Check if certificates already exists
+  stat:
+    path: "{{ local_configs_path }}/certificates"
+  register: certificates_folder
+
+- name: Cert-gen | Generate certificates for Wazuh cluster locally
+  block:
+    - name: Cert-gen | Create local temporary directory for certificates generation
+      file:
+        path: "{{ local_configs_path }}/certificates"
+        mode: 0755
+        state: directory
+
+    - name: Cert-gen | Check that the generation tool exists
+      stat:
+        path: "{{ local_configs_path }}/certificates/wazuh-certs-tool.sh"
+      register: tool_package
+
+    - name: Cert-gen | Download certificates generation tool
+      get_url:
+        url: "{{ certs_gen_tool_url }}"
+        dest: "{{ local_configs_path }}/certificates/wazuh-certs-tool.sh"
+      when: not tool_package.stat.exists
+
+    - name: Cert-gen | Create base config.yml file
+      copy:
+        dest: "{{ local_configs_path }}/certificates/config.yml"
+        content: |
+          nodes:
+            indexer:
+            server:
+            dashboard:
+        force: true
+        mode: 0644
+
+    - name: Cert-gen | Add indexer nodes section
+      blockinfile:
+        path: "{{ local_configs_path }}/certificates/config.yml"
+        insertafter: "  indexer:"
+        marker: ""
+        block: |
+          {% for (key,value) in instances.items() %}
+          {%- if (value.role is defined and value.role == 'indexer') %}
+              - name: {{ value.name }}
+                ip: {{ value.ip }}
+          {%- endif %}
+          {% endfor %}
+
+    - name: Cert-gen | Add server nodes section
+      blockinfile:
+        path: "{{ local_configs_path }}/certificates/config.yml"
+        insertafter: "  server:"
+        marker: ""
+        block: |
+          {% for (key,value) in instances.items() %}
+          {%- if (value.role is defined and value.role == 'wazuh') %}
+            - name: {{ value.name }}
+              ip: {{ value.ip }}
+          {%- if (value.node_type is defined and value.node_type == 'master') %}
+              node_type: master
+          {%- elif (value.node_type is defined and value.node_type == 'worker') %}
+              node_type: worker
+          {%- endif %}
+          {%- endif %}
+          {% endfor %}
+
+    - name: Cert-gen | Add dashboard nodes section
+      blockinfile:
+        path: "{{ local_configs_path }}/certificates/config.yml"
+        insertafter: "  dashboard:"
+        marker: ""
+        block: |
+          {% for (key,value) in instances.items() %}
+          {%- if (value.role is defined and value.role == 'dashboard') %}
+            - name: {{ value.name }}
+              ip: {{ value.ip }}
+          {%- endif %}
+          {% endfor %}
+
+    - name: Cert-gen | Generate certificates
+      command: >-
+        bash {{ local_configs_path }}/certificates/wazuh-certs-tool.sh -A
+
+  run_once: true
+  delegate_to: localhost
+  become: no
+  when:
+    - not certificates_folder.stat.exists
+    - generate_certs
+
+- name: Cert-gen | Copy certificates to each Wazuh indexer node
+  copy:
+    src: "{{ local_configs_path }}/certificates/wazuh-certificates/{{ item }}"
+    dest: "/etc/wazuh-indexer/certs/"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 0400
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ indexer_node_name }}-key.pem"
+    - "{{ indexer_node_name }}.pem"
+    - admin-key.pem
+    - admin.pem
+  when: generate_certs
+
+- name: OpenSearch Config | Set up configuration files
+  block:
+    - name: OpenSearch Config | Remove Opensearch configuration file
+      file:
+        path: "/etc/wazuh-indexer/opensearch.yml"
+        state: absent
+      tags: install
+
+    - name: OpenSearch Config | Create base opensearch.yml file
+      copy:
+        dest: "/etc/wazuh-indexer/opensearch.yml"
+        owner: root
+        group: wazuh-indexer
+        mode: 0640
+        force: yes
+        content: |
+          network.host: {{ indexer_network_host }}
+          node.name: {{ indexer_node_name }}
+          {% if single_node == true %}
+          discovery.type: single-node
+          {% endif %}
+
+          cluster.name: wazuh
+
+          ### http.port: 9200-9299
+          ### transport.tcp.port: 9300-9399
+          node.max_local_storage_nodes: "3"
+          path.data: /var/lib/wazuh-indexer
+          path.logs: /var/log/wazuh-indexer
+
+    - name: OpenSearch Config | Add cluster configuration
+      blockinfile:
+        path: "/etc/wazuh-indexer/opensearch.yml"
+        marker: ""
+        block: |
+          cluster.initial_master_nodes:
+          {% for (key,value) in instances.items() %}
+            - "{{ value.name }}"
+          {% endfor %}
+
+          discovery.seed_hosts:
+          {% for (key,value) in instances.items() %}
+            - "{{ value.ip }}"
+          {% endfor %}
+      when: not single_node
+
+    - name: OpenSearch Config | Add SSL configuration
+      blockinfile:
+        path: "/etc/wazuh-indexer/opensearch.yml"
+        marker: ""
+        block: |
+          plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}.pem
+          plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}-key.pem
+          plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
+          plugins.security.ssl.transport.pemcert_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}.pem
+          plugins.security.ssl.transport.pemkey_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}-key.pem
+          plugins.security.ssl.transport.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
+          plugins.security.ssl.http.enabled: true
+          plugins.security.ssl.transport.enforce_hostname_verification: false
+          plugins.security.ssl.transport.resolve_hostname: false
+
+    - name: OpenSearch Config | Add security configuration
+      blockinfile:
+        path: "/etc/wazuh-indexer/opensearch.yml"
+        marker: ""
+        block: |
+          plugins.security.authcz.admin_dn:
+          - "CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US"
+          plugins.security.check_snapshot_restore_write_privileges: true
+          plugins.security.enable_snapshot_restore_privilege: true
+          plugins.security.nodes_dn:
+          {% for (key,value) in instances.items() %}
+          - "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
+          {% endfor %}
+          plugins.security.restapi.roles_enabled:
+          - "all_access"
+          - "security_rest_api_access"
+
+    - name: OpenSearch Config | Add system indices configuration
+      blockinfile:
+        path: "/etc/wazuh-indexer/opensearch.yml"
+        marker: ""
+        block: |
+          plugins.security.system_indices.enabled: true
+          plugins.security.system_indices.indices: [".opendistro-alerting-config", ".opendistro-alerting-alert*", ".opendistro-anomaly-results*", ".opendistro-anomaly-detector*", ".opendistro-anomaly-checkpoints", ".opendistro-anomaly-detection-state", ".opendistro-reports-*", ".opendistro-notifications-*", ".opendistro-notebooks", ".opensearch-observability", ".opendistro-asynchronous-search-response*", ".replication-metadata-store"]
+
+          ### Option to allow Filebeat-oss 7.10.2 to work ###
+          compatibility.override_main_response_version: true

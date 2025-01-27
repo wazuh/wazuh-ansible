@@ -1,0 +1,7 @@
+
+wazuh_indexer_url_amd64_deb: "https://packages.wazuh.com/{{ wazuh_major_version }}/apt/pool/main/w/wazuh-indexer/wazuh-indexer_{{ wazuh_full_version }}-{{ wazuh_package_revision }}_amd64.deb"
+wazuh_indexer_url_arm64_deb: "https://packages.wazuh.com/{{ wazuh_major_version }}/apt/pool/main/w/wazuh-indexer/wazuh-indexer_{{ wazuh_full_version }}-{{ wazuh_package_revision }}_arm64.deb"
+wazuh_indexer_url_amd64_rpm: "https://packages.wazuh.com/{{ wazuh_major_version }}/yum/wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}.x86_64.rpm"
+wazuh_indexer_url_arm64_rpm: "https://packages.wazuh.com/{{ wazuh_major_version }}/yum/wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}.aarch64.rpm"
+
+certs_gen_tool_url: "https://packages.wazuh.com/{{ wazuh_major_minor_version }}/wazuh-certs-tool.sh"
