@@ -1,7 +1,0 @@
-wazuh_agent_url_amd64_deb: ""
-wazuh_agent_url_arm64_deb: ""
-wazuh_agent_url_amd64_rpm: ""
-wazuh_agent_url_arm64_rpm: ""
-wazuh_agent_url_amd64_macos: ""
-wazuh_agent_url_arm64_macos: ""
-wazuh_agent_url_win: ""

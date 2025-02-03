@@ -2,4 +2,4 @@
 
 wazuh_agent_package_download_path: "/tmp/wazuh-agent"
 wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
-wazuh_agent_package_name: "wazuh-agent-package"
+wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"

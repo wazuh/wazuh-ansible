@@ -20,39 +20,39 @@
   when:
     - ansible_architecture == "aarch64"
 
-- name: MacOS | Set deployment variables for Wazuh agent enrollment
-  block:
-    - name: MacOS | Ensure file for storing deployment variable(s) exists
-      ansible.builtin.file:
-        path: "/tmp/wazuh_envs"
-        state: touch
-        mode: '0644'
-
-    - name: MacOS | Set deployment variables for Wazuh agent enrollment (Cluster failover mode)
-      ansible.builtin.lineinfile:
-        path: "/tmp/wazuh_envs"
-        line: "WAZUH_MANAGER='{{ wazuh_server_addresses | join(',') }}' && WAZUH_REGISTRATION_SERVER='{{ wazuh_server_addresses[0] }}'"
-        create: yes
-        state: present
-      when: wazuh_server_addresses | length > 1
-
-    - name: MacOS | Set deployment variables for Wazuh agent enrollment (Single server mode)
-      ansible.builtin.lineinfile:
-        path: "/tmp/wazuh_envs"
-        line: "WAZUH_MANAGER='{{ wazuh_server_addresses[0] }}'"
-        create: yes
-        state: present
-      when: wazuh_server_addresses | length == 1
-
 - name: MacOS | Install Wazuh agent using installer
   command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
 
-- name: MacOS | Initialize Wazuh agent service
-  command: "launchctl load /Library/LaunchDaemons/com.wazuh.agent.plist"
+- name: MacOS | Initialize Wazuh agent service (MacOS 10.10+)
+  command: "launchctl bootstrap system /Library/LaunchDaemons/com.wazuh.agent.plist"
+  when: ansible_distribution_version is version('10.10', '>=')
 
-- name: MacOS | Pause for 10 seconds while Wazuh agent service initializes
+- name: MacOS | Load Wazuh agent service (MacOS < 10.10)
+  command: "launchctl load /Library/LaunchDaemons/com.wazuh.agent.plist"
+  when: ansible_distribution_version is version('10.10', '<')
+
+- name: Update Wazuh agent configuration with Wazuh server IP address
+  become: yes
+  lineinfile:
+    path: "/Library/Application Support/Wazuh agent.app/etc/wazuh-agent.yml"
+    regexp: '^  server_url: https://.*:27000'
+    line: '  server_url: https://{{ wazuh_server_addresses[0] }}:27000'
+    state: present
+
+- name: MacOS | Register Wazuh agent
+  command: "/Library/Application\\ Support/Wazuh\\ agent.app/bin/wazuh-agent --register-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none"
+
+- name: MacOS | Restart Wazuh agent service (MacOS 10.10+)
+  command: "launchctl kickstart -k system/com.wazuh.agent"
+  when: ansible_distribution_version is version('10.10', '>=')
+
+- name: MacOS | Restart Wazuh agent service (MacOS < 10.10)
+  command: "launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist && launchctl load /Library/LaunchDaemons/com.wazuh.agent.plist"
+  when: ansible_distribution_version is version('10.10', '<')
+
+- name: MacOS | Pause for 5 seconds while Wazuh agent service initializes
   pause:
-    seconds: 10
+    seconds: 5
 
 - name: MacOS | Verify Wazuh agent service is running
   shell: "launchctl list | grep com.wazuh.agent"
