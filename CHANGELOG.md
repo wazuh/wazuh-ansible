@@ -5,11 +5,29 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- none
+- None
 
 ### Changed
 
 - Add Yum lock timeout to Ansible task ([#1511](https://github.com/wazuh/wazuh-ansible/pull/1511))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.2]
+
+### Added
+
+- None
+
+### Changed
+
+- None
 
 ### Fixed
 
