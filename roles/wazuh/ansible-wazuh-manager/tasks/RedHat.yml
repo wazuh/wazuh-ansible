@@ -62,7 +62,10 @@
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
-  yum: name=java-1.8.0-openjdk state=present
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+    lock_timeout: 200
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
