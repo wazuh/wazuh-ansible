@@ -9,7 +9,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ## Branches
 
-- `master` branch contains the latest code, be aware of possible bugs on this branch.
+- `main` branch contains the latest code, be aware of possible bugs on this branch.
 - `stable` branch on correspond to the last Wazuh stable version.
 
 ## Compatibility Matrix
