@@ -1,0 +1,311 @@
+---
+name: Distributed-Wazuh-Test
+on:
+  workflow_dispatch:
+    inputs:
+      AUTOMATION_REFERENCE:
+        description: 'Branch or tag of the wazuh-automation repository'
+        required: true
+        default: 'main'
+      SYSTEMS:
+        description: 'Operating Systems (list of comma-separated quoted strings enclosed in square brackets)'
+        required: true
+        default: '["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+        type: string
+      VERBOSITY:
+        description: 'Verbosity level on playbooks execution'
+        required: true
+        default: '-v'
+        type: choice
+        options:
+          - -v
+          - -vv
+          - -vvv
+          - -vvvv
+  pull_request:
+  release:
+env:
+  COMPOSITE_NAME: "linux-SUBNAME-amd64"
+  ALLOCATOR_PATH: "/tmp/allocator_instance"
+  INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
+permissions:
+  id-token: write # JWT
+  contents: read # actions/checkout
+jobs:
+  setup-runner:
+    name: Setup runner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display workflow inputs
+        run: echo "${{ toJson(inputs) }}"
+      - name: Compute outputs
+        id: compute-outputs
+        run: |
+          # Set SYSTEMS_LIST
+          if [ "${{ inputs.SYSTEMS }}" != "null" && "${{ inputs.SYSTEMS }}" != "" ]; then
+            SYSTEMS_LIST=${{ inputs.SYSTEMS }}
+          else
+            SYSTEMS_LIST='["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+          fi
+          echo "SYSTEMS_JSON=$(echo $SYSTEMS_LIST | jq -c '.')" >> $GITHUB_OUTPUT
+          echo "Systems JSON: $SYSTEMS_JSON"
+
+          # Set WAZUH_TEMPLATE_BRANCH
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            WAZUH_TEMPLATE_BRANCH=${{ github.base_ref }}
+          else
+            WAZUH_TEMPLATE_BRANCH=${{ github.ref }}
+            # Remove refs/heads/ or refs/tags/ from the branch name
+            WAZUH_TEMPLATE_BRANCH=${WAZUH_TEMPLATE_BRANCH#refs/heads/}
+            WAZUH_TEMPLATE_BRANCH=${WAZUH_TEMPLATE_BRANCH#refs/tags/}
+          fi
+          echo "WAZUH_TEMPLATE_BRANCH=$WAZUH_TEMPLATE_BRANCH" >> $GITHUB_OUTPUT
+
+          # Set VERBOSITY
+          if [ "${{ inputs.VERBOSITY }}" != "null" && "${{ inputs.VERBOSITY }}" != "" ]; then
+            VERBOSITY=${{ inputs.VERBOSITY }}
+          else
+            VERBOSITY='-v'
+          fi
+          echo "VERBOSITY=$VERBOSITY" >> $GITHUB_OUTPUT
+          echo "Verbosity level: $VERBOSITY"
+      - name: Configure AWS credentials (assume role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          role-session-name:
+          aws-region: us-east-1
+      - name: Create common SSH key pair in the ALLOCATOR_PATH
+        id: create-ssh-key
+        run: |
+          mkdir -p $ALLOCATOR_PATH
+          key_name=gha_ansible_key_$(date +%s)
+          private_key_file=$ALLOCATOR_PATH/${key_name}
+          aws ec2 create-key-pair --key-name ${key_name} > key_pair_output.json
+          jq -r '.KeyMaterial' key_pair_output.json > ${private_key_file}
+
+          # Set PRIVATE_KEY_PATH output
+          echo "PRIVATE_KEY_PATH=${private_key_file}" >> $GITHUB_OUTPUT
+      - name: Upload artifact (ALLOCATOR_PATH directory)
+        uses: actions/upload-artifact@v4
+        with:
+          name: allocator-instance-ssh-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+    outputs:
+      SYSTEMS_JSON: ${{ steps.compute-outputs.outputs.SYSTEMS_JSON }}
+      VERBOSITY: ${{ steps.compute-outputs.outputs.VERBOSITY }}
+      PRIVATE_KEY_PATH: ${{ steps.create-ssh-key.outputs.PRIVATE_KEY_PATH }}
+      WAZUH_TEMPLATE_BRANCH: ${{ steps.compute-outputs.outputs.WAZUH_TEMPLATE_BRANCH }}
+  start-runner:
+    name: Provision instance cluster
+    runs-on: ubuntu-latest
+    needs: setup-runner
+    strategy:
+      fail-fast: false # all jobs will run even if one fails
+      matrix:
+        system: ${{ fromJson(needs.setup-runner.outputs.SYSTEMS_JSON) }}
+    steps:
+      - name: Configure AWS credentials (assume role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          role-session-name:
+          aws-region: us-east-1
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation/
+      - name: Download the (SSH) artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allocator-instance-ssh-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Install python and create virtual environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv
+          python3 -m pip install --upgrade pip
+          python3 -m venv venv
+          source venv/bin/activate
+      - name: Install and set allocator requirements
+        run: |
+          pip install -r wazuh-automation/deployability/deps/requirements.txt
+          pip install ansible-core==2.16
+          ansible-galaxy collection install community.general
+          ansible-galaxy collection install community.docker
+      - name: Set COMPOSITE_NAME variable
+        run: |
+          case "${{ matrix.system }}" in
+            "CentOS_7")
+              SUBNAME="centos-7"
+              ;;
+            "CentOS_8")
+              SUBNAME="centos-8"
+              ;;
+            "AmazonLinux_2")
+              SUBNAME="amazon-2"
+              ;;
+            "Ubuntu_16")
+              SUBNAME="ubuntu-16.04"
+              ;;
+            "Ubuntu_18")
+              SUBNAME="ubuntu-18.04"
+              ;;
+            "Ubuntu_20")
+              SUBNAME="ubuntu-20.04"
+              ;;
+            "Ubuntu_22")
+              SUBNAME="ubuntu-22.04"
+              ;;
+            "RHEL7")
+              SUBNAME="redhat-7"
+              ;;
+            "RHEL8")
+              SUBNAME="redhat-8"
+              ;;
+            *)
+              echo "Invalid SYSTEM selection" >&2
+              exit 1
+              ;;
+          esac
+          COMPOSITE_NAME="${COMPOSITE_NAME/SUBNAME/$SUBNAME}"
+          echo "COMPOSITE_NAME=$COMPOSITE_NAME" >> $GITHUB_ENV
+      - name: Allocate cluster of EC2 instances
+        id: allocator_instance
+        run: |
+          instance_names=($INSTANCE_NAMES)
+          inventory_file="$ALLOCATOR_PATH/inventory_all"
+          ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+
+          for i in ${!instance_names[@]}; do
+            instance_name=${instance_names[$i]}
+            # Provision instance in parallel
+            (
+              python3 wazuh-automation/deployability/modules/allocation/main.py \
+                --action create --provider aws --size large \
+                --composite-name ${{ env.COMPOSITE_NAME }} \
+                --working-dir $ALLOCATOR_PATH --track-output $ALLOCATOR_PATH/track_${instance_name}.yml \
+                --inventory-output $ALLOCATOR_PATH/inventory_${instance_name}.yml \
+                --ssh-key "$ssh_key_path" \
+                --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} --label-team devops --label-termination-date 1d
+
+              instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track_${instance_name}.yml | awk '{print $2}')
+              private_ip=$(aws ec2 describe-instances \
+              --instance-ids $instance_id \
+              --query 'Reservations[*].Instances[*].PrivateIpAddress' \
+              --output text)
+
+              sed 's/: */=/g' $ALLOCATOR_PATH/inventory_${instance_name}.yml > $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
+              sed -i 's/-o StrictHostKeyChecking=no/\"-o StrictHostKeyChecking=no\"/g' $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
+              source $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
+
+              # Add instance to corresponding group
+              if [[ $i -eq 0 ]]; then
+                echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-1 ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
+              elif [[ $i -eq 1 ]]; then
+                echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-2 ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
+              elif [[ $i -eq 2 ]]; then
+                echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-3 ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
+              elif [[ $i -eq 3 ]]; then
+                echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
+              elif [[ $i -eq 4 ]]; then
+                echo "manager ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
+              elif [[ $i -eq 5 ]]; then
+                echo "worker ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
+              fi
+            ) &
+          done
+
+          # Wait for all provisioning tasks to complete
+          wait
+
+          echo "" >> $inventory_file # blank line to separate groups
+          echo "[wi_cluster]" >> $inventory_file
+          echo "wi1" >> $inventory_file
+          echo "wi2" >> $inventory_file
+          echo "wi3" >> $inventory_file
+
+          echo "" >> $inventory_file
+          echo "[all:vars]" >> $inventory_file
+          echo "ansible_port=2200" >> $inventory_file
+          echo "ansible_ssh_private_key_file=${ssh_key_path}" >> $inventory_file
+          echo "ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" >> $inventory_file
+          echo "wazuh_template_branch=${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
+      - name: Save ALLOCATOR_PATH directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+      - name: Set SSH key permissions
+        run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+      - name: Ansible Playbook run Wazuh Distributed Production Ready
+        run: |
+          ansible-playbook ./.github/playbooks/distributed-wazuh.yml -b -K \
+          -i $ALLOCATOR_PATH/inventory_all \
+          -l all \
+          ${{ needs.setup-runner.outputs.VERBOSITY }}
+  stop-runner:
+    name: Terminate instance cluster
+    needs:
+        - setup-runner
+        - start-runner
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # all jobs will run even if one fails
+      matrix:
+        system: ${{ fromJson(needs.setup-runner.outputs.SYSTEMS_JSON) }}
+    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          aws-region: us-east-1
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation/
+      - name: Install python and create virtual environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv
+          python3 -m pip install --upgrade pip
+          python3 -m venv venv
+          source venv/bin/activate
+      - name: Install and set allocator requirements
+        run: |
+          pip install -r wazuh-automation/deployability/deps/requirements.txt
+      - name: Download the allocator artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Delete allocated EC2 instance
+        run: |
+          instance_names=($INSTANCE_NAMES)
+          for i in ${!instance_names[@]}; do
+            instance_name=${instance_names[$i]}
+            track_file="$ALLOCATOR_PATH/track_${instance_name}.yml"
+            echo "Deleting instance: $instance_name using track file $track_file"
+            (
+
+              # create instance_dir (in track output file) if it does not exist [to avoid errors]
+              instance_dir=$(grep '^instance_dir' $track_file | awk '{print $2}')
+              if [ ! -d "$instance_dir" ]; then
+                mkdir -p "$instance_dir"
+                date > "$instance_dir/date.txt"
+              fi
+
+              # Delete instance
+              python3 wazuh-automation/deployability/modules/allocation/main.py \
+                --action delete --provider aws --track-output $track_file
+            ) &
+          done

@@ -1,0 +1,214 @@
+---
+name: AIO-Single-Instance-Test
+on:
+  workflow_dispatch:
+    inputs:
+      AUTOMATION_REFERENCE:
+        description: 'Branch or tag of the wazuh-automation repository'
+        required: true
+        default: 'main'
+      SYSTEMS:
+        description: 'Operating Systems (list of comma-separated quoted strings enclosed in square brackets)'
+        required: true
+        default: '["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+        type: string
+      VERBOSITY:
+        description: 'Verbosity level on playbooks execution'
+        required: true
+        default: '-v'
+        type: choice
+        options:
+          - -v
+          - -vv
+          - -vvv
+          - -vvvv
+  pull_request:
+  release:
+env:
+  COMPOSITE_NAME: "linux-SUBNAME-amd64"
+  ALLOCATOR_PATH: "/tmp/allocator_instance"
+permissions:
+  id-token: write # JWT
+  contents: read # actions/checkout
+jobs:
+  setup-runner:
+    name: Setup runner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display workflow inputs
+        run: echo "${{ toJson(inputs) }}"
+      - name: Compute outputs
+        id: compute-outputs
+        run: |
+          # Set SYSTEMS_LIST
+          if [ "${{ inputs.SYSTEMS }}" != "null" && "${{ inputs.SYSTEMS }}" != "" ]; then
+            SYSTEMS_LIST=${{ inputs.SYSTEMS }}
+          else
+            SYSTEMS_LIST='["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+          fi
+          echo "SYSTEMS_JSON=$(echo $SYSTEMS_LIST | jq -c '.')" >> $GITHUB_OUTPUT
+          echo "Systems JSON: $SYSTEMS_JSON"
+
+          # Set WAZUH_TEMPLATE_BRANCH
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            WAZUH_TEMPLATE_BRANCH=${{ github.base_ref }}
+          else
+            WAZUH_TEMPLATE_BRANCH=${{ github.ref }}
+            # Remove refs/heads/ or refs/tags/ from the branch name
+            WAZUH_TEMPLATE_BRANCH=${WAZUH_TEMPLATE_BRANCH#refs/heads/}
+            WAZUH_TEMPLATE_BRANCH=${WAZUH_TEMPLATE_BRANCH#refs/tags/}
+          fi
+          echo "WAZUH_TEMPLATE_BRANCH=$WAZUH_TEMPLATE_BRANCH" >> $GITHUB_OUTPUT
+
+          # Set VERBOSITY
+          if [ "${{ inputs.VERBOSITY }}" != "null" && "${{ inputs.VERBOSITY }}" != "" ]; then
+            VERBOSITY=${{ inputs.VERBOSITY }}
+          else
+            VERBOSITY='-v'
+          fi
+          echo "VERBOSITY=$VERBOSITY" >> $GITHUB_OUTPUT
+          echo "Verbosity level: $VERBOSITY"
+    outputs:
+      SYSTEMS_JSON: ${{ steps.compute-outputs.outputs.SYSTEMS_JSON }}
+      VERBOSITY: ${{ steps.compute-outputs.outputs.VERBOSITY }}
+      WAZUH_TEMPLATE_BRANCH: ${{ steps.compute-outputs.outputs.WAZUH_TEMPLATE_BRANCH }}
+  start-runner:
+    name: Start EC2 instance using allocator and run ansible playbook
+    runs-on: ubuntu-latest
+    needs: setup-runner
+    strategy:
+      fail-fast: false # all jobs will run even if one fails
+      matrix:
+        system: ${{ fromJson(needs.setup-runner.outputs.SYSTEMS_JSON) }}
+    steps:
+      - name: Configure AWS credentials (assume role)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          role-session-name:
+          aws-region: us-east-1
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation/
+      - name: Install python and create virtual environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv
+          python3 -m pip install --upgrade pip
+          python3 -m venv venv
+          source venv/bin/activate
+      - name: Install and set allocator requirements
+        run: |
+          pip install -r wazuh-automation/deployability/deps/requirements.txt
+          pip install ansible-core==2.16
+          ansible-galaxy collection install community.general
+          ansible-galaxy collection install community.docker
+      - name: Set COMPOSITE_NAME variable
+        run: |
+          case "${{ matrix.system }}" in
+            "CentOS_7")
+              SUBNAME="centos-7"
+              ;;
+            "CentOS_8")
+              SUBNAME="centos-8"
+              ;;
+            "AmazonLinux_2")
+              SUBNAME="amazon-2"
+              ;;
+            "Ubuntu_16")
+              SUBNAME="ubuntu-16.04"
+              ;;
+            "Ubuntu_18")
+              SUBNAME="ubuntu-18.04"
+              ;;
+            "Ubuntu_20")
+              SUBNAME="ubuntu-20.04"
+              ;;
+            "Ubuntu_22")
+              SUBNAME="ubuntu-22.04"
+              ;;
+            "RHEL7")
+              SUBNAME="redhat-7"
+              ;;
+            "RHEL8")
+              SUBNAME="redhat-8"
+              ;;
+            *)
+              echo "Invalid SYSTEM selection" >&2
+              exit 1
+              ;;
+          esac
+          COMPOSITE_NAME="${COMPOSITE_NAME/SUBNAME/$SUBNAME}"
+          echo "COMPOSITE_NAME=$COMPOSITE_NAME" >> $GITHUB_ENV
+      - name: Allocate EC2 instance
+        id: allocator_instance
+        run: |
+          python3 wazuh-automation/deployability/modules/allocation/main.py --action create --provider aws --size large --composite-name ${{ env.COMPOSITE_NAME }} --working-dir $ALLOCATOR_PATH \
+            --track-output $ALLOCATOR_PATH/track.yml --inventory-output $ALLOCATOR_PATH/inventory.yml --instance-name gha_ansible_${{ matrix.system }}_${{ github.run_id }} \
+            --label-team devops --label-termination-date 1d
+          sed 's/: */=/g' $ALLOCATOR_PATH/inventory.yml > $ALLOCATOR_PATH/inventory_mod.yml
+          sed -i 's/-o StrictHostKeyChecking=no/\"-o StrictHostKeyChecking=no\"/g' $ALLOCATOR_PATH/inventory_mod.yml
+          source $ALLOCATOR_PATH/inventory_mod.yml
+          echo "[aio]" > $ALLOCATOR_PATH/inventory
+          echo "$ansible_host ansible_port=$ansible_port ansible_user=$ansible_user ansible_ssh_private_key_file=$ansible_ssh_private_key_file ansible_ssh_common_args='$ansible_ssh_common_args'" >> $ALLOCATOR_PATH/inventory
+          echo "[aio:vars]" >> $ALLOCATOR_PATH/inventory
+          echo "wazuh_template_branch=${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $ALLOCATOR_PATH/inventory
+
+      - name: Save ALLOCATOR_PATH directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+      - name: Ansible Playbook run Wazuh AIO Single instance
+        run: |
+          ansible-playbook ./.github/playbooks/aio-wazuh.yml \
+          -i $ALLOCATOR_PATH/inventory \
+          -l all \
+          ${{ needs.setup-runner.outputs.VERBOSITY }}
+  stop-runner:
+    name: Stop allocated EC2 instance
+    needs:
+        - setup-runner
+        - start-runner
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # all jobs will run even if one fails
+      matrix:
+        system: ${{ fromJson(needs.setup-runner.outputs.SYSTEMS_JSON) }}
+    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          aws-region: us-east-1
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation/
+      - name: Install python and create virtual environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv
+          python3 -m pip install --upgrade pip
+          python3 -m venv venv
+          source venv/bin/activate
+      - name: Install and set allocator requirements
+        run: |
+          pip install -r wazuh-automation/deployability/deps/requirements.txt
+      - name: Download the allocator artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Delete allocated EC2 instance
+        run: python3 wazuh-automation/deployability/modules/allocation/main.py --action delete --track-output $ALLOCATOR_PATH/track.yml

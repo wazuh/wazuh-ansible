@@ -48,3 +48,6 @@ generate_certs: true
 perform_installation: true
 
 indexer_nolog_sensible: true
+
+# Docker image for certificates generation on macOS
+wazuh_certs_tool_docker: "wazuh/wazuh-cert-tool:{{ indexer_version }}"

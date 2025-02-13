@@ -6,12 +6,53 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Update to [Wazuh v5.0.0](https://github.com/wazuh/wazuh/blob/v5.0.0/CHANGELOG.md#500)
+- Enhance PR check workflows (All-in-one and Distributed) ([#1457](https://github.com/wazuh/wazuh-ansible/pull/1457)) \- (Workflows)
+
+### Changed
+
+- Update AWS credentials actions in GHA workflows to use 'v4' instead of 'v3' ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492)) \- (Workflows)
+
+## [v4.10.2]
+
+### Added
+
+- Update to [Wazuh v4.10.2](https://github.com/wazuh/wazuh/blob/v4.10.2/CHANGELOG.md#v4101)
+
+## [v4.10.1]
+
+### Added
+
+- Update to [Wazuh v4.10.1](https://github.com/wazuh/wazuh/blob/v4.10.1/CHANGELOG.md#v4101)
+
+## [v4.10.0]
+
+### Added
+
+- Update to [Wazuh v4.10.0](https://github.com/wazuh/wazuh/blob/v4.10.0/CHANGELOG.md#v4100)
+
+## [v4.9.2]
+
+### Added
+
+- Update to [Wazuh v4.9.2](https://github.com/wazuh/wazuh/blob/v4.9.2/CHANGELOG.md#v492)
+
+## [v4.9.1]
+
+### Added
+
+- Update to [Wazuh v4.9.1](https://github.com/wazuh/wazuh/blob/v4.9.1/CHANGELOG.md#v491)
 
 ## [v4.9.0]
 
 ### Added
 
 - Update to [Wazuh v4.9.0](https://github.com/wazuh/wazuh/blob/v4.9.0/CHANGELOG.md#v490)
+
+## [v4.8.2]
+
+### Added
+
+- Update to [Wazuh v4.8.2](https://github.com/wazuh/wazuh/blob/v4.8.2/CHANGELOG.md#v482)
 
 ## [v4.8.1]
 
