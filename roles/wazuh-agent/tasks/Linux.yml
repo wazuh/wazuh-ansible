@@ -48,17 +48,6 @@
     - ansible_os_family|lower != "redhat"
     - ansible_architecture == "aarch64"
 
-- name: Linux | Check if Wazuh agent configuration file exists
-  stat:
-    path: /etc/wazuh-agent/wazuh-agent.yml
-  register: wazuh_agent_config
-
-- name: Linux | Create Wazuh agent configuration file if it does not exist
-  copy:
-    src: default-wazuh-agent-conf.yml
-    dest: /etc/wazuh-agent/wazuh-agent.yml
-  when: not wazuh_agent_config.stat.exists
-
 - name: Update Wazuh agent configuration with Wazuh server IP address
   lineinfile:
     path: /etc/wazuh-agent/wazuh-agent.yml
