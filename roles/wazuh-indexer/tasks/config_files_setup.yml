@@ -1,0 +1,262 @@
+---
+
+- name: Cert-gen | Check if certificates already exists
+  stat:
+    path: "{{ local_configs_path }}"
+  register: certificates_folder
+  run_once: true
+  delegate_to: localhost
+  become: no
+  when:
+    - generate_certs
+
+- name: Cert-gen | Remove existing certificates
+  file:
+    path: "{{ local_configs_path }}"
+    state: absent
+    force: yes
+  run_once: true
+  delegate_to: localhost
+  become: no
+  when:
+    - generate_certs
+    - certificates_folder.stat.exists
+
+- name: Cert-gen | Check if configuration is defined correctly
+  fail:
+    msg: "Single-node cluster is defined incorrectly. Please set single_node to true and define only one node."
+  when:
+    - single_node
+    - ( instances | length ) > 1
+
+- name: Cert-gen | Generate certificates for Wazuh cluster locally
+  block:
+    - name: Cert-gen | Create local temporary directory for certificates generation (all certs)
+      file:
+        path: "{{ local_configs_path }}"
+        mode: 0755
+        state: directory
+
+    - name: Cert-gen | Download certificates generation tool
+      get_url:
+        url: "{{ certs_gen_tool_url }}"
+        dest: "{{ local_configs_path }}/wazuh-certs-tool.sh"
+
+    - name: Cert-gen | Download base config.yml file
+      get_url:
+        url: "{{ certs_gen_config_url }}"
+        dest: "{{ local_configs_path }}/config.yml"
+
+    - name: Cert-gen | Remove comments from config.yml file (1/2)
+      replace:
+        path: "{{ local_configs_path }}/config.yml"
+        regexp: '^\s*#.*$'
+        replace: ''
+
+    - name: Cert-gen | Remove comments from config.yml file (2/2)
+      replace:
+        path: "{{ local_configs_path }}/config.yml"
+        regexp: '^\s*$'
+        replace: ''
+
+    - name: Cert-gen | Set up config.yml file for multi-node cluster
+      block:
+        - name: Cert-gen | Remove existing nodes sections (cluster mode)
+          replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*(- name:|ip:).*$'
+            replace: ''
+
+        - name: Cert-gen | Remove empty lines from config.yml file (cluster mode)
+          replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*$'
+            replace: ''
+
+        - name: Cert-gen | Add indexer nodes section (cluster mode)
+          blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            insertafter: "indexer:"
+            block: |
+              {%- for (key,value) in instances.items() %}
+              {%- if (value.role is defined and value.role == 'indexer') %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% endif %}
+              {%- endfor %}
+
+        - name: Cert-gen | Add server nodes section (cluster mode)
+          blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            insertafter: "server:"
+            block: |
+              {%- for (key,value) in instances.items() %}
+              {%- if (value.role is defined and value.role == 'wazuh') %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {%- if (value.node_type is defined and value.node_type == 'master') %}
+                    node_type: master
+              {%- elif (value.node_type is defined and value.node_type == 'worker') %}
+                    node_type: worker
+              {%- endif %}
+              {%- endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Add dashboard nodes section (cluster mode)
+          blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            insertafter: "dashboard:"
+            block: |
+              {% for (key,value) in instances.items() %}
+              {%- if (value.role is defined and value.role == 'dashboard') %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {%- endif %}
+              {% endfor %}
+      when: not single_node
+
+    - name: Cert-gen | Set up config.yml file for single-node cluster
+      block:
+        - name: Cert-gen | Add indexer node section (single node mode)
+          replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<indexer-node-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+        - name: Cert-gen | Add server node section (single node mode)
+          replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<wazuh-manager-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+        - name: Cert-gen | Add dashboard node section (single node mode)
+          replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<dashboard-node-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+      when:
+        - single_node
+
+    - name: Cert-gen | Generate certificates
+      command: >-
+        bash {{ local_configs_path }}/wazuh-certs-tool.sh -A
+
+  run_once: true
+  delegate_to: localhost
+  become: no
+  when:
+    - generate_certs
+
+- name: Cert-gen | Copy certificates to each Wazuh indexer node
+  copy:
+    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
+    dest: "/etc/wazuh-indexer/certs/"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 0644
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ instances[inventory_hostname].name }}-key.pem"
+    - "{{ instances[inventory_hostname].name }}.pem"
+    - admin-key.pem
+    - admin.pem
+  when:
+    - generate_certs
+
+- name: Cert-gen | Rename indexer key certificate (1/2)
+  command: mv /etc/wazuh-indexer/certs/{{ instances[inventory_hostname].name }}-key.pem /etc/wazuh-indexer/certs/indexer-key.pem
+  when:
+    - generate_certs
+
+- name: Cert-gen | Rename indexer certificate (2/2)
+  command: mv /etc/wazuh-indexer/certs/{{ instances[inventory_hostname].name }}.pem /etc/wazuh-indexer/certs/indexer.pem
+  when:
+    - generate_certs
+
+- name: OpenSearch Config | Configure Wazuh indexer
+  block:
+    - name: OpenSearch Config | Update network.host configuration
+      lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        regexp: '^network\.host:'
+        line: "network.host: '{{ hostvars[inventory_hostname].private_ip }}'"
+
+    - name: OpenSearch Config | Update node.name configuration
+      lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        regexp: '^node\.name:'
+        line: 'node.name: "{{ instances[inventory_hostname].name }}"'
+
+    - name: OpenSearch Config | Configure cluster.initial_master_nodes
+      block:
+        - name: Remove existing nodes in cluster.initial_master_nodes
+          replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(^cluster\.initial_master_nodes:\n)(\s*#?- "node-\d+"\n?)+'
+            replace: '\1'
+          when: not single_node
+
+        - name: OpenSearch Config | Update cluster.initial_master_nodes values
+          replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: 'cluster\.initial_master_nodes:\n'
+            replace: |
+              cluster.initial_master_nodes:
+              {% for (key, value) in instances.items() %}
+              - "{{ value.name }}"
+              {% endfor %}
+          when: not single_node
+
+        - name: OpenSearch Config | Remove cluster.initial_master_nodes for single-node cluster
+          replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(^cluster\.initial_master_nodes:\n)(\s*#?- "node-\d+"\n?)+'
+            replace: ''
+          when: single_node
+
+    - name: OpenSearch Config | Configure discovery.seed_hosts
+      block:
+        - name: OpenSearch Config | Uncomment discovery.seed_hosts line
+          lineinfile:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '^#discovery\.seed_hosts:'
+            line: 'discovery.seed_hosts:'
+            state: present
+
+        - name: OpenSearch Config | Update discovery.seed_hosts value
+          replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: 'discovery\.seed_hosts:\n'
+            replace: |
+              discovery.seed_hosts:
+              {% for (key, value) in instances.items() %}
+                - "{{ value.ip }}"
+              {% endfor %}
+
+      when: not single_node
+
+    - name: OpenSearch Config | Add SSL configuration
+      block:
+        - name: OpenSearch Config | Remove existing SSL configuration lines in plugins.security.nodes_dn
+          replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(plugins\.security\.nodes_dn:\n)(?:\s*#?-\s*"CN=node-\d+,OU=Wazuh,O=Wazuh,L=California,C=US"\n?)+'
+            replace: 'plugins.security.nodes_dn:\n'
+
+        - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
+          replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: 'plugins\.security\.nodes_dn:\n'
+            replace: |
+              plugins.security.nodes_dn:
+              {% for (key, value) in instances.items() %}
+              - "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
+              {% endfor %}
+
+    - name: Add single-node discovery type if needed
+      lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        line: 'discovery.type: single-node'
+        insertafter: '^node\.name:'
+      when: single_node

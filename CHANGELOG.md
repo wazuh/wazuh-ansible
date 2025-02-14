@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Refactor Ansible playbook for Wazuh agent ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492))
 - Refactor of the wazuh-agent ansible role ([#1517](https://github.com/wazuh/wazuh-ansible/pull/1517))
 - Remove default Wazuh agent configuration file and related tasks ([#1546](https://github.com/wazuh/wazuh-ansible/pull/1546))
+- Refactor of the wazuh-indexer ansible role ([#1551](https://github.com/wazuh/wazuh-ansible/pull/1551))
 
 ## Deleted
 
