@@ -198,41 +198,13 @@ jobs:
               --query 'Reservations[*].Instances[*].PrivateIpAddress' \
               --output text)
 
-              sed 's/: */=/g' $ALLOCATOR_PATH/inventory_${instance_name}.yml > $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
-              sed -i 's/-o StrictHostKeyChecking=no/\"-o StrictHostKeyChecking=no\"/g' $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
-              source $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
-
-              # Add instance to corresponding group
-              if [[ $i -eq 0 ]]; then
-                echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-1 ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
-              elif [[ $i -eq 1 ]]; then
-                echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-2 ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
-              elif [[ $i -eq 2 ]]; then
-                echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-3 ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
-              elif [[ $i -eq 3 ]]; then
-                echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
-              elif [[ $i -eq 4 ]]; then
-                echo "manager ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
-              elif [[ $i -eq 5 ]]; then
-                echo "worker ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user ansible_ssh_common_args='$ansible_ssh_common_args'" >> $inventory_file
-              fi
+              cat $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
             ) &
           done
 
           # Wait for all provisioning tasks to complete
           wait
 
-          echo "" >> $inventory_file # blank line to separate groups
-          echo "[wi_cluster]" >> $inventory_file
-          echo "wi1" >> $inventory_file
-          echo "wi2" >> $inventory_file
-          echo "wi3" >> $inventory_file
-
-          echo "" >> $inventory_file
-          echo "[all:vars]" >> $inventory_file
-          echo "ansible_port=2200" >> $inventory_file
-          echo "ansible_ssh_private_key_file=${ssh_key_path}" >> $inventory_file
-          echo "ansible_ssh_extra_args='-o StrictHostKeyChecking=no'" >> $inventory_file
           echo "wazuh_template_branch=${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
       - name: Save ALLOCATOR_PATH directory as artifact
         uses: actions/upload-artifact@v4
