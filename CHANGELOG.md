@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Standardize version file format ([#1553](https://github.com/wazuh/wazuh-ansible/pull/1553))
 - Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
 - Implement minor changes for Wazuh ansible arm64 support ([#1518](https://github.com/wazuh/wazuh-ansible/pull/1518))
 
