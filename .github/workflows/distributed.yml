@@ -201,7 +201,7 @@ jobs:
           # Wait for all provisioning tasks to complete
           wait
 
-          echo "wazuh_template_branch=${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
+          echo "wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
       - name: Save ALLOCATOR_PATH directory as artifact
         uses: actions/upload-artifact@v4
         with:
