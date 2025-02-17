@@ -178,6 +178,8 @@ jobs:
         run: |
           instance_names=($INSTANCE_NAMES)
           inventory_file="$ALLOCATOR_PATH/inventory_all"
+          echo "all:" > $inventory_file
+          echo "  hosts:" >> $inventory_file
           ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
 
           for i in ${!instance_names[@]}; do
@@ -192,13 +194,7 @@ jobs:
                 --ssh-key "$ssh_key_path" \
                 --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} --label-team devops --label-termination-date 1d
 
-              instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track_${instance_name}.yml | awk '{print $2}')
-              private_ip=$(aws ec2 describe-instances \
-              --instance-ids $instance_id \
-              --query 'Reservations[*].Instances[*].PrivateIpAddress' \
-              --output text)
-
-              cat $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
+              sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
             ) &
           done
 
