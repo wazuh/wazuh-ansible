@@ -197,20 +197,24 @@ jobs:
                 --ssh-key "$ssh_key_path" \
                 --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} --label-team devops --label-termination-date 1d
 
-              # Get instance_id
+              # Obtener el instance_id y private_ip
               instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track_${instance_name}.yml | awk '{print $2}')
-
-              # Get private_ip with AWS CLI
               private_ip=$(aws ec2 describe-instances \
                 --instance-ids $instance_id \
                 --query 'Reservations[*].Instances[*].PrivateIpAddress' \
                 --output text)
 
-              # Get host information and private_ip
-              host_info=$(sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml)
-              host_info="${host_info}\n      private_ip: $private_ip"
+              # Crear un archivo temporal para el host info
+              tmp_inventory="$ALLOCATOR_PATH/tmp_inventory_${instance_name}.yml"
+              cp "$ALLOCATOR_PATH/inventory_${instance_name}.yml" "$tmp_inventory"
 
-              # Save temporal groups
+              # Añadir private_ip preservando la indentación
+              sed -i "/ansible_user: / a\      private_ip: $private_ip" "$tmp_inventory"
+
+              # Extraer solo la parte del host preservando la indentación
+              host_info=$(sed -n '/^    i-/,$p' "$tmp_inventory")
+
+              # Guardar en archivo temporal según el grupo
               case "$instance_name" in
                 "wi1")
                   echo -e "wi1:\n  hosts:\n$host_info" > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
@@ -222,13 +226,15 @@ jobs:
                   echo -e "$instance_name:\n  hosts:\n$host_info" > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
                   ;;
               esac
+
+              rm -f "$tmp_inventory"
             ) &
           done
 
           # Wait for all provisioning tasks to complete
           wait
 
-          # Combine files
+          # Combinar todos los archivos temporales en el orden correcto
           {
             cat "$ALLOCATOR_PATH/inventory_wi1_group"
             echo -e "\nwi_cluster:\n  hosts:"
@@ -236,10 +242,10 @@ jobs:
             cat "$ALLOCATOR_PATH/inventory_manager_group"
             cat "$ALLOCATOR_PATH/inventory_worker_group"
             cat "$ALLOCATOR_PATH/inventory_dashboard_group"
-            echo -e "\nall:vars:\n  wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}"
+            echo -e "\nvars:\n  wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}"
           } > $inventory_file
 
-          # Clean temporal files
+          # Limpiar archivos temporales
           rm -f "$ALLOCATOR_PATH/inventory_"*"_group"
 
       - name: Save ALLOCATOR_PATH directory as artifact
