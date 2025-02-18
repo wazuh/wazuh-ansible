@@ -10,10 +10,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Update AWS credentials actions in GHA workflows to use 'v4' instead of 'v3' ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492)) \- (Workflows)
-- Refactor Ansible playbook for Wazuh agent ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492))
-- Refactor of the wazuh-agent ansible role ([#1517](https://github.com/wazuh/wazuh-ansible/pull/1517))
+- Refactor of the wazuh-indexer ansible role ([#1551](https://github.com/wazuh/wazuh-ansible/pull/1551))
 - Remove default Wazuh agent configuration file and related tasks ([#1546](https://github.com/wazuh/wazuh-ansible/pull/1546))
+- Refactor of the wazuh-agent ansible role ([#1517](https://github.com/wazuh/wazuh-ansible/pull/1517))
+- Refactor Ansible playbook for Wazuh agent ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492))
+- Update AWS credentials actions in GHA workflows to use 'v4' instead of 'v3' ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492)) \- (Workflows)
 
 ## Deleted
 
