@@ -147,18 +147,26 @@ jobs:
       - name: Allocate EC2 instance
         id: allocator_instance
         run: |
+          mkdir -p $ALLOCATOR_PATH
           instance_name="gha_ansible_${{ matrix.system }}_${{ github.run_id }}"
+
+          # Ejecutar el allocator primero
           python3 wazuh-automation/deployability/modules/allocation/main.py --action create --provider aws --size large --composite-name ${{ env.COMPOSITE_NAME }} --working-dir $ALLOCATOR_PATH \
-            --track-output $ALLOCATOR_PATH/track.yml --inventory-output $ALLOCATOR_PATH/inventory_${instance_name}.yml --instance-name gha_ansible_${{ matrix.system }}_${{ github.run_id }} \
+            --track-output $ALLOCATOR_PATH/track.yml --inventory-output $ALLOCATOR_PATH/inventory_${instance_name}.yml --instance-name $instance_name \
             --label-team devops --label-termination-date 1d
 
+          # Crear el nuevo inventory con el formato deseado
           inventory_file="$ALLOCATOR_PATH/inventory.yml"
-          echo "[aio]:" > $inventory_file
+          echo "aio:" > $inventory_file
+          echo "  hosts:" >> $inventory_file
 
-          sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
+          # Extraer la información del host y ajustar la indentación
+          sed -n '/^    i-/p' $ALLOCATOR_PATH/inventory_${instance_name}.yml | sed 's/^    /    /' >> $inventory_file
+          sed -n '/^      ansible_/p' $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
 
-          echo "[aio:vars]" >> $inventory_file
-          echo "wazuh_template_branch=${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
+          # Añadir las variables sin corchetes
+          echo "  vars:" >> $inventory_file
+          echo "    wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
       - name: Save ALLOCATOR_PATH directory as artifact
         uses: actions/upload-artifact@v4
         with:
