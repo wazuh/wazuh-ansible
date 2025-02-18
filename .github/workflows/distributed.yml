@@ -178,9 +178,33 @@ jobs:
         run: |
           instance_names=($INSTANCE_NAMES)
           inventory_file="$ALLOCATOR_PATH/inventory_all"
-          echo "all:" > $inventory_file
-          echo "  hosts:" >> $inventory_file
           ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+
+          cat > $inventory_file << EOL
+          all:
+            hosts:
+          wi1:
+            hosts:
+          wi_cluster:
+            hosts:
+          manager:
+            hosts:
+          worker:
+            hosts:
+          dashboard:
+            hosts:
+          vars:
+            wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}
+          EOL
+
+          declare -A group_mapping=(
+            ["wi1"]="wi1"
+            ["wi2"]="wi_cluster"
+            ["wi3"]="wi_cluster"
+            ["manager"]="manager"
+            ["worker"]="worker"
+            ["dashboard"]="dashboard"
+          )
 
           for i in ${!instance_names[@]}; do
             instance_name=${instance_names[$i]}
@@ -194,14 +218,21 @@ jobs:
                 --ssh-key "$ssh_key_path" \
                 --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} --label-team devops --label-termination-date 1d
 
-              sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
+              host_info=$(sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml)
+              echo "$host_info" >> $inventory_file
+
+              # Añadir referencia del host a su grupo específico
+              host_id=$(echo "$host_info" | head -n1 | sed 's/://')
+              group="${group_mapping[$instance_name]}"
+              if [ -n "$group" ]; then
+                echo "$host_id:" >> $inventory_file
+              fi
             ) &
           done
 
           # Wait for all provisioning tasks to complete
           wait
 
-          echo "wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
       - name: Save ALLOCATOR_PATH directory as artifact
         uses: actions/upload-artifact@v4
         with:
