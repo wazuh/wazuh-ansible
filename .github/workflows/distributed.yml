@@ -180,8 +180,10 @@ jobs:
           inventory_file="$ALLOCATOR_PATH/inventory_all"
           ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
 
-          # Crear archivo vacío
-          > $inventory_file
+          # Crear archivos temporales para cada instancia
+          for instance_name in ${instance_names[@]}; do
+            > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
+          done
 
           for i in ${!instance_names[@]}; do
             instance_name=${instance_names[$i]}
@@ -195,22 +197,19 @@ jobs:
                 --ssh-key "$ssh_key_path" \
                 --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} --label-team devops --label-termination-date 1d
 
+              # Extraer la información del host
               host_info=$(sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml)
 
+              # Guardar en archivo temporal según el grupo
               case "$instance_name" in
                 "wi1")
-                  echo -e "wi1:\n  hosts:" >> $inventory_file
-                  echo "$host_info" >> $inventory_file
+                  echo -e "wi1:\n  hosts:\n$host_info" > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
                   ;;
                 "wi2"|"wi3")
-                  if [ "$instance_name" = "wi2" ]; then
-                    echo -e "\nwi_cluster:\n  hosts:" >> $inventory_file
-                  fi
-                  echo "$host_info" >> $inventory_file
+                  echo "$host_info" >> "$ALLOCATOR_PATH/inventory_wi_cluster_group"
                   ;;
                 *)
-                  echo -e "\n$instance_name:\n  hosts:" >> $inventory_file
-                  echo "$host_info" >> $inventory_file
+                  echo -e "$instance_name:\n  hosts:\n$host_info" > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
                   ;;
               esac
             ) &
@@ -219,7 +218,17 @@ jobs:
           # Wait for all provisioning tasks to complete
           wait
 
-          echo -e "\nvars:\n  wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}" >> $inventory_file
+          {
+            cat "$ALLOCATOR_PATH/inventory_wi1_group"
+            echo -e "\nwi_cluster:\n  hosts:"
+            cat "$ALLOCATOR_PATH/inventory_wi_cluster_group"
+            cat "$ALLOCATOR_PATH/inventory_manager_group"
+            cat "$ALLOCATOR_PATH/inventory_worker_group"
+            cat "$ALLOCATOR_PATH/inventory_dashboard_group"
+            echo -e "\nvars:\n  wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}"
+          } > $inventory_file
+
+          rm -f "$ALLOCATOR_PATH/inventory_"*"_group"
 
       - name: Save ALLOCATOR_PATH directory as artifact
         uses: actions/upload-artifact@v4

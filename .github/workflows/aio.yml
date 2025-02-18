@@ -153,8 +153,7 @@ jobs:
             --label-team devops --label-termination-date 1d
 
           inventory_file="$ALLOCATOR_PATH/inventory.yml"
-          echo "aio:" > $inventory_file
-          echo "  hosts:" >> $inventory_file
+          echo "[aio]:" > $inventory_file
 
           sed -n '/^    i-/,$p' $ALLOCATOR_PATH/inventory_${instance_name}.yml >> $inventory_file
 
