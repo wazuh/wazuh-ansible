@@ -180,10 +180,9 @@ jobs:
           inventory_file="$ALLOCATOR_PATH/inventory_all"
           ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
 
-          # Crear archivos temporales para cada instancia
-          for instance_name in ${instance_names[@]}; do
-            > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
-          done
+          # Inicializar el archivo de inventario
+          > $inventory_file
+          > "$ALLOCATOR_PATH/wi_cluster_hosts"
 
           for i in ${!instance_names[@]}; do
             instance_name=${instance_names[$i]}
@@ -203,50 +202,47 @@ jobs:
                 --instance-ids $instance_id \
                 --query 'Reservations[*].Instances[*].PrivateIpAddress' \
                 --output text)
+              public_dns=$(aws ec2 describe-instances \
+                --instance-ids $instance_id \
+                --query 'Reservations[*].Instances[*].PublicDnsName' \
+                --output text)
 
-              # Crear un archivo temporal para el host info
-              tmp_inventory="$ALLOCATOR_PATH/tmp_inventory_${instance_name}.yml"
-              cp "$ALLOCATOR_PATH/inventory_${instance_name}.yml" "$tmp_inventory"
-
-              # Añadir private_ip preservando la indentación
-              sed -i "/ansible_user: / a\      private_ip: $private_ip" "$tmp_inventory"
-
-              # Extraer solo la parte del host preservando la indentación
-              host_info=$(sed -n '/^    i-/,$p' "$tmp_inventory")
-
-              # Guardar en archivo temporal según el grupo
+              # Crear la entrada del host según el formato
               case "$instance_name" in
-                "wi1")
-                  echo -e "wi1:\n  hosts:\n$host_info" > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
-                  ;;
-                "wi2"|"wi3")
-                  echo "$host_info" >> "$ALLOCATOR_PATH/inventory_wi_cluster_group"
+                "wi1"|"wi2"|"wi3")
+                  node_number="${instance_name#wi}"
+                  echo "$instance_name ansible_host=$public_dns private_ip=$private_ip indexer_node_name=node-$node_number ansible_ssh_user=cloud-user ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> "$ALLOCATOR_PATH/hosts_temp"
+                  echo "$instance_name" >> "$ALLOCATOR_PATH/wi_cluster_hosts"
                   ;;
                 *)
-                  echo -e "$instance_name:\n  hosts:\n$host_info" > "$ALLOCATOR_PATH/inventory_${instance_name}_group"
+                  echo "$instance_name ansible_host=$public_dns private_ip=$private_ip ansible_ssh_user=cloud-user ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> "$ALLOCATOR_PATH/hosts_temp"
                   ;;
               esac
-
-              rm -f "$tmp_inventory"
             ) &
           done
 
           # Wait for all provisioning tasks to complete
           wait
 
-          # Combinar todos los archivos temporales en el orden correcto
-          {
-            cat "$ALLOCATOR_PATH/inventory_wi1_group"
-            echo -e "\nwi_cluster:\n  hosts:"
-            cat "$ALLOCATOR_PATH/inventory_wi_cluster_group"
-            cat "$ALLOCATOR_PATH/inventory_manager_group"
-            cat "$ALLOCATOR_PATH/inventory_worker_group"
-            cat "$ALLOCATOR_PATH/inventory_dashboard_group"
-            echo -e "\nvars:\n  wazuh_template_branch: ${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}"
-          } > $inventory_file
+          # Combinar hosts y configuraciones
+          sort "$ALLOCATOR_PATH/hosts_temp" > $inventory_file
+
+          # Agregar sección wi_cluster
+          echo -e "\n[wi_cluster]" >> $inventory_file
+          sort "$ALLOCATOR_PATH/wi_cluster_hosts" >> $inventory_file
+
+          # Agregar variables globales
+          cat >> $inventory_file << EOL
+
+          [all:vars]
+          ansible_port=2200
+          ansible_ssh_private_key_file=$ssh_key_path
+          ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+          wazuh_template_branch=${{ needs.setup-runner.outputs.WAZUH_TEMPLATE_BRANCH }}
+          EOL
 
           # Limpiar archivos temporales
-          rm -f "$ALLOCATOR_PATH/inventory_"*"_group"
+          rm -f "$ALLOCATOR_PATH/hosts_temp" "$ALLOCATOR_PATH/wi_cluster_hosts"
 
       - name: Save ALLOCATOR_PATH directory as artifact
         uses: actions/upload-artifact@v4
