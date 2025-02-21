@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Adapt existing workflows to new allocator YAML inventory ([#1561](https://github.com/wazuh/wazuh-ansible/pull/1561)) \- (Workflows)
 - Update AWS credentials actions in GHA workflows to use 'v4' instead of 'v3' ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492)) \- (Workflows)
 
 ## [v4.10.2]
