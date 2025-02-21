@@ -17,6 +17,7 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 | Wazuh version | Elastic | ODFE   |
 |---------------|---------|--------|
 | v4.12.0       |         |        |
+| v4.11.1       |         |        |
 | v4.11.0       |         |        |
 | v4.10.1       |         |        |
 | v4.10.0       |         |        |
