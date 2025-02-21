@@ -198,9 +198,10 @@ jobs:
               --query 'Reservations[*].Instances[*].PrivateIpAddress' \
               --output text)
 
-              sed 's/: */=/g' $ALLOCATOR_PATH/inventory_${instance_name}.yml > $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
-              sed -i 's/-o StrictHostKeyChecking=no/\"-o StrictHostKeyChecking=no\"/g' $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
-              source $ALLOCATOR_PATH/inventory_mod_${instance_name}.yml
+              # Parse the new inventory format
+              ansible_host=$(yq e '.all.hosts[].ansible_host' $ALLOCATOR_PATH/inventory_${instance_name}.yml)
+              ansible_user=$(yq e '.all.hosts[].ansible_user' $ALLOCATOR_PATH/inventory_${instance_name}.yml)
+              ansible_ssh_common_args=$(yq e '.all.hosts[].ansible_ssh_common_args' $ALLOCATOR_PATH/inventory_${instance_name}.yml)
 
               # Add instance to corresponding group
               if [[ $i -eq 0 ]]; then

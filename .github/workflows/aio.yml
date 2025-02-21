@@ -150,9 +150,14 @@ jobs:
           python3 wazuh-automation/deployability/modules/allocation/main.py --action create --provider aws --size large --composite-name ${{ env.COMPOSITE_NAME }} --working-dir $ALLOCATOR_PATH \
             --track-output $ALLOCATOR_PATH/track.yml --inventory-output $ALLOCATOR_PATH/inventory.yml --instance-name gha_ansible_${{ matrix.system }}_${{ github.run_id }} \
             --label-team devops --label-termination-date 1d
-          sed 's/: */=/g' $ALLOCATOR_PATH/inventory.yml > $ALLOCATOR_PATH/inventory_mod.yml
-          sed -i 's/-o StrictHostKeyChecking=no/\"-o StrictHostKeyChecking=no\"/g' $ALLOCATOR_PATH/inventory_mod.yml
-          source $ALLOCATOR_PATH/inventory_mod.yml
+
+          # Parse the new inventory format
+          ansible_host=$(yq e '.all.hosts[].ansible_host' $ALLOCATOR_PATH/inventory.yml)
+          ansible_port=$(yq e '.all.hosts[].ansible_port' $ALLOCATOR_PATH/inventory.yml)
+          ansible_user=$(yq e '.all.hosts[].ansible_user' $ALLOCATOR_PATH/inventory.yml)
+          ansible_ssh_private_key_file=$(yq e '.all.hosts[].ansible_ssh_private_key_file' $ALLOCATOR_PATH/inventory.yml)
+          ansible_ssh_common_args=$(yq e '.all.hosts[].ansible_ssh_common_args' $ALLOCATOR_PATH/inventory.yml)
+
           echo "[aio]" > $ALLOCATOR_PATH/inventory
           echo "$ansible_host ansible_port=$ansible_port ansible_user=$ansible_user ansible_ssh_private_key_file=$ansible_ssh_private_key_file ansible_ssh_common_args='$ansible_ssh_common_args'" >> $ALLOCATOR_PATH/inventory
           echo "[aio:vars]" >> $ALLOCATOR_PATH/inventory
