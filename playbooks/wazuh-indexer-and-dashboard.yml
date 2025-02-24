@@ -1,4 +1,4 @@
-- hosts: all_in_one
+- hosts: wazuh_servers
   roles:
     - role: ../roles/wazuh/wazuh-indexer
       perform_installation: false
@@ -13,7 +13,7 @@
   tags:
     - generate-certs
 
-- hosts: all_in_one
+- hosts: wazuh_servers
   become: yes
   become_user: root
   roles:
