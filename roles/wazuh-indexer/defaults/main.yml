@@ -8,7 +8,6 @@ instances:
     role: indexer
 
 generate_certs: true
-local_configs_path: "{{ playbook_dir }}/indexer-config"
 
 wazuh_indexer_package_download_path: "/tmp/wazuh-indexer"
-wazuh_indexer_package_name: "wazuh-indexer-package"
+wazuh_indexer_package_name: "wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"

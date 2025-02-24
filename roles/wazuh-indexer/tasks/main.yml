@@ -7,9 +7,32 @@
 - import_tasks: dependencies.yml
   become: yes
 
+- name: Set architecture facts
+  block:
+    - set_fact:
+        host_architecture: "x86_64"
+      when:
+        - ansible_architecture == "x86_64"
+        - ansible_os_family == "RedHat"
+    - set_fact:
+        host_architecture: "aarch64"
+      when:
+        - ansible_architecture == "aarch64"
+        - ansible_os_family == "RedHat"
+    - set_fact:
+        host_architecture: "amd64"
+      when:
+        - ansible_architecture == "x86_64"
+        - ansible_os_family == "Debian"
+    - set_fact:
+        host_architecture: "arm64"
+      when:
+        - ansible_architecture == "aarch64"
+        - ansible_os_family == "Debian"
+
 - name: Linux CentOS/RedHat | Install wazuh-indexer using yum
   yum:
-    name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.rpm"
+    name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ host_architecture }}.rpm"
     state: present
     disable_gpg_check: yes
   when:
@@ -17,7 +40,7 @@
 
 - name: Linux Debian | Install wazuh-indexer using dpkg
   shell: |
-    dpkg -i {{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.deb
+    dpkg -i {{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ host_architecture }}.deb
   when:
     - ansible_os_family|lower != "redhat"
 
@@ -70,12 +93,3 @@
     path: "{{ wazuh_indexer_package_download_path }}"
     state: absent
   become: yes
-
-- name: Remove local Wazuh Indexer leftover files
-  file:
-    path: "{{ local_configs_path }}"
-    state: absent
-    force: yes
-  run_once: true
-  delegate_to: localhost
-  become: no

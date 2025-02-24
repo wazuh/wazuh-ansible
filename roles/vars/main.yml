@@ -3,4 +3,6 @@ wazuh_major_minor_version: "5.0"
 wazuh_major_version: "5.x"
 wazuh_package_revision: "1"
 
+local_configs_path: "{{ playbook_dir }}/deployment-config-files"
+
 urls_file: "urls.yml"
