@@ -9,17 +9,18 @@
 
 - name: Linux CentOS/RedHat | Install wazuh-indexer using yum
   yum:
-    name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.rpm"
+    name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
     state: present
     disable_gpg_check: yes
   when:
-    - ansible_os_family|lower == "redhat"
+    - ansible_facts.os_family == 'RedHat'
 
-- name: Linux Debian | Install wazuh-indexer using dpkg
-  shell: |
-    dpkg -i {{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.deb
+- name: Linux Debian | Install wazuh-indexer using apt
+  apt:
+    deb: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
   when:
-    - ansible_os_family|lower != "redhat"
+    - ansible_facts.os_family == 'Debian'
 
 - import_tasks: "config_files_setup.yml"
   become: yes
@@ -70,12 +71,3 @@
     path: "{{ wazuh_indexer_package_download_path }}"
     state: absent
   become: yes
-
-- name: Remove local Wazuh Indexer leftover files
-  file:
-    path: "{{ local_configs_path }}"
-    state: absent
-    force: yes
-  run_once: true
-  delegate_to: localhost
-  become: no
