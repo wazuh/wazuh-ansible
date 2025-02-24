@@ -46,3 +46,10 @@
     state: present
   register: install
   tags: install
+
+- name: Install OpenSSL
+  apt:
+    name: openssl
+    state: present
+  register: install
+  tags: install
