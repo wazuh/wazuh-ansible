@@ -1,0 +1,31 @@
+- hosts: all_in_one
+  roles:
+    - role: ../roles/wazuh/wazuh-indexer
+      perform_installation: false
+  become: no
+  vars:
+    indexer_node_master: true
+    instances:
+      node1:
+        name: node-1       # Important: must be equal to indexer_node_name.
+        ip: 127.0.0.1
+        role: indexer
+  tags:
+    - generate-certs
+
+- hosts: all_in_one
+  become: yes
+  become_user: root
+  roles:
+    - role: ../roles/wazuh/wazuh-indexer
+    - role: ../roles/wazuh/wazuh-dashboard
+
+  vars:
+    single_node: true
+    indexer_network_host: 127.0.0.1
+    ansible_shell_allow_world_readable_temp: true
+    instances:           # A certificate will be generated for every node using the name as CN.
+      node1:
+        name: node-1
+        ip: 127.0.0.1
+        role: indexer
