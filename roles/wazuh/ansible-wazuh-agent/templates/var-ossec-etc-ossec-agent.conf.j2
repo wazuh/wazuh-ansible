@@ -83,7 +83,6 @@
       {% endif %}
     </enrollment>
   {% endif %}
-
   </client>
 
   <client_buffer>
@@ -121,11 +120,8 @@
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
-
-
   </rootcheck>
   {% endif %}
-
 
   {% if ansible_system == "Linux" and wazuh_agent_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
@@ -256,8 +252,7 @@
   {% endif %}
   </sca>
 
-
-  <!-- Directories to check  (perform all possible verifications) -->
+  <!-- Directories to check (perform all possible verifications) -->
   {% if wazuh_agent_config.syscheck is defined %}
   <syscheck>
     <disabled>no</disabled>
@@ -359,7 +354,6 @@
   <!-- Files to monitor (localfiles) -->
   {% if ansible_system == "Linux" %}
   {% for localfile in wazuh_agent_config.localfiles.linux %}
-
   <localfile>
     <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -386,7 +380,6 @@
 
   {% if ansible_system == "Darwin" %}
   {% for localfile in wazuh_agent_config.localfiles.macos %}
-
   <localfile>
     <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -407,7 +400,6 @@
 
   {% if ansible_os_family == "Debian" %}
   {% for localfile in wazuh_agent_config.localfiles.debian %}
-
   <localfile>
       <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -430,7 +422,6 @@
 
   {% if ansible_os_family == "RedHat" %}
   {% for localfile in wazuh_agent_config.localfiles.centos %}
-
   <localfile>
       <log_format>{{ localfile.format }}</log_format>
     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
@@ -453,7 +444,6 @@
 
   {% if ansible_os_family == "Windows" %}
   {% for localfile in wazuh_agent_config.localfiles.windows %}
-
   <localfile>
       <log_format>{{ localfile.format }}</log_format>
   {% if localfile.format == 'eventchannel' %}
@@ -471,13 +461,13 @@
   {% endfor %}
   {% endif %}
 
-{% if wazuh_agent_config.labels.enable == true %}
+  {% if wazuh_agent_config.labels.enable == true %}
   <labels>
   {% for label in wazuh_agent_config.labels.list %}
     <label key="{{ label.key }}"{% if label.hidden is defined %} hidden="{{ label.hidden }}"{% endif %}>{{ label.value }}</label>
   {% endfor %}
   </labels>
-{% endif %}
+  {% endif %}
 
   <active-response>
     <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
