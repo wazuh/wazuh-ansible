@@ -472,9 +472,9 @@
   <active-response>
     <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
     <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
-    {% if ansible_system == "Windows" %}
+    {% if ansible_os_family == "Windows" %}
     <ca_store>{{ wazuh_agent_config.active_response.ca_store_win }}</ca_store>
-    {% elif ansible_system == "Darwin" %}
+    {% elif ansible_os_family == "Darwin" %}
     <ca_store>{{ wazuh_agent_config.active_response.ca_store_macos }}</ca_store>
     {% else %}
     <ca_store>{{ wazuh_agent_config.active_response.ca_store }}</ca_store>
@@ -484,5 +484,22 @@
   <logging>
     <log_format>{{ wazuh_agent_config.log_format }}</log_format>
   </logging>
+
+  <agent-upgrade>
+    <enabled>{{ wazuh_agent_config.agent_upgrade.enabled }}</enabled>
+    <notification_wait_start>{{ wazuh_agent_config.agent_upgrade.notification_wait_start }}</notification_wait_start>
+    <notification_wait_factor>{{ wazuh_agent_config.agent_upgrade.notification_wait_factor }}</notification_wait_factor>
+    <notification_wait_max>{{ wazuh_agent_config.agent_upgrade.notification_wait_max }}</notification_wait_max>
+    <ca_verification>
+      <enabled>{{ wazuh_agent_config.agent_upgrade.ca_verification }}</enabled>
+      {% if ansible_os_family == "Windows" %}
+      <ca_store>{{ wazuh_agent_config.agent_upgrade.ca_store_win }}</ca_store>
+      {% elif ansible_os_family == "Darwin" %}
+      <ca_store>{{ wazuh_agent_config.agent_upgrade.ca_store_macos }}</ca_store>
+      {% else %}
+      <ca_store>{{ wazuh_agent_config.agent_upgrade.ca_store }}</ca_store>
+      {% endif %}
+    </ca_verification>
+  </agent-upgrade>
 
 </ossec_config>

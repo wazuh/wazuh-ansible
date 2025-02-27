@@ -352,6 +352,17 @@ wazuh_agent_active_response:
   ca_store_macos: 'etc/wpk_root.pem'
   ca_verification: 'yes'
 
+## Agent Upgrade
+wazuh_agent_agent_upgrade:
+  enabled: 'yes'
+  notification_wait_start: '60s'
+  notification_wait_factor: '4'
+  notification_wait_max: '2h'
+  ca_verification: 'yes'
+  ca_store: "{{ wazuh_dir }}/etc/wpk_root.pem"
+  ca_store_win: 'wpk_root.pem'
+  ca_store_macos: 'etc/wpk_root.pem'
+
 ## Logging
 wazuh_agent_log_format: 'plain'
 
@@ -359,6 +370,7 @@ wazuh_agent_log_format: 'plain'
 wazuh_agent_config_defaults:
   repo: '{{ wazuh_repo }}'
   active_response: '{{ wazuh_agent_active_response }}'
+  agent_upgrade: '{{ wazuh_agent_agent_upgrade }}'
   log_format: '{{ wazuh_agent_log_format }}'
   client_buffer: '{{ wazuh_agent_client_buffer }}'
   syscheck: '{{ wazuh_agent_syscheck }}'
