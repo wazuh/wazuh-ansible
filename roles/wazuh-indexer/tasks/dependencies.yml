@@ -13,8 +13,7 @@
         name: amazon-linux-extras
         state: present
       when:
-        - ansible_distribution == 'Amazon'
-        - ansible_distribution_major_version == '2'
+        - ansible_facts.distribution_major_version == '2'
 
     - name: Amazon Linux | Configure vm.max_map_count
       lineinfile:
@@ -27,9 +26,8 @@
     - name: Amazon Linux | Update vm.max_map_count
       shell: sysctl -p
       become: yes
-
   when:
-    - ansible_distribution == 'Amazon'
+    - ansible_facts.os_family == 'Amazon'
 
 - name: RHEL, CentOS, and Amazon Linux 2 | Configure system settings and install dependencies
   block:
@@ -45,19 +43,18 @@
     - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-indexer package
       get_url:
         url: "{{ wazuh_indexer_url_amd64_rpm }}"
-        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.rpm"
+        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
       when:
-        - ansible_architecture == "x86_64"
+        - ansible_facts.architecture == "x86_64"
 
     - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-indexer package
       get_url:
         url: "{{ wazuh_indexer_url_arm64_rpm }}"
-        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.rpm"
+        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
       when:
-        - ansible_architecture == "aarch64"
-
+        - ansible_facts.architecture == "aarch64"
   when:
-    - ansible_os_family == 'RedHat'
+    - ansible_facts.os_family == 'RedHat'
 
 - name: Debian-based systems | Install Wazuh indexer dependencies and download package
   block:
@@ -72,15 +69,15 @@
     - name: Debian-based (AMD64) | Download wazuh-indexer package
       get_url:
         url: "{{ wazuh_indexer_url_amd64_deb }}"
-        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.deb"
+        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.deb"
       when:
-        - ansible_architecture == "x86_64"
+        - ansible_facts.architecture == "x86_64"
 
     - name: Debian-based (ARM64) | Download wazuh-indexer package
       get_url:
         url: "{{ wazuh_indexer_url_arm64_deb }}"
-        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}.deb"
+        dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.deb"
       when:
-        - ansible_architecture == "aarch64"
+        - ansible_facts.architecture == "aarch64"
   when:
-    - ansible_os_family == 'Debian'
+    - ansible_facts.os_family == 'Debian'

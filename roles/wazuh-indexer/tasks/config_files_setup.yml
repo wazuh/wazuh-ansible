@@ -25,6 +25,9 @@
 - name: Cert-gen | Check if configuration is defined correctly
   fail:
     msg: "Single-node cluster is defined incorrectly. Please set single_node to true and define only one node."
+  run_once: true
+  delegate_to: localhost
+  become: no
   when:
     - single_node
     - ( instances | length ) > 1
@@ -47,16 +50,10 @@
         url: "{{ certs_gen_config_url }}"
         dest: "{{ local_configs_path }}/config.yml"
 
-    - name: Cert-gen | Remove comments from config.yml file (1/2)
+    - name: Cert-gen | Remove comments from config.yml file
       replace:
         path: "{{ local_configs_path }}/config.yml"
         regexp: '^\s*#.*$'
-        replace: ''
-
-    - name: Cert-gen | Remove comments from config.yml file (2/2)
-      replace:
-        path: "{{ local_configs_path }}/config.yml"
-        regexp: '^\s*$'
         replace: ''
 
     - name: Cert-gen | Set up config.yml file for multi-node cluster
@@ -67,52 +64,58 @@
             regexp: '^\s*(- name:|ip:).*$'
             replace: ''
 
-        - name: Cert-gen | Remove empty lines from config.yml file (cluster mode)
-          replace:
-            path: "{{ local_configs_path }}/config.yml"
-            regexp: '^\s*$'
-            replace: ''
-
         - name: Cert-gen | Add indexer nodes section (cluster mode)
           blockinfile:
             path: "{{ local_configs_path }}/config.yml"
+            marker: "# Indexer nodes"
+            state: present
             insertafter: "indexer:"
             block: |
-              {%- for (key,value) in instances.items() %}
-              {%- if (value.role is defined and value.role == 'indexer') %}
+              {% for (key,value) in instances.items() %}
+              {% if (value.role is defined and value.role == 'indexer') %}
                   - name: {{ value.name }}
                     ip: {{ value.ip }}
               {% endif %}
-              {%- endfor %}
+              {% endfor %}
 
         - name: Cert-gen | Add server nodes section (cluster mode)
           blockinfile:
             path: "{{ local_configs_path }}/config.yml"
+            marker: "# Server nodes"
+            state: present
             insertafter: "server:"
             block: |
-              {%- for (key,value) in instances.items() %}
-              {%- if (value.role is defined and value.role == 'wazuh') %}
+              {% for (key,value) in instances.items() %}
+              {% if (value.role is defined and value.role == 'server') %}
                   - name: {{ value.name }}
                     ip: {{ value.ip }}
-              {%- if (value.node_type is defined and value.node_type == 'master') %}
+              {% if (value.node_type is defined and value.node_type == 'master') %}
                     node_type: master
-              {%- elif (value.node_type is defined and value.node_type == 'worker') %}
+              {% elif (value.node_type is defined and value.node_type == 'worker') %}
                     node_type: worker
-              {%- endif %}
-              {%- endif %}
+              {% endif %}
+              {% endif %}
               {% endfor %}
 
         - name: Cert-gen | Add dashboard nodes section (cluster mode)
           blockinfile:
             path: "{{ local_configs_path }}/config.yml"
+            marker: "# Dashboard nodes"
+            state: present
             insertafter: "dashboard:"
             block: |
               {% for (key,value) in instances.items() %}
-              {%- if (value.role is defined and value.role == 'dashboard') %}
+              {% if (value.role is defined and value.role == 'dashboard') %}
                   - name: {{ value.name }}
                     ip: {{ value.ip }}
-              {%- endif %}
+              {% endif %}
               {% endfor %}
+
+        - name: Cert-gen | Remove comments from config.yml file
+          replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*#.*$'
+            replace: ''
       when: not single_node
 
     - name: Cert-gen | Set up config.yml file for single-node cluster
@@ -136,6 +139,12 @@
             replace: "{{ hostvars[inventory_hostname].private_ip }}"
       when:
         - single_node
+
+    - name: Cert-gen | Remove empty lines from config.yml file
+      replace:
+        path: "{{ local_configs_path }}/config.yml"
+        regexp: '^\s*$'
+        replace: ''
 
     - name: Cert-gen | Generate certificates
       command: >-
