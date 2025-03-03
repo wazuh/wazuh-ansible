@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Refactor of the wazuh-dashboard ansible role ([#1565](https://github.com/wazuh/wazuh-ansible/pull/1565))
 - Corrections for wazuh-indexer role refactoring ([#1563](https://github.com/wazuh/wazuh-ansible/pull/1563))
 - Refactor of the wazuh-indexer ansible role ([#1551](https://github.com/wazuh/wazuh-ansible/pull/1551))
 - Remove default Wazuh agent configuration file and related tasks ([#1546](https://github.com/wazuh/wazuh-ansible/pull/1546))
