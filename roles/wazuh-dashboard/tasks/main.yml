@@ -87,9 +87,19 @@
     enabled: true
     state: started
 
+- name: Extract server host from dashboard configuration
+  shell: grep '^server.host:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
+  register: server_host
+  changed_when: false
+
+- name: Extract server port from dashboard configuration
+  shell: grep '^server.port:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
+  register: server_port
+  changed_when: false
+
 - name: Wait for Wazuh dashboard to be ready
   uri:
-    url: "https://127.0.0.1:443/app/login"
+    url: "https://{{ server_host.stdout }}:{{ server_port.stdout }}/app/login"
     method: GET
     status_code: 200
     validate_certs: no
