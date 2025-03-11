@@ -1,7 +1,7 @@
 ---
 - hosts: wi_cluster
   roles:
-    - role: ../roles/wazuh/wazuh-indexer
+    - wazuh_indexer
 
   vars:
     instances:           # A certificate will be generated for every node using the name as CN.
@@ -17,4 +17,3 @@
         name: node-3
         ip: <node-3 IP>
         role: indexer
-

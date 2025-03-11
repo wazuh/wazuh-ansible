@@ -3,7 +3,7 @@
   become: yes
   become_user: root
   roles:
-    - ../roles/wazuh/ansible-wazuh-agent
+    - wazuh_agent
   vars:
     wazuh_managers:
       - address: <your manager IP>

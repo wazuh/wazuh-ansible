@@ -1,8 +1,8 @@
 ---
 - hosts: managers
   roles:
-    - role: ../roles/wazuh/ansible-wazuh-manager
-    - role: ../roles/wazuh/ansible-filebeat-oss
+    - role: wazuh_manager
+    - role: ansible_filebeat_oss
       filebeat_output_indexer_hosts:
       - "<indexer-node-1>:9200"
       - "<indexer-node-2>:9200"
