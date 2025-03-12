@@ -2,7 +2,7 @@
 # Wazuh cluster without Filebeat
     - hosts: manager
       roles:
-        - role: "../roles/wazuh/ansible-wazuh-manager"
+        - wazuh_manager
       become: yes
       become_user: root
       vars:
@@ -28,7 +28,7 @@
 
     - hosts: worker01
       roles:
-        - role: "../roles/wazuh/ansible-wazuh-manager"
+        - role: wazuh_manager
       become: yes
       become_user: root
       vars:

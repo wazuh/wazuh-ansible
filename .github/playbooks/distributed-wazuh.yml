@@ -3,12 +3,12 @@
 - hosts: wi1
   roles:
     # Check packages
-    - role: ../../roles/wazuh/check-packages
+    - role: check_packages
       become: no
       delegate_to: localhost
       run_once: true
     # Generate certificates
-    - role: ../../roles/wazuh/wazuh-indexer
+    - role: wazuh_indexer
       vars:
         generate_certs: true
         perform_installation: false
@@ -51,7 +51,7 @@
 - hosts: wi_cluster
   strategy: free
   roles:
-    - role: ../../roles/wazuh/wazuh-indexer
+    - role: wazuh_indexer
       indexer_network_host: "{{ private_ip }}"
   become: yes
   become_user: root
@@ -96,8 +96,8 @@
 # Wazuh cluster
 - hosts: manager
   roles:
-    - role: "../../roles/wazuh/ansible-wazuh-manager"
-    - role: "../../roles/wazuh/ansible-filebeat-oss"
+    - role: wazuh_manager
+    - role: filebeat_oss
   become: yes
   become_user: root
   vars:
@@ -128,8 +128,8 @@
 
 - hosts: worker
   roles:
-    - role: "../../roles/wazuh/ansible-wazuh-manager"
-    - role: "../../roles/wazuh/ansible-filebeat-oss"
+    - role: wazuh_manager
+    - role: filebeat_oss
   become: yes
   become_user: root
   vars:
@@ -158,7 +158,7 @@
 # Wazuh dashboard node
 - hosts: dashboard
   roles:
-    - role: "../../roles/wazuh/wazuh-dashboard"
+    - role: wazuh_dashboard
   become: yes
   become_user: root
   vars:
