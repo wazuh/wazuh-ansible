@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Corrections in opensearch.yml file configuration in the wazuh-indexer role ([#1580](https://github.com/wazuh/wazuh-ansible/pull/1580))
 - Refactor of the wazuh-dashboard ansible role ([#1565](https://github.com/wazuh/wazuh-ansible/pull/1565))
 - Corrections for wazuh-indexer role refactoring ([#1563](https://github.com/wazuh/wazuh-ansible/pull/1563))
 - Refactor of the wazuh-indexer ansible role ([#1551](https://github.com/wazuh/wazuh-ansible/pull/1551))

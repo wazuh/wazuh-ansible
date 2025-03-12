@@ -2,10 +2,10 @@
 
 single_node: false
 instances:
-  wi1:
+  aio:
     name: node-1
-    ip: '{{ hostvars.wi1.private_ip }}'
-    role: indexer
+    ip: '{{ hostvars[inventory_hostname].private_ip }}'
+    role: aio
 
 generate_certs: true
 
