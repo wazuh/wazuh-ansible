@@ -1,0 +1,17 @@
+---
+namespace: wazuh
+name: wazuh
+version: 5.0.0
+
+readme: README.md
+
+authors:
+  - Wazuh
+
+description: Configure wazuh
+
+license_file: maybe
+
+tags: [tools]
+
+repository: https://github.com/wazuh/wazuh-ansible
