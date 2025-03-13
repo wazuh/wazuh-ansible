@@ -6,7 +6,6 @@
   become: yes
   vars:
     # generate_certs: false                    # Set to false if you are using your own certificates
-    # single_node: true                        # Set to true if you are deploying single-node(s) cluster(s)
     instances:
       wi1:
         name: node-1
