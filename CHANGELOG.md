@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Refactor of the wazuh-distributed playbook ([#1584](https://github.com/wazuh/wazuh-ansible/pull/1584))
 - Refactor of the wazuh-aio playbook ([#1585](https://github.com/wazuh/wazuh-ansible/pull/1585))
 - Refactor of the wazuh-server ansible role ([#1579](https://github.com/wazuh/wazuh-ansible/pull/1579))
 - Refactor of the wazuh-dashboard ansible role ([#1565](https://github.com/wazuh/wazuh-ansible/pull/1565))
