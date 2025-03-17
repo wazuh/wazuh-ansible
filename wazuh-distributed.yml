@@ -8,7 +8,6 @@
 
 - hosts: wi_cluster
   roles:
-    - role: package-urls
     - role: wazuh-indexer
   become: yes
   vars:
