@@ -1,0 +1,12 @@
+---
+
+- include_vars: ../../vars/main.yml
+
+- name: Download package URLs file
+  get_url:
+    url: "https://{{ package_urls_file_uri_prerelease if source == 'prerelease' else package_urls_file_uri }}"
+    dest: "{{ playbook_dir }}/roles/vars/urls.yml"
+  when: source in ['production', 'prerelease']
+  run_once: true
+  delegate_to: localhost
+  become: no

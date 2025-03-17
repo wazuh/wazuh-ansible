@@ -1,1 +1,16 @@
+---
 
+- hosts: aio
+  become: yes
+  roles:
+    - role: package-urls
+    - role: wazuh-indexer
+    - role: wazuh-server
+    - role: wazuh-dashboard
+  vars:
+    single_node: true
+    instances:
+      aio:
+        name: node-1
+        ip: "{{ hostvars.aio.private_ip }}"
+        role: aio

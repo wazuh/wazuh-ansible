@@ -1,7 +1,4 @@
-*.retry
-*.pyc
-.mypy_cache
-Pipfile.lock
-*.swp
-molecule/**/es_certs/
-molecule/**/opendistro/
+roles/vars/urls.yml
+deployment-config-files/
+*.pem
+*.ini
