@@ -213,7 +213,9 @@
             replace: |
               cluster.initial_master_nodes:
               {% for (key, value) in instances.items() %}
+              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
               - "{{ value.name }}"
+              {% endif %}
               {% endfor %}
           when: not single_node
 
@@ -240,7 +242,9 @@
             replace: |
               discovery.seed_hosts:
               {% for (key, value) in instances.items() %}
+              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
                 - "{{ value.ip }}"
+              {% endif %}
               {% endfor %}
 
       when: not single_node
@@ -260,7 +264,9 @@
             replace: |
               plugins.security.nodes_dn:
               {% for (key, value) in instances.items() %}
+              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
               - "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
+              {% endif %}
               {% endfor %}
 
     - name: Add single-node discovery type if needed
