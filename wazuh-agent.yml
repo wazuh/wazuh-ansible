@@ -9,9 +9,11 @@
             name: ./roles/wazuh-agent
       become: yes
       become_user: root
-      when: ansible_os_family != "Windows"
+      when:
+        - ansible_facts.os_family != "Windows"
 
     - name: Include wazuh-agent role for Windows hosts
       include_role:
         name: ./roles/wazuh-agent
-      when: ansible_os_family == "Windows"
+      when:
+        - ansible_facts.os_family == "Windows"

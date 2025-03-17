@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Use ansible_facts for Wazuh agent tasks ([#1590](https://github.com/wazuh/wazuh-ansible/pull/1590))
 - Add package URLs role for AIO and distributed setups ([#1588](https://github.com/wazuh/wazuh-ansible/pull/1588))
 - Refactor of the wazuh-distributed playbook ([#1584](https://github.com/wazuh/wazuh-ansible/pull/1584))
 - Refactor of the wazuh-aio playbook ([#1585](https://github.com/wazuh/wazuh-ansible/pull/1585))

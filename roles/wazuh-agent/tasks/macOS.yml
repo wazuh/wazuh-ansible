@@ -11,25 +11,25 @@
     url: "{{ wazuh_agent_url_amd64_macos }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
   when:
-    - ansible_architecture == "x86_64"
+    - ansible_facts.architecture == "x86_64"
 
 - name: MacOS (ARM) | Download Wazuh agent package
   get_url:
     url: "{{ wazuh_agent_url_arm64_macos }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
   when:
-    - ansible_architecture == "aarch64"
+    - ansible_facts.architecture == "aarch64"
 
 - name: MacOS | Install Wazuh agent using installer
   command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
 
 - name: MacOS | Initialize Wazuh agent service (MacOS 10.10+)
   command: "launchctl bootstrap system /Library/LaunchDaemons/com.wazuh.agent.plist"
-  when: ansible_distribution_version is version('10.10', '>=')
+  when: ansible_facts.distribution_version is version('10.10', '>=')
 
 - name: MacOS | Load Wazuh agent service (MacOS < 10.10)
   command: "launchctl load /Library/LaunchDaemons/com.wazuh.agent.plist"
-  when: ansible_distribution_version is version('10.10', '<')
+  when: ansible_facts.distribution_version is version('10.10', '<')
 
 - name: Update Wazuh agent configuration with Wazuh server IP address
   become: yes
@@ -44,11 +44,11 @@
 
 - name: MacOS | Restart Wazuh agent service (MacOS 10.10+)
   command: "launchctl kickstart -k system/com.wazuh.agent"
-  when: ansible_distribution_version is version('10.10', '>=')
+  when: ansible_facts.distribution_version is version('10.10', '>=')
 
 - name: MacOS | Restart Wazuh agent service (MacOS < 10.10)
   command: "launchctl unload /Library/LaunchDaemons/com.wazuh.agent.plist && launchctl load /Library/LaunchDaemons/com.wazuh.agent.plist"
-  when: ansible_distribution_version is version('10.10', '<')
+  when: ansible_facts.distribution_version is version('10.10', '<')
 
 - name: MacOS | Pause for 5 seconds while Wazuh agent service initializes
   pause:

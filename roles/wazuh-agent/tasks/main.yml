@@ -5,10 +5,10 @@
 - include_vars: ../../vars/{{ urls_file }}
 
 - include_tasks: "Linux.yml"
-  when: ansible_system == "Linux"
+  when: ansible_facts.system == "Linux"
 
 - include_tasks: "Windows.yml"
-  when: ansible_os_family == "Windows"
+  when: ansible_facts.os_family == "Windows"
 
 - include_tasks: "macOS.yml"
-  when: ansible_system == "Darwin"
+  when: ansible_facts.system == "Darwin"
