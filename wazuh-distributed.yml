@@ -1,7 +1,14 @@
 ---
 
+- hosts: localhost
+  roles:
+    - role: package-urls
+  run_once: true
+  become: no
+
 - hosts: wi_cluster
   roles:
+    - role: package-urls
     - role: wazuh-indexer
   become: yes
   vars:
