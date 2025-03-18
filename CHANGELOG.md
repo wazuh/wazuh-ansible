@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Deleted
 
-- None
+- Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
 
 ## [v4.12.0]
 
