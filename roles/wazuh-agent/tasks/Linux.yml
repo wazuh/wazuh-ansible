@@ -9,10 +9,10 @@
 # Download package tasks
 
 - include_tasks: "RedHat.yml"
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts.os_family == "RedHat"
 
 - include_tasks: "Debian.yml"
-  when: ansible_os_family == "Debian"
+  when: ansible_facts.os_family == "Debian"
 
 # Installation tasks
 
@@ -22,8 +22,8 @@
     state: present
     disable_gpg_check: yes
   when:
-    - ansible_os_family|lower == "redhat"
-    - ansible_architecture == "x86_64"
+    - ansible_facts.os_family == "RedHat"
+    - ansible_facts.architecture == "x86_64"
 
 - name: Linux CentOS/RedHat | Install wazuh-agent using yum (aarch64)
   yum:
@@ -31,22 +31,22 @@
     state: present
     disable_gpg_check: yes
   when:
-    - ansible_os_family|lower == "redhat"
-    - ansible_architecture == "aarch64"
+    - ansible_facts.os_family == "RedHat"
+    - ansible_facts.architecture == "aarch64"
 
 - name: Linux Debian | Install wazuh-agent using dpkg (AMD64)
   shell: |
     dpkg -i "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_amd64.deb"
   when:
-    - ansible_os_family|lower != "redhat"
-    - ansible_architecture == "x86_64"
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture == "x86_64"
 
 - name: Linux Debian | Install wazuh-agent using dpkg (ARM64)
   shell: |
     dpkg -i "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_arm64.deb"
   when:
-    - ansible_os_family|lower != "redhat"
-    - ansible_architecture == "aarch64"
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture == "aarch64"
 
 - name: Update Wazuh agent configuration with Wazuh server IP address
   lineinfile:

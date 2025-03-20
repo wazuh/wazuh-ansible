@@ -5,11 +5,11 @@
     url: "{{ wazuh_agent_url_amd64_deb }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_amd64.deb"
   when:
-    - ansible_architecture == "x86_64"
+    - ansible_facts.architecture == "x86_64"
 
 - name: Linux Debian (ARM64) | Download wazuh-agent package
   get_url:
     url: "{{ wazuh_agent_url_arm64_deb }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_arm64.deb"
   when:
-    - ansible_architecture == "aarch64"
+    - ansible_facts.architecture == "aarch64"
