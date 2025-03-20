@@ -40,7 +40,7 @@
     state: present
 
 - name: MacOS | Register Wazuh agent
-  command: "/Library/Application\\ Support/Wazuh\\ agent.app/bin/wazuh-agent --register-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none"
+  command: "/Library/Application\\ Support/Wazuh\\ agent.app/bin/wazuh-agent --enroll-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none"
 
 - name: MacOS | Restart Wazuh agent service (MacOS 10.10+)
   command: "launchctl kickstart -k system/com.wazuh.agent"

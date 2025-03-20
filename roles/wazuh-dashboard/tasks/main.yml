@@ -42,13 +42,6 @@
               - https://{{ node }}:9200
             {% endfor %}
 
-      - name: Dashboard-config | Update Wazuh API URL
-        replace:
-          path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-          regexp: "url: 'https://localhost'"
-          replace: "url: 'https://{{ wazuh_server_api_host }}'"
-        become: yes
-
       - name: Dashboard-config | Remove comments from configuration file
         replace:
           path: "/etc/wazuh-dashboard/opensearch_dashboards.yml"

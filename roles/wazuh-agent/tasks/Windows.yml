@@ -31,7 +31,7 @@
     state: started
 
 - name: Windows | Register Wazuh agent
-  win_command: '"C:\\Program Files\\wazuh-agent\\wazuh-agent.exe" --register-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none'
+  win_command: '"C:\\Program Files\\wazuh-agent\\wazuh-agent.exe" --enroll-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none'
 
 - name: Windows | Update Wazuh agent configuration with Wazuh server IP address
   win_lineinfile:
