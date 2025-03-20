@@ -1,12 +1,35 @@
 ---
 
-- name: Install Nginx
+- name: Amazon Linux 2 | Install Nginx
+  command: amazon-linux-extras install nginx1.12=latest -y
+  args:
+    creates: /sbin/nginx
+  when:
+    - ansible_facts.distribution == 'Amazon'
+    - ansible_facts.distribution_major_version == '2'
+  tags:
+    - provision_load_balancer
+
+- name: Install Nginx (package manager)
   package:
     name: "nginx"
     state: present
     update_cache: yes
+  when:
+    - ansible_facts.distribution != 'Amazon' or ansible_facts.distribution_major_version != '2'
   tags:
     - provision_load_balancer
+
+- name: Debian-based LB | Install Nginx full package
+  apt:
+    name: "nginx-full"
+    state: present
+    update_cache: yes
+  when:
+    - ansible_facts.os_family == 'Debian'
+  tags:
+    - provision_load_balancer
+
 
 - name: RHEL-based LB | Install Nginx stream module
   yum:
@@ -14,16 +37,6 @@
     state: present
   when:
     - ansible_facts.os_family == 'RedHat'
-  tags:
-    - provision_load_balancer
-
-- name: Install nginx-full package
-  apt:
-    name: "nginx-full"
-    state: present
-    update_cache: yes
-  when:
-    - ansible_facts.os_family == 'Debian'
   tags:
     - provision_load_balancer
 

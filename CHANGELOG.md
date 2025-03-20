@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Enhance indexer role defaults, wazuh-aio playbook, and nginx installation steps for the server role ([#1594](https://github.com/wazuh/wazuh-ansible/pull/1594))
 - Corrections in opensearch.yml file configuration in the wazuh-indexer role ([#1580](https://github.com/wazuh/wazuh-ansible/pull/1580))
 - Add package URLs role for AIO and distributed setups ([#1588](https://github.com/wazuh/wazuh-ansible/pull/1588))
 - Refactor of the wazuh-distributed playbook ([#1584](https://github.com/wazuh/wazuh-ansible/pull/1584))

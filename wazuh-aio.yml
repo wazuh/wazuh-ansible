@@ -9,8 +9,3 @@
     - role: wazuh-dashboard
   vars:
     single_node: true
-    instances:
-      aio:
-        name: node-1
-        ip: "{{ hostvars.aio.private_ip }}"
-        role: aio

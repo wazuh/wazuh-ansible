@@ -77,6 +77,11 @@
       when:
         - ansible_facts.os_family == 'Debian'
 
+    - name: Linux | Reload systemd configuration
+      systemd:
+        daemon_reload: yes
+      become: yes
+
     - name: Copy the certificates from local to the Wazuh Server instance
       copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"

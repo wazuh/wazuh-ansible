@@ -1,13 +1,12 @@
 ---
 
 single_node: false
+generate_certs: true
 instances:
   aio:
     name: node-1
-    ip: '{{ hostvars[inventory_hostname].private_ip }}'
+    ip: "{{ hostvars.aio.private_ip }}"
     role: aio
-
-generate_certs: true
 
 wazuh_indexer_package_download_path: "/tmp/wazuh-indexer"
 wazuh_indexer_package_name: "wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
