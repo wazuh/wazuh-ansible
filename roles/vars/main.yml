@@ -5,4 +5,4 @@ wazuh_package_revision: "1"
 
 local_configs_path: "{{ playbook_dir }}/deployment-config-files"
 
-urls_file: "urls.yml"
+urls_file: "artifacts_urls.yml"
