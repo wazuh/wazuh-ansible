@@ -27,7 +27,7 @@
       shell: sysctl -p
       become: yes
   when:
-    - ansible_facts.os_family == 'Amazon'
+    - ansible_facts.distribution == 'Amazon'
 
 - name: RHEL, CentOS, and Amazon Linux 2 | Configure system settings and install dependencies
   block:

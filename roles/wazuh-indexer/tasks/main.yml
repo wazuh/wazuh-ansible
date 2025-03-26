@@ -25,7 +25,7 @@
 - import_tasks: "config_files_setup.yml"
   become: yes
 
-- name: Reload systemd configuration
+- name: Linux | Reload systemd configuration
   systemd:
     daemon_reload: yes
   become: yes
