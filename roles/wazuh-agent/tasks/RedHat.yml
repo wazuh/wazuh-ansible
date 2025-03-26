@@ -1,0 +1,15 @@
+---
+
+- name: Linux CentOS/RedHat (x86_64) | Download wazuh-agent package
+  get_url:
+    url: "{{ wazuh_agent_url_amd64_rpm }}"
+    dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_x86_64.rpm"
+  when:
+    - ansible_facts.architecture == "x86_64"
+
+- name: Linux CentOS/RedHat (aarch64) | Download wazuh-agent package
+  get_url:
+    url: "{{ wazuh_agent_url_arm64_rpm }}"
+    dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_aarch64.rpm"
+  when:
+    - ansible_facts.architecture == "aarch64"

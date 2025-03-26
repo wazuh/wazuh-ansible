@@ -10,8 +10,25 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Enhance indexer role defaults, wazuh-aio playbook, and nginx installation steps for the server role ([#1598](https://github.com/wazuh/wazuh-ansible/pull/1598))
+- Use ansible_facts for Wazuh agent tasks ([#1590](https://github.com/wazuh/wazuh-ansible/pull/1590))
+- Corrections in opensearch.yml file configuration in the wazuh-indexer role ([#1580](https://github.com/wazuh/wazuh-ansible/pull/1580))
+- Add package URLs role for AIO and distributed setups ([#1588](https://github.com/wazuh/wazuh-ansible/pull/1588))
+- Refactor of the wazuh-distributed playbook ([#1584](https://github.com/wazuh/wazuh-ansible/pull/1584))
+- Refactor of the wazuh-aio playbook ([#1585](https://github.com/wazuh/wazuh-ansible/pull/1585))
+- Refactor of the wazuh-server ansible role ([#1579](https://github.com/wazuh/wazuh-ansible/pull/1579))
+- Refactor of the wazuh-dashboard ansible role ([#1565](https://github.com/wazuh/wazuh-ansible/pull/1565))
+- Corrections for wazuh-indexer role refactoring ([#1563](https://github.com/wazuh/wazuh-ansible/pull/1563))
+- Refactor of the wazuh-indexer ansible role ([#1551](https://github.com/wazuh/wazuh-ansible/pull/1551))
+- Remove default Wazuh agent configuration file and related tasks ([#1546](https://github.com/wazuh/wazuh-ansible/pull/1546))
+- Refactor of the wazuh-agent ansible role ([#1517](https://github.com/wazuh/wazuh-ansible/pull/1517))
+- Refactor Ansible playbook for Wazuh agent ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492))
 - Adapt existing workflows to new allocator YAML inventory ([#1561](https://github.com/wazuh/wazuh-ansible/pull/1561)) \- (Workflows)
 - Update AWS credentials actions in GHA workflows to use 'v4' instead of 'v3' ([#1492](https://github.com/wazuh/wazuh-ansible/pull/1492)) \- (Workflows)
+
+## Deleted
+
+- Ansible MVP - Initial project cleanup and setup ([#1505](https://github.com/wazuh/wazuh-ansible/pull/1505)
 
 ## [v4.10.2]
 

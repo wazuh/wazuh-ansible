@@ -1,0 +1,152 @@
+---
+
+- include_vars: ../../vars/main.yml
+
+- include_vars: ../../vars/{{ urls_file }}
+
+- import_tasks: lb.yml
+  when:
+    - provision_load_balancer
+
+- name: Install Wazuh Server
+  block:
+    - name: Check if local_configs_path directory exists
+      block:
+        - name: Retrieve local_configs_path directory information
+          stat:
+            path: "{{ local_configs_path }}"
+          register: local_configs_path_stat
+
+        - fail:
+            msg: "The directory {{ local_configs_path }} (local_configs_path) does not exist."
+          when: not local_configs_path_stat.stat.exists
+      run_once: true
+      delegate_to: localhost
+      become: no
+
+    - name: Ensure wazuh-server package download directory exists
+      file:
+        path: "{{ wazuh_server_package_download_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: RHEL-based | Download wazuh-server package
+      block:
+        - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-server package
+          get_url:
+            url: "{{ wazuh_server_url_amd64_rpm }}"
+            dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
+          when:
+            - ansible_facts.architecture == "x86_64"
+
+        - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-server package
+          get_url:
+            url: "{{ wazuh_server_url_arm64_rpm }}"
+            dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
+          when:
+            - ansible_facts.architecture == "aarch64"
+
+        - name: RedHat/CentOS/Fedora | Install wazuh-server package
+          yum:
+            name: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
+            state: present
+            disable_gpg_check: yes
+      when:
+        - ansible_facts.os_family == 'RedHat'
+
+    - name: Debian-based systems | Download wazuh-server package
+      block:
+        - name: Debian-based (AMD64) | Download wazuh-server package
+          get_url:
+            url: "{{ wazuh_server_url_amd64_deb }}"
+            dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.deb"
+          when:
+            - ansible_facts.architecture == "x86_64"
+
+        - name: Debian-based (ARM64) | Download wazuh-server package
+          get_url:
+            url: "{{ wazuh_server_url_arm64_deb }}"
+            dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.deb"
+          when:
+            - ansible_facts.architecture == "aarch64"
+
+        - name: Debian-based | Install wazuh-server package
+          apt:
+            deb: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.deb"
+            state: present
+      when:
+        - ansible_facts.os_family == 'Debian'
+
+    - name: Linux | Reload systemd configuration
+      systemd:
+        daemon_reload: yes
+      become: yes
+
+    - name: Copy the certificates from local to the Wazuh Server instance
+      copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
+        dest: /etc/wazuh-server/certs/
+        owner: wazuh-server
+        group: wazuh-server
+        mode: 0644
+      with_items:
+        - "root-ca.pem"
+        - "{{ server_node_name }}-key.pem"
+        - "{{ server_node_name }}.pem"
+
+    - name: Rename certificates to match default names
+      command: mv /etc/wazuh-server/certs/{{ item.src }} /etc/wazuh-server/certs/{{ item.dest }}
+      with_items:
+        - { src: "{{ server_node_name }}-key.pem", dest: "server-key.pem" }
+        - { src: "{{ server_node_name }}.pem", dest: "server.pem" }
+
+    - name: Generate the wazuh-keystore (username)
+      shell: >
+        echo 'admin' | /usr/share/wazuh-server/bin/wazuh-keystore -f indexer -k username
+
+    - name: Generate the wazuh-keystore (password)
+      shell: >
+        echo 'admin' | /usr/share/wazuh-server/bin/wazuh-keystore -f indexer -k password
+
+    - name: Server-config | Edit the wazuh-server.yml file
+      block:
+        - name: Server-config | Edit the indexer.hosts configuration
+          replace:
+            path: /etc/wazuh-server/wazuh-server.yml
+            regexp: '^indexer:\n(\s*)hosts:\n(\s*)- host:.*\n(\s*)port:.*$'
+            replace: |
+              indexer:
+                hosts:
+                {% for item in wazuh_indexer_hosts %}
+                - host: "{{ item.host }}"
+                    port: {{ item.port }}
+                {% endfor %}
+
+        - name: Server-config | Edit the communications_api.host configuration
+          replace:
+            path: /etc/wazuh-server/wazuh-server.yml
+            regexp: '^communications_api:\n(\s*)host:.*$'
+            replace: 'communications_api:\n  host: "0.0.0.0"'
+
+        - name: Server-config | Edit the management_api.host configuration
+          replace:
+            path: /etc/wazuh-server/wazuh-server.yml
+            regexp: '^management_api:\n(\s*)host:\n(\s*)- localhost\n(\s*)- ::1$'
+            replace: 'management_api:\n  host:\n    - "0.0.0.0"\n    - "::"'
+
+        - name: Server-config | Remove empty lines
+          command: sed -i '/^\s*$/d' /etc/wazuh-server/wazuh-server.yml
+
+    - name: Ensure Wazuh Server service is started and enabled.
+      service:
+        name: "wazuh-server"
+        enabled: true
+        state: started
+
+    - name: Remove leftover installation files
+      file:
+        path: "{{ wazuh_server_package_download_path }}"
+        state: absent
+        force: yes
+  when:
+    - not provision_load_balancer

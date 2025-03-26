@@ -1,0 +1,93 @@
+---
+
+- name: Linux | Create directory for wazuh-agent package
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: directory
+    mode: '0755'
+
+# Download package tasks
+
+- include_tasks: "RedHat.yml"
+  when: ansible_facts.os_family == "RedHat"
+
+- include_tasks: "Debian.yml"
+  when: ansible_facts.os_family == "Debian"
+
+# Installation tasks
+
+- name: Linux CentOS/RedHat | Install wazuh-agent using yum (x86_64)
+  yum:
+    name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_x86_64.rpm"
+    state: present
+    disable_gpg_check: yes
+  when:
+    - ansible_facts.os_family == "RedHat"
+    - ansible_facts.architecture == "x86_64"
+
+- name: Linux CentOS/RedHat | Install wazuh-agent using yum (aarch64)
+  yum:
+    name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_aarch64.rpm"
+    state: present
+    disable_gpg_check: yes
+  when:
+    - ansible_facts.os_family == "RedHat"
+    - ansible_facts.architecture == "aarch64"
+
+- name: Linux Debian | Install wazuh-agent using dpkg (AMD64)
+  shell: |
+    dpkg -i "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_amd64.deb"
+  when:
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture == "x86_64"
+
+- name: Linux Debian | Install wazuh-agent using dpkg (ARM64)
+  shell: |
+    dpkg -i "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_arm64.deb"
+  when:
+    - ansible_facts.os_family == "Debian"
+    - ansible_facts.architecture == "aarch64"
+
+- name: Update Wazuh agent configuration with Wazuh server IP address
+  lineinfile:
+    path: /etc/wazuh-agent/wazuh-agent.yml
+    regexp: '^  server_url: https://.*:27000'
+    line: '  server_url: https://{{ wazuh_server_addresses[0] }}:27000'
+    state: present
+
+- name: Linux | Register Wazuh agent
+  shell: |
+    /usr/share/wazuh-agent/bin/wazuh-agent --enroll-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none
+
+- name: Linux | Start and enable Wazuh Agent service
+  block:
+    - name: Linux | Reload systemd configuration
+      systemd:
+        daemon_reload: yes
+      become: yes
+
+    - name: Linux | Ensure Wazuh Agent service is stopped [1/3]
+      service:
+        name: wazuh-agent
+        state: stopped
+      ignore_errors: yes
+
+    - name: Linux | Ensure Wazuh Agent service is disabled [2/3]
+      service:
+        name: wazuh-agent
+        enabled: false
+      ignore_errors: yes
+
+    - name: Linux | Ensure Wazuh Agent service is started and enabled [3/3]
+      service:
+        name: wazuh-agent
+        enabled: true
+        state: started
+
+# Cleanup tasks
+
+- name: Linux | Remove leftover wazuh-agent installation directory
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: absent
+    force: yes

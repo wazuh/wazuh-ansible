@@ -1,0 +1,19 @@
+- hosts: agents
+  vars:
+    wazuh_server_addresses:
+      - "<Your Wazuh Server IP>"
+  tasks:
+    - name: Include wazuh-agent role for Linux hosts
+      block:
+        - include_role:
+            name: ./roles/wazuh-agent
+      become: yes
+      become_user: root
+      when:
+        - ansible_facts.os_family != "Windows"
+
+    - name: Include wazuh-agent role for Windows hosts
+      include_role:
+        name: ./roles/wazuh-agent
+      when:
+        - ansible_facts.os_family == "Windows"

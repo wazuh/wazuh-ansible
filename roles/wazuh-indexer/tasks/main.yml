@@ -1,0 +1,73 @@
+---
+
+- include_vars: ../../vars/main.yml
+
+- include_vars: ../../vars/{{ urls_file }}
+
+- import_tasks: dependencies.yml
+  become: yes
+
+- name: Linux CentOS/RedHat | Install wazuh-indexer using yum
+  yum:
+    name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: yes
+  when:
+    - ansible_facts.os_family == 'RedHat'
+
+- name: Linux Debian | Install wazuh-indexer using apt
+  apt:
+    deb: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  when:
+    - ansible_facts.os_family == 'Debian'
+
+- import_tasks: "config_files_setup.yml"
+  become: yes
+
+- name: Linux | Reload systemd configuration
+  systemd:
+    daemon_reload: yes
+  become: yes
+
+- name: Ensure Wazuh indexer started and enabled
+  service:
+    name: wazuh-indexer
+    enabled: true
+    state: started
+
+- name: Initialize Wazuh Indexer cluster
+  shell: |
+    /usr/share/wazuh-indexer/bin/indexer-security-init.sh
+  args:
+    executable: /bin/bash
+  become: yes
+  run_once: true
+
+- name: Wait for Wazuh indexer API
+  uri:
+    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cat/health/"
+    user: "admin" # Default Indexer user is always "admin"
+    password: "admin"
+    validate_certs: no
+    status_code: 200,401
+    return_content: yes
+    timeout: 4
+  register: _result
+  until:
+    - _result is defined
+    - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
+  retries: 24
+  delay: 5
+
+- name: Reload systemd configuration
+  systemd:
+    daemon_reload: true
+  become: yes
+  notify: restart wazuh-indexer
+
+- name: Remove Wazuh Indexer installation leftovers
+  file:
+    path: "{{ wazuh_indexer_package_download_path }}"
+    state: absent
+  become: yes

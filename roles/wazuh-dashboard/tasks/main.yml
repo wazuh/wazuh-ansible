@@ -1,0 +1,114 @@
+---
+
+- include_vars: ../../vars/main.yml
+
+- include_vars: ../../vars/{{ urls_file }}
+
+- import_tasks: dependencies.yml
+  become: yes
+
+- name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
+  yum:
+    name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: yes
+  become: yes
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Install wazuh-dashboard using APT
+  apt:
+    deb: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  become: yes
+  when:
+    - ansible_facts.os_family == 'Debian'
+
+- name: Linux | Reload systemd configuration
+  systemd:
+    daemon_reload: yes
+  become: yes
+
+- name: Dashboard-config | Configure Wazuh dashboard
+  block:
+      - name: Dashboard-config | Remove current opensearch.hosts configuration
+        replace:
+          path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+          regexp: 'opensearch\.hosts: .*$'
+          replace: 'opensearch.hosts:'
+
+      - name: Dashboard-config | Add opensearch.hosts configuration
+        blockinfile:
+          path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+          insertafter: 'opensearch.hosts:'
+          marker: "# OpenSearch hosts configuration"
+          block: |
+            {% for node in indexer_cluster_nodes %}
+              - https://{{ node }}:9200
+            {% endfor %}
+
+      - name: Dashboard-config | Remove comments from configuration file
+        replace:
+          path: "/etc/wazuh-dashboard/opensearch_dashboards.yml"
+          regexp: '^\s*#.*$'
+          replace: ''
+
+      - name: Dashboard-config | Remove empty lines from config.yml file
+        replace:
+          path: "/etc/wazuh-dashboard/opensearch_dashboards.yml"
+          regexp: '^\s*$'
+          replace: ''
+
+- name: Copy the certificates from local to the Wazuh dashboard instance
+  copy:
+    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
+    dest: /etc/wazuh-dashboard/certs/
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: 0400
+  with_items:
+    - "root-ca.pem"
+    - "{{ dashboard_node_name }}-key.pem"
+    - "{{ dashboard_node_name }}.pem"
+
+- name: Rename certificates to match default names
+  command: mv /etc/wazuh-dashboard/certs/{{ item.src }} /etc/wazuh-dashboard/certs/{{ item.dest }}
+  with_items:
+    - { src: "{{ dashboard_node_name }}.pem", dest: "dashboard.pem" }
+    - { src: "{{ dashboard_node_name }}-key.pem", dest: "dashboard-key.pem" }
+  become: yes
+  when: dashboard_node_name != "dashboard"
+
+- name: Ensure Wazuh dashboard started and enabled
+  service:
+    name: wazuh-dashboard
+    enabled: true
+    state: started
+
+- name: Extract server host from dashboard configuration
+  shell: grep '^server.host:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
+  register: server_host
+  changed_when: false
+
+- name: Extract server port from dashboard configuration
+  shell: grep '^server.port:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
+  register: server_port
+  changed_when: false
+
+- name: Wait for Wazuh dashboard to be ready
+  uri:
+    url: "https://{{ server_host.stdout }}:{{ server_port.stdout }}/app/login"
+    method: GET
+    status_code: 200
+    validate_certs: no
+  register: result
+  retries: 10
+  delay: 5
+  until: result.status == 200
+
+- name: Remove installation leftovers
+  file:
+    path: "{{ wazuh_dashboard_package_download_path }}"
+    state: absent
+    force: yes
+  become: yes

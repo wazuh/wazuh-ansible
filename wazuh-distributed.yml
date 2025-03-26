@@ -1,0 +1,91 @@
+---
+
+- hosts: localhost
+  roles:
+    - role: package-urls
+  run_once: true
+  become: no
+
+- hosts: wi_cluster
+  roles:
+    - role: wazuh-indexer
+  become: yes
+  vars:
+    # generate_certs: false                    # Set to false if you are using your own certificates
+    instances:
+      wi1:
+        name: node-1
+        ip: "{{ hostvars.wi1.private_ip }}"
+        role: indexer
+      wi2:
+        name: node-2
+        ip: "{{ hostvars.wi2.private_ip }}"
+        role: indexer
+      wi3:
+        name: node-3
+        ip: "{{ hostvars.wi3.private_ip }}"
+        role: indexer
+      manager:
+        name: node-4
+        ip: "{{ hostvars.manager.private_ip }}"
+        role: server
+        node_type: master
+      worker:
+        name: node-5
+        ip: "{{ hostvars.worker.private_ip }}"
+        role: server
+        node_type: worker
+      dashboard:
+        name: node-6
+        ip: "{{ hostvars.dashboard.private_ip }}"
+        role: dashboard
+
+- hosts: manager
+  roles:
+    - role: wazuh-server
+  become: yes
+  vars:
+    server_node_name: "node-4"
+    wazuh_indexer_hosts:
+      - host: "{{ hostvars.wi1.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi2.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi3.private_ip }}"
+        port: 9200
+
+- hosts: worker
+  roles:
+    - role: wazuh-server
+  become: yes
+  vars:
+    server_node_name: "node-5"
+    wazuh_indexer_hosts:
+      - host: "{{ hostvars.wi1.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi2.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi3.private_ip }}"
+        port: 9200
+
+- hosts: balancer
+  roles:
+    - role: wazuh-server
+  become: yes
+  vars:
+    provision_load_balancer: true
+    lb_server_hosts:
+      - "{{ hostvars.manager.private_ip }}"
+      - "{{ hostvars.worker.private_ip }}"
+
+- hosts: dashboard
+  roles:
+    - role: wazuh-dashboard
+  become: yes
+  vars:
+    dashboard_node_name: "node-6"
+    wazuh_server_api_host: "{{ hostvars.balancer.private_ip }}"
+    indexer_cluster_nodes:
+      - "{{ hostvars.wi1.private_ip }}"
+      - "{{ hostvars.wi2.private_ip }}"
+      - "{{ hostvars.wi3.private_ip }}"
