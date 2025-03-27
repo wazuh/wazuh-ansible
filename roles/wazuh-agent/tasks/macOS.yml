@@ -8,14 +8,14 @@
 
 - name: MacOS (Intel) | Download Wazuh agent package
   get_url:
-    url: "{{ wazuh_agent_url_amd64_macos }}"
+    url: "{{ wazuh_agent_url_intel64_pkg }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
   when:
     - ansible_facts.architecture == "x86_64"
 
 - name: MacOS (ARM) | Download Wazuh agent package
   get_url:
-    url: "{{ wazuh_agent_url_arm64_macos }}"
+    url: "{{ wazuh_agent_url_arm64_pkg }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
   when:
     - ansible_facts.architecture == "aarch64"

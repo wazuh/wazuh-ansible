@@ -34,14 +34,14 @@
       block:
         - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-server package
           get_url:
-            url: "{{ wazuh_server_url_amd64_rpm }}"
+            url: "{{ wazuh_server_url_x86_64_rpm }}"
             dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
           when:
             - ansible_facts.architecture == "x86_64"
 
         - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-server package
           get_url:
-            url: "{{ wazuh_server_url_arm64_rpm }}"
+            url: "{{ wazuh_server_url_aarch64_rpm }}"
             dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
           when:
             - ansible_facts.architecture == "aarch64"

@@ -42,12 +42,12 @@
 
     - name: Cert-gen | Download certificates generation tool
       get_url:
-        url: "{{ certs_gen_tool_url }}"
+        url: "{{ wazuh_certs_tool_script_url }}"
         dest: "{{ local_configs_path }}/wazuh-certs-tool.sh"
 
     - name: Cert-gen | Download base config.yml file
       get_url:
-        url: "{{ certs_gen_config_url }}"
+        url: "{{ wazuh_certs_tool_config_url }}"
         dest: "{{ local_configs_path }}/config.yml"
 
     - name: Cert-gen | Remove comments from config.yml file

@@ -7,7 +7,7 @@
 
 - name: Windows | Download Wazuh agent installer
   win_get_url:
-    url: "{{ wazuh_agent_url_win }}"
+    url: "{{ wazuh_agent_url_i386_msi }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
 
 - name: Windows | Install Wazuh agent (Single server mode)
