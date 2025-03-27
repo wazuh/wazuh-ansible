@@ -1,4 +1,5 @@
 - hosts: agents
+  strategy: free
   vars:
     wazuh_server_addresses:
       - "<Your Wazuh Server IP>"

@@ -1,0 +1,107 @@
+---
+
+- hosts: agents
+  strategy: free
+  tasks:
+    - name: Gather Wazuh Agent logs from Linux hosts
+      become: yes
+      when: ansible_facts.system == "Linux"
+      block:
+        - name: Linux | Set required facts for logs gathering (1/2)
+          ansible.builtin.set_fact:
+            logs_prefix: "{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}_{{ ansible_facts.architecture }}_{{ inventory_hostname }}"
+
+        - name: Linux | Set required facts for logs gathering (2/2)
+          ansible.builtin.set_fact:
+            remote_log_file_path: "/tmp/{{ logs_prefix }}_{{ ansible_date_time.epoch }}"
+
+        - name: Linux | Remove existing Wazuh logs temporal directories
+          ansible.builtin.file:
+            path: "{{ remote_log_file_path }}"
+            state: absent
+
+        - name: Linux | Create temporal directories for Wazuh logs
+          ansible.builtin.file:
+            path: "{{ remote_log_file_path }}"
+            state: directory
+            mode: '0755'
+
+        - name: Linux | Wazuh Agent
+          ignore_errors: yes
+          block:
+            - name: Linux | Wazuh Agent | Fetching logs
+              ansible.builtin.shell: |
+                journalctl -u wazuh-agent > {{ remote_log_file_path }}/{{ logs_prefix }}_journalctl.log
+
+            - name: Linux | Wazuh Agent | Fetching agent configuration
+              ansible.builtin.copy:
+                src: /etc/wazuh-agent/wazuh-agent.yml
+                dest: "{{ remote_log_file_path }}/{{ logs_prefix }}_wazuh-agent.yml"
+                remote_src: yes
+
+        - name: Linux | Compress Wazuh logs
+          ansible.builtin.archive:
+            path: "{{ remote_log_file_path }}"
+            dest: "{{ remote_log_file_path }}/compressed_wazuh_agent_logs_{{ logs_prefix }}.tar.gz"
+            format: gz
+
+        - name: Linux | Copy Wazuh logs to local machine
+          ansible.builtin.fetch:
+            src: "{{ remote_log_file_path }}/compressed_wazuh_agent_logs_{{ logs_prefix }}.tar.gz"
+            dest: "{{ local_log_file_path }}/"
+            flat: yes
+
+        - name: Linux | Remove Wazuh logs from remote machine
+          ansible.builtin.file:
+            path: "{{ remote_log_file_path }}"
+            state: absent
+
+    - name: Gather Wazuh Agent logs from Windows hosts
+      when: ansible_facts.os_family == "Windows"
+      block:
+        - name: Windows | Set required facts for logs gathering (1/2)
+          ansible.builtin.set_fact:
+            logs_prefix: "{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_version }}_{{ ansible_facts.architecture }}_{{ inventory_hostname }}"
+
+        - name: Windows | Set required facts for logs gathering (2/2)
+          ansible.builtin.set_fact:
+            remote_log_file_path: "C:\\Temp\\{{ logs_prefix }}_{{ ansible_date_time.epoch }}"
+
+        - name: Windows | Remove existing Wazuh logs temporal directories
+          ansible.builtin.win_file:
+            path: "{{ remote_log_file_path }}"
+            state: absent
+
+        - name: Windows | Create temporal directories for Wazuh logs
+          ansible.builtin.win_file:
+            path: "{{ remote_log_file_path }}"
+            state: directory
+
+        - name: Windows | Wazuh Agent
+          ignore_errors: yes
+          block:
+            - name: Windows | Wazuh Agent | Fetching logs
+              ansible.builtin.win_shell: |
+                $LogPath = "{{ remote_log_file_path }}\\{{ logs_prefix }}_wevents.log";
+                Get-EventLog -LogName Application | Where-Object { $_.Source -eq 'wazuh-agent' } | Select-Object -ExpandProperty Message | Out-File -FilePath $LogPath -Encoding UTF8
+
+            - name: Windows | Wazuh Agent | Fetching agent configuration
+              ansible.builtin.win_copy:
+                src: 'C:\\Program Files\\wazuh-agent\\config\\wazuh-agent.yml'
+                dest: "{{ remote_log_file_path }}\\{{ logs_prefix }}_config.yml"
+                remote_src: yes
+
+            - name: Windows | Compress Wazuh logs
+              ansible.builtin.win_shell: |
+                Compress-Archive -Path "{{ remote_log_file_path }}\\*" -DestinationPath "{{ remote_log_file_path }}\\compressed_wazuh_agent_logs_{{ logs_prefix }}.zip" -CompressionLevel Optimal
+
+        - name: Windows | Copy Wazuh logs to local machine
+          ansible.builtin.fetch:
+            src: "{{ remote_log_file_path }}\\compressed_wazuh_agent_logs_{{ logs_prefix }}.zip"
+            dest: "{{ local_log_file_path }}/"
+            flat: yes
+
+        - name: Windows | Remove Wazuh logs from remote machine
+          ansible.builtin.win_file:
+            path: "{{ remote_log_file_path }}"
+            state: absent

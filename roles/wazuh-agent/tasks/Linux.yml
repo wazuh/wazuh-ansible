@@ -57,7 +57,7 @@
 
 - name: Linux | Register Wazuh agent
   shell: |
-    /usr/share/wazuh-agent/bin/wazuh-agent --enroll-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none
+    /usr/share/wazuh-agent/bin/wazuh-agent --enroll --enroll-url https://{{ wazuh_server_addresses[0] }}:55000 --user wazuh --password wazuh
 
 - name: Linux | Start and enable Wazuh Agent service
   block:

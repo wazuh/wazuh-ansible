@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Adapt GHA workflows for the latest Wazuh version ([#1626](https://github.com/wazuh/wazuh-ansible/pull/1626))
 - Enhance indexer role defaults, wazuh-aio playbook, and nginx installation steps for the server role ([#1598](https://github.com/wazuh/wazuh-ansible/pull/1598))
 - Use ansible_facts for Wazuh agent tasks ([#1590](https://github.com/wazuh/wazuh-ansible/pull/1590))
 - Corrections in opensearch.yml file configuration in the wazuh-indexer role ([#1580](https://github.com/wazuh/wazuh-ansible/pull/1580))

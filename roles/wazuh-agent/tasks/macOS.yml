@@ -8,14 +8,14 @@
 
 - name: MacOS (Intel) | Download Wazuh agent package
   get_url:
-    url: "{{ wazuh_agent_url_amd64_macos }}"
+    url: "{{ wazuh_agent_url_intel64_pkg }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
   when:
     - ansible_facts.architecture == "x86_64"
 
 - name: MacOS (ARM) | Download Wazuh agent package
   get_url:
-    url: "{{ wazuh_agent_url_arm64_macos }}"
+    url: "{{ wazuh_agent_url_arm64_pkg }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
   when:
     - ansible_facts.architecture == "aarch64"
@@ -40,7 +40,7 @@
     state: present
 
 - name: MacOS | Register Wazuh agent
-  command: "/Library/Application\\ Support/Wazuh\\ agent.app/bin/wazuh-agent --enroll-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none"
+  command: "/Library/Application\\ Support/Wazuh\\ agent.app/bin/wazuh-agent --enroll --enroll-url https://{{ wazuh_server_addresses[0] }}:55000 --user wazuh --password wazuh"
 
 - name: MacOS | Restart Wazuh agent service (MacOS 10.10+)
   command: "launchctl kickstart -k system/com.wazuh.agent"
