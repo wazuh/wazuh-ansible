@@ -8,12 +8,12 @@ dashboard_node_name: node-1
 dashboard_server_host: "0.0.0.0"
 dashboard_server_port: "443"
 dashboard_server_name: "dashboard"
-wazuh_version: 4.11.2
+wazuh_version: 4.12.0
 indexer_cluster_nodes:
   - 127.0.0.1
 
 # The Wazuh dashboard package repository
-dashboard_version: "4.11.2"
+dashboard_version: "4.12.0"
 
 # API credentials
 wazuh_api_credentials:

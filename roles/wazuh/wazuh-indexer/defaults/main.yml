@@ -1,6 +1,6 @@
 ---
 # Cluster Settings
-indexer_version: 4.11.2
+indexer_version: 4.12.0
 
 single_node: false
 indexer_node_name: node-1

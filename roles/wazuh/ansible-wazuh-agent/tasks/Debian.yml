@@ -30,7 +30,7 @@
     set -o pipefail
     curl -s {{ wazuh_agent_config.repo.gpg }} | apt-key add -
   args:
-    warn: false
+    # warn: false
     executable: /bin/bash
   changed_when: false
   when:
