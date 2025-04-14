@@ -11,22 +11,22 @@
 
 - name: Debian/Ubuntu | Download Filebeat apt key.
   get_url:
-    url: "{{ filebeatrepo.gpg }}"
-    dest: "{{ filebeatrepo.path }}"
+    url: "{{ wazuh_repo.gpg }}"
+    dest: "{{ wazuh_repo.path }}"
 
 - name: Import Filebeat GPG key
-  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ filebeatrepo.keyring_path }} --import {{ filebeatrepo.path }}"
+  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
   args:
-    creates: "{{ filebeatrepo.keyring_path }}"
+    creates: "{{ wazuh_repo.keyring_path }}"
 
 - name: Set permissions for Filebeat GPG key
   file:
-    path: "{{ filebeatrepo.keyring_path }}"
+    path: "{{ wazuh_repo.keyring_path }}"
     mode: '0644'
 
 - name: Debian/Ubuntu | Add Filebeat-oss repository.
   apt_repository:
-    repo: "{{ filebeatrepo.apt }}"
+    repo: "{{ wazuh_repo.apt }}"
     state: present
     update_cache: true
   changed_when: false

@@ -7,6 +7,9 @@
 - include_vars: ../../vars/repo_pre-release.yml
   when: packages_repository == 'pre-release'
 
+- include_vars: ../../vars/repo_staging.yml
+  when: packages_repository == 'staging'
+
 - include_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
@@ -15,7 +18,7 @@
 
 - name: Install Filebeat | Redhat
   yum:
-    name: "filebeat-{{ filebeat_version }}-1"
+    name: "filebeat-{{ filebeat_version }}"
     state: present
     lock_timeout: 200
   register: install
@@ -26,7 +29,7 @@
 
 - name: Install Filebeat | Debian
   apt:
-    name: "filebeat={{ filebeat_version }}-1"
+    name: "filebeat={{ filebeat_version }}-*"
     state: present
   register: install
   tags:

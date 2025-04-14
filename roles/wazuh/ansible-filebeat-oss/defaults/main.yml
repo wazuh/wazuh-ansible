@@ -20,10 +20,3 @@ filebeat_ssl_dir: /etc/pki/filebeat
 
 # Local path to store the generated certificates (Opensearch security plugin)
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
-
-filebeatrepo:
-  keyring_path: '/usr/share/keyrings/wazuh.gpg'
-  apt: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main"
-  yum: 'https://packages.wazuh.com/4.x/yum/'
-  gpg: 'https://packages.wazuh.com/key/GPG-KEY-WAZUH'
-  path: '/tmp/WAZUH-GPG-KEY'
