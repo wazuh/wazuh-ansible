@@ -15,7 +15,7 @@
 
 - name: Install Filebeat | Redhat
   yum:
-    name: "filebeat-{{ filebeat_version }}"
+    name: "filebeat-{{ filebeat_version }}-1"
     state: present
     lock_timeout: 200
   register: install
@@ -26,7 +26,7 @@
 
 - name: Install Filebeat | Debian
   apt:
-    name: "filebeat={{ filebeat_version }}"
+    name: "filebeat={{ filebeat_version }}-1"
     state: present
   register: install
   tags:

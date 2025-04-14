@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Update the Filebeat installation for arm64 to include revision ([#x](https://github.com/wazuh/wazuh-ansible/pull/x))
 
 ### Deleted
 
