@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- None
+- Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
 
 ### Changed
 
