@@ -6,7 +6,13 @@
     get_url:
       url: "{{ wazuh_repo.gpg }}"
       dest: "{{ wazuh_repo.path }}"
-  
+
+  - name: Debian/Ubuntu | Install gnupg
+    apt:
+      name:
+        - gnupg
+      state: present
+
   - name: Import Wazuh repository GPG key
     command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
     args:

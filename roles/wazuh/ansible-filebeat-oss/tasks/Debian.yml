@@ -1,10 +1,11 @@
 ---
-- name: Debian/Ubuntu | Install apt-transport-https, ca-certificates and acl
+- name: Debian/Ubuntu | Install apt-transport-https, ca-certificate, acl and gnupg
   apt:
     name:
       - apt-transport-https
       - ca-certificates
       - acl
+      - gnupg
     state: present
   register: filebeat_ca_packages_install
   until: filebeat_ca_packages_install is succeeded
