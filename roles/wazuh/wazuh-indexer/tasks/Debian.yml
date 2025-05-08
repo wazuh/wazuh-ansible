@@ -5,16 +5,16 @@
   apt:
     update_cache: yes
 
-- name: Debian 9 (Stretch)
-  when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
-  block:
-
-    - name: Install Wazuh indexer dependencies
-      apt:
-        name: [
-          'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
-        ]
-        state: present
+- name: Install Wazuh indexer dependencies
+  apt:
+    name:
+      - unzip
+      - wget
+      - curl
+      - apt-transport-https
+      - software-properties-common
+      - gnupg
+    state: present
 
 - name: Add Wazuh indexer repository
   block:
@@ -22,7 +22,7 @@
       get_url:
         url: "{{ wazuh_repo.gpg }}"
         dest: "{{ wazuh_repo.path }}"
-  
+
     - name: Import Wazuh repository GPG key
       command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
       args:
