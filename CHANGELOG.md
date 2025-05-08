@@ -19,6 +19,24 @@ All notable changes to this project will be documented in this file.
 
 - Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
 
+## [4.12.2]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.12.1]
 
 ### Added
@@ -46,12 +64,13 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Standardize version file format ([#1553](https://github.com/wazuh/wazuh-ansible/pull/1553))
-- Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
 - Implement minor changes for Wazuh ansible arm64 support ([#1518](https://github.com/wazuh/wazuh-ansible/pull/1518))
+- Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
 
 ### Fixed
 
-- None
+- Add gnupg dependency to indexer, filebeat-oss, and dashboard roles ([#1623](https://github.com/wazuh/wazuh-ansible/pull/1623))
+- Update the Filebeat installation for arm64 to include revision ([#1616](https://github.com/wazuh/wazuh-ansible/pull/1616))
 
 ### Deleted
 
