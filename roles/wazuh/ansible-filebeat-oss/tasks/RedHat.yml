@@ -3,7 +3,7 @@
   yum_repository:
     name: wazuh_repo
     description: Wazuh Repo
-    baseurl: "{{ filebeatrepo.yum }}"
-    gpgkey: "{{ filebeatrepo.gpg }}"
+    baseurl: "{{ wazuh_repo.yum }}"
+    gpgkey: "{{ wazuh_repo.gpg }}"
     gpgcheck: true
   changed_when: false
