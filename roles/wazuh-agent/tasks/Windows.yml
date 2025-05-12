@@ -7,43 +7,40 @@
 
 - name: Windows | Download Wazuh agent installer
   win_get_url:
-    url: "{{ wazuh_agent_url_win }}"
+    url: "{{ wazuh_agent_url_msi }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
 
-- name: Windows | Install Wazuh agent (Single server mode)
+- name: Windows | Install Wazuh agent
   win_package:
     path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
-    arguments: '/q WAZUH_SERVER="{{ wazuh_server_addresses[0] }}"'
     state: present
   when: wazuh_server_addresses | length == 1
 
-- name: Windows | Install Wazuh agent (Cluster failover mode)
-  win_package:
-    path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
-    arguments: "/q WAZUH_SERVER=\"{{ wazuh_server_addresses | join(',') }}\" WAZUH_REGISTRATION_SERVER=\"{{ wazuh_server_addresses[0] }}\""
-    state: present
-  when: wazuh_server_addresses | length > 1
-
 - name: Windows | Start Wazuh agent service
   win_service:
-    name: "Wazuh Agent"
+    name: "wazuh-agent"
     start_mode: auto
     state: started
 
 - name: Windows | Register Wazuh agent
-  win_command: '"C:\\Program Files\\wazuh-agent\\wazuh-agent.exe" --enroll-agent --user wazuh --password wazuh --url https://{{ wazuh_server_addresses[0] }}:55000 --verification-mode none'
+  win_command: '"C:\\Program Files\\wazuh-agent\\wazuh-agent.exe" --enroll --enroll-url https://{{ wazuh_server_addresses[0] }}:55000 --user wazuh --password wazuh'
 
 - name: Windows | Update Wazuh agent configuration with Wazuh server IP address
   win_lineinfile:
-    path: 'C:\\ProgramData\\wazuh-agent\\config\\wazuh-agent.yml'
+    path: 'C:\\Program Files\\wazuh-agent\\config\\wazuh-agent.yml'
     regexp: '^  server_url: https://.*:27000'
     line: '  server_url: https://{{ wazuh_server_addresses[0] }}:27000'
     state: present
 
-- name: Windows | Restart Wazuh agent service
+- name: Windows | Stop Wazuh agent service
   win_service:
-    name: "Wazuh Agent"
-    state: restarted
+    name: "wazuh-agent"
+    state: stopped
+
+- name: Windows | Start Wazuh agent service
+  win_service:
+    name: "wazuh-agent"
+    state: started
 
 - name: Windows | Delete Wazuh agent download directory
   win_file:
