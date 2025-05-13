@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [v5.0.0]
+## [v6.0.0]
 
 ### Added
 
@@ -30,6 +30,20 @@ All notable changes to this project will be documented in this file.
 ## Deleted
 
 - Ansible MVP - Initial project cleanup and setup ([#1505](https://github.com/wazuh/wazuh-ansible/pull/1505)
+
+## [v5.0.0]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+## Deleted
+
+- None
 
 ## [v4.10.2]
 

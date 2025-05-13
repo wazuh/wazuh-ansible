@@ -140,7 +140,7 @@ jobs:
         run: |
           # Download the S3 package URIs file
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-          S3_KEY="deployment/5.0/artifacts_urls.yml"
+          S3_KEY="deployment/6.0/artifacts_urls.yml"
           aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACTS_URLS_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
