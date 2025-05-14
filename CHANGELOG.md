@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- None
+- Bring missing GHA workflows aio.yml and distributed.yml to main ([#1644](https://github.com/wazuh/wazuh-ansible/pull/1644))
 
 ### Changed
 
