@@ -6,7 +6,7 @@ on:
       AUTOMATION_REFERENCE:
         description: 'Branch or tag of the wazuh-automation repository'
         required: true
-        default: 'main'
+        default: '6.0.0'
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
@@ -138,9 +138,14 @@ jobs:
           path: wazuh-ansible/
       - name: Download S3 package URIs file (if applicable)
         run: |
-          # Download the S3 package URIs file
+          # Define necessary variables
+          VERSION_FILE="wazuh-ansible/VERSION.json"
+          WAZUH_VERSION=$(jq -r '.version' "$VERSION_FILE")
+          WAZUH_MAJOR=$(echo "$WAZUH_VERSION" | cut -d '.' -f 1)
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-          S3_KEY="deployment/6.0/artifacts_urls.yml"
+
+          # Download the S3 package URIs file
+          S3_KEY="deployment/${WAZUH_MAJOR}.0/artifacts_urls.yml"
           aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACTS_URLS_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
