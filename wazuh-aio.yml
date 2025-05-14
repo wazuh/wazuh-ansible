@@ -1,7 +1,8 @@
 ---
 
-- hosts: aio
-  become: yes
+- name: Wazuh All-in-One Deployment
+  hosts: aio
+  become: true
   roles:
     - role: package-urls
     - role: wazuh-indexer

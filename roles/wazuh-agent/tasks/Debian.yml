@@ -1,15 +1,17 @@
 ---
 
 - name: Linux Debian (AMD64) | Download wazuh-agent package
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ wazuh_agent_url_amd64_deb }}"
-    dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_amd64.deb"
+    dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
+    mode: '0644'
   when:
     - ansible_facts.architecture == "x86_64"
 
 - name: Linux Debian (ARM64) | Download wazuh-agent package
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ wazuh_agent_url_arm64_deb }}"
-    dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_arm64.deb"
+    dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
+    mode: '0644'
   when:
     - ansible_facts.architecture == "aarch64"

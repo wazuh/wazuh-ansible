@@ -41,7 +41,9 @@ on:
   release:
 env:
   COMPOSITE_NAME: "linux-SUBNAME-amd64"
-  AGENT_COMPOSITE_NAMES: '["linux-centos-9-amd64", "linux-redhat-9-arm64", "linux-ubuntu-22.04-amd64", "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]'
+  AGENT_COMPOSITE_NAMES: >
+    ["linux-centos-9-amd64", "linux-redhat-9-arm64", "linux-ubuntu-22.04-amd64",
+    "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
   ARTIFACTS_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifacts_urls.yml"
   PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifacts_urls_presigned.yml"
@@ -270,7 +272,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
           aws-region: us-east-1
-      - name: Checkout wazuh/wazuh-ansible repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
@@ -297,11 +299,7 @@ jobs:
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
           pip install ansible-core==2.16
-          ansible-galaxy collection install \
-            community.general \
-            community.docker \
-            ansible.windows \
-            community.windows
+          ansible-galaxy collection install -r wazuh-ansible/requirements.yml
       - name: Set COMPOSITE_NAME variable
         run: |
           case "${{ matrix.system }}" in
@@ -403,10 +401,17 @@ jobs:
               ansible_password=$(yq e '.all.hosts[].ansible_password' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
               ansible_port=$(yq e '.all.hosts[].ansible_port' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
               ansible_user=$(yq e '.all.hosts[].ansible_user' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-              ansible_winrm_server_cert_validation=$(yq e '.all.hosts[].ansible_winrm_server_cert_validation' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
+              ansible_winrm_server_cert_validation=$(
+                yq e '.all.hosts[].ansible_winrm_server_cert_validation' \
+                $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml
+              )
 
               # Append instance info to agents inventory file
-              instance_info="$AGENT_COMPOSITE_NAME ansible_host=$ansible_host private_ip=$private_ip ansible_connection=$ansible_connection ansible_port=$ansible_port ansible_user=$ansible_user" >> $AGENTS_INVENTORY_FILE
+              instance_info="$AGENT_COMPOSITE_NAME ansible_host=$ansible_host private_ip=$private_ip"
+              instance_info+=" ansible_connection=$ansible_connection ansible_port=$ansible_port"
+              instance_info+=" ansible_user=$ansible_user"
+              echo "$instance_info" >> $AGENTS_INVENTORY_FILE
+
               # if ansible_password or ansible_winrm_server_cert_validation are defined and not empty, append them to the instance info
               if [[ -n "$ansible_password" ]]; then
                 instance_info+=" ansible_password=$ansible_password"
@@ -425,13 +430,6 @@ jobs:
           echo "[agents:vars]" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $AGENTS_INVENTORY_FILE
-      - name: Save ALLOCATOR_PATH directory as artifact
-        # Ensure allocator artifacts are saved, even if an error occurs, to facilitate cleanup in subsequent steps.
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
-          path: ${{ env.ALLOCATOR_PATH }}
       - name: Download the presigned urls file artifact
         uses: actions/download-artifact@v4
         with:
@@ -455,6 +453,16 @@ jobs:
           -i $ALLOCATOR_PATH/inventory_agents.ini \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
+      - name: Copy deployment-config-files to the ALLOCATOR_PATH
+        run: |
+          cp -r wazuh-ansible/deployment-config-files $ALLOCATOR_PATH/
+      - name: Save ALLOCATOR_PATH directory as artifact
+        # Ensure allocator artifacts are saved, even if an error occurs, to facilitate cleanup in subsequent steps.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
       - name: Set deployment status to failure (in case of error)
         id: set-status
         if: failure()
@@ -462,8 +470,8 @@ jobs:
   stop-runner:
     name: Stop allocated EC2 instances
     needs:
-        - setup-runner
-        - start-runner
+      - setup-runner
+      - start-runner
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false # all jobs will run even if one fails
@@ -484,7 +492,6 @@ jobs:
           token: ${{ secrets.GH_CLONE_TOKEN }}
           path: wazuh-automation/
       - name: Checkout repository
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
@@ -499,15 +506,10 @@ jobs:
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
       - name: Install and set Ansible requirements
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
           pip install ansible-core==2.16
-          ansible-galaxy collection install \
-            community.general \
-            community.docker \
-            ansible.windows \
-            community.windows
+          ansible-galaxy collection install -r wazuh-ansible/requirements.yml
       - name: Download the allocator artifact
         uses: actions/download-artifact@v4
         with:
@@ -588,3 +590,11 @@ jobs:
 
           # Wait for all deletion tasks to complete
           wait
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25
+        with:
+          args: |
+            -v
+            wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml
+          working_directory: "wazuh-ansible"
+          requirements_file: "requirements.yml"

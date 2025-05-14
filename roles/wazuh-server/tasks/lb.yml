@@ -1,7 +1,7 @@
 ---
 
 - name: Amazon Linux 2 | Install Nginx
-  command: amazon-linux-extras install nginx1.12=latest -y
+  ansible.builtin.command: amazon-linux-extras install nginx1.12=latest -y
   args:
     creates: /sbin/nginx
   when:
@@ -11,28 +11,27 @@
     - provision_load_balancer
 
 - name: Install Nginx (package manager)
-  package:
+  ansible.builtin.package:
     name: "nginx"
     state: present
-    update_cache: yes
+    update_cache: true
   when:
     - ansible_facts.distribution != 'Amazon' or ansible_facts.distribution_major_version != '2'
   tags:
     - provision_load_balancer
 
 - name: Debian-based LB | Install Nginx full package
-  apt:
+  ansible.builtin.apt:
     name: "nginx-full"
     state: present
-    update_cache: yes
+    update_cache: true
   when:
     - ansible_facts.os_family == 'Debian'
   tags:
     - provision_load_balancer
 
-
 - name: RHEL-based LB | Install Nginx stream module
-  yum:
+  ansible.builtin.yum:
     name: nginx-mod-stream
     state: present
   when:
@@ -41,39 +40,40 @@
     - provision_load_balancer
 
 - name: Make sure the /etc/nginx/modules directory exists
-  file:
+  ansible.builtin.file:
     path: /etc/nginx/modules
     state: directory
+    mode: '0755'
   tags:
     - provision_load_balancer
 
 - name: Create symbolic link for ngx_stream_module.so [path1]
-  file:
+  ansible.builtin.file:
     src: /usr/share/nginx/modules/ngx_stream_module.so
     dest: /etc/nginx/modules/ngx_stream_module.so
     state: link
-  ignore_errors: yes
+  ignore_errors: true
   register: ngx_stream_module_path1
   tags:
     - provision_load_balancer
 
 - name: Create symbolic link for ngx_stream_module.so [path2]
-  file:
+  ansible.builtin.file:
     src: /usr/lib/nginx/modules/ngx_stream_module.so
     dest: /etc/nginx/modules/ngx_stream_module.so
     state: link
-  ignore_errors: yes
+  ignore_errors: true
   register: ngx_stream_module_path2
   when: ngx_stream_module_path1 is failed
   tags:
     - provision_load_balancer
 
 - name: Create symbolic link for ngx_stream_module.so [path3]
-  file:
+  ansible.builtin.file:
     src: /usr/lib64/nginx/modules/ngx_stream_module.so
     dest: /etc/nginx/modules/ngx_stream_module.so
     state: link
-  ignore_errors: yes
+  ignore_errors: true
   register: ngx_stream_module_path3
   when:
     - ngx_stream_module_path1 is failed
@@ -82,7 +82,7 @@
     - provision_load_balancer
 
 - name: Fail if Nginx stream module is not found
-  fail:
+  ansible.builtin.fail:
     msg: "Failed to create symbolic link for ngx_stream_module.so"
   when:
     - ngx_stream_module_path1 is failed
@@ -92,60 +92,69 @@
     - provision_load_balancer
 
 - name: Start and enable Nginx service
-  service:
+  ansible.builtin.service:
     name: nginx
     state: started
-    enabled: yes
+    enabled: true
   tags:
     - provision_load_balancer
 
 - name: Gather available local users
-  getent:
+  ansible.builtin.getent:
     database: passwd
   tags:
     - provision_load_balancer
 
 - name: Set value for fact 'lb_user_group' (for 'nginx' user)
-  set_fact:
+  ansible.builtin.set_fact:
     lb_user_group: "nginx"
   when: "'nginx' in getent_passwd.keys()"
   tags:
     - provision_load_balancer
 
 - name: Set value for fact 'lb_user_group' (for 'www-data' user)
-  set_fact:
+  ansible.builtin.set_fact:
     lb_user_group: "www-data"
   when: "'nginx' not in getent_passwd.keys()"
   tags:
     - provision_load_balancer
 
 - name: Make sure the /etc/nginx/ssl directory exists
-  file:
+  ansible.builtin.file:
     path: /etc/nginx/ssl
     state: directory
+    mode: '0755'
   tags:
     - provision_load_balancer
 
 - name: Generate self-signed SSL certificate
-  command: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx-selfsigned.key -out /etc/nginx/ssl/nginx-selfsigned.crt -subj '/C=US/ST=State/L=City/O=Organization/OU=Unit/CN={{ hostvars[inventory_hostname].private_ip }}'"
+  ansible.builtin.command: >
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048
+    -keyout /etc/nginx/ssl/nginx-selfsigned.key
+    -out /etc/nginx/ssl/nginx-selfsigned.crt
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN={{ hostvars[inventory_hostname].private_ip }}"
+  args:
+    creates: /etc/nginx/ssl/nginx-selfsigned.crt
   tags:
     - provision_load_balancer
 
 - name: Rename the default Nginx configuration file
-  command: mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+  ansible.builtin.command: mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+  args:
+    removes: /etc/nginx/nginx.conf
   tags:
     - provision_load_balancer
 
 - name: Copy the Nginx configuration file
-  template:
+  ansible.builtin.template:
     src: "templates/nginx.conf.j2"
     dest: "/etc/nginx/nginx.conf"
-    mode: 0644
+    mode: '0644'
   tags:
     - provision_load_balancer
 
 - name: Restart Nginx service
-  service:
+  ansible.builtin.service:
     name: nginx
     state: restarted
   tags:

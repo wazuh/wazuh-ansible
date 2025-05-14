@@ -1,15 +1,17 @@
 ---
 
-- hosts: localhost
+- name: Configure package URLs
+  hosts: localhost
   roles:
     - role: package-urls
   run_once: true
-  become: no
+  become: false
 
-- hosts: wi_cluster
+- name: Configure Wazuh Indexer cluster
+  hosts: wi_cluster
   roles:
     - role: wazuh-indexer
-  become: yes
+  become: true
   vars:
     # generate_certs: false                    # Set to false if you are using your own certificates
     instances:
@@ -40,10 +42,11 @@
         ip: "{{ hostvars.dashboard.private_ip }}"
         role: dashboard
 
-- hosts: manager
+- name: Configure Wazuh Manager
+  hosts: manager
   roles:
     - role: wazuh-server
-  become: yes
+  become: true
   vars:
     server_node_name: "node-4"
     wazuh_indexer_hosts:
@@ -54,10 +57,11 @@
       - host: "{{ hostvars.wi3.private_ip }}"
         port: 9200
 
-- hosts: worker
+- name: Configure Wazuh Worker
+  hosts: worker
   roles:
     - role: wazuh-server
-  become: yes
+  become: true
   vars:
     server_node_name: "node-5"
     wazuh_indexer_hosts:
@@ -68,20 +72,22 @@
       - host: "{{ hostvars.wi3.private_ip }}"
         port: 9200
 
-- hosts: balancer
+- name: Configure Load Balancer
+  hosts: balancer
   roles:
     - role: wazuh-server
-  become: yes
+  become: true
   vars:
     provision_load_balancer: true
     lb_server_hosts:
       - "{{ hostvars.manager.private_ip }}"
       - "{{ hostvars.worker.private_ip }}"
 
-- hosts: dashboard
+- name: Configure Wazuh Dashboard
+  hosts: dashboard
   roles:
     - role: wazuh-dashboard
-  become: yes
+  become: true
   vars:
     dashboard_node_name: "node-6"
     wazuh_server_api_host: "{{ hostvars.balancer.private_ip }}"

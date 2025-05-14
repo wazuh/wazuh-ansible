@@ -1,20 +1,22 @@
-- hosts: agents
+---
+
+- name: Deploy Wazuh agent(s)
+  hosts: agents
   strategy: free
   vars:
     wazuh_server_addresses:
       - "<Your Wazuh Server IP>"
   tasks:
     - name: Include wazuh-agent role for Linux hosts
-      block:
-        - include_role:
-            name: ./roles/wazuh-agent
-      become: yes
+      when: ansible_facts.system == "Linux"
+      become: true
       become_user: root
-      when:
-        - ansible_facts.os_family != "Windows"
+      block:
+        - name: Include Wazuh agent role for Linux
+          ansible.builtin.include_role:
+            name: wazuh-agent
 
     - name: Include wazuh-agent role for Windows hosts
-      include_role:
-        name: ./roles/wazuh-agent
-      when:
-        - ansible_facts.os_family == "Windows"
+      when: ansible_facts.os_family == "Windows"
+      ansible.builtin.include_role:
+        name: wazuh-agent
