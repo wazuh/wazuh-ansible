@@ -1,48 +1,54 @@
 ---
 
 - name: Windows | Ensure Wazuh agent download directory exists
-  win_file:
+  ansible.windows.win_file:
     path: "{{ wazuh_agent_win_package_download_path }}"
     state: directory
 
 - name: Windows | Download Wazuh agent installer
-  win_get_url:
+  ansible.windows.win_get_url:
     url: "{{ wazuh_agent_url_msi }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
 
 - name: Windows | Install Wazuh agent
-  win_package:
+  ansible.windows.win_package:
     path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
     state: present
   when: wazuh_server_addresses | length == 1
 
-- name: Windows | Start Wazuh agent service
-  win_service:
+- name: Windows | Start Wazuh agent service (1/2)
+  ansible.windows.win_service:
     name: "wazuh-agent"
     start_mode: auto
     state: started
 
 - name: Windows | Register Wazuh agent
-  win_command: '"C:\\Program Files\\wazuh-agent\\wazuh-agent.exe" --enroll --enroll-url https://{{ wazuh_server_addresses[0] }}:55000 --user wazuh --password wazuh'
+  ansible.windows.win_command:
+    cmd: >
+      "C:\\Program Files\\wazuh-agent\\wazuh-agent.exe"
+      --enroll
+      --enroll-url https://{{ wazuh_server_addresses[0] }}:55000
+      --user wazuh
+      --password wazuh
 
 - name: Windows | Update Wazuh agent configuration with Wazuh server IP address
-  win_lineinfile:
+  community.windows.win_lineinfile:
     path: 'C:\\Program Files\\wazuh-agent\\config\\wazuh-agent.yml'
     regexp: '^  server_url: https://.*:27000'
     line: '  server_url: https://{{ wazuh_server_addresses[0] }}:27000'
     state: present
 
 - name: Windows | Stop Wazuh agent service
-  win_service:
+  ansible.windows.win_service:
     name: "wazuh-agent"
     state: stopped
 
-- name: Windows | Start Wazuh agent service
-  win_service:
+- name: Windows | Start Wazuh agent service (2/2)
+  ansible.windows.win_service:
     name: "wazuh-agent"
     state: started
 
 - name: Windows | Delete Wazuh agent download directory
-  win_file:
+  ansible.windows.win_file:
     path: "{{ wazuh_agent_win_package_download_path }}"
     state: absent

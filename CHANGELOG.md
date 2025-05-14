@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Update to [Wazuh v5.0.0](https://github.com/wazuh/wazuh/blob/v5.0.0/CHANGELOG.md#500)
+- Implement ansible-lint and solve violations ([#1642](https://github.com/wazuh/wazuh-ansible/pull/1642)) \- (Workflows)
 - Enhance PR check workflows (All-in-one and Distributed) ([#1457](https://github.com/wazuh/wazuh-ansible/pull/1457)) \- (Workflows)
 
 ### Changed
