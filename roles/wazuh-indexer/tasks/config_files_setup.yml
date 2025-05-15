@@ -80,8 +80,8 @@
             block: |
               {% for key, value in instances.items() %}
               {% if value.role is defined and value.role == 'indexer' %}
-                - name: {{ value.name }}
-                  ip: {{ value.ip }}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
               {% endif %}
               {% endfor %}
 
@@ -94,13 +94,13 @@
             block: |
               {% for key, value in instances.items() %}
               {% if value.role is defined and value.role == 'server' %}
-                - name: {{ value.name }}
-                  ip: {{ value.ip }}
-                  {% if value.node_type is defined and value.node_type == 'master' %}
-                  node_type: master
-                  {% elif value.node_type is defined and value.node_type == 'worker' %}
-                  node_type: worker
-                  {% endif %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% if value.node_type is defined and value.node_type == 'master' %}
+                    node_type: master
+              {% elif value.node_type is defined and value.node_type == 'worker' %}
+                    node_type: worker
+              {% endif %}
               {% endif %}
               {% endfor %}
 
@@ -113,8 +113,8 @@
             block: |
               {% for key, value in instances.items() %}
               {% if value.role is defined and value.role == 'dashboard' %}
-                - name: {{ value.name }}
-                  ip: {{ value.ip }}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
               {% endif %}
               {% endfor %}
 
@@ -146,10 +146,17 @@
             replace: "{{ hostvars[inventory_hostname].private_ip }}"
 
     - name: Cert-gen | Remove empty lines from config.yml file
-      ansible.builtin.replace:
-        path: "{{ local_configs_path }}/config.yml"
-        regexp: '^\s*$'
-        replace: ''
+      ansible.builtin.shell:
+        cmd: |
+          grep '[^[:blank:]]' "{{ local_configs_path }}/config.yml" > "{{ local_configs_path }}/config.yml.tmp"
+      args:
+        creates: "{{ local_configs_path }}/config.yml.tmp"
+
+    - name: Cert-gen | Replace original config.yml file with the cleaned one
+      ansible.builtin.command:
+        cmd: mv {{ local_configs_path }}/config.yml.tmp {{ local_configs_path }}/config.yml
+      args:
+        removes: "{{ local_configs_path }}/config.yml.tmp"
 
     - name: Cert-gen | Generate certificates
       ansible.builtin.command: >-
