@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Fix indentation issues in distributed deployments ([#1646](https://github.com/wazuh/wazuh-ansible/pull/1646))
 - Implement ansible-lint and solve violations ([#1642](https://github.com/wazuh/wazuh-ansible/pull/1642)) \- (Workflows)
 - Enhance PR check workflows (All-in-one and Distributed) ([#1457](https://github.com/wazuh/wazuh-ansible/pull/1457)) \- (Workflows)
 

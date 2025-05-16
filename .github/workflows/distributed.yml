@@ -505,6 +505,7 @@ jobs:
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Copy deployment-config-files to the ALLOCATOR_PATH
+        if: always()
         run: |
           cp -r wazuh-ansible/deployment-config-files $ALLOCATOR_PATH/
       - name: Save ALLOCATOR_PATH directory as artifact
