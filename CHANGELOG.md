@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Fix invalid active response ca_store setting ([#1654](https://github.com/wazuh/wazuh-ansible/pull/1654))
 
 ### Deleted
 
