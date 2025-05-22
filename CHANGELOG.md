@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Deleted
 
-- None
+- Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
 
 ## [4.12.1]
 
