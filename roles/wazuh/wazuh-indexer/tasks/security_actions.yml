@@ -27,7 +27,6 @@
     mode: 0400
   with_items:
     - root-ca.pem
-    - root-ca.key
     - "{{ indexer_node_name }}-key.pem"
     - "{{ indexer_node_name }}.pem"
     - admin-key.pem
