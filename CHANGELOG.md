@@ -19,6 +19,24 @@ All notable changes to this project will be documented in this file.
 
 - None
 
+## [4.14.0]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.13.0]
 
 ### Added
@@ -49,11 +67,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
 
 ### Deleted
 
-- None
+- Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
 
 ## [4.12.1]
 
