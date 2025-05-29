@@ -31,29 +31,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
-
-### Deleted
-
-- Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
-
-## [4.12.2]
-
-### Added
-
-- None
-
-### Changed
-
-- None
-
-### Fixed
-
 - Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
 
 ### Deleted
 
 - Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
+- Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
 
 ## [4.12.1]
 
