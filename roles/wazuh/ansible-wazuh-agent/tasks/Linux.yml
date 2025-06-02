@@ -219,7 +219,7 @@
 
 - name: Linux | Installing agent configuration (ossec.conf)
   template:
-    src: var-ossec-etc-ossec-agent.conf.j2
+    src: "{{ wazuh_agent_ossec_configuration_template }}"
     dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
     group: wazuh
@@ -231,7 +231,7 @@
 
 - name: Linux | Installing local_internal_options.conf
   template:
-    src: var-ossec-etc-local-internal-options.conf.j2
+    src: "{{ wazuh_agent_ossec_local_internal_options_template }}"
     dest: "{{ wazuh_dir }}/etc/local_internal_options.conf"
     owner: root
     group: wazuh
@@ -243,7 +243,7 @@
 
 - name: Create auto-enrollment password file
   template:
-    src: authd_pass.j2
+    src: "{{ wazuh_agent_ossec_authdpass_template }}"
     dest: "{{ wazuh_dir }}/etc/authd.pass"
     owner: wazuh
     group: wazuh
