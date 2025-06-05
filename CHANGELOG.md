@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [4.13.0]
+
+### Added
+
+- Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
+
+### Changed
+
+- None
+
+### Fixed
+
+- Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
+
+### Deleted
+
+- Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
+- Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
+
 ## [4.12.1]
 
 ### Added
@@ -19,7 +38,7 @@ All notable changes to this project will be documented in this file.
 
 - None
 
-## [v4.12.0]
+## [4.12.0]
 
 ### Added
 
