@@ -5,12 +5,12 @@
 # Usage: ./repository_bumper.sh <version>
 
 # Global variables
-DIR=$(dirname "$(pwd)")
-LOG_FILE="${DIR}/tools/repository_bumper_$(date +"%Y-%m-%d_%H-%M-%S-%3N").log"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+LOG_FILE="${DIR}/tools/github/github-branch-maintenance/repository_bumper_$(date +"%Y-%m-%d_%H-%M-%S-%3N").log"
 VERSION=""
 STAGE=""
 FILES_EDITED=()
-FILES_EXCLUDED='--exclude="repository_bumper_*.log" --exclude="CHANGELOG.md" --exclude="repository_bumper.sh"'
+FILES_EXCLUDED='--exclude="repository_bumper_*.log" --exclude="CHANGELOG.md" --exclude="repository_bumper.sh" -exclude="4_bumper_repository.yml'
 
 get_old_version_and_stage() {
     local VERSION_FILE="${DIR}/VERSION.json"
