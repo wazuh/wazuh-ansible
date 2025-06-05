@@ -56,24 +56,6 @@ All notable changes to this project will be documented in this file.
 - Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
 - Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
 
-## [4.12.1]
-
-### Added
-
-- None
-
-### Changed
-
-- None
-
-### Fixed
-
-- None
-
-### Deleted
-
-- None
-
 ## [4.12.0]
 
 ### Added
