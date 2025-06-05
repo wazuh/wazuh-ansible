@@ -22,7 +22,6 @@ on:
         description: 'Optional identifier for the run'
         required: false
         type: string
-  push:
 
 jobs:
   bump:
@@ -37,8 +36,8 @@ jobs:
       CI_COMMIT_EMAIL: 22834044+wazuhci@users.noreply.github.com
       CI_GPG_PRIVATE_KEY: ${{ secrets.CI_WAZUHCI_GPG_PRIVATE }}
       GH_TOKEN: ${{ secrets.CI_WAZUHCI_BUMPER_TOKEN }}
-      BUMP_SCRIPT_PATH: tools/github/github-branch-maintenance/repository_bumper.sh
-      BUMP_LOG_PATH: tools/github/github-branch-maintenance
+      BUMP_SCRIPT_PATH: tools/repository_bumper.sh
+      BUMP_LOG_PATH: tools
 
     steps:
       - name: Dump event payload
