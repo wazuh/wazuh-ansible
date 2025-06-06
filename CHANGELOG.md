@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Integrate bumper script via GitHub action. ([#1676](https://github.com/wazuh/wazuh-ansible/pull/1676))
 - Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
 
 ### Changed
