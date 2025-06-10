@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Target version (e.g. 4.13.0)'
+        description: 'Target version (e.g. 4.12.0)'
         default: ''
         required: false
         type: string
@@ -26,7 +26,7 @@ on:
 jobs:
   bump:
     name: Repository bumper
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
       pull-requests: write
@@ -66,6 +66,10 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Using workflow-specific GITHUB_TOKEN because currently CI_WAZUHCI_BUMPER_TOKEN
+          # doesn't have all the necessary permissions
+          token: ${{ env.GH_TOKEN }}
 
       - name: Determine branch name
         id: vars
@@ -85,7 +89,7 @@ jobs:
           fi
 
           issue_number=$(echo "${{ inputs.issue-link }}" | awk -F'/' '{print $NF}')
-          BRANCH_NAME="enhancement/ansible${issue_number}-bump-${{ github.ref_name }}"
+          BRANCH_NAME="enhancement/wqa${issue_number}-bump-${{ github.ref_name }}"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "script_params=${script_params}" >> $GITHUB_OUTPUT
 
@@ -126,6 +130,6 @@ jobs:
         run: |
           echo "Bump complete."
           echo "Branch: ${{ steps.vars.outputs.branch_name }}"
-          echo "PR: https://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pull_request_number }}"
+          echo "PR: ${{ steps.create_pr.outputs.pull_request_url }}"
           echo "Bumper scripts logs:"
           cat ${BUMP_LOG_PATH}/repository_bumper*log
