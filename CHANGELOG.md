@@ -37,10 +37,30 @@ All notable changes to this project will be documented in this file.
 
 - None
 
+## [4.13.1]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.13.0]
 
 ### Added
 
+- Add missing malicious-ioc ruleset lists ([#1685](https://github.com/wazuh/wazuh-ansible/pull/1685))
+- Integrate bumper script via GitHub action. ([#1676](https://github.com/wazuh/wazuh-ansible/pull/1676))
 - Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
 
 ### Changed
