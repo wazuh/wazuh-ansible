@@ -296,6 +296,9 @@ wazuh_manager_ruleset:
     - 'audit-keys'
     - 'security-eventchannel'
     - 'amazon/aws-eventnames'
+    - 'malicious-ioc/malicious-ip'
+    - 'malicious-ioc/malicious-domains'
+    - 'malicious-ioc/malware-hashes'
 
 wazuh_manager_rule_exclude:
   - '0215-policy_rules.xml'
