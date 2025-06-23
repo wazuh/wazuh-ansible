@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
 
 ### Fixed
 
