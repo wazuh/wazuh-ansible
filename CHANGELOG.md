@@ -47,11 +47,67 @@ All notable changes to this project will be documented in this file.
 
 - None
 
+## [v4.13.0]
+
+### Added
+
+- Add missing malicious-ioc ruleset lists ([#1685](https://github.com/wazuh/wazuh-ansible/pull/1685))
+- Integrate bumper script via GitHub action. ([#1676](https://github.com/wazuh/wazuh-ansible/pull/1676))
+- Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
+
+### Changed
+
+- None
+
+### Fixed
+
+- Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
+
+### Deleted
+
+- Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
+- Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
+
+## [v4.12.0]
+
+### Added
+
+- Update to [Wazuh v4.12.0](https://github.com/wazuh/wazuh/blob/v4.12.0/CHANGELOG.md#v4120)
+
+### Changed
+
+- Standardize version file format ([#1553](https://github.com/wazuh/wazuh-ansible/pull/1553))
+- Implement minor changes for Wazuh ansible arm64 support ([#1518](https://github.com/wazuh/wazuh-ansible/pull/1518))
+- Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
+
+### Fixed
+
+- Add gnupg dependency to indexer, filebeat-oss, and dashboard roles ([#1623](https://github.com/wazuh/wazuh-ansible/pull/1623))
+- Update the Filebeat installation for arm64 to include revision ([#1616](https://github.com/wazuh/wazuh-ansible/pull/1616))
+
+## [v4.11.2]
+
+### Added
+
+- Update to [Wazuh v4.11.2](https://github.com/wazuh/wazuh/blob/v4.11.2/CHANGELOG.md#v4112)
+
+## [v4.11.1]
+
+### Added
+
+- Update to [Wazuh v4.11.1](https://github.com/wazuh/wazuh/blob/v4.11.1/CHANGELOG.md#v4111)
+
+## [v4.11.0]
+
+### Added
+
+- Update to [Wazuh v4.11.0](https://github.com/wazuh/wazuh/blob/v4.11.0/CHANGELOG.md#v4110)
+
 ## [v4.10.2]
 
 ### Added
 
-- Update to [Wazuh v4.10.2](https://github.com/wazuh/wazuh/blob/v4.10.2/CHANGELOG.md#v4101)
+- Update to [Wazuh v4.10.2](https://github.com/wazuh/wazuh/blob/v4.10.2/CHANGELOG.md#v4102)
 
 ## [v4.10.1]
 
@@ -64,6 +120,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Update to [Wazuh v4.10.0](https://github.com/wazuh/wazuh/blob/v4.10.0/CHANGELOG.md#v4100)
+
+### Fixed
+
+- Fix cert gen tool version variable assignment ([#1443](https://github.com/wazuh/wazuh-ansible/pull/1443))
 
 ## [v4.9.2]
 
@@ -373,7 +433,6 @@ All notable changes to this project will be documented in this file.
 - Add missing variable `elasticsearch_node_master` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#534](https://github.com/wazuh/wazuh-ansible/pull/534)
 - Add missing variable `elasticsearch_network_host` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#540](https://github.com/wazuh/wazuh-ansible/pull/540)
 
-
 ## [v4.0.3]
 
 ### Added
@@ -428,7 +487,6 @@ All notable changes to this project will be documented in this file.
 - Elastic API check fix ([@Zenidd](https://github.com/Zenidd)) [PR#480](https://github.com/wazuh/wazuh-ansible/pull/480)
 - Improve handling of run_once at opendistro-elasticsearch role ([@neonmei](https://github.com/neonmei)) [PR#478](https://github.com/wazuh/wazuh-ansible/pull/478)
 
-
 ## [v4.0.0]
 
 ### Added
@@ -440,7 +498,6 @@ All notable changes to this project will be documented in this file.
 
 - Ensure recursive /usr/share/kibana permissions before installing WUI ([@Zenidd](https://github.com/Zenidd)) [PR#471](https://github.com/wazuh/wazuh-ansible/pull/471)
 - Remove vuls integration ([@manuasir](https://github.com/manuasir)) [PR#469](https://github.com/wazuh/wazuh-ansible/pull/469)
-
 
 ## [v3.13.2]
 
