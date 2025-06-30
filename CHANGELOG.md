@@ -11,7 +11,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1717](https://github.com/wazuh/wazuh-ansible/pull/1717))- None
 
 ### Fixed
 
