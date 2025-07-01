@@ -12,14 +12,14 @@ checkPackages(){
         PACKAGES_URL=https://packages.wazuh.com/4.x/
     elif [ $1 == "pre-release" ]; then
         echo "pre-release"
-        PACKAGES_URL=https://packages-dev.wazuh.com/pre-release/
+        PACKAGES_URL=https://packages-dev.wazuh.info/pre-release/
     elif [ $1 == "staging" ]; then
         echo "staging"
-        PACKAGES_URL=https://packages-dev.wazuh.com/staging/
+        PACKAGES_URL=https://packages-dev.wazuh.info/staging/
         CHECK_WIN_PACKAGE=$(grep windows ../files/packages_uri_new.txt)
         echo $CHECK_WIN_PACKAGE
         if [ -n "$CHECK_WIN_PACKAGE" ]; then
-            WIN_AGENT_NAME=$(aws s3 ls s3://packages-dev.wazuh.com/staging/windows/wazuh-agent-$VERSION --region=us-west-1 | tail -1 | awk '{printf $4}')
+            WIN_AGENT_NAME=$(aws s3 ls s3://packages-dev.wazuh.info/staging/windows/wazuh-agent-$VERSION --region=us-west-1 | tail -1 | awk '{printf $4}')
             if [ -z $WIN_AGENT_NAME ]; then
                 echo "Windows agent package for version " $VERSION " does not exist in the staging repository"
                 exit 1
