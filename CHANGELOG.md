@@ -9,7 +9,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+
+- Bucket migration for packages-dev.wazuh.com ([#1713](https://github.com/wazuh/wazuh-ansible/pull/1713))- None
 
 ### Fixed
 
