@@ -374,3 +374,7 @@ wazuh_agent_config_defaults:
 
   labels: '{{ wazuh_agent_labels }}'
   enrollment: '{{ wazuh_agent_enrollment }}'
+
+wazuh_agent_ossec_configuration_template: 'var-ossec-etc-ossec-agent.conf.j2'
+wazuh_agent_ossec_local_internal_options_template: 'var-ossec-etc-local-internal-options.conf.j2'
+wazuh_agent_ossec_authdpass_template: 'authd_pass.j2'
