@@ -27,7 +27,7 @@ Vault variables
 ----------------
 
 ### vars/agentless_creds.yml
-This file has the agenless credentials.
+This file has the agentless credentials.
 ```
 ---
  agentless_creds:
