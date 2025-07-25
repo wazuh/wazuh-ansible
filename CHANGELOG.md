@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Bucket migration for packages-dev.wazuh.com ([#1711](https://github.com/wazuh/wazuh-ansible/pull/1711))- None
 
 ### Fixed
 
@@ -48,7 +48,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))- None
 
 ### Fixed
 
