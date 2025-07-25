@@ -9,7 +9,6 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-
 - Bucket migration for packages-dev.wazuh.com ([#1709](https://github.com/wazuh/wazuh-ansible/pull/1709))- Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
 
 ### Fixed
@@ -28,7 +27,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Bucket migration for packages-dev.wazuh.com ([#1710](https://github.com/wazuh/wazuh-ansible/pull/1710))- None
 
 ### Fixed
 
@@ -46,7 +45,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Bucket migration for packages-dev.wazuh.com ([#1711](https://github.com/wazuh/wazuh-ansible/pull/1711))- None
 
 ### Fixed
 
@@ -66,7 +65,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))- None
 
 ### Fixed
 
