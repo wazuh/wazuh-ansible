@@ -133,6 +133,16 @@ wazuh_manager_monitor_aws:
       access_key: null
       secret_key: null
 
+wazuh_manager_monitor_github:
+  enabled: 'no'
+  interval: '10m'
+  time_delay: '30s'
+  curl_max_size: '1M'
+  only_future_events: 'yes'
+  orgs:
+    - name: null
+      api_token: null
+
 ## SCA
 wazuh_manager_sca:
   enabled: 'yes'
@@ -416,6 +426,7 @@ wazuh_manager_config_defaults:
   syslog_outputs: '{{ wazuh_manager_syslog_outputs }}'
   integrations: '{{ wazuh_manager_integrations }}'
   monitor_aws: '{{ wazuh_manager_monitor_aws }}'
+  monitor_github: '{{ wazuh_manager_monitor_github }}'
   labels: '{{ wazuh_manager_labels }}'
   agents_disconnection_time: '{{ wazuh_manager_agent_disconnection_time }}'
   agents_disconnection_alert_time: '{{ wazuh_manager_agents_disconnection_alert_time }}'
