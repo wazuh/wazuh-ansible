@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [4.10.4]
+
+### Added
+
+- none
+
+### Changed
+
+- Bucket migration for packages-dev.wazuh.com ([#1713](https://github.com/wazuh/wazuh-ansible/pull/1713))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1718](https://github.com/wazuh/wazuh-ansible/pull/1718))- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.10.3]
 
 ### Added
@@ -9,8 +28,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-
-- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1718](https://github.com/wazuh/wazuh-ansible/pull/1718))- None
+- none
 
 ### Fixed
 
