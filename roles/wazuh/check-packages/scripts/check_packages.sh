@@ -19,7 +19,7 @@ checkPackages(){
         CHECK_WIN_PACKAGE=$(grep windows ../files/packages_uri_new.txt)
         echo $CHECK_WIN_PACKAGE
         if [ -n "$CHECK_WIN_PACKAGE" ]; then
-            WIN_AGENT_NAME=$(aws s3 ls s3://packages-dev.wazuh.com/staging/windows/wazuh-agent-$VERSION --region=us-west-1 | tail -1 | awk '{printf $4}')
+            WIN_AGENT_NAME=$(aws s3 ls s3://xdrsiem-packages-dev/staging/windows/wazuh-agent-$VERSION --region=us-west-1 | tail -1 | awk '{printf $4}')
             if [ -z $WIN_AGENT_NAME ]; then
                 echo "Windows agent package for version " $VERSION " does not exist in the staging repository"
                 exit 1
