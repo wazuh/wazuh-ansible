@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [5.0.0]
+
+### Added
+
+- Bring missing GHA workflows aio.yml and distributed.yml to main ([#1644](https://github.com/wazuh/wazuh-ansible/pull/1644))
+
+### Changed
+
+- Bucket migration for packages-dev.wazuh.com ([#1709](https://github.com/wazuh/wazuh-ansible/pull/1709))- Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.14.1]
 
 ### Added
