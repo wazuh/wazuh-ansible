@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 - None
 
-## [4.14.0]
+## [4.14.1]
 
 ### Added
 
@@ -27,7 +27,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Bucket migration for packages-dev.wazuh.com ([#1710](https://github.com/wazuh/wazuh-ansible/pull/1710))- None
+- None
 
 ### Fixed
 
@@ -37,7 +37,7 @@ All notable changes to this project will be documented in this file.
 
 - None
 
-## [4.13.1]
+## [4.14.0]
 
 ### Added
 
@@ -45,7 +45,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Bucket migration for packages-dev.wazuh.com ([#1711](https://github.com/wazuh/wazuh-ansible/pull/1711))- None
+- Bucket migration for packages-dev.wazuh.com ([#1710](https://github.com/wazuh/wazuh-ansible/pull/1710))- None
 
 ### Fixed
 
