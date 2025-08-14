@@ -19,24 +19,6 @@ All notable changes to this project will be documented in this file.
 
 - None
 
-## [4.13.1]
-
-### Added
-
-- None
-
-### Changed
-
-- Bucket migration for packages-dev.wazuh.com ([#1711](https://github.com/wazuh/wazuh-ansible/pull/1711))- None
-
-### Fixed
-
-- None
-
-### Deleted
-
-- None
-
 ## [4.13.0]
 
 ### Added
