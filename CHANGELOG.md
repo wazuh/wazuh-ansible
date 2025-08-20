@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Packages-dev bucket migration to 4.14.1 ([#1756](https://github.com/wazuh/wazuh-ansible/pull/1756))- None
 
 ### Fixed
 
