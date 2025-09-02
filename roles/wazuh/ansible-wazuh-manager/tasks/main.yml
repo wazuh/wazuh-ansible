@@ -133,7 +133,7 @@
     - config
 
 - name: Installing the local_rules.xml (default local_rules.xml)
-  template: src=var-ossec-rules-local_rules.xml.j2
+  template: src="{{ wazuh_manager_ossec_local_rules_template }}"
             dest="{{ wazuh_dir }}/etc/rules/local_rules.xml"
             owner=wazuh
             group=wazuh
@@ -157,7 +157,7 @@
     - rules
 
 - name: Installing the local_decoder.xml
-  template: src=var-ossec-rules-local_decoder.xml.j2
+  template: src="{{ wazuh_manager_ossec_local_decoder_template }}"
             dest="{{ wazuh_dir }}/etc/decoders/local_decoder.xml"
             owner=wazuh
             group=wazuh
@@ -182,7 +182,7 @@
 
 - name: Configure the shared-agent.conf
   template:
-    src: var-ossec-etc-shared-agent.conf.j2
+    src: "{{ wazuh_manager_ossec_shared_agent_template }}"
     dest: "{{ wazuh_dir }}/etc/shared/default/agent.conf"
     owner: wazuh
     group: wazuh
@@ -196,7 +196,7 @@
     - shared_agent_config is defined
 
 - name: Installing the local_internal_options.conf
-  template: src=var-ossec-etc-local-internal-options.conf.j2
+  template: src="{{ wazuh_manager_ossec_local_internal_options_template }}"
             dest="{{ wazuh_dir }}/etc/local_internal_options.conf"
             owner=root
             group=wazuh
@@ -279,7 +279,7 @@
 
 - name: Configure ossec.conf
   template:
-    src: var-ossec-etc-ossec-server.conf.j2
+    src: "{{ wazuh_manager_ossec_server_template }}"
     dest: "{{ wazuh_dir }}/etc/ossec.conf"
     owner: root
     group: wazuh
@@ -291,7 +291,7 @@
 
 - name: Ossec-authd password
   template:
-    src: authd_pass.j2
+    src: "{{ wazuh_manager_ossec_authdpass_template }}"
     dest: "{{ wazuh_dir }}/etc/authd.pass"
     owner: wazuh
     group: wazuh
@@ -308,7 +308,7 @@
   block:
     - name: Copy create_user script
       copy:
-        src: create_user.py
+        src: "{{ wazuh_manager_create_user_script_file }}"
         dest: "{{ wazuh_dir }}/framework/scripts/create_user.py"
         owner: root
         group: wazuh
@@ -316,7 +316,7 @@
 
     - name: Create admin.json
       template:
-        src: templates/admin.json.j2
+        src: "{{ wazuh_manager_adminjson_template }}"
         dest: "{{ wazuh_dir }}/api/configuration/admin.json"
         owner: wazuh
         group: wazuh
@@ -344,7 +344,7 @@
 
 - name: Agentless Hosts & Passwd
   template:
-    src: agentless.j2
+    src: "{{ wazuh_manager_agentless_template }}"
     dest: "{{ wazuh_dir }}/agentless/.passlist_tmp"
     owner: root
     group: root
