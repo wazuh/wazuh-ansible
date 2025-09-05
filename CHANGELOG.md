@@ -24,12 +24,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add opensearch_dashboard.yml parameters. ([#1768](https://github.com/wazuh/wazuh-ansible/pull/1768))
 - Add missing malicious-ioc ruleset lists ([#1685](https://github.com/wazuh/wazuh-ansible/pull/1685))
 - Integrate bumper script via GitHub action. ([#1676](https://github.com/wazuh/wazuh-ansible/pull/1676))
 - Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
 
 ### Changed
 
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1716](https://github.com/wazuh/wazuh-ansible/pull/1716))- None
 - Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))- None
 
 ### Fixed
