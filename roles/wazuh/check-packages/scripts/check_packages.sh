@@ -9,7 +9,7 @@ checkPackages(){
     ## Set S3 Bucket URL
     if [ $1 == "production" ]; then
         echo "production"
-        PACKAGES_URL=https://packages.wazuh.com/4.x/
+        PACKAGES_URL=https://packages.wazuh.com/5.x/
     elif [ $1 == "pre-release" ]; then
         echo "pre-release"
         PACKAGES_URL=https://packages-dev.wazuh.com/pre-release/
