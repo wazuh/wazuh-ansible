@@ -9,13 +9,13 @@ checkPackages(){
     ## Set S3 Bucket URL
     if [ $1 == "production" ]; then
         echo "production"
-        PACKAGES_URL=https://packages.wazuh.com/4.x/
+        PACKAGES_URL=https://packages-dev.wazuh.com/pre-release/
     elif [ $1 == "pre-release" ]; then
         echo "pre-release"
         PACKAGES_URL=https://packages-dev.wazuh.com/pre-release/
     elif [ $1 == "staging" ]; then
         echo "staging"
-        PACKAGES_URL=https://packages-dev.wazuh.com/staging/
+        PACKAGES_URL=https://packages-dev.wazuh.com/pre-release/
         CHECK_WIN_PACKAGE=$(grep windows ../files/packages_uri_new.txt)
         echo $CHECK_WIN_PACKAGE
         if [ -n "$CHECK_WIN_PACKAGE" ]; then
