@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Correct filebeat_node_name in distributed playbook and readme ([#1778](https://github.com/wazuh/wazuh-ansible/pull/1778))
 - Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
 
 ### Deleted
