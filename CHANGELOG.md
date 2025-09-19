@@ -33,11 +33,13 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Syscollector configuration change ([#1775](https://github.com/wazuh/wazuh-ansible/pull/1775))
 - Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1716](https://github.com/wazuh/wazuh-ansible/pull/1716))
 - Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))
 
 ### Fixed
 
+- Correct filebeat_node_name in distributed playbook and readme ([#1778](https://github.com/wazuh/wazuh-ansible/pull/1778))
 - Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
 
 ### Deleted
