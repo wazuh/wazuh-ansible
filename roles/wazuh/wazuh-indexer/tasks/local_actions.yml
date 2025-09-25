@@ -30,7 +30,7 @@
 
   - name: Local action | Prepare the certificates generation template file
     template:
-      src: "templates/config.yml.j2"
+      src: "{{ wazuh_indexer_certificates_generation_template }}"
       dest: "{{ local_certs_path }}/config.yml"
       mode: 0644
     register: tlsconfig_template
