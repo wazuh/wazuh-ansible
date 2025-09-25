@@ -542,6 +542,9 @@
     {% if integration.rule_id is defined %}
     <rule_id>{{ integration.rule_id }}</rule_id>
     {% endif %}
+    {% if integration.options is defined %}
+    <options>{{ integration.options }}</options>
+    {% endif %}
   </integration>
 {% endif %}
 {% endfor %}
