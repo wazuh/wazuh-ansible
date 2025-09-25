@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Remove dashboard chat setting ([#1798](https://github.com/wazuh/wazuh-ansible/pull/1798))
 - Rollback data source setting ([#1784](https://github.com/wazuh/wazuh-ansible/pull/1784))
 - Dashboard settings added ([#1783](https://github.com/wazuh/wazuh-ansible/pull/1783))
 - Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1715](https://github.com/wazuh/wazuh-ansible/pull/1715))
