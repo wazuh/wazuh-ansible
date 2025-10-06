@@ -69,20 +69,6 @@ wazuh_manager_connection:
     protocol: 'tcp'
     queue_size: 131072
 
-## Reports
-wazuh_manager_reports:
-  - enable: false
-    category: 'syscheck'
-    title: 'Daily report: File changes'
-    email_to: 'recipient@example.wazuh.com'
-    location: null
-    group: null
-    rule: null
-    level: null
-    srcip: null
-    user: null
-    showlogs: null
-
 ## Woodles
 wazuh_manager_rootcheck:
   frequency: 43200
@@ -262,25 +248,6 @@ wazuh_manager_localfiles:
     - format: 'audit'
       location: '/var/log/audit/audit.log'
 
-## Syslog outputs
-wazuh_manager_syslog_outputs:
-  - server: null
-    port: null
-    format: null
-
-## Integrations
-wazuh_manager_integrations:
-  # slack
-  - name: null
-    hook_url: '<hook_url>'
-    alert_level: 10
-    alert_format: 'json'
-    rule_id: null
-  # pagerduty
-  - name: null
-    api_key: '<api_key>'
-    alert_level: 12
-
 ## Labels
 wazuh_manager_labels:
   enable: false
@@ -396,7 +363,6 @@ wazuh_manager_config_defaults:
   mail_queue_size: '{{ wazuh_manager_email_queue_size }}'
   email_log_source: '{{ wazuh_manager_email_log_source }}'
   extra_emails: '{{ wazuh_manager_extra_emails }}'
-  reports: '{{ wazuh_manager_reports}}'
   syscheck: '{{ wazuh_manager_syscheck }}'
   rootcheck: '{{ wazuh_manager_rootcheck }}'
   openscap: '{{ wazuh_manager_openscap }}'
@@ -406,15 +372,11 @@ wazuh_manager_config_defaults:
   sca: '{{ wazuh_manager_sca }}'
   vulnerability_detection: '{{ wazuh_manager_vulnerability_detection }}'
   indexer: '{{ wazuh_manager_indexer }}'
-  log_level: '{{ wazuh_manager_log_level }}'
-  email_level: '{{ wazuh_manager_email_level }}'
   localfiles: '{{ wazuh_manager_localfiles }}'
   globals: '{{ wazuh_manager_globals }}'
   commands: '{{ wazuh_manager_commands }}'
   ruleset: '{{ wazuh_manager_ruleset }}'
   rule_exclude: '{{ wazuh_manager_rule_exclude }}'
-  syslog_outputs: '{{ wazuh_manager_syslog_outputs }}'
-  integrations: '{{ wazuh_manager_integrations }}'
   monitor_aws: '{{ wazuh_manager_monitor_aws }}'
   labels: '{{ wazuh_manager_labels }}'
   agents_disconnection_time: '{{ wazuh_manager_agent_disconnection_time }}'
