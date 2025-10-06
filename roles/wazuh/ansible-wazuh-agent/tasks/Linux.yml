@@ -186,19 +186,6 @@
         - config
         - api
 
-    - name: Linux | Import Key (via rest-API)
-      command: "{{ wazuh_dir }}/bin/manage_agents"
-      environment:
-        OSSEC_ACTION: i
-        OSSEC_AGENT_NAME: '{{ agent_name }}'
-        OSSEC_AGENT_IP: '{{ wazuh_agent_address }}'
-        OSSEC_AGENT_ID: '{{ api_agent_post.json.data.id }}'
-        OSSEC_AGENT_KEY: '{{ api_agent_post.json.data.key }}'
-        OSSEC_ACTION_CONFIRMED: y
-      register: manage_agents_output
-      vars:
-        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
-      notify: restart wazuh-agent
   when:
     - not ( wazuh_agent_authd.enable | bool )
     - wazuh_agent_config.enrollment.enabled != 'yes'
