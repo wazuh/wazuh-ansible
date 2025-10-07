@@ -23,48 +23,10 @@
     <agents_disconnection_alert_time>{{ wazuh_manager_config.agents_disconnection_alert_time }}</agents_disconnection_alert_time>
   </global>
 
-  <alerts>
-    <log_alert_level>{{ wazuh_manager_config.log_level }}</log_alert_level>
-    <email_alert_level>{{ wazuh_manager_config.email_level }}</email_alert_level>
-  </alerts>
-
   <!-- Choose between "plain", "json", or "plain,json" for the format of internal logs -->
   <logging>
     <log_format>{{ wazuh_manager_config.log_format }}</log_format>
   </logging>
-
-{% if wazuh_manager_config.extra_emails is defined %}
-{% for mail in wazuh_manager_config.extra_emails %}
-{% if mail.enable == true %}
-  <email_alerts>
-    <email_to>{{ mail.mail_to }}</email_to>
-    {% if mail.format is not none %}
-    <format>{{ mail.format }}</format>
-    {% endif %}
-    {% if mail.level is not none %}
-    <level>{{ mail.level }}</level>
-    {% endif %}
-    {% if mail.event_location is not none %}
-    <event_location>{{ mail.event_location }}</event_location>
-    {% endif %}
-    {% if mail.group is not none %}
-    <group>{{ mail.group }}</group>
-    {% endif %}
-    {% if mail.do_not_delay is not none and mail.do_not_delay == true %}
-    <do_not_delay />
-    {% endif %}
-    {% if mail.do_not_group is not none and mail.do_not_group == true %}
-    <do_not_group />
-    {% endif %}
-    {% if mail.rule_id is not none %}
-    <rule_id>{{ mail.rule_id }}</rule_id>
-    {% endif %}
-  </email_alerts>
-{% endif %}
-{% endfor %}
-{% endif %}
-
-
 
 {% for connection in wazuh_manager_config.connection %}
   <remote>
@@ -96,25 +58,6 @@
     {% endif %}
   </remote>
 {% endfor %}
-
-{% if wazuh_manager_config.reports is defined %}
-{% for report in wazuh_manager_config.reports %}
-{% if report.enable == true %}
-  <reports>
-    <category>{{ report.category }}</category>
-    <title>{{ report.title }}</title>
-    <email_to>{{ report.email_to }}</email_to>
-    {% if report.location is not none %}<location>{{ report.location }}</location>{% endif %}
-    {% if report.group is not none %}<group>{{ report.group }}</group>{% endif %}
-    {% if report.rule is not none %}<rule>{{ report.rule }}</rule>{% endif %}
-    {% if report.level is not none %}<level>{{ report.level }}</level>{% endif %}
-    {% if report.srcip is not none %}<srcip>{{ report.srcip }}</srcip>{% endif %}
-    {% if report.user is not none %}<user>{{ report.user }}</user>{% endif %}
-    {% if report.showlogs is not none %}<showlogs>{{ report.showlogs }}</showlogs>{% endif %}
-  </reports>
-{% endif %}
-{% endfor %}
-{% endif %}
 
   <!-- Policy monitoring -->
   <rootcheck>
@@ -363,20 +306,6 @@
   </command>
 {% endfor %}
 
-{% if agentless_creds is defined %}
-{% for agentless in agentless_creds %}
-  <agentless>
-    <type>{{ agentless.type }}</type>
-    <frequency>{{ agentless.frequency }}</frequency>
-    <host>{{ agentless.host }}</host>
-    <state>{{ agentless.state }}</state>
-    {% if agentless.arguments is defined %}
-      <arguments>{{ agentless.arguments }}</arguments>
-    {% endif %}
-  </agentless>
-{% endfor %}
-{% endif -%}
-
 {% if wazuh_manager_config.active_responses is defined %}
   {% for response in wazuh_manager_config.active_responses %}
     <active-response>
@@ -508,44 +437,6 @@
   </localfile>
 {% endfor %}
 {% endif -%}
-
-{% if wazuh_manager_config.syslog_outputs is defined %}
-{% for syslog_output in wazuh_manager_config.syslog_outputs %}
-{% if syslog_output.server is not none  %}
-  <syslog_output>
-    <server>{{ syslog_output.server }}</server>
-    <port>{{ syslog_output.port }}</port>
-    <format>{{ syslog_output.format }}</format>
-  </syslog_output>
-{% endif %}
-{% endfor %}
-{% endif %}
-
-{% if wazuh_manager_config.integrations is defined %}
-{% for integration in wazuh_manager_config.integrations %}
-{% if integration.name is not none %}
-  <!-- Integration with {{ integration.name }} -->
-  <integration>
-    <name>{{ integration.name }}</name>
-    {% if integration.hook_url is defined %}
-    <hook_url>{{ integration.hook_url }}</hook_url>
-    {% endif %}
-    {% if integration.api_key is defined %}
-    <api_key>{{ integration.api_key }}</api_key>
-    {% endif %}
-    {% if integration.alert_format is defined %}
-    <alert_format>{{ integration.alert_format }}</alert_format>
-    {% endif %}
-    {% if integration.alert_level is defined %}
-    <level>{{ integration.alert_level }}</level>
-    {% endif %}
-    {% if integration.rule_id is defined %}
-    <rule_id>{{ integration.rule_id }}</rule_id>
-    {% endif %}
-  </integration>
-{% endif %}
-{% endfor %}
-{% endif %}
 
 {% if monitor_aws is defined and monitor_aws.disabled == "no" %}
   <!-- S3 -->
