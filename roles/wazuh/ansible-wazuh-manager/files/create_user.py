@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 import sys
 import json
@@ -29,7 +30,12 @@ except Exception as e:
 def read_user_file(path=USER_FILE_PATH):
     with open(path) as user_file:
         data = json.load(user_file)
-        return data["username"], data["password"]
+        if isinstance(data, dict):
+            return [data]
+        elif isinstance(data, list):
+            return data
+        else:
+            raise ValueError("admin.json must be a JSON object or a list of objects")
 
 
 def db_users():
@@ -41,16 +47,17 @@ def db_roles():
     roles_result = get_roles()
     return {role["name"]: role["id"] for role in roles_result.affected_items}
 
+
 def disable_user(uid):
     random_pass = "".join(
-                random.choices(
-                    string.ascii_uppercase
-                    + string.ascii_lowercase
-                    + string.digits
-                    + SPECIAL_CHARS,
-                    k=8,
-                )
+        random.choices(
+            string.ascii_uppercase
+            + string.ascii_lowercase
+            + string.digits
+            + SPECIAL_CHARS,
+            k=8,
             )
+    )
     # assure there must be at least one character from each group
     random_pass = random_pass + ''.join([random.choice(chars) for chars in [string.ascii_lowercase, string.digits, string.ascii_uppercase, SPECIAL_CHARS]])
     random_pass = ''.join(random.sample(random_pass,len(random_pass)))
@@ -66,36 +73,45 @@ if __name__ == "__main__":
     if not os.path.exists(USER_FILE_PATH):
         # abort if no user file detected
         sys.exit(0)
-    username, password = read_user_file()
+
+    users_to_apply = read_user_file()
 
     # create RBAC database
     check_database_integrity()
 
     initial_users = db_users()
-    if username not in initial_users:
-        # create a new user
-        create_user(username=username, password=password)
-        users = db_users()
-        uid = users[username]
-        roles = db_roles()
-        rid = roles["administrator"]
-        set_user_role(
-            user_id=[
-                str(uid),
-            ],
-            role_ids=[
-                str(rid),
-            ],
-        )
-    else:
-        # modify an existing user ("wazuh" or "wazuh-wui")
-        uid = initial_users[username]
-        update_user(
-            user_id=[
-                str(uid),
-            ],
-            password=password,
-        )
+    roles = db_roles()
+    rid = roles["administrator"]
+
+    for entry in users_to_apply:
+        username = entry["username"]
+        password = entry["password"]
+
+        if username not in initial_users:
+            # create a new user
+            create_user(username=username, password=password)
+            users = db_users()
+            uid = users[username]
+            set_user_role(
+                user_id=[
+                    str(uid),
+                ],
+                role_ids=[
+                    str(rid),
+                ],
+            )
+            # refresh map after creation
+            initial_users = users
+        else:
+            # modify an existing user ("wazuh" or "wazuh-wui")
+            uid = initial_users[username]
+            update_user(
+                user_id=[
+                    str(uid),
+                ],
+                password=password,
+            )
+
     # disable unused default users
     #for def_user in ['wazuh', 'wazuh-wui']:
     #    if def_user != username:
