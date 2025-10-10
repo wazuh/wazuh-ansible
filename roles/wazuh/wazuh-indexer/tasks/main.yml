@@ -49,6 +49,15 @@
         force: yes
       tags: install
 
+    - name: Creates index directory
+      file:
+        path: "{{ indexer_index_path }}"
+        state: directory
+        owner: root
+        group: wazuh-indexer
+        mode: 0775
+        recurse: yes
+
     - include_tasks: security_actions.yml
       tags:
         - security
