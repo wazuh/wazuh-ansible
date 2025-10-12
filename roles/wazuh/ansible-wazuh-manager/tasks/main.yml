@@ -2,6 +2,12 @@
 
 - name: "Install dependencies"
   block:
+    - name: Update apt cache on Debian based systems
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
     - name: "Install common dependencies"
       package:
         name:
