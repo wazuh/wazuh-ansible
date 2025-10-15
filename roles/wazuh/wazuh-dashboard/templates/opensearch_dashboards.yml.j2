@@ -13,3 +13,8 @@ server.ssl.key: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}-key.pem"
 server.ssl.certificate: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}.pem"
 opensearch.ssl.certificateAuthorities: ["/etc/wazuh-dashboard/certs/root-ca.pem"]
 uiSettings.overrides.defaultRoute: /app/wz-home
+# Session expiration settings
+opensearch_security.cookie.ttl: 900000
+opensearch_security.session.ttl: 900000
+opensearch_security.session.keepalive: true
+assistant.chat.enabled: true

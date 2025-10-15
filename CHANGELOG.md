@@ -9,7 +9,28 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Bucket migration for packages-dev.wazuh.com ([#1709](https://github.com/wazuh/wazuh-ansible/pull/1709))- Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
+- Wazuh server clean-up ([#1803](https://github.com/wazuh/wazuh-ansible/pull/1803))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1714](https://github.com/wazuh/wazuh-ansible/pull/1714))
+- Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
+- Bucket migration for packages-dev.wazuh.com ([#1709](https://github.com/wazuh/wazuh-ansible/pull/1709))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.1]
+
+### Added
+
+- None
+
+### Changed
+
+- Packages-dev bucket migration to 4.14.1 ([#1756](https://github.com/wazuh/wazuh-ansible/pull/1756))
 
 ### Fixed
 
@@ -27,25 +48,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Bucket migration for packages-dev.wazuh.com ([#1710](https://github.com/wazuh/wazuh-ansible/pull/1710))- None
-
-### Fixed
-
-- None
-
-### Deleted
-
-- None
-
-## [4.13.1]
-
-### Added
-
-- None
-
-### Changed
-
-- Bucket migration for packages-dev.wazuh.com ([#1711](https://github.com/wazuh/wazuh-ansible/pull/1711))- None
+- Rollback data source setting ([#1784](https://github.com/wazuh/wazuh-ansible/pull/1784))
+- Dashboard settings added ([#1783](https://github.com/wazuh/wazuh-ansible/pull/1783))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1715](https://github.com/wazuh/wazuh-ansible/pull/1715))
+- Bucket migration for packages-dev.wazuh.com ([#1710](https://github.com/wazuh/wazuh-ansible/pull/1710))
 
 ### Fixed
 
@@ -59,16 +65,20 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add opensearch_dashboard.yml parameters. ([#1768](https://github.com/wazuh/wazuh-ansible/pull/1768))
 - Add missing malicious-ioc ruleset lists ([#1685](https://github.com/wazuh/wazuh-ansible/pull/1685))
 - Integrate bumper script via GitHub action. ([#1676](https://github.com/wazuh/wazuh-ansible/pull/1676))
 - Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
 
 ### Changed
 
-- Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))- None
+- Syscollector configuration change ([#1775](https://github.com/wazuh/wazuh-ansible/pull/1775))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1716](https://github.com/wazuh/wazuh-ansible/pull/1716))
+- Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))
 
 ### Fixed
 
+- Correct filebeat_node_name in distributed playbook and readme ([#1778](https://github.com/wazuh/wazuh-ansible/pull/1778))
 - Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
 
 ### Deleted
