@@ -1,0 +1,287 @@
+---
+
+- name: Cert-gen | Check if certificates already exists
+  ansible.builtin.stat:
+    path: "{{ local_configs_path }}"
+  register: certificates_folder
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - generate_certs
+
+- name: Cert-gen | Remove existing certificates
+  ansible.builtin.file:
+    path: "{{ local_configs_path }}"
+    state: absent
+    force: true
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - generate_certs
+    - certificates_folder.stat.exists
+
+- name: Cert-gen | Check if configuration is defined correctly
+  ansible.builtin.fail:
+    msg: "Single-node cluster is defined incorrectly. Please set single_node to true and define only one node."
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - single_node
+    - ( instances | length ) > 1
+
+- name: Cert-gen | Generate certificates for Wazuh cluster locally
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when: generate_certs
+  block:
+    - name: Cert-gen | Create local temporary directory for certificates generation (all certs)
+      ansible.builtin.file:
+        path: "{{ local_configs_path }}"
+        mode: "0755"
+        state: directory
+
+    - name: Cert-gen | Download certificates generation tool
+      ansible.builtin.get_url:
+        url: "{{ wazuh_certs_tool_script_url }}"
+        dest: "{{ local_configs_path }}/wazuh-certs-tool.sh"
+        mode: '0644'
+
+    - name: Cert-gen | Download base config.yml file
+      ansible.builtin.get_url:
+        url: "{{ wazuh_certs_tool_config_url }}"
+        dest: "{{ local_configs_path }}/config.yml"
+        mode: '0644'
+
+    - name: Cert-gen | Remove comments from config.yml file
+      ansible.builtin.replace:
+        path: "{{ local_configs_path }}/config.yml"
+        regexp: '^\s*#.*$'
+        replace: ''
+
+    - name: Cert-gen | Set up config.yml file for multi-node cluster
+      when: not single_node
+      block:
+        - name: Cert-gen | Remove existing nodes sections (cluster mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*(- name:|ip:).*$'
+            replace: ''
+
+        - name: Cert-gen | Add indexer nodes section (cluster mode)
+          ansible.builtin.blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            marker: "# Indexer nodes"
+            state: present
+            insertafter: "indexer:"
+            block: |
+              {% for key, value in instances.items() %}
+              {% if value.role is defined and value.role == 'indexer' %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Add server nodes section (cluster mode)
+          ansible.builtin.blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            marker: "# Server nodes"
+            state: present
+            insertafter: "server:"
+            block: |
+              {% for key, value in instances.items() %}
+              {% if value.role is defined and value.role == 'server' %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% if value.node_type is defined and value.node_type == 'master' %}
+                    node_type: master
+              {% elif value.node_type is defined and value.node_type == 'worker' %}
+                    node_type: worker
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Add dashboard nodes section (cluster mode)
+          ansible.builtin.blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            marker: "# Dashboard nodes"
+            state: present
+            insertafter: "dashboard:"
+            block: |
+              {% for key, value in instances.items() %}
+              {% if value.role is defined and value.role == 'dashboard' %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Remove comments from config.yml file
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*#.*$'
+            replace: ''
+
+    - name: Cert-gen | Set up config.yml file for single-node cluster
+      when: single_node
+      block:
+        - name: Cert-gen | Add indexer node section (single node mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<indexer-node-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+        - name: Cert-gen | Add server node section (single node mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<wazuh-manager-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+        - name: Cert-gen | Add dashboard node section (single node mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<dashboard-node-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+    - name: Cert-gen | Remove empty lines from config.yml file
+      ansible.builtin.shell:
+        cmd: |
+          grep '[^[:blank:]]' "{{ local_configs_path }}/config.yml" > "{{ local_configs_path }}/config.yml.tmp"
+      args:
+        creates: "{{ local_configs_path }}/config.yml.tmp"
+
+    - name: Cert-gen | Replace original config.yml file with the cleaned one
+      ansible.builtin.command:
+        cmd: mv {{ local_configs_path }}/config.yml.tmp {{ local_configs_path }}/config.yml
+      args:
+        removes: "{{ local_configs_path }}/config.yml.tmp"
+
+    - name: Cert-gen | Generate certificates
+      ansible.builtin.command: >-
+        bash {{ local_configs_path }}/wazuh-certs-tool.sh -A
+      args:
+        creates: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+
+- name: Cert-gen | Copy certificates to each Wazuh indexer node
+  ansible.builtin.copy:
+    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
+    dest: "/etc/wazuh-indexer/certs/"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: "0400"
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ instances[inventory_hostname].name }}-key.pem"
+    - "{{ instances[inventory_hostname].name }}.pem"
+    - admin-key.pem
+    - admin.pem
+  when:
+    - generate_certs
+
+- name: Cert-gen | Copy and rename indexer key and certificate files to match default names
+  ansible.builtin.copy:
+    src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+    dest: "/etc/wazuh-indexer/certs/{{ item.dest }}"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: "0400"
+  with_items:
+    - { src: "{{ instances[inventory_hostname].name }}-key.pem", dest: "indexer-1-key.pem" }
+    - { src: "{{ instances[inventory_hostname].name }}.pem", dest: "indexer-1.pem" }
+  when:
+    - generate_certs
+
+- name: OpenSearch Config | Configure Wazuh indexer
+  block:
+    - name: OpenSearch Config | Update network.host configuration
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        regexp: '^network\.host:'
+        line: "network.host: '{{ hostvars[inventory_hostname].private_ip }}'"
+
+    - name: OpenSearch Config | Update node.name configuration
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        regexp: '^node\.name:'
+        line: 'node.name: "{{ instances[inventory_hostname].name }}"'
+
+    - name: OpenSearch Config | Configure cluster.initial_master_nodes
+      block:
+        - name: Remove existing nodes in cluster.initial_master_nodes
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(^cluster\.initial_master_nodes:\n)(\s*#?- "node-\d+"\n?)+'
+            replace: '\1'
+          when: not single_node
+
+        - name: OpenSearch Config | Update cluster.initial_master_nodes values
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: 'cluster\.initial_master_nodes:\n'
+            replace: |
+              cluster.initial_master_nodes:
+              {% for (key, value) in instances.items() %}
+              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
+              - "{{ value.name }}"
+              {% endif %}
+              {% endfor %}
+          when: not single_node
+
+        - name: OpenSearch Config | Remove cluster.initial_master_nodes for single-node cluster
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(^cluster\.initial_master_nodes:\n)(\s*#?- ".*"\n?)*'
+            replace: ''
+          when: single_node
+
+    - name: OpenSearch Config | Configure discovery.seed_hosts
+      when: not single_node
+      block:
+        - name: OpenSearch Config | Uncomment discovery.seed_hosts line
+          ansible.builtin.lineinfile:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '^#discovery\.seed_hosts:'
+            line: 'discovery.seed_hosts:'
+            state: present
+
+        - name: OpenSearch Config | Update discovery.seed_hosts value
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: 'discovery\.seed_hosts:\n'
+            replace: |
+              discovery.seed_hosts:
+              {% for (key, value) in instances.items() %}
+              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
+                - "{{ value.ip }}"
+              {% endif %}
+              {% endfor %}
+
+    - name: OpenSearch Config | Add SSL configuration
+      block:
+        - name: OpenSearch Config | Remove existing SSL configuration lines in plugins.security.nodes_dn
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(plugins\.security\.nodes_dn:\n)(?:\s*#?-\s*"CN=node-\d+,OU=Wazuh,O=Wazuh,L=California,C=US"\n?)+'
+            replace: 'plugins.security.nodes_dn:\n'
+
+        - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: 'plugins\.security\.nodes_dn:\n'
+            replace: |
+              plugins.security.nodes_dn:
+              {% for (key, value) in instances.items() %}
+              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
+              - "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
+              {% endif %}
+              {% endfor %}
+
+    - name: Add single-node discovery type if needed
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        line: 'discovery.type: single-node'
+        insertafter: '^node\.name:'
+      when: single_node

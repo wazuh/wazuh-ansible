@@ -1,0 +1,15 @@
+---
+
+- name: Importing variables [vars/main.yml]
+  ansible.builtin.include_vars:
+    file: ../../vars/main.yml
+
+- name: Download package URLs file
+  ansible.builtin.get_url:
+    url: "https://{{ package_urls_file_uri_prerelease if source == 'prerelease' else package_urls_file_uri }}"
+    dest: "{{ playbook_dir }}/roles/vars/artifacts_urls.yml"
+    mode: '0644'
+  when: source in ['production', 'prerelease']
+  run_once: true
+  delegate_to: localhost
+  become: false

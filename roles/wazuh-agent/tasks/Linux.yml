@@ -1,0 +1,76 @@
+---
+
+- name: Linux | Create directory for wazuh-agent package
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
+  ansible.builtin.include_tasks:
+    file: "RedHat.yml"
+  when: ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Importing tasks for Debian-based systems
+  ansible.builtin.include_tasks:
+    file: "Debian.yml"
+  when: ansible_facts.os_family == "Debian"
+
+- name: Linux CentOS/RedHat | Install wazuh-agent
+  ansible.builtin.yum:
+    name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Install wazuh-agent
+  ansible.builtin.apt:
+    deb: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Update Wazuh agent configuration with Wazuh server IP address
+  ansible.builtin.lineinfile:
+    path: /etc/wazuh-agent/wazuh-agent.yml
+    regexp: '^  server_url: https://.*:27000'
+    line: '  server_url: https://{{ wazuh_server_addresses[0] }}:27000'
+    state: present
+
+- name: Linux | Register Wazuh agent
+  ansible.builtin.shell: |
+    /usr/share/wazuh-agent/bin/wazuh-agent --enroll --enroll-url https://{{ wazuh_server_addresses[0] }}:55000 --user wazuh --password wazuh
+  register: enroll_result
+  changed_when: "'wazuh-agent enrolled' in enroll_result.stdout"
+
+- name: Linux | Start and enable Wazuh Agent service
+  block:
+    - name: Linux | Reload systemd configuration
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Linux | Ensure Wazuh Agent service is stopped [1/3]
+      ansible.builtin.service:
+        name: wazuh-agent
+        state: stopped
+      ignore_errors: true
+
+    - name: Linux | Ensure Wazuh Agent service is disabled [2/3]
+      ansible.builtin.service:
+        name: wazuh-agent
+        enabled: false
+      ignore_errors: true
+
+    - name: Linux | Ensure Wazuh Agent service is started and enabled [3/3]
+      ansible.builtin.service:
+        name: wazuh-agent
+        enabled: true
+        state: started
+
+- name: Linux | Remove leftover wazuh-agent installation directory
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: absent
+    force: true
