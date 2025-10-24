@@ -87,7 +87,7 @@ All notable changes to this project will be documented in this file.
 - Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
 - Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
 
-## [4.12.0]
+## [v4.12.0]
 
 ### Added
 
@@ -104,63 +104,29 @@ All notable changes to this project will be documented in this file.
 - Add gnupg dependency to indexer, filebeat-oss, and dashboard roles ([#1623](https://github.com/wazuh/wazuh-ansible/pull/1623))
 - Update the Filebeat installation for arm64 to include revision ([#1616](https://github.com/wazuh/wazuh-ansible/pull/1616))
 
-### Deleted
-
-- None
-
-## [4.11.2]
+## [v4.11.2]
 
 ### Added
 
-- None
+- Update to [Wazuh v4.11.2](https://github.com/wazuh/wazuh/blob/v4.11.2/CHANGELOG.md#v4112)
 
-### Changed
-
-- None
-
-### Fixed
-
-- None
-
-### Deleted
-
-- None
-
-## [4.11.1]
+## [v4.11.1]
 
 ### Added
 
-- None
+- Update to [Wazuh v4.11.1](https://github.com/wazuh/wazuh/blob/v4.11.1/CHANGELOG.md#v4111)
 
-### Changed
-
-- None
-
-### Fixed
-
-- None
-
-### Deleted
-
-- None
-
-## [4.11.0]
+## [v4.11.0]
 
 ### Added
 
-- None
+- Update to [Wazuh v4.11.0](https://github.com/wazuh/wazuh/blob/v4.11.0/CHANGELOG.md#v4110)
 
-### Changed
+## [v4.10.2]
 
-- Add Yum lock timeout to Ansible task ([#1511](https://github.com/wazuh/wazuh-ansible/pull/1511))
+### Added
 
-### Fixed
-
-- None
-
-### Deleted
-
-- None
+- Update to [Wazuh v4.10.2](https://github.com/wazuh/wazuh/blob/v4.10.2/CHANGELOG.md#v4102)
 
 ## [v4.10.1]
 
@@ -486,7 +452,6 @@ All notable changes to this project will be documented in this file.
 - Add missing variable `elasticsearch_node_master` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#534](https://github.com/wazuh/wazuh-ansible/pull/534)
 - Add missing variable `elasticsearch_network_host` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#540](https://github.com/wazuh/wazuh-ansible/pull/540)
 
-
 ## [v4.0.3]
 
 ### Added
@@ -541,7 +506,6 @@ All notable changes to this project will be documented in this file.
 - Elastic API check fix ([@Zenidd](https://github.com/Zenidd)) [PR#480](https://github.com/wazuh/wazuh-ansible/pull/480)
 - Improve handling of run_once at opendistro-elasticsearch role ([@neonmei](https://github.com/neonmei)) [PR#478](https://github.com/wazuh/wazuh-ansible/pull/478)
 
-
 ## [v4.0.0]
 
 ### Added
@@ -553,7 +517,6 @@ All notable changes to this project will be documented in this file.
 
 - Ensure recursive /usr/share/kibana permissions before installing WUI ([@Zenidd](https://github.com/Zenidd)) [PR#471](https://github.com/wazuh/wazuh-ansible/pull/471)
 - Remove vuls integration ([@manuasir](https://github.com/manuasir)) [PR#469](https://github.com/wazuh/wazuh-ansible/pull/469)
-
 
 ## [v3.13.2]
 

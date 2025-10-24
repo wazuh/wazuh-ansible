@@ -1,0 +1,80 @@
+---
+
+- name: Importing variables [vars/main.yml]
+  ansible.builtin.include_vars:
+    file: ../../vars/main.yml
+
+- name: Importing urls_file variables
+  ansible.builtin.include_vars:
+    file: ../../vars/{{ urls_file }}
+
+- name: Importing dependencies.yml
+  ansible.builtin.import_tasks: dependencies.yml
+  become: true
+
+- name: Linux CentOS/RedHat | Install wazuh-indexer using yum
+  ansible.builtin.yum:
+    name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: true
+  when:
+    - ansible_facts.os_family == 'RedHat'
+
+- name: Linux Debian | Install wazuh-indexer using apt
+  ansible.builtin.apt:
+    deb: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  when:
+    - ansible_facts.os_family == 'Debian'
+
+- name: Importing config_files_setup.yml
+  ansible.builtin.import_tasks: config_files_setup.yml
+  become: true
+
+- name: Linux | Reload systemd configuration
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Ensure Wazuh indexer started and enabled
+  ansible.builtin.service:
+    name: wazuh-indexer
+    enabled: true
+    state: started
+
+- name: Initialize Wazuh Indexer cluster
+  ansible.builtin.shell: |
+    /usr/share/wazuh-indexer/bin/indexer-security-init.sh
+  args:
+    executable: /bin/bash
+  become: true
+  run_once: true
+  changed_when: false
+
+- name: Wait for Wazuh indexer API
+  ansible.builtin.uri:
+    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cat/health/"
+    user: "admin" # Default Indexer user is always "admin"
+    password: "admin"
+    validate_certs: false
+    status_code: 200,401
+    return_content: true
+    timeout: 4
+  register: _result
+  until:
+    - _result is defined
+    - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
+  retries: 24
+  delay: 5
+
+- name: Reload systemd configuration
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Remove Wazuh Indexer installation leftovers
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_package_download_path }}"
+    state: absent
+  become: true

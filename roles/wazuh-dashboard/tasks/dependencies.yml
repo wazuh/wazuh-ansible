@@ -1,0 +1,79 @@
+---
+
+- name: Check if local_configs_path directory exists
+  delegate_to: localhost
+  become: false
+  run_once: true
+  block:
+    - name: Retrieve local_configs_path directory information
+      ansible.builtin.stat:
+        path: "{{ local_configs_path }}"
+      register: local_configs_path_stat
+
+    - name: Fail if directory does not exist
+      ansible.builtin.fail:
+        msg: "The directory {{ local_configs_path }} (local_configs_path) does not exist."
+      when: not local_configs_path_stat.stat.exists
+
+- name: Ensure wazuh-dashboard package download directory exists
+  ansible.builtin.file:
+    path: "{{ wazuh_dashboard_package_download_path }}"
+    state: directory
+    mode: '0755'
+
+- name: RHEL, CentOS, and Amazon Linux 2 | Configure system settings and install dependencies
+  when: ansible_facts.os_family == 'RedHat'
+  block:
+    - name: RedHat/CentOS/Fedora | Install Dashboard dependencies
+      ansible.builtin.yum:
+        name: "{{ packages }}"
+        state: present
+        update_cache: true
+      vars:
+        packages:
+          - libcap
+
+    - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-dashboard package
+      ansible.builtin.get_url:
+        url: "{{ wazuh_dashboard_url_x86_64_rpm }}"
+        dest: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
+        mode: '0644'
+      when:
+        - ansible_facts.architecture == "x86_64"
+
+    - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-dashboard package
+      ansible.builtin.get_url:
+        url: "{{ wazuh_dashboard_url_aarch64_rpm }}"
+        dest: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
+        mode: '0644'
+      when:
+        - ansible_facts.architecture == "aarch64"
+
+- name: Debian-based systems | Install Wazuh dashboard dependencies and download package
+  when: ansible_facts.os_family == 'Debian'
+  block:
+    - name: Debian-based | Install Dashboard dependencies
+      ansible.builtin.apt:
+        name:
+          - 'debhelper'
+          - 'tar'
+          - 'curl'
+          - 'libcap2-bin'
+        update_cache: true
+        state: present
+
+    - name: Debian-based (AMD64) | Download wazuh-dashboard package
+      ansible.builtin.get_url:
+        url: "{{ wazuh_dashboard_url_amd64_deb }}"
+        dest: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.deb"
+        mode: '0644'
+      when:
+        - ansible_facts.architecture == "x86_64"
+
+    - name: Debian-based (ARM64) | Download wazuh-dashboard package
+      ansible.builtin.get_url:
+        url: "{{ wazuh_dashboard_url_arm64_deb }}"
+        dest: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.deb"
+        mode: '0644'
+      when:
+        - ansible_facts.architecture == "aarch64"
