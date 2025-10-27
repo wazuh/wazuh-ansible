@@ -40,7 +40,7 @@
   ansible.builtin.service:
     name: wazuh-indexer
     enabled: true
-    state: started
+    state: restarted
 
 - name: Initialize Wazuh Indexer cluster
   ansible.builtin.shell: |
