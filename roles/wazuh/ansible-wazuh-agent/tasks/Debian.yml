@@ -44,6 +44,26 @@
     dest: "{{ wazuh_agent_config.repo.path }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not (ansible_distribution == "Debian" and ansible_distribution_major_version | int == 13)
+    - not wazuh_custom_packages_installation_agent_enabled
+
+- name: Debian 13 | Download Wazuh repository key (curl)
+  ansible.builtin.command:
+    argv:
+      - curl
+      - -fsSL
+      - --retry
+      - "5"
+      - --connect-timeout
+      - "10"
+      - "{{ wazuh_agent_config.repo.gpg }}"
+      - -o
+      - "{{ wazuh_agent_config.repo.path }}"
+  args:
+    creates: "{{ wazuh_agent_config.repo.path }}"
+  when:
+    - ansible_distribution == "Debian"
+    - (ansible_distribution_major_version | int) == 13
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Import Wazuh GPG key
