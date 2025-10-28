@@ -1,18 +1,44 @@
 ---
+- include_vars: ../../vars/repo_vars.yml
+
+- include_vars: ../../vars/repo.yml
+  when: packages_repository == 'production'
+
+- include_vars: ../../vars/repo_pre-release.yml
+  when: packages_repository == 'pre-release'
+
+- include_vars: ../../vars/repo_staging.yml
+  when: packages_repository == 'staging'
+
 - include_tasks: RedHat.yml
   when: ansible_os_family == 'RedHat'
 
 - include_tasks: Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Install Filebeat
-  package:
-    name: filebeat
+- name: Install Filebeat | Redhat
+  yum:
+    name: "filebeat-{{ filebeat_version }}"
+    state: present
+    lock_timeout: 200
+  register: install
+  tags:
+  - install
+  - init
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Filebeat | Debian
+  apt:
+    name: "filebeat={{ filebeat_version }}-*"
     state: present
   register: install
   tags:
   - install
   - init
+  until: "install is not failed"
+  retries: 10
+  delay: 10
+  when: ansible_os_family == 'Debian'
 
 - name: Checking if Filebeat Module folder file exists
   stat:

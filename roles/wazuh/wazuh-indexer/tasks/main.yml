@@ -1,0 +1,140 @@
+---
+- include_vars: ../../vars/repo_vars.yml
+
+- include_vars: ../../vars/repo.yml
+  when: packages_repository == 'production'
+
+- include_vars: ../../vars/repo_pre-release.yml
+  when: packages_repository == 'pre-release'
+
+- include_vars: ../../vars/repo_staging.yml
+  when: packages_repository == 'staging'
+
+- import_tasks: local_actions.yml
+  when:
+    - generate_certs
+
+- block:
+    - import_tasks: RedHat.yml
+      when: ansible_os_family == 'RedHat'
+
+    - import_tasks: Debian.yml
+      when: ansible_os_family == 'Debian'
+
+    - name: Remove performance analyzer plugin from Wazuh indexer
+      become: true
+      command: ./opensearch-plugin remove opensearch-performance-analyzer
+      ignore_errors: true
+      args:
+        chdir: /usr/share/wazuh-indexer/bin/
+      register: remove_opensearch_performance_analyzer
+      failed_when:
+        - remove_opensearch_performance_analyzer.rc != 0
+        - '"not found" not in remove_opensearch_performance_analyzer.stderr'
+      changed_when: "remove_opensearch_performance_analyzer.rc == 0"
+
+    - name: Remove Opensearch configuration file
+      file:
+        path: "{{ indexer_conf_path }}/opensearch.yml"
+        state: absent
+      tags: install
+
+    - name: Copy Opensearch Configuration File
+      template:
+        src: "templates/opensearch.yml.j2"
+        dest: "{{ indexer_conf_path }}/opensearch.yml"
+        owner: root
+        group: wazuh-indexer
+        mode: 0640
+        force: yes
+      tags: install
+
+    - include_tasks: security_actions.yml
+      tags:
+        - security
+
+
+    - name: Configure Wazuh indexer JVM memmory.
+      template:
+        src: "templates/jvm.options.j2"
+        dest: "{{ indexer_conf_path }}/jvm.options"
+        owner: root
+        group: wazuh-indexer
+        mode: 0644
+        force: yes
+      notify: restart wazuh-indexer
+      tags: install
+
+    - name: Ensure extra time for Wazuh indexer to start on reboots
+      lineinfile:
+        path: /usr/lib/systemd/system/wazuh-indexer.service
+        regexp: '^TimeoutStartSec='
+        line: "TimeoutStartSec={{ indexer_start_timeout }}"
+      become: yes
+      tags: configure
+
+    - name: Index files to remove
+      find:
+        paths: "{{ indexer_index_path }}"
+        patterns: "*"
+      register: files_to_delete
+
+    - name: Remove Index Files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ files_to_delete.files }}"
+
+    - name: Ensure Wazuh indexer started and enabled
+      service:
+        name: wazuh-indexer
+        enabled: true
+        state: started
+
+    - name: Wait for Wazuh indexer API
+      uri:
+        url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
+        user: "admin" # Default Indexer user is always "admin"
+        password: "{{ indexer_admin_password }}"
+        validate_certs: no
+        status_code: 200,401
+        return_content: yes
+        timeout: 4
+      register: _result
+      until:
+        - _result is defined
+        - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
+      retries: 24
+      delay: 5
+      tags: debug
+      when:
+        - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
+
+    - name: Wait for Wazuh indexer API (Private IP)
+      uri:
+        url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
+        user: "admin" # Default Indexer user is always "admin"
+        password: "{{ indexer_admin_password }}"
+        validate_certs: no
+        status_code: 200,401
+        return_content: yes
+        timeout: 4
+      register: _result
+      until:
+        - _result is defined
+        - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
+      retries: 24
+      delay: 5
+      tags: debug
+      when:
+        - hostvars[inventory_hostname]['private_ip'] is defined and hostvars[inventory_hostname]['private_ip']
+
+    - import_tasks: "RMRedHat.yml"
+      when: ansible_os_family == "RedHat"
+
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reload: true
+      become: yes
+      notify: restart wazuh-indexer
+  when: perform_installation

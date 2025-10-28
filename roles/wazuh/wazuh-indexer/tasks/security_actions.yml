@@ -1,0 +1,118 @@
+- name: Configure IP (Private address)
+  set_fact:
+    target_address: "{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}"
+  when:
+    - hostvars[inventory_hostname]['private_ip'] is defined
+
+- name: Configure IP (Public address)
+  set_fact:
+    target_address: "{{ inventory_hostname if not single_node else indexer_network_host }}"
+  when:
+    - hostvars[inventory_hostname]['private_ip'] is not defined
+
+- name: Ensure Indexer certificates directory permissions.
+  file:
+    path: "{{ indexer_conf_path }}/certs/"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 500
+
+- name: Copy the node & admin certificates to Wazuh indexer cluster
+  copy:
+    src: "{{ local_certs_path }}/wazuh-certificates/{{ item }}"
+    dest: "{{ indexer_conf_path }}/certs/"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: 0400
+  with_items:
+    - root-ca.pem
+    - "{{ indexer_node_name }}-key.pem"
+    - "{{ indexer_node_name }}.pem"
+    - admin-key.pem
+    - admin.pem
+
+- name: Restart Wazuh indexer with security configuration
+  systemd:
+    name: wazuh-indexer
+    state: restarted
+
+- name: Copy the Opensearch security internal users template
+  template:
+    src: "templates/internal_users.yml.j2"
+    dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+    mode: 0644
+  run_once: true
+
+- block:
+  - name: Hashing the custom admin password
+    shell: |
+      export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ indexer_admin_password }}'
+    register: indexer_admin_password_hashed
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+
+  - name: Set the Admin user password
+    replace:
+      path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+      regexp: '(?<=admin:\n  hash: )(.*)(?=)'
+      replace: "{{ indexer_password_hash | quote }}"
+    vars:
+      indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
+
+  # this can also be achieved with password_hash, but it requires dependencies on the controller
+  - name: Hash the kibanaserver role/user pasword
+    shell: |
+      export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ dashboard_password }}'
+    register: indexer_kibanaserver_password_hashed
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+
+  - name: Set the kibanaserver user password
+    replace:
+      path: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+      regexp: '(?<=kibanaserver:\n  hash: )(.*)(?=)'
+      replace: "{{ indexer_password_hash | quote }}"
+    vars:
+      indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
+
+  - name: Initialize the Opensearch security index in Wazuh indexer
+    command: >
+      sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
+      JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/securityadmin.sh
+      -cd {{ indexer_sec_plugin_conf_path }}/
+      -icl -p 9200 -cd {{ indexer_sec_plugin_conf_path }}/
+      -nhnv
+      -cacert {{ indexer_conf_path }}/certs/root-ca.pem
+      -cert {{ indexer_conf_path }}/certs/admin.pem
+      -key {{ indexer_conf_path }}/certs/admin-key.pem
+      -h {{ target_address }}
+    retries: 2
+    delay: 5
+    register: result
+    until: result.rc == 0
+
+  when: inventory_hostname == ansible_play_hosts[0]
+
+- name: Create custom user
+  uri:
+    url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
+    method: PUT
+    user: "admin" # Default Indexer user is always "admin"
+    password: "{{ indexer_admin_password }}"
+    body: |
+      {
+        "password": "{{ indexer_admin_password }}",
+        "backend_roles": ["{{ indexer_custom_user_role }}"]
+      }
+    body_format: json
+    validate_certs: no
+    status_code: 200,201,401
+    return_content: yes
+    timeout: 4
+  register: result
+  until: result.status in [200,201,401]
+  when:
+    - indexer_custom_user is defined and indexer_custom_user
+    - inventory_hostname == ansible_play_hosts[0]

@@ -17,6 +17,10 @@
       {% if manager.protocol is defined %}
       <protocol>{{ manager.protocol }}</protocol>
       {% endif %}
+      {% if manager.max_retries is defined and manager.retry_interval is defined %}
+      <max_retries>{{ manager.max_retries }}</max_retries>
+      <retry_interval>{{ manager.retry_interval }}</retry_interval>
+      {% endif %}
     </server>
     {% endfor %}
     {% if wazuh_profile_centos is not none or wazuh_profile_ubuntu is not none %}
@@ -26,12 +30,60 @@
     <config-profile>{{ wazuh_profile_ubuntu }}</config-profile>
     {% endif %}
     {% endif %}
+    {% if ansible_system == "Darwin" %}
+    <config-profile>{{ wazuh_profile_macos }}</config-profile>
+    {% endif %}
     {% if wazuh_notify_time is not none and wazuh_time_reconnect is not none %}
     <notify_time>{{ wazuh_notify_time }}</notify_time>
     <time-reconnect>{{ wazuh_time_reconnect }}</time-reconnect>
     {% endif %}
     <auto_restart>{{ wazuh_auto_restart }}</auto_restart>
     <crypto_method>{{ wazuh_crypto_method }}</crypto_method>
+
+  {% if wazuh_agent_config.enrollment.enabled == 'yes' %}
+    <enrollment>
+      <enabled>{{ wazuh_agent_config.enrollment.enabled }}</enabled>
+      {% if wazuh_agent_config.enrollment.manager_address | length > 0 %}
+      <manager_address>{{ wazuh_agent_config.enrollment.manager_address }}</manager_address>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_name | length > 0 %}
+      <agent_name>{{ wazuh_agent_config.enrollment.agent_name }}</agent_name>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.port is defined > 0 %}
+      <port>{{ wazuh_agent_config.enrollment.port }}</port>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.groups | length > 0 %}
+      <groups>{{ wazuh_agent_config.enrollment.groups }}</groups>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_address | length > 0 %}
+      <agent_address>{{ wazuh_agent_config.enrollment.agent_address }}</agent_address>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.server_ca_path | length > 0 %}
+      <server_ca_path>{{ wazuh_agent_config.enrollment.server_ca_path }}</server_ca_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_certificate_path | length > 0 %}
+      <agent_certificate_path>{{ wazuh_agent_config.enrollment.agent_certificate_path }}</agent_certificate_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.agent_key_path | length > 0 %}
+      <agent_key_path>{{ wazuh_agent_config.enrollment.agent_key_path }}</agent_key_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.authorization_pass_path | length > 0 and ansible_system != "Darwin" %}
+      <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path }}</authorization_pass_path>
+      {% else %}
+      <authorization_pass_path>{{ wazuh_agent_config.enrollment.authorization_pass_path_macos }}</authorization_pass_path>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.auto_method | length > 0 %}
+      <auto_method>{{ wazuh_agent_config.enrollment.auto_method }}</auto_method>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.delay_after_enrollment is defined > 0 %}
+      <delay_after_enrollment>{{ wazuh_agent_config.enrollment.delay_after_enrollment }}</delay_after_enrollment>
+      {% endif %}
+      {% if wazuh_agent_config.enrollment.use_source_ip | length > 0 %}
+      <use_source_ip>{{ wazuh_agent_config.enrollment.use_source_ip }}</use_source_ip>
+      {% endif %}
+    </enrollment>
+  {% endif %}
+
   </client>
 
   <client_buffer>
@@ -44,7 +96,7 @@
   {% if wazuh_agent_config.rootcheck is defined %}
   <rootcheck>
     <disabled>no</disabled>
-    {% if ansible_system == "Linux" %}
+    {% if ansible_system == "Linux" or ansible_system == "Darwin" %}
     <check_files>yes</check_files>
     <check_trojans>yes</check_trojans>
     <check_dev>yes</check_dev>
@@ -56,14 +108,20 @@
     <!-- Frequency that rootcheck is executed - every 12 hours -->
     <frequency>{{ wazuh_agent_config.rootcheck.frequency }}</frequency>
 
-    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
-    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    {% if ansible_system == "Darwin" %}
+    <rootkit_files>etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    {% else %}
+    <rootkit_files>{{ wazuh_dir }}/etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>{{ wazuh_dir }}/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+    {% endif %}
     <skip_nfs>yes</skip_nfs>
     {% endif %}
     {% if ansible_os_family == "Windows" %}
     <windows_apps>./shared/win_applications_rcl.txt</windows_apps>
     <windows_malware>./shared/win_malware_rcl.txt</windows_malware>
     {% endif %}
+
 
   </rootcheck>
   {% endif %}
@@ -132,6 +190,7 @@
   </wodle>
   {% endif %}
 
+  {% if ansible_system != "Darwin" %}
   <wodle name="cis-cat">
     <disabled>{{ wazuh_agent_config.cis_cat.disable }}</disabled>
     <timeout>{{ wazuh_agent_config.cis_cat.timeout }}</timeout>
@@ -146,6 +205,7 @@
     {% endif %}
     <ciscat_path>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.cis_cat.ciscat_path_win }}{% else %}{{ wazuh_agent_config.cis_cat.ciscat_path }}{% endif %}</ciscat_path>
   </wodle>
+  {% endif %}
 
   <!-- Osquery integration -->
   <wodle name="osquery">
@@ -168,7 +228,7 @@
     <os>{{ wazuh_agent_config.syscollector.os }}</os>
     <network>{{ wazuh_agent_config.syscollector.network }}</network>
     <packages>{{ wazuh_agent_config.syscollector.packages }}</packages>
-    <ports all="no">{{ wazuh_agent_config.syscollector.ports_no }}</ports>
+    <ports all="yes">{{ wazuh_agent_config.syscollector.ports_no }}</ports>
     <processes>{{ wazuh_agent_config.syscollector.processes }}</processes>
   {% if ansible_os_family == "Windows" %}
     <hotfixes>{{ wazuh_agent_config.syscollector.win_hotfixes }}</hotfixes>
@@ -189,13 +249,13 @@
     <skip_nfs>yes</skip_nfs>
   {% endif %}
   {% if wazuh_agent_config.sca.day | length > 0 %}
-    <day>yes</day>
+    <day>{{ wazuh_agent_config.sca.day }}</day>
   {% endif %}
   {% if wazuh_agent_config.sca.wday | length > 0 %}
-    <wday>yes</wday>
+    <wday>{{ wazuh_agent_config.sca.wday }}</wday>
   {% endif %}
   {% if wazuh_agent_config.sca.time | length > 0 %}
-    <time>yes</time>
+    <time>{{ wazuh_agent_config.sca.time }}</time>
   {% endif %}
   </sca>
 
@@ -205,25 +265,29 @@
   <syscheck>
     <disabled>no</disabled>
     <frequency>{{ wazuh_agent_config.syscheck.frequency }}</frequency>
-    {% if ansible_system == "Linux" %}
+    {% if ansible_system == "Linux" or ansible_system == "Darwin" %}
     <scan_on_start>{{ wazuh_agent_config.syscheck.scan_on_start }}</scan_on_start>
     <!-- Directories to check  (perform all possible verifications) -->
     {% if wazuh_agent_config.syscheck.directories is defined and ansible_system == "Linux" %}
     {% for directory in wazuh_agent_config.syscheck.directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
+    {% elif ansible_system == "Darwin" %}
+    {% for directory in wazuh_agent_config.syscheck.macos_directories %}
+    <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
+    {% endfor %}
     {% endif %}
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_system == "Windows" %}
+    {% if wazuh_agent_config.syscheck.win_directories is defined and ansible_os_family == "Windows" %}
     {% for directory in wazuh_agent_config.syscheck.win_directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
     {% endif %}
 
     <!-- Files/directories to ignore -->
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Linux" %}
+    {% if wazuh_agent_config.syscheck.ignore is defined and (ansible_system == "Linux" or ansible_system == "Darwin") %}
     {% for ignore in wazuh_agent_config.syscheck.ignore %}
     <ignore>{{ ignore }}</ignore>
     {% endfor %}
@@ -236,13 +300,13 @@
     {% endfor %}
     {% endif %}
 
-    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_system == "Windows" %}
+    {% if wazuh_agent_config.syscheck.ignore is defined and ansible_os_family == "Windows" %}
     {% for ignore in wazuh_agent_config.syscheck.ignore_win %}
     <ignore type="sregex">{{ ignore }}</ignore>
     {% endfor %}
     {% endif %}
 
-    {% if ansible_system == "Linux" %}
+    {% if ansible_system == "Linux" or ansible_system == "Darwin" %}
     <!-- Files no diff -->
     {% for no_diff in wazuh_agent_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
@@ -295,18 +359,6 @@
   </syscheck>
   {% endif %}
 
-
-  {% if ansible_system == "Linux" and wazuh_agent_config.vuls.disable == 'no' %}
-  <wodle name="command">
-    <disabled>no</disabled>
-    <tag>Wazuh-VULS</tag>
-    <command>/usr/bin/python /var/ossec/wodles/vuls/vuls.py{% for arg in wazuh_agent_config.vuls.args %} --{{ arg }}{% endfor %}</command>
-    <interval>{{ wazuh_agent_config.vuls.interval }}</interval>
-    <ignore_output>yes</ignore_output>
-    <run_on_start>{{ wazuh_agent_config.vuls.run_on_start }}</run_on_start>
-  </wodle>
-  {% endif %}
-
   <!-- Files to monitor (localfiles) -->
   {% if ansible_system == "Linux" %}
   {% for localfile in wazuh_agent_config.localfiles.linux %}
@@ -321,7 +373,37 @@
     {% endif %}
   {% else %}
     <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'json' %}
+    {% for label in localfile.label %}
+    <label key="{{ label.key }}">{{ label.value }}</label>
+    {% endfor %}
     {% endif %}
+    {% endif %}
+  </localfile>
+  {% endfor %}
+  <localfile>
+    <log_format>journald</log_format>
+    <location>journald</location>
+  </localfile>
+  {% endif %}
+
+  {% if ansible_system == "Darwin" %}
+  {% for localfile in wazuh_agent_config.localfiles.macos %}
+
+  <localfile>
+    <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+    <command>{{ localfile.command }}</command>
+    <frequency>{{ localfile.frequency }}</frequency>
+    {% if localfile.alias is defined %}
+    <alias>{{ localfile.alias }}</alias>
+    {% endif %}
+  {% else %}
+    <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'macos' %}
+    <query type="{{ localfile.query.type }}" level="{{ localfile.query.level }}">{{ localfile.query.value }}</query>
+    {% endif %}
+  {% endif %}
   </localfile>
   {% endfor %}
   {% endif %}
@@ -339,6 +421,11 @@
       {% endif %}
   {% else %}
       <location>{{ localfile.location }}</location>
+      {% if localfile.format == 'json' %}
+      {% for label in localfile.label %}
+      <label key="{{ label.key }}">{{ label.value }}</label>
+      {% endfor %}
+      {% endif %}
   {% endif %}
   </localfile>
   {% endfor %}
@@ -357,6 +444,11 @@
       {% endif %}
     {% else %}
       <location>{{ localfile.location }}</location>
+      {% if localfile.format == 'json' %}
+      {% for label in localfile.label %}
+      <label key="{{ label.key }}">{{ label.value }}</label>
+      {% endfor %}
+      {% endif %}
   {% endif %}
   </localfile>
   {% endfor %}
@@ -372,6 +464,11 @@
       <query>{{ localfile.query}}</query>
   {% else %}
       <location>{{ localfile.location }}</location>
+      {% if localfile.format == 'json' %}
+      {% for label in localfile.label %}
+      <label key="{{ label.key }}">{{ label.value }}</label>
+      {% endfor %}
+      {% endif %}
   {% endif %}
   </localfile>
   {% endfor %}
@@ -387,7 +484,7 @@
 
   <active-response>
     <disabled>{{ wazuh_agent_config.active_response.ar_disabled|default('no') }}</disabled>
-    <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
+    <ca_store>{% if ansible_os_family == "Windows" %}{{ wazuh_agent_config.active_response.ca_store_win }}{% elif ansible_system == "Darwin" %}{{ wazuh_agent_config.active_response.ca_store_macos }}{% else %}{{ wazuh_agent_config.active_response.ca_store }}{% endif %}</ca_store>
     <ca_verification>{{ wazuh_agent_config.active_response.ca_verification }}</ca_verification>
   </active-response>
 

@@ -1,0 +1,15 @@
+---
+use_default_rules: true
+parseable: true
+quiet: true
+verbosity: 1
+
+# State that naming for now should be a warning
+# 106: ansible role name does not conform to pattern [a-z][a-z0-9_]+$
+warn_list:
+  - '106'
+
+# This is for false positives
+# 504: Do not use 'local_action', use 'delegate_to: localhost'
+skip_list:
+  - '504'

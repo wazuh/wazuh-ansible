@@ -1,0 +1,37 @@
+---
+- name: ConvergeCerts
+  hosts: localhost
+  roles:
+    - role: ../../roles/wazuh/check-packages
+      become: no
+      delegate_to: localhost
+      run_once: true
+    - role: ../../roles/wazuh/wazuh-indexer
+      perform_installation: false
+  vars:
+    instances:
+      node1:
+        name: node-1       # Important: must be equal to indexer_node_name.
+        ip: 127.0.0.1
+        role: indexer
+  tags:
+        - generate-certs
+- name: ConvergeInstall
+  hosts: localhost
+  roles:
+    # Managers
+    - role: ../../roles/wazuh/ansible-wazuh-manager
+      vars:
+    - role: ../../roles/wazuh/ansible-filebeat-oss
+      vars:
+        filebeat_output_indexer_hosts:
+        - "indexer_centos7:9200"
+  pre_tasks:
+    - name: (converge) fix missing packages in cloud images
+      apt:
+        name:
+          - unzip
+          - gpg-agent
+        state: present
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"

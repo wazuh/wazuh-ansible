@@ -1,10 +1,11 @@
 ---
-- name: Debian/Ubuntu | Install apt-transport-https and ca-certificates
+- name: Debian/Ubuntu | Install apt-transport-https, ca-certificates and acl
   apt:
     name:
       - apt-transport-https
       - ca-certificates
       - gnupg
+      - acl
     state: present
     cache_valid_time: 3600
     install_recommends: false
@@ -15,25 +16,39 @@
   become: true
   shell: |
     set -o pipefail
-    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+    curl -s {{ wazuh_manager_config.repo.gpg }} | apt-key add -
   args:
-    warn: false
+    # warn: false
     executable: /bin/bash
   changed_when: false
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
-- name: Debian/Ubuntu | Installing Wazuh repository key
-  apt_key:
+- name: Debian/Ubuntu | Download Wazuh repository key
+  get_url:
     url: "{{ wazuh_manager_config.repo.gpg }}"
-    id: "{{ wazuh_manager_config.repo.key_id }}"
+    dest: "{{ wazuh_manager_config.repo.path }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_custom_packages_installation_manager_enabled
+
+- name: Debian/Ubuntu | Import Wazuh GPG key
+  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_manager_config.repo.keyring_path }} --import {{ wazuh_manager_config.repo.path }}"
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_custom_packages_installation_manager_enabled
+  args:
+    creates: "{{ wazuh_manager_config.repo.keyring_path }}"
+
+- name: Debian/Ubuntu | Set permissions for Wazuh GPG key
+  file:
+    path: "{{ wazuh_manager_config.repo.keyring_path }}"
+    mode: '0644'
+  when:
+    - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
   apt_repository:
@@ -43,8 +58,7 @@
     update_cache: true
   changed_when: false
   when:
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
@@ -100,36 +114,12 @@
 - name: Debian/Ubuntu | Install wazuh-manager
   apt:
     name:
-      - "wazuh-manager={{ wazuh_manager_version }}"
+      - "wazuh-manager={{ wazuh_manager_version }}-*"
     state: present
-    cache_valid_time: 3600
-    install_recommends: false
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
   tags: init
   when:
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
-
-- include_tasks: "installation_from_sources.yml"
-  when:
-    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
 
 - include_tasks: "installation_from_custom_packages.yml"
   when:
-    - wazuh_custom_packages_installation_manager_enabled or wazuh_custom_packages_installation_api_enabled
-
-- name: Debian/Ubuntu | Install wazuh-api
-  apt:
-    name:
-      - "wazuh-api={{ wazuh_manager_version }}"
-    state: present
-    cache_valid_time: 3600
-    install_recommends: false
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
-  tags: init
-  when:
-    - not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled
-    - wazuh_manager_config.cluster.node_type == "master"
+    - wazuh_custom_packages_installation_manager_enabled

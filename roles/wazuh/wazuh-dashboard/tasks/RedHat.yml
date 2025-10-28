@@ -1,0 +1,20 @@
+---
+- block:
+
+  - name: RedHat/CentOS/Fedora | Add Wazuh dashboard repo
+    yum_repository:
+      name: wazuh_repo
+      description: Wazuh yum repository
+      baseurl: "{{ wazuh_repo.yum }}"
+      gpgkey: "{{ wazuh_repo.gpg }}"
+      gpgcheck: true
+
+  - name: Install Wazuh dashboard
+    package:
+      name: "wazuh-dashboard-{{ dashboard_version }}"
+      state: present
+      update_cache: yes
+    register: install
+
+  tags:
+    - install

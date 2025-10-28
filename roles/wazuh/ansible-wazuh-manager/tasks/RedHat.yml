@@ -10,8 +10,7 @@
   when:
     - (ansible_os_family|lower == 'redhat') and (ansible_distribution|lower != 'amazon')
     - (ansible_distribution_major_version|int <= 5)
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_custom_packages_installation_manager_enabled
   register: repo_v5_manager_installed
 
 - name: RedHat/CentOS/Fedora | Install Wazuh repo
@@ -24,8 +23,7 @@
   changed_when: false
   when:
     - repo_v5_manager_installed is skipped
-    - not wazuh_manager_sources_installation.enabled or not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled or not wazuh_custom_packages_installation_api_enabled
+    - not wazuh_custom_packages_installation_manager_enabled
 
 - name: RedHat/CentOS/Fedora | Install openscap
   package: name={{ item }} state=present
@@ -35,7 +33,8 @@
   until: wazuh_manager_openscp_packages_installed is succeeded
   tags:
     - init
-  when: not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA")
+  when: not (ansible_distribution == "Amazon" and ansible_distribution_major_version == "NA") and
+        not (ansible_distribution == "CentOS" and ansible_distribution_major_version == "8")
 
 - name: CentOS 6 | Install Software Collections (SCL) Repository
   package: name=centos-release-scl state=present
@@ -63,7 +62,10 @@
     - wazuh_manager_config.cluster.disable != 'yes'
 
 - name: RedHat/CentOS/Fedora | Install OpenJDK 1.8
-  yum: name=java-1.8.0-openjdk state=present
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+    lock_timeout: 200
   when:
     - wazuh_manager_config.cis_cat.disable == 'no'
     - wazuh_manager_config.cis_cat.install_java == 'yes'
@@ -100,38 +102,19 @@
   until: wazuh_manager_main_packages_installed is succeeded
   when:
     - ansible_os_family|lower == "redhat"
-    - not wazuh_manager_sources_installation.enabled
     - not wazuh_custom_packages_installation_manager_enabled
   tags:
     - init
 
-- include_tasks: "../tasks/installation_from_sources.yml"
-  when:
-    - wazuh_manager_sources_installation.enabled or wazuh_api_sources_installation.enabled
-
 - include_tasks: "../tasks/installation_from_custom_packages.yml"
   when:
-    - wazuh_custom_packages_installation_manager_enabled or wazuh_custom_packages_installation_api_enabled
-
-- name: CentOS/RedHat/Amazon | Install wazuh-api
-  package:
-    name: "wazuh-api-{{ wazuh_manager_version }}"
-    state: "{{ wazuh_manager_package_state }}"
-  register: wazuh_api_main_packages_installed
-  until: wazuh_api_main_packages_installed is succeeded
-  when:
-    - ansible_os_family|lower == "redhat"
-    - not wazuh_api_sources_installation.enabled
-    - not wazuh_custom_packages_installation_api_enabled
-    - wazuh_manager_config.cluster.node_type == "master"
-  tags:
-    - init
+    - wazuh_custom_packages_installation_manager_enabled
 
 - name: CentOS/RedHat 6 | Enabling python2.7 and sqlite3
   replace:
     path: /etc/init.d/wazuh-manager
     regexp: 'echo -n "Starting Wazuh-manager: "'
-    replace: 'echo -n "Starting Wazuh-manager (EL6): "; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/var/ossec/framework/lib'
+    replace: "echo -n \"Starting Wazuh-manager (EL6): \"; source /opt/rh/python27/enable; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ wazuh_dir }}/framework/lib"
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Amazon'] and ansible_distribution_major_version|int == 6
     - wazuh_manager_config.cluster.disable != 'yes'

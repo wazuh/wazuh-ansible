@@ -1,3 +1,0 @@
----
-# We recommend the use of Ansible Vault to protect Wazuh, api, agentless and authd credentials.
-# authd_pass: 'foobar'

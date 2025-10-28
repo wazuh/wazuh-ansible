@@ -1,0 +1,11 @@
+---
+  - name: Check packages
+    shell: |
+      ./check_packages.sh {{ wazuh_version }}
+    args:
+      # warn: false
+      executable: /bin/bash
+      chdir: "{{ role_path }}/scripts/"
+    delegate_to: localhost
+    become: no
+

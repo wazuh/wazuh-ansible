@@ -1,6 +1,590 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [5.0.0]
+
+### Added
+
+- Bring missing GHA workflows aio.yml and distributed.yml to main ([#1644](https://github.com/wazuh/wazuh-ansible/pull/1644))
+
+### Changed
+
+- Wazuh server clean-up ([#1803](https://github.com/wazuh/wazuh-ansible/pull/1803))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1714](https://github.com/wazuh/wazuh-ansible/pull/1714))
+- Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
+- Bucket migration for packages-dev.wazuh.com ([#1709](https://github.com/wazuh/wazuh-ansible/pull/1709))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.1]
+
+### Added
+
+- None
+
+### Changed
+
+- Packages-dev bucket migration to 4.14.1 ([#1756](https://github.com/wazuh/wazuh-ansible/pull/1756))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.0]
+
+### Added
+
+- None
+
+### Changed
+
+- Remove dashboard chat setting ([#1798](https://github.com/wazuh/wazuh-ansible/pull/1798))
+- Rollback data source setting ([#1784](https://github.com/wazuh/wazuh-ansible/pull/1784))
+- Dashboard settings added ([#1783](https://github.com/wazuh/wazuh-ansible/pull/1783))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1715](https://github.com/wazuh/wazuh-ansible/pull/1715))
+- Bucket migration for packages-dev.wazuh.com ([#1710](https://github.com/wazuh/wazuh-ansible/pull/1710))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.13.0]
+
+### Added
+
+- Add opensearch_dashboard.yml parameters. ([#1768](https://github.com/wazuh/wazuh-ansible/pull/1768))
+- Add missing malicious-ioc ruleset lists ([#1685](https://github.com/wazuh/wazuh-ansible/pull/1685))
+- Integrate bumper script via GitHub action. ([#1676](https://github.com/wazuh/wazuh-ansible/pull/1676))
+- Added repository_bumper.sh script. ([#1621](https://github.com/wazuh/wazuh-ansible/pull/1621))
+
+### Changed
+
+- Syscollector configuration change ([#1775](https://github.com/wazuh/wazuh-ansible/pull/1775))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1716](https://github.com/wazuh/wazuh-ansible/pull/1716))
+- Bucket migration for packages-dev.wazuh.com ([#1712](https://github.com/wazuh/wazuh-ansible/pull/1712))
+
+### Fixed
+
+- Correct filebeat_node_name in distributed playbook and readme ([#1778](https://github.com/wazuh/wazuh-ansible/pull/1778))
+- Fix invalid active response ca_store setting ([#1655](https://github.com/wazuh/wazuh-ansible/pull/1655))
+
+### Deleted
+
+- Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
+- Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
+
+## [4.12.0]
+
+### Added
+
+- Update to [Wazuh v4.12.0](https://github.com/wazuh/wazuh/blob/v4.12.0/CHANGELOG.md#v4120)
+
+### Changed
+
+- Standardize version file format ([#1553](https://github.com/wazuh/wazuh-ansible/pull/1553))
+- Implement minor changes for Wazuh ansible arm64 support ([#1518](https://github.com/wazuh/wazuh-ansible/pull/1518))
+- Use fixed version of Ubuntu-22.04 in GHA runners instead of latest version ([#1479](https://github.com/wazuh/wazuh-ansible/pull/1479)) \- (PR Checks Workflows)
+
+### Fixed
+
+- Add gnupg dependency to indexer, filebeat-oss, and dashboard roles ([#1623](https://github.com/wazuh/wazuh-ansible/pull/1623))
+- Update the Filebeat installation for arm64 to include revision ([#1616](https://github.com/wazuh/wazuh-ansible/pull/1616))
+
+### Deleted
+
+- None
+
+## [4.11.2]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.11.1]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.11.0]
+
+### Added
+
+- None
+
+### Changed
+
+- Add Yum lock timeout to Ansible task ([#1511](https://github.com/wazuh/wazuh-ansible/pull/1511))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [v4.10.1]
+
+### Added
+
+- Update to [Wazuh v4.10.1](https://github.com/wazuh/wazuh/blob/v4.10.1/CHANGELOG.md#v4101)
+
+## [v4.10.0]
+
+### Added
+
+- Update to [Wazuh v4.10.0](https://github.com/wazuh/wazuh/blob/v4.10.0/CHANGELOG.md#v4100)
+
+### Fixed
+
+- Fix cert gen tool version variable assignment ([#1443](https://github.com/wazuh/wazuh-ansible/pull/1443))
+
+## [v4.9.2]
+
+### Added
+
+- Update to [Wazuh v4.9.2](https://github.com/wazuh/wazuh/blob/v4.9.2/CHANGELOG.md#v492)
+
+## [v4.9.1]
+
+### Added
+
+- Update to [Wazuh v4.9.1](https://github.com/wazuh/wazuh/blob/v4.9.1/CHANGELOG.md#v491)
+
+## [v4.9.0]
+
+### Added
+
+- Update to [Wazuh v4.9.0](https://github.com/wazuh/wazuh/blob/v4.9.0/CHANGELOG.md#v490)
+
+## [v4.8.2]
+
+### Added
+
+- Update to [Wazuh v4.8.2](https://github.com/wazuh/wazuh/blob/v4.8.2/CHANGELOG.md#v482)
+
+## [v4.8.1]
+
+### Added
+
+- Update to [Wazuh v4.8.1](https://github.com/wazuh/wazuh/blob/v4.8.1/CHANGELOG.md#v481)
+
+## [v4.8.0]
+
+### Added
+
+- Update to [Wazuh v4.8.0](https://github.com/wazuh/wazuh/blob/v4.8.0/CHANGELOG.md#v480)
+
+## [v4.7.5]
+
+### Added
+
+- Update to [Wazuh v4.7.5](https://github.com/wazuh/wazuh/blob/v4.7.5/CHANGELOG.md#v475)
+
+## [v4.7.4]
+
+### Added
+
+- Update to [Wazuh v4.7.4](https://github.com/wazuh/wazuh/blob/v4.7.4/CHANGELOG.md#v473)
+
+## [v4.7.3]
+
+### Added
+
+- Update to [Wazuh v4.7.3](https://github.com/wazuh/wazuh/blob/v4.7.3/CHANGELOG.md#v473)
+
+## [v4.7.2]
+
+### Added
+
+- Update to [Wazuh v4.7.2](https://github.com/wazuh/wazuh/blob/v4.7.2/CHANGELOG.md#v472)
+
+## [v4.7.1]
+
+### Added
+
+- Update to [Wazuh v4.7.1](https://github.com/wazuh/wazuh/blob/v4.7.1/CHANGELOG.md#v471)
+
+## [v4.7.0]
+
+### Added
+
+- Update to [Wazuh v4.7.0](https://github.com/wazuh/wazuh/blob/v4.7.0/CHANGELOG.md#v470)
+
+## [v4.6.0]
+
+### Added
+
+- Update to [Wazuh v4.6.0](https://github.com/wazuh/wazuh/blob/v4.6.0/CHANGELOG.md#v460)
+
+## [v4.5.4]
+
+### Added
+
+- Update to [Wazuh v4.5.4](https://github.com/wazuh/wazuh/blob/v4.5.4/CHANGELOG.md#v454)
+
+## [v4.5.3]
+
+### Added
+
+- Update to [Wazuh v4.5.3](https://github.com/wazuh/wazuh/blob/v4.5.3/CHANGELOG.md#v453)
+
+## [v4.5.2]
+
+### Added
+
+- Update to [Wazuh v4.5.2](https://github.com/wazuh/wazuh/blob/v4.5.2/CHANGELOG.md#v452)
+
+## [v4.5.1]
+
+### Added
+
+- Update to [Wazuh v4.5.1](https://github.com/wazuh/wazuh/blob/v4.5.1/CHANGELOG.md#v451)
+
+## [v4.5.0]
+
+### Added
+
+- Update to [Wazuh v4.5.0](https://github.com/wazuh/wazuh/blob/v4.5.0/CHANGELOG.md#v450)
+
+## [v4.4.5]
+
+### Added
+
+- Update to [Wazuh v4.4.5](https://github.com/wazuh/wazuh/blob/v4.4.5/CHANGELOG.md#v445)
+
+## [v4.4.4]
+
+### Added
+
+- Update to [Wazuh v4.4.4](https://github.com/wazuh/wazuh/blob/v4.4.4/CHANGELOG.md#v444)
+
+## [v4.4.3]
+
+### Added
+
+- Update to [Wazuh v4.4.3](https://github.com/wazuh/wazuh/blob/v4.4.3/CHANGELOG.md#v443)
+
+## [v4.4.2]
+
+### Added
+
+- Update to [Wazuh v4.4.2](https://github.com/wazuh/wazuh/blob/v4.4.2/CHANGELOG.md#v442)
+
+## [v4.4.1]
+
+### Added
+
+- Update to [Wazuh v4.4.1](https://github.com/wazuh/wazuh/blob/v4.4.1/CHANGELOG.md#v441)
+
+## [v4.4.0]
+
+### Added
+
+- Update to [Wazuh v4.4.0](https://github.com/wazuh/wazuh/blob/v4.4.0/CHANGELOG.md#v440)
+
+## [v4.3.11]
+
+### Added
+
+- Update to [Wazuh v4.3.11](https://github.com/wazuh/wazuh/blob/v4.3.11/CHANGELOG.md#v4311)
+
+## [v4.3.10]
+
+### Added
+
+- Update to [Wazuh v4.3.10](https://github.com/wazuh/wazuh/blob/v4.3.10/CHANGELOG.md#v4310)
+
+## [v4.3.9]
+
+### Added
+
+- Update to [Wazuh v4.3.9](https://github.com/wazuh/wazuh/blob/v4.3.9/CHANGELOG.md#v439)
+
+## [v4.3.8]
+
+### Added
+
+- Update to [Wazuh v4.3.8](https://github.com/wazuh/wazuh/blob/v4.3.8/CHANGELOG.md#v438)
+
+## [v4.3.7]
+
+### Added
+
+- Update to [Wazuh v4.3.7](https://github.com/wazuh/wazuh/blob/v4.3.7/CHANGELOG.md#v437)
+
+## [v4.3.6]
+
+### Added
+
+- Update to [Wazuh v4.3.6](https://github.com/wazuh/wazuh/blob/v4.3.6/CHANGELOG.md#v436)
+
+## [v4.3.5]
+
+### Added
+
+- Update to [Wazuh v4.3.5](https://github.com/wazuh/wazuh/blob/v4.3.5/CHANGELOG.md#v435)
+
+## [v4.3.4]
+
+### Added
+
+- Update to [Wazuh v4.3.4](https://github.com/wazuh/wazuh/blob/v4.3.4/CHANGELOG.md#v434)
+
+## [v4.3.3]
+
+### Added
+
+- Update to [Wazuh v4.3.3](https://github.com/wazuh/wazuh/blob/v4.3.3/CHANGELOG.md#v433)
+
+## [v4.3.2]
+
+### Added
+
+- Update to [Wazuh v4.3.2](https://github.com/wazuh/wazuh/blob/v4.3.2/CHANGELOG.md#v432)
+
+## [v4.3.1]
+
+### Added
+
+- Update to [Wazuh v4.3.1](https://github.com/wazuh/wazuh/blob/v4.3.1/CHANGELOG.md#v431)
+
+## [v4.3.0]
+
+### Added
+
+- Update to [Wazuh v4.3.0](https://github.com/wazuh/wazuh/blob/v4.3.0/CHANGELOG.md#v430)
+
+## [v4.2.6]
+
+### Added
+
+- Update to [Wazuh v4.2.6](https://github.com/wazuh/wazuh/blob/v4.2.6/CHANGELOG.md#v426)
+
+## [v4.2.5]
+
+### Added
+
+- Update to [Wazuh v4.2.5](https://github.com/wazuh/wazuh/blob/v4.2.5/CHANGELOG.md#v425)
+
+## [v4.2.4]
+
+### Added
+
+- Update to [Wazuh v4.2.4](https://github.com/wazuh/wazuh/blob/v4.2.4/CHANGELOG.md#v424)
+
+## [v4.2.3]
+
+### Added
+
+- Update to [Wazuh v4.2.3](https://github.com/wazuh/wazuh/blob/v4.2.3/CHANGELOG.md#v423)
+
+## [v4.2.2]
+
+### Added
+
+- Update to [Wazuh v4.2.2](https://github.com/wazuh/wazuh/blob/v4.2.2/CHANGELOG.md#v422)
+
+## [v4.2.1]
+
+### Added
+
+- Update to [Wazuh v4.2.1](https://github.com/wazuh/wazuh/blob/v4.2.1/CHANGELOG.md#v421)
+
+## [v4.2.0]
+
+### Added
+
+- Update to [Wazuh v4.2.0](https://github.com/wazuh/wazuh/blob/v4.2.0/CHANGELOG.md#v420)
+
+## [v4.1.4]
+
+### Added
+
+- Update to [Wazuh v4.1.4](https://github.com/wazuh/wazuh/blob/v4.1.4/CHANGELOG.md#v414)
+
+## [v4.1.3]
+
+### Added
+
+- Update to [Wazuh v4.1.3](https://github.com/wazuh/wazuh/blob/v4.1.3/CHANGELOG.md#v413)
+
+## [v4.1.2]
+
+### Added
+
+- Update to [Wazuh v4.1.2](https://github.com/wazuh/wazuh/blob/v4.1.2/CHANGELOG.md#v412)
+
+## [v4.1.1]
+
+### Added
+
+- Update to [Wazuh v4.1.1](https://github.com/wazuh/wazuh/blob/v4.1.1/CHANGELOG.md#v411)
+- Apply changes in ossec.conf file
+- Modify jvm.options to [v7.10](https://www.elastic.co/guide/en/elasticsearch/reference/7.10/jvm-options.html)
+- Change opendistro repository packages (opendistroforelasticsearch, elasticsearch-oss) to Wazuh URL and GPG key
+
+## [v4.0.4]
+
+### Added
+
+- Update to [Wazuh v4.0.4](https://github.com/wazuh/wazuh/blob/v4.0.4/CHANGELOG.md#v404)
+
+- Support for new Wazuh API config options.
+
+- Add localfile labels to agent ossec.conf template ([@dragospe](https://github.com/dragospe)) [PR#521](https://github.com/wazuh/wazuh-ansible/pull/521)
+
+### Changed
+
+- Please notice that default Kibana user in role defaults changed from `kibanaserver` to `admin`. See listed PRs below for details.
+
+### Fixed
+
+- `create_user.py` generates invalid passwords ([@singuliere](https://github.com/singuliere)) [PR#519](https://github.com/wazuh/wazuh-ansible/pull/519)
+- Fix invalid Jinja2 syntax in centralized configuration template ([@kravietz](https://github.com/kravietz)) [PR#528](https://github.com/wazuh/wazuh-ansible/pull/528)
+- Replace default user for `opendistro-kibana` role ([@zenidd](https://github.com/zenidd)) [PR#529](https://github.com/wazuh/wazuh-ansible/pull/529)
+- Remove legacy declarations of `od_node_name` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei), [@dragospe](https://github.com/dragospe))  [PR#530](https://github.com/wazuh/wazuh-ansible/pull/530)
+- Add missing variable `elasticsearch_node_master` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#534](https://github.com/wazuh/wazuh-ansible/pull/534)
+- Add missing variable `elasticsearch_network_host` in `opendistro-elasticsearch` ([@neonmei](https://github.com/neonmei)) [PR#540](https://github.com/wazuh/wazuh-ansible/pull/540)
+
+
+## [v4.0.3]
+
+### Added
+
+- Update to Wazuh v4.0.3
+
+### Fixed
+
+- Fix wrong `delegate_to` in task added by PR#488, hotfixed in `v4.0.2` in [PR#511](https://github.com/wazuh/wazuh-ansible/pull/511)
+
+## [v4.0.2]
+
+### Added
+
+- Update to Wazuh v4.0.2
+
+### Changed
+
+- New role variables have been introduced (e.g: `wazuh_agent_api_validate`), see documentation or PRs listed here for details.
+- Some variables have been deprecated (e.g: `wazuh_agent_nat`) in favour of other ones, see documentation or PRs listed here for details.
+
+### Fixed
+
+- Fix agent enrollment default value. Fix authd registration. [PR#505](https://github.com/wazuh/wazuh-ansible/issues/505)
+- Remove async clause causing agent install timeout on resource-constrained Centos installations [PR#507](https://github.com/wazuh/wazuh-ansible/issues/507)
+- Fix REST registration method for agents [PR#509](https://github.com/wazuh/wazuh-ansible/issues/509)
+- `authd_pass` and `api_pass` [precedence](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable) too high, lower to role defaults [PR#488](https://github.com/wazuh/wazuh-ansible/issues/488)
+
+## [v4.0.1]
+
+### Added
+
+- Update to Wazuh v4.0.1
+- Allow installing fixed Filebeat-oss version ([@Zenidd](https://github.com/Zenidd)) [PR#486](https://github.com/wazuh/wazuh-ansible/pull/486)
+- Feature adapt molecule tests ([@neonmei](https://github.com/neonmei)) [PR#477](https://github.com/wazuh/wazuh-ansible/pull/477)
+
+### Fixed
+
+- Roles/elastic-stack: update jvm.options template per upstream updates ([@neonmei](https://github.com/neonmei)) [PR#501](https://github.com/wazuh/wazuh-ansible/pull/501)
+- Improve linting history ([@neonmei](https://github.com/neonmei))
+  - Fix lint opendistro kibana [PR#497](https://github.com/wazuh/wazuh-ansible/pull/497)
+  - Feature lint roles configurations [PR#496](https://github.com/wazuh/wazuh-ansible/pull/496)
+  - Feature lint role wazuh agent [PR#495](https://github.com/wazuh/wazuh-ansible/pull/495)
+  - Feature lint role filebeat oss [PR#494](https://github.com/wazuh/wazuh-ansible/pull/494)
+  - Lint role wazuh-manager [PR#493](https://github.com/wazuh/wazuh-ansible/pull/493)
+  - Feature lint role elasticsearch [PR#492](https://github.com/wazuh/wazuh-ansible/pull/492)
+  - Feature lint role opendistro-elasticsearch [PR#491](https://github.com/wazuh/wazuh-ansible/pull/491)
+  - Feature lint remove unused variables [PR#487](https://github.com/wazuh/wazuh-ansible/pull/487)
+  - Feature agent default vars depth reduction [PR#485](https://github.com/wazuh/wazuh-ansible/pull/485)
+- Remove unnecesary nodejs dependency ([@neonmei](https://github.com/neonmei)) [PR#482](https://github.com/wazuh/wazuh-ansible/pull/482)
+- Feature manager configuration unnest ([@neonmei](https://github.com/neonmei)) [PR#481](https://github.com/wazuh/wazuh-ansible/pull/481)
+- Elastic API check fix ([@Zenidd](https://github.com/Zenidd)) [PR#480](https://github.com/wazuh/wazuh-ansible/pull/480)
+- Improve handling of run_once at opendistro-elasticsearch role ([@neonmei](https://github.com/neonmei)) [PR#478](https://github.com/wazuh/wazuh-ansible/pull/478)
+
+
+## [v4.0.0]
+
+### Added
+
+- Update to Wazuh v4.0.0
+- New example playbooks on README ([@Zenidd](https://github.com/Zenidd)) [PR#468](https://github.com/wazuh/wazuh-ansible/pull/468)
+
+### Fixed
+
+- Ensure recursive /usr/share/kibana permissions before installing WUI ([@Zenidd](https://github.com/Zenidd)) [PR#471](https://github.com/wazuh/wazuh-ansible/pull/471)
+- Remove vuls integration ([@manuasir](https://github.com/manuasir)) [PR#469](https://github.com/wazuh/wazuh-ansible/pull/469)
+
+
+## [v3.13.2]
+
+### Added
+
+- Update to Wazuh v3.13.2
+- Add kibana extra ssl option ([@xr09](https://github.com/xr09)) [PR#451](https://github.com/wazuh/wazuh-ansible/pull/451)
+- Force basic auth ([@xr09](https://github.com/xr09)) [PR#456](https://github.com/wazuh/wazuh-ansible/pull/456)
+
+### Fixed
+
+- Fix check_mode condition ([@manuasir](https://github.com/manuasir)) [PR#452](https://github.com/wazuh/wazuh-ansible/pull/452)
+- Fixes for opendistro role ([@xr09](https://github.com/xr09)) [PR#453](https://github.com/wazuh/wazuh-ansible/pull/453)
+
+## [v3.13.1_7.8.0]
+
+### Added
+
+- Update to Wazuh v3.13.1
+- Add support to configure path.repo option in ES. Required for backups/snapshots ([@pescobar](https://github.com/pescobar)) [PR#433](https://github.com/wazuh/wazuh-ansible/pull/433)
+
+### Changed
+
+- Update Opendistro tasks ([@jm404](https://github.com/jm404)) [PR#443](https://github.com/wazuh/wazuh-ansible/pull/443)
+- Provide ansible.cfg with merge hash_behaviour ([@xr09](https://github.com/xr09)) [PR#440](https://github.com/wazuh/wazuh-ansible/pull/440)
+
+### Fixed
+
+- Fixes for wazuh-agent registration ([@pchristos](https://github.com/pchristos)) [PR#406](https://github.com/wazuh/wazuh-ansible/pull/406)
+- Fixes for OpenDistro deployments ([@xr09](https://github.com/xr09)) [PR#445](https://github.com/wazuh/wazuh-ansible/pull/445)
+
 ## [v3.13.0_7.7.1]
 
 ### Added

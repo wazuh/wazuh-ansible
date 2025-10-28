@@ -1,0 +1,59 @@
+---
+- block:
+
+  - name: RedHat/CentOS/Fedora | Add Wazuh indexer repo
+    yum_repository:
+      name: wazuh_repo
+      description: Wazuh yum repository
+      baseurl: "{{ wazuh_repo.yum }}"
+      gpgkey: "{{ wazuh_repo.gpg }}"
+      gpgcheck: true
+    changed_when: false
+
+
+
+  - name: Amazon Linux | Configure system settings
+    block:
+      - name: Install Amazon extras in Amazon Linux 2
+        yum:
+          name: amazon-linux-extras
+          state: present
+          lock_timeout: 200
+        when:
+          - ansible_distribution == 'Amazon'
+          - ansible_distribution_major_version == '2'
+
+      - name: Configure vm.max_map_count
+        lineinfile:
+          line: "vm.max_map_count=262144"
+          dest: "/etc/sysctl.conf"
+          insertafter: EOF
+          create: true
+        become: yes
+
+      - name: Update vm.max_map_count
+        shell: sysctl -p
+        become: yes
+
+    when:
+      - ansible_distribution == 'Amazon'
+
+  - name: RedHat/CentOS/Fedora | Install Indexer dependencies
+    yum:
+      name: "{{ packages }}"
+      state: present
+      lock_timeout: 200
+    vars:
+      packages:
+      - wget
+      - unzip
+
+  - name: Install Wazuh indexer
+    package:
+      name: wazuh-indexer-{{ indexer_version }}
+      state: present
+    register: install
+    tags: install
+
+  tags:
+  - install

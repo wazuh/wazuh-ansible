@@ -1,0 +1,99 @@
+---
+- include_vars: ../../vars/repo_vars.yml
+
+- include_vars: ../../vars/repo.yml
+  when: packages_repository == 'production'
+
+- include_vars: ../../vars/repo_pre-release.yml
+  when: packages_repository == 'pre-release'
+
+- include_vars: ../../vars/repo_staging.yml
+  when: packages_repository == 'staging'
+
+- import_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- import_tasks: Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Remove Dashboard configuration file
+  file:
+    # noqa 503
+    path: "{{ dashboard_conf_path }}/opensearch_dashboards.yml"
+    state: absent
+  tags: install
+
+- import_tasks: security_actions.yml
+
+- name: Copy Configuration File
+  template:
+    src: "templates/opensearch_dashboards.yml.j2"
+    dest: "{{ dashboard_conf_path }}/opensearch_dashboards.yml"
+    group: wazuh-dashboard
+    owner: wazuh-dashboard
+    mode: 0640
+    force: yes
+  notify: restart wazuh-dashboard
+  tags:
+    - install
+    - configure
+
+- name: Ensuring Wazuh dashboard directory owner
+  file:
+    # noqa 208
+    path: "/usr/share/wazuh-dashboard"
+    state: directory
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    recurse: yes
+
+- name: Wait for Wazuh-Indexer port
+  wait_for: host={{ indexer_network_host }} port={{ indexer_http_port }}
+
+- name: Select correct API protocol
+  set_fact:
+    indexer_api_protocol: "{% if dashboard_security is defined and dashboard_security %}https{% else %}http{% endif %}"
+
+- name: Attempting to delete legacy Wazuh index if exists
+  uri:
+    url: "{{ indexer_api_protocol }}://{{ indexer_network_host }}:{{ indexer_http_port }}/.wazuh"
+    method: DELETE
+    user: "admin"
+    password: "{{ indexer_admin_password }}"
+    validate_certs: no
+    status_code: 200, 404
+
+- name: Create Wazuh Plugin config directory
+  file:
+    path: /usr/share/wazuh-dashboard/data/wazuh/config/
+    state: directory
+    recurse: yes
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: 0751
+  changed_when: False
+
+- name: Configure Wazuh Dashboard Plugin
+  template:
+    src: wazuh.yml.j2
+    dest: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: 0751
+  changed_when: False
+
+- name: Configure opensearch.password in opensearch_dashboards.keystore
+  shell: >-
+    echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
+  args:
+    executable: /bin/bash
+  become: yes
+
+- name: Ensure Wazuh dashboard started and enabled
+  service:
+    name: wazuh-dashboard
+    enabled: true
+    state: started
+
+- import_tasks: RMRedHat.yml
+  when: ansible_os_family == 'RedHat'
