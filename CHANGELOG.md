@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Server role backport and adaptation ([#1825](https://github.com/wazuh/wazuh-ansible/pull/1825))
 - Indexer role backport and adaptation ([#1823](https://github.com/wazuh/wazuh-ansible/pull/1823))
 - Ansible base configuration files and directories backport ([#1819](https://github.com/wazuh/wazuh-ansible/pull/1819))
 - Wazuh server clean-up ([#1803](https://github.com/wazuh/wazuh-ansible/pull/1803))

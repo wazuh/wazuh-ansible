@@ -5,9 +5,5 @@ wazuh_indexer_hosts:
   - host: "{{ hostvars[inventory_hostname].private_ip }}"
     port: 9200
 
-provision_load_balancer: false
-lb_server_hosts:
-  - "{{ hostvars[inventory_hostname].private_ip }}"
-
 wazuh_server_package_download_path: "/tmp/wazuh-server"
 wazuh_server_package_name: "wazuh-server-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
