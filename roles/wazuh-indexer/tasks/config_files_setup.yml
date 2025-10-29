@@ -189,8 +189,8 @@
     group: wazuh-indexer
     mode: "0400"
   with_items:
-    - { src: "{{ instances[inventory_hostname].name }}-key.pem", dest: "indexer-1-key.pem" }
-    - { src: "{{ instances[inventory_hostname].name }}.pem", dest: "indexer-1.pem" }
+    - { src: "{{ instances[inventory_hostname].name }}-key.pem", dest: "indexer-key.pem" }
+    - { src: "{{ instances[inventory_hostname].name }}.pem", dest: "indexer.pem" }
   when:
     - generate_certs
 
@@ -208,21 +208,21 @@
         regexp: '^node\.name:'
         line: 'node.name: "{{ instances[inventory_hostname].name }}"'
 
-    - name: OpenSearch Config | Configure cluster.initial_master_nodes
+    - name: OpenSearch Config | Configure cluster.initial_cluster_manager_nodes
       block:
-        - name: Remove existing nodes in cluster.initial_master_nodes
+        - name: Remove existing nodes in cluster.initial_cluster_manager_nodes
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
-            regexp: '(^cluster\.initial_master_nodes:\n)(\s*#?- "node-\d+"\n?)+'
+            regexp: '(^cluster\.initial_cluster_manager_nodes:\n)(\s*#?- "node-\d+"\n?)+'
             replace: '\1'
           when: not single_node
 
-        - name: OpenSearch Config | Update cluster.initial_master_nodes values
+        - name: OpenSearch Config | Update cluster.initial_cluster_manager_nodes values
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
-            regexp: 'cluster\.initial_master_nodes:\n'
+            regexp: 'cluster\.initial_cluster_manager_nodes:\n'
             replace: |
-              cluster.initial_master_nodes:
+              cluster.initial_cluster_manager_nodes:
               {% for (key, value) in instances.items() %}
               {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
               - "{{ value.name }}"
@@ -230,10 +230,10 @@
               {% endfor %}
           when: not single_node
 
-        - name: OpenSearch Config | Remove cluster.initial_master_nodes for single-node cluster
+        - name: OpenSearch Config | Remove cluster.initial_cluster_manager_nodes for single-node cluster
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
-            regexp: '(^cluster\.initial_master_nodes:\n)(\s*#?- ".*"\n?)*'
+            regexp: '(^cluster\.initial_cluster_manager_nodes:\n)(\s*#?- ".*"\n?)*'
             replace: ''
           when: single_node
 
