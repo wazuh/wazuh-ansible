@@ -79,7 +79,7 @@
   become: true
   vars:
     dashboard_node_name: "node-6"
-    wazuh_server_api_host: "{{ hostvars.balancer.private_ip }}"
+    wazuh_server_master_address: "{{ hostvars.manager.private_ip }}"
     indexer_cluster_nodes:
       - "{{ hostvars.wi1.private_ip }}"
       - "{{ hostvars.wi2.private_ip }}"
