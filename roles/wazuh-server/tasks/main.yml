@@ -88,7 +88,7 @@
     - name: Copy the certificates from local to the Wazuh Server instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: /etc/wazuh-server/certs/
+        dest: /var/ossec/etc/certs/
         owner: wazuh
         group: wazuh
         mode: '0400'
@@ -99,8 +99,8 @@
 
     - name: Copy certificates to match default names
       ansible.builtin.copy:
-        src: "/etc/wazuh-server/certs/{{ item.src }}"
-        dest: "/etc/wazuh-server/certs/{{ item.dest }}"
+        src: "/var/ossec/etc/certs/{{ item.src }}"
+        dest: "/var/ossec/etc/certs/{{ item.dest }}"
         remote_src: true
         owner: wazuh
         group: wazuh
