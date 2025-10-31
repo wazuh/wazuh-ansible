@@ -72,17 +72,6 @@
       - host: "{{ hostvars.wi3.private_ip }}"
         port: 9200
 
-- name: Configure Load Balancer
-  hosts: balancer
-  roles:
-    - role: wazuh-server
-  become: true
-  vars:
-    provision_load_balancer: true
-    lb_server_hosts:
-      - "{{ hostvars.manager.private_ip }}"
-      - "{{ hostvars.worker.private_ip }}"
-
 - name: Configure Wazuh Dashboard
   hosts: dashboard
   roles:

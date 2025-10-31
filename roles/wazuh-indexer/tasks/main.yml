@@ -36,7 +36,7 @@
     daemon_reload: true
   become: true
 
-- name: Ensure Wazuh indexer started and enabled
+- name: Ensure Wazuh indexer started
   ansible.builtin.service:
     name: wazuh-indexer
     enabled: true

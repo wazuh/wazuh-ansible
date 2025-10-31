@@ -8,13 +8,7 @@
   ansible.builtin.include_vars:
     file: ../../vars/{{ urls_file }}
 
-- name: Importing lb.yml
-  ansible.builtin.import_tasks: lb.yml
-  when:
-    - provision_load_balancer
-
 - name: Install Wazuh Server
-  when: not provision_load_balancer
   block:
     - name: Check if local_configs_path directory exists
       run_once: true
@@ -94,9 +88,9 @@
     - name: Copy the certificates from local to the Wazuh Server instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: /etc/wazuh-server/certs/
-        owner: wazuh-server
-        group: wazuh-server
+        dest: /var/ossec/etc/certs/
+        owner: wazuh
+        group: wazuh
         mode: '0400'
       with_items:
         - "root-ca.pem"
@@ -105,11 +99,11 @@
 
     - name: Copy certificates to match default names
       ansible.builtin.copy:
-        src: "/etc/wazuh-server/certs/{{ item.src }}"
-        dest: "/etc/wazuh-server/certs/{{ item.dest }}"
+        src: "/var/ossec/etc/certs/{{ item.src }}"
+        dest: "/var/ossec/etc/certs/{{ item.dest }}"
         remote_src: true
-        owner: wazuh-server
-        group: wazuh-server
+        owner: wazuh
+        group: wazuh
         mode: '0400'
       with_items:
         - { src: "{{ server_node_name }}-key.pem", dest: "server-1-key.pem" }
@@ -119,7 +113,7 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /usr/share/wazuh-server/bin/wazuh-keystore -f indexer -k username
+          echo 'admin' | /var/ossec/bin/wazuh-keystore -f indexer -k username
         executable: /bin/bash
       register: keystore_username_result
       changed_when: keystore_username_result.rc == 0
@@ -128,48 +122,79 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /usr/share/wazuh-server/bin/wazuh-keystore -f indexer -k password
+          echo 'admin' | /var/ossec/bin/wazuh-keystore -f indexer -k password
         executable: /bin/bash
       register: keystore_password_result
       changed_when: keystore_password_result.rc == 0
 
-    - name: Server-config | Edit the wazuh-server.yml file
+    - name: Server-config | Edit the ossec.conf file
       block:
-        - name: Server-config | Edit the indexer.hosts configuration
+        - name: Server-config | Replace indexer hosts in ossec.conf
           ansible.builtin.replace:
-            path: /etc/wazuh-server/wazuh-server.yml
-            regexp: '^indexer:\n(\s*)hosts:\n(\s*)- host:.*\n(\s*)port:.*$'
-            replace: |
-              indexer:
-                hosts:
-                {% for item in wazuh_indexer_hosts %}
-                - host: "{{ item.host }}"
-                    port: {{ item.port }}
-                {% endfor %}
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(^[ \t]*)<hosts>[\s\S]*?</hosts>'
+            replace: |1
+                  <hosts>
+              {% for node in wazuh_indexer_hosts %}
+                    <host>https://{{ node.host }}:{{ node.port }}</host>
+              {% endfor %}
+                  </hosts>
 
-        - name: Server-config | Edit the communications_api.host configuration
+        - name: Server-config | Edit cluster configuration in ossec.conf (node name)
           ansible.builtin.replace:
-            path: /etc/wazuh-server/wazuh-server.yml
-            regexp: '^communications_api:\n(\s*)host:.*$'
-            replace: 'communications_api:\n  host: "0.0.0.0"'
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<node_name>)[^<]+(</node_name>)'
+            replace: '\1{{ server_node_name }}\2'
 
-        - name: Server-config | Edit the management_api.host configuration
+        - name: Server-config | Edit cluster configuration in ossec.conf (node type)
           ansible.builtin.replace:
-            path: /etc/wazuh-server/wazuh-server.yml
-            regexp: '^management_api:\n(\s*)host:\n(\s*)- localhost\n(\s*)- ::1$'
-            replace: 'management_api:\n  host:\n    - "0.0.0.0"\n    - "::"'
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<node_type>)[^<]+(</node_type>)'
+            replace: '\1{% if inventory_hostname in ["manager", "aio_node"] %}master{% else %}worker{% endif %}\2'
 
-        - name: Server-config | Remove empty lines
+        - name: Server-config | Edit cluster configuration in ossec.conf (nodes list)
           ansible.builtin.replace:
-            path: /etc/wazuh-server/wazuh-server.yml
-            regexp: '^\s*$'
-            replace: ''
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<node>)[\s\S]*?(</node>)'
+            replace: '<node>{{ hostvars["manager"].private_ip }}</node>'
+          when: not single_node
 
-    - name: Ensure Wazuh Server service is started and enabled.
+    - name: Ensure Wazuh Server service is started
       ansible.builtin.service:
-        name: "wazuh-server"
+        name: "wazuh-manager"
         enabled: true
-        state: started
+        state: restarted
+
+    - name: Wazuh Server | Health check
+      block:
+        - name: Wazuh Server | Authenticate and obtain API token
+          ansible.builtin.uri:
+            url: "https://{{ private_ip }}:55000/security/user/authenticate"
+            method: POST
+            user: "wazuh"
+            password: "wazuh"
+            force_basic_auth: true
+            validate_certs: false
+            return_content: true
+          register: wazuh_api_auth
+          until: wazuh_api_auth.status == 200
+          retries: 12
+          delay: 5
+
+        - name: Wazuh Server | Perform API healthcheck
+          ansible.builtin.uri:
+            url: "https://{{ private_ip }}:55000/cluster/healthcheck"
+            method: GET
+            headers:
+              Authorization: "Bearer {{ wazuh_api_auth.json.data.token }}"
+            validate_certs: false
+            return_content: true
+          register: wazuh_api_healthcheck
+          until:
+            - wazuh_api_healthcheck.status == 200
+            - server_node_name in wazuh_api_healthcheck.content
+          retries: 12
+          delay: 5
 
     - name: Remove leftover installation files
       ansible.builtin.file:
