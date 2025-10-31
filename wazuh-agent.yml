@@ -4,11 +4,12 @@
   hosts: agents
   strategy: free
   vars:
-    wazuh_server_addresses:
-      - "<Your Wazuh Server IP>"
+    wazuh_server_address: "<Your Wazuh Server IP>"
+  roles:
+    - role: package-urls
   tasks:
-    - name: Include wazuh-agent role for Linux hosts
-      when: ansible_facts.system == "Linux"
+    - name: Include wazuh-agent role for Linux/MacOS hosts
+      when: ansible_facts.system == "Linux" or ansible_facts.system == "Darwin"
       become: true
       become_user: root
       block:

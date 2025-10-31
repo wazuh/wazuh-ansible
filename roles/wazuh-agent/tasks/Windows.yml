@@ -13,39 +13,17 @@
 - name: Windows | Install Wazuh agent
   ansible.windows.win_package:
     path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
-    state: present
-  when: wazuh_server_addresses | length == 1
-
-- name: Windows | Start Wazuh agent service (1/2)
-  ansible.windows.win_service:
-    name: "wazuh-agent"
-    start_mode: auto
-    state: started
-
-- name: Windows | Register Wazuh agent
-  ansible.windows.win_command:
-    cmd: >
-      "C:\\Program Files\\wazuh-agent\\wazuh-agent.exe"
-      --enroll
-      --enroll-url https://{{ wazuh_server_addresses[0] }}:55000
-      --user wazuh
-      --password wazuh
-
-- name: Windows | Update Wazuh agent configuration with Wazuh server IP address
-  community.windows.win_lineinfile:
-    path: 'C:\\Program Files\\wazuh-agent\\config\\wazuh-agent.yml'
-    regexp: '^  server_url: https://.*:27000'
-    line: '  server_url: https://{{ wazuh_server_addresses[0] }}:27000'
+    arguments: '/q WAZUH_MANAGER="{{ wazuh_server_address }}"'
     state: present
 
-- name: Windows | Stop Wazuh agent service
+- name: Windows | Stop Wazuh agent service (if already running)
   ansible.windows.win_service:
-    name: "wazuh-agent"
+    name: "Wazuh"
     state: stopped
 
-- name: Windows | Start Wazuh agent service (2/2)
+- name: Windows | Start Wazuh agent service
   ansible.windows.win_service:
-    name: "wazuh-agent"
+    name: "Wazuh"
     state: started
 
 - name: Windows | Delete Wazuh agent download directory

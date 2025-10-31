@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Agent role backport and adaptation ([#1834](https://github.com/wazuh/wazuh-ansible/pull/1834))
 - Dashboard role backport and adaptation ([#1831](https://github.com/wazuh/wazuh-ansible/pull/1831))
 - Server role backport and adaptation ([#1825](https://github.com/wazuh/wazuh-ansible/pull/1825))
 - Indexer role backport and adaptation ([#1823](https://github.com/wazuh/wazuh-ansible/pull/1823))
