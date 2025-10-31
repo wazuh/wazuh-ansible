@@ -39,30 +39,18 @@
     - name: Dashboard-config | Remove current opensearch.hosts configuration
       ansible.builtin.replace:
         path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: 'opensearch\.hosts: .*$'
+        regexp: '^opensearch\.hosts:.*(?:\n\s+-\s+https?://[^\n]+)*'
         replace: 'opensearch.hosts:'
 
     - name: Dashboard-config | Add opensearch.hosts configuration
-      ansible.builtin.blockinfile:
+      ansible.builtin.replace:
         path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        insertafter: 'opensearch.hosts:'
-        marker: "# OpenSearch hosts configuration"
-        block: |
+        regexp: '^opensearch\.hosts:\s*$'
+        replace: |
+          opensearch.hosts:
           {% for node in indexer_cluster_nodes %}
             - https://{{ node }}:9200
           {% endfor %}
-
-    - name: Dashboard-config | Remove comments from configuration file
-      ansible.builtin.replace:
-        path: "/etc/wazuh-dashboard/opensearch_dashboards.yml"
-        regexp: '^\s*#.*$'
-        replace: ''
-
-    - name: Dashboard-config | Remove empty lines from config.yml file
-      ansible.builtin.replace:
-        path: "/etc/wazuh-dashboard/opensearch_dashboards.yml"
-        regexp: '^\s*$'
-        replace: ''
 
 - name: Copy the certificates from local to the Wazuh dashboard instance
   ansible.builtin.copy:
@@ -89,11 +77,11 @@
     - { src: "{{ dashboard_node_name }}-key.pem", dest: "dashboard-key.pem" }
   when: dashboard_node_name != "dashboard"
 
-- name: Ensure Wazuh dashboard started and enabled
+- name: Ensure Wazuh dashboard started
   ansible.builtin.service:
     name: wazuh-dashboard
     enabled: true
-    state: started
+    state: restarted
 
 - name: Extract server host from dashboard configuration
   ansible.builtin.shell:

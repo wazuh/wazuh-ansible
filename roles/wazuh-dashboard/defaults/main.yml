@@ -1,7 +1,7 @@
 ---
 
 dashboard_node_name: "dashboard"
-wazuh_server_api_host: "localhost"
+wazuh_server_master_address: "{{ hostvars[inventory_hostname].private_ip }}"
 indexer_cluster_nodes:
   - "{{ hostvars[inventory_hostname].private_ip }}"
 
