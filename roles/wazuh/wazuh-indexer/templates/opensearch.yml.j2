@@ -19,7 +19,7 @@ cluster.name: {{ indexer_cluster_name }}
 http.port: 9200-9299
 transport.tcp.port: 9300-9399
 node.max_local_storage_nodes: "3"
-path.data: /var/lib/wazuh-indexer
+path.data: {{ indexer_index_path }}
 path.logs: /var/log/wazuh-indexer
 
 
