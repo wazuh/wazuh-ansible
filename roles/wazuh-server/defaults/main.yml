@@ -1,5 +1,6 @@
 ---
 
+single_node: false
 server_node_name: "wazuh-1"
 wazuh_indexer_hosts:
   - host: "{{ hostvars[inventory_hostname].private_ip }}"
