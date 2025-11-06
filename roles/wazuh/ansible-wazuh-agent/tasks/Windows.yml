@@ -107,6 +107,13 @@
   win_file:
     path: "{{ wazuh_winagent_config.download_dir }}{{ wazuh_winagent_package_name }}"
     state: absent
+  when: not wazuh_winagent_config.keep_downloaded_package
+
+
+- name: Windows | Ensure Wazuh Agent service is started and enabled
+  win_service:
+    name: OssecSvc
+    state: started
 
 - name: Windows | Delete downloaded checksum file
   win_file:
