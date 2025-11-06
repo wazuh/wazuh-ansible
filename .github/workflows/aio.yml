@@ -53,8 +53,8 @@ env:
     "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]
 >>>>>>> 6.0.0
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
-  ARTIFACTS_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifacts_urls.yml"
-  PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifacts_urls_presigned.yml"
+  ARTIFACTS_URL_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
+  PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
 permissions:
   id-token: write # JWT
   contents: read # actions/checkout
@@ -149,7 +149,7 @@ jobs:
 <<<<<<< HEAD
           # Download the S3 package URIs file
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-          S3_KEY="deployment/5.0/artifacts_urls.yml"
+          S3_KEY="deployment/5.0/artifact_urls.yml"
 =======
           # Define necessary variables
           VERSION_FILE="wazuh-ansible/VERSION.json"
@@ -158,12 +158,12 @@ jobs:
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
 
           # Download the S3 package URIs file=
-          S3_KEY="deployment/${WAZUH_MAJOR}.0/artifacts_urls.yml"
+          S3_KEY="deployment/${WAZUH_MAJOR}.0/artifact_urls.yml"
 >>>>>>> 6.0.0
-          aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACTS_URLS_FILE_TEMP --region us-west-1
+          aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACTS_URL_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
-          if [ -f $ARTIFACTS_URLS_FILE_TEMP ]; then
+          if [ -f $ARTIFACTS_URL_FILE_TEMP ]; then
             echo "S3 package URIs file downloaded successfully."
           else
             echo "Failed to download S3 package URIs file." >&2
@@ -176,7 +176,7 @@ jobs:
           WAZUH_VERSION=$(jq -r '.version' "$VERSION_FILE")
           WAZUH_MAJOR=$(echo "$WAZUH_VERSION" | cut -d '.' -f 1)
           COMMIT_LIST='${{ needs.setup-runner.outputs.COMMIT_LIST }}'
-          OUTPUT_FILE="/tmp/artifacts_urls_processed.yml"
+          OUTPUT_FILE="/tmp/artifact_urls_processed.yml"
 
           # Extract revisions using jq
           INDEXER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[0]')
@@ -185,8 +185,8 @@ jobs:
           AGENT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[3]')
 
           # Verify if the input file exists
-          if [ ! -f "$ARTIFACTS_URLS_FILE_TEMP" ]; then
-            echo "The input file $ARTIFACTS_URLS_FILE_TEMP does not exist." >&2
+          if [ ! -f "$ARTIFACTS_URL_FILE_TEMP" ]; then
+            echo "The input file $ARTIFACTS_URL_FILE_TEMP does not exist." >&2
             exit 1
           fi
 
@@ -217,13 +217,13 @@ jobs:
 
             # Append the processed line to the output file
             echo "$line" >> "$OUTPUT_FILE"
-          done < "$ARTIFACTS_URLS_FILE_TEMP"
+          done < "$ARTIFACTS_URL_FILE_TEMP"
 
           # Verify the output file
           if [ -f "$OUTPUT_FILE" ]; then
-            echo "The downloaded file artifacts_urls.yml was successfully processed at $OUTPUT_FILE."
+            echo "The downloaded file artifact_urls.yml was successfully processed at $OUTPUT_FILE."
           else
-            echo "Failed to create processed artifacts_urls.yml file." >&2
+            echo "Failed to create processed artifact_urls.yml file." >&2
             exit 1
           fi
 
@@ -265,7 +265,7 @@ jobs:
           if [ -f "$PRESIGNED_OUTPUT_FILE" ]; then
             echo "Presigned URLs file created successfully at $PRESIGNED_OUTPUT_FILE."
           else
-            echo "Failed to create presigned artifacts_urls.yml file." >&2
+            echo "Failed to create presigned artifact_urls.yml file." >&2
             exit 1
           fi
       - name: Save presigned URLs file to artifact
@@ -486,7 +486,7 @@ jobs:
       - name: Copy the presigned urls file to Ansible roles variables path
         run: |
           # Copy the presigned URLs file to the Ansible roles variables path
-          cp ${{ env.PRESIGNED_OUTPUT_FILE }} wazuh-ansible/roles/vars/artifacts_urls.yml
+          cp ${{ env.PRESIGNED_OUTPUT_FILE }} wazuh-ansible/roles/vars/artifact_urls.yml
       - name: Set SSH key permissions
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Ansible Playbook run Wazuh AIO Single instance
