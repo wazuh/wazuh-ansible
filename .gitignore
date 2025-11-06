@@ -1,4 +1,4 @@
-roles/vars/artifacts_urls.yml
+roles/vars/artifact_urls.yml
 deployment-config-files/
 *.pem
 *.ini
