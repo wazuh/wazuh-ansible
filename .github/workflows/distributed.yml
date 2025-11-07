@@ -53,7 +53,7 @@ env:
     "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]
 >>>>>>> 6.0.0
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
-  ARTIFACTS_URL_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
+  ARTIFACT_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
   PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker balancer"
 permissions:
@@ -162,10 +162,10 @@ jobs:
           # Download the S3 package URIs file
           S3_KEY="deployment/${WAZUH_MAJOR}.0/artifact_urls.yml"
 >>>>>>> 6.0.0
-          aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACTS_URL_FILE_TEMP --region us-west-1
+          aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACT_URLS_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
-          if [ -f $ARTIFACTS_URL_FILE_TEMP ]; then
+          if [ -f $ARTIFACT_URLS_FILE_TEMP ]; then
             echo "S3 package URIs file downloaded successfully."
           else
             echo "Failed to download S3 package URIs file." >&2
@@ -187,8 +187,8 @@ jobs:
           AGENT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[3]')
 
           # Verify if the input file exists
-          if [ ! -f "$ARTIFACTS_URL_FILE_TEMP" ]; then
-            echo "The input file $ARTIFACTS_URL_FILE_TEMP does not exist." >&2
+          if [ ! -f "$ARTIFACT_URLS_FILE_TEMP" ]; then
+            echo "The input file $ARTIFACT_URLS_FILE_TEMP does not exist." >&2
             exit 1
           fi
 
@@ -219,7 +219,7 @@ jobs:
 
             # Append the processed line to the output file
             echo "$line" >> "$OUTPUT_FILE"
-          done < "$ARTIFACTS_URL_FILE_TEMP"
+          done < "$ARTIFACT_URLS_FILE_TEMP"
 
           # Verify the output file
           if [ -f "$OUTPUT_FILE" ]; then
