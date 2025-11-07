@@ -26,19 +26,6 @@ shared_agent_config: []
 Vault variables
 ----------------
 
-### vars/agentless_creds.yml
-This file has the agenless credentials.
-```
----
- agentless_creds:
- - type: ssh_integrity_check_linux
-   frequency: 3600
-   host: root@example.net
-   state: periodic
-   arguments: '/bin /etc/ /sbin'
-   passwd: qwerty
-```
-
 ### vars/wazuh_api_creds.yml
 This file has user and password created in httpasswd format.
 ```
