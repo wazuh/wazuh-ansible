@@ -4,17 +4,21 @@
   hosts: agents
   strategy: free
   tasks:
+    - name: Make sure local_log_file_path directory exists on local machine
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ local_log_file_path }}"
+        state: directory
+        mode: '0755'
+
     - name: Gather Wazuh Agent logs from Linux hosts
       become: true
       when: ansible_facts.system == "Linux"
       block:
         - name: Linux | Set required facts for logs gathering (1/2)
           ansible.builtin.set_fact:
-            logs_prefix: >-
-              {{ ansible_facts.distribution }}_
-              {{ ansible_facts.distribution_major_version }}_
-              {{ ansible_facts.architecture }}_
-              {{ inventory_hostname }}
+            logs_prefix: "{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}_{{ ansible_facts.architecture }}_{{ inventory_hostname }}"
 
         - name: Linux | Set required facts for logs gathering (2/2)
           ansible.builtin.set_fact:
@@ -34,15 +38,31 @@
         - name: Linux | Wazuh Agent
           ignore_errors: true
           block:
-            - name: Linux | Wazuh Agent | Fetching logs
+            - name: Linux | Wazuh Agent | Fetching logs (1/3)
               changed_when: false
               ansible.builtin.shell: |
                 journalctl -u wazuh-agent > {{ remote_log_file_path }}/{{ logs_prefix }}_journalctl.log
 
+            - name: Linux | Wazuh Agent | Fetching logs (2/3)
+              ansible.builtin.find:
+                paths: /var/ossec/logs
+                file_type: file
+              register: finded_files
+
+            - name: Linux | Wazuh Agent | Fetching logs (3/3)
+              ansible.builtin.copy:
+                src: "{{ item.path }}"
+                dest: "{{ remote_log_file_path }}/{{ logs_prefix }}_{{ item.path | basename }}"
+                remote_src: true
+              loop: "{{ lookup('ansible.builtin.vars', 'ansible_facts').finded_files.files }}"
+              loop_control:
+                label: "{{ item.path | basename }}"
+              when: finded_files.files is defined and (finded_files.matched | int) > 0
+
             - name: Linux | Wazuh Agent | Fetching agent configuration
               ansible.builtin.copy:
-                src: /etc/wazuh-agent/wazuh-agent.yml
-                dest: "{{ remote_log_file_path }}/{{ logs_prefix }}_wazuh-agent.yml"
+                src: /var/ossec/etc/ossec.conf
+                dest: "{{ remote_log_file_path }}/{{ logs_prefix }}_ossec.conf"
                 remote_src: true
                 mode: '0644'
 
@@ -59,7 +79,7 @@
             dest: "{{ local_log_file_path }}/"
             flat: true
 
-        - name: Linux | Remove Wazuh logs from remote machine
+        - name: Linux | Remove Wazuh logs temporal directory from remote machine
           ansible.builtin.file:
             path: "{{ remote_log_file_path }}"
             state: absent
@@ -88,18 +108,32 @@
         - name: Windows | Wazuh Agent
           ignore_errors: true
           block:
-            - name: Windows | Wazuh Agent | Fetching logs
+            - name: Windows | Wazuh Agent | Fetching logs (1/3)
               ansible.windows.win_shell: |
                 $LogPath = "{{ remote_log_file_path }}\\{{ logs_prefix }}_wevents.log";
                 Get-EventLog -LogName Application |
-                  Where-Object { $_.Source -eq 'wazuh-agent' } |
+                  Where-Object { $_.Source -eq 'Wazuh' } |
                   Select-Object -ExpandProperty Message |
                   Out-File -FilePath $LogPath -Encoding UTF8
 
+            - name: Windows | Wazuh Agent | Fetching logs (2/3)
+              ansible.windows.win_find:
+                paths: 'C:\\Program Files (x86)\\ossec-agent\\logs'
+                file_type: file
+              register: wazuh_agent_logs
+
+            - name: Windows | Wazuh Agent | Fetching logs (3/3)
+              ansible.windows.win_copy:
+                src: "{{ item.path }}"
+                dest: "{{ remote_log_file_path }}\\{{ logs_prefix }}_{{ item.path | basename }}"
+                remote_src: true
+              loop: "{{ wazuh_agent_logs.files }}"
+              when: wazuh_agent_logs.files is defined and (wazuh_agent_logs.matched | int) > 0
+
             - name: Windows | Wazuh Agent | Fetching agent configuration
               ansible.windows.win_copy:
-                src: 'C:\\Program Files\\wazuh-agent\\config\\wazuh-agent.yml'
-                dest: "{{ remote_log_file_path }}\\{{ logs_prefix }}_config.yml"
+                src: 'C:\\Program Files (x86)\\ossec-agent\\ossec.conf'
+                dest: "{{ remote_log_file_path }}\\{{ logs_prefix }}_ossec.conf"
                 remote_src: true
 
             - name: Windows | Compress Wazuh logs

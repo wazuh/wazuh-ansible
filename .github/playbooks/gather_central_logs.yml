@@ -29,24 +29,39 @@
         - wazuh-dashboard
         - load-balancer
 
+    - name: Make sure local_log_file_path directory exists on local machine
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ local_log_file_path }}/compressed_individual_logs"
+        state: directory
+        mode: '0755'
+
     - name: Wazuh Indexer
-      when: inventory_hostname in ['aio'] or ('wi_cluster' in groups and inventory_hostname in groups['wi_cluster'])
+      when: (single_node | bool) or inventory_hostname in groups['wi_cluster']
       ignore_errors: true
       block:
-        - name: Wazuh Indexer | Fetching logs (1/2)
+        - name: Wazuh Indexer | Fetching logs (1/3)
           changed_when: false
           ansible.builtin.shell: |
             journalctl -u wazuh-indexer > {{ remote_log_file_path }}/wazuh-indexer/{{ logs_prefix }}_journalctl.log
 
-        - name: Wazuh Indexer | Fetching logs (2/2)
+        - name: Wazuh Indexer | Fetching logs (2/3)
+          ansible.builtin.find:
+            paths: /var/log/wazuh-indexer
+            file_type: file
+          register: wi_indexer_logs
+
+        - name: Wazuh Indexer | Fetching logs (3/3)
           ansible.builtin.copy:
-            src: "{{ item }}"
-            dest: "{{ remote_log_file_path }}/wazuh-indexer/{{ logs_prefix }}_{{ item | basename }}"
+            src: "{{ item.path }}"
+            dest: "{{ remote_log_file_path }}/wazuh-indexer/{{ logs_prefix }}_{{ item.path | basename }}"
             remote_src: true
             mode: '0644'
-          with_fileglob:
-            - "/var/log/wazuh-indexer/*"
-          when: ansible.builtin.stat(path="/var/log/wazuh-indexer", follow=True).stat.exists
+          loop: "{{ wi_indexer_logs.files | default([]) }}"
+          loop_control:
+            label: "{{ item.path | basename }}"
+          when: wi_indexer_logs is defined and (wi_indexer_logs.matched | int) > 0
 
         - name: Wazuh Indexer | Fetching configuration
           ansible.builtin.copy:
@@ -56,60 +71,58 @@
             mode: '0644'
 
     - name: Wazuh Server
-      when: inventory_hostname in ['manager', 'worker', 'aio']
+      when: (single_node | bool) or inventory_hostname in ['manager', 'worker']
       ignore_errors: true
       block:
-        - name: Wazuh Server | Fetching logs
+        - name: Wazuh Server | Fetching logs (1/3)
           changed_when: false
           ansible.builtin.shell: |
-            journalctl -u wazuh-server > {{ remote_log_file_path }}/wazuh-server/{{ logs_prefix }}_journalctl.log
+            journalctl -u wazuh-manager > {{ remote_log_file_path }}/wazuh-server/{{ logs_prefix }}_journalctl.log
+
+        - name: Wazuh Server | Fetching logs (2/3)
+          ansible.builtin.find:
+            paths: /var/ossec/logs/
+            file_type: file
+          register: wazuh_server_logs
+
+        - name: Wazuh Server | Fetching logs (3/3)
+          ansible.builtin.copy:
+            src: "{{ item.path }}"
+            dest: "{{ remote_log_file_path }}/wazuh-server/{{ logs_prefix }}_{{ item.path | basename }}"
+            remote_src: true
+            mode: '0644'
+          loop: "{{ wazuh_server_logs.files | default([]) }}"
+          loop_control:
+            label: "{{ item.path | basename }}"
+          when: wazuh_server_logs is defined and (wazuh_server_logs.matched | int) > 0
 
         - name: Wazuh Server | Fetching configuration
           ansible.builtin.copy:
-            src: /etc/wazuh-server/wazuh-server.yml
-            dest: "{{ remote_log_file_path }}/wazuh-server/{{ logs_prefix }}_wazuh-server.yml"
-            remote_src: true
-            mode: '0644'
-
-    - name: Load Balancer
-      when: inventory_hostname in ['balancer']
-      ignore_errors: true
-      block:
-        - name: Load Balancer | Fetching logs (1/2)
-          changed_when: false
-          ansible.builtin.shell: |
-            journalctl -u nginx > {{ remote_log_file_path }}/load-balancer/{{ logs_prefix }}_journalctl.log
-
-        - name: Load Balancer | Fetching logs (2/2)
-          ansible.builtin.copy:
-            src: "{{ item }}"
-            dest: "{{ remote_log_file_path }}/load-balancer/{{ logs_prefix }}_{{ item | basename }}"
-            remote_src: true
-            mode: '0644'
-          with_fileglob:
-            - "/var/log/nginx/*"
-          when: ansible.builtin.stat(path="/var/log/nginx", follow=True).stat.exists
-
-        - name: Load Balancer | Fetching configuration
-          ansible.builtin.copy:
-            src: /etc/nginx/nginx.conf
-            dest: "{{ remote_log_file_path }}/load-balancer/{{ logs_prefix }}_nginx.conf"
+            src: /var/ossec/etc/ossec.conf
+            dest: "{{ remote_log_file_path }}/wazuh-server/{{ logs_prefix }}_ossec.conf"
             remote_src: true
             mode: '0644'
 
     - name: Wazuh Dashboard
       ignore_errors: true
-      when: inventory_hostname in ['dashboard'] or inventory_hostname in ['aio']
+      when: (single_node | bool) or inventory_hostname in ['dashboard']
       block:
         - name: Wazuh Dashboard | Fetching logs
           changed_when: false
           ansible.builtin.shell: |
             journalctl -u wazuh-dashboard > {{ remote_log_file_path }}/wazuh-dashboard/{{ logs_prefix }}_journalctl.log
 
-        - name: Wazuh Dashboard | Fetching configuration
+        - name: Wazuh Dashboard | Fetching configuration (1/2)
           ansible.builtin.copy:
             src: /etc/wazuh-dashboard/opensearch_dashboards.yml
             dest: "{{ remote_log_file_path }}/wazuh-dashboard/{{ logs_prefix }}_opensearch_dashboards.yml"
+            remote_src: true
+            mode: '0644'
+
+        - name: Wazuh Dashboard | Fetching configuration (2/2)
+          ansible.builtin.copy:
+            src: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+            dest: "{{ remote_log_file_path }}/wazuh-dashboard/{{ logs_prefix }}_wazuh.yml"
             remote_src: true
             mode: '0644'
 
@@ -123,17 +136,18 @@
     - name: Copy Wazuh logs to local machine
       ansible.builtin.fetch:
         src: "{{ remote_log_file_path }}/compressed_wazuh_logs_{{ logs_prefix }}.tar.gz"
-        dest: "{{ local_log_file_path }}/"
+        dest: "{{ local_log_file_path }}/compressed_individual_logs/"
         flat: true
 
-    - name: Remove Wazuh logs from remote machine
+    - name: Remove Wazuh logs temporal directory from remote machine
       ansible.builtin.file:
         path: "{{ remote_log_file_path }}"
         state: absent
 
     - name: Local actions
       delegate_to: localhost
-      when: inventory_hostname not in ['aio']
+      become: false
+      when: not (single_node | bool)
       block:
         - name: Create central_logs_organized directory on local machine
           ansible.builtin.file:
@@ -143,6 +157,11 @@
 
         - name: Unpack Wazuh logs into central_logs_organized directory
           ansible.builtin.unarchive:
-            src: "{{ local_log_file_path }}/compressed_wazuh_logs_{{ logs_prefix }}.tar.gz"
+            src: "{{ local_log_file_path }}/compressed_individual_logs/compressed_wazuh_logs_{{ logs_prefix }}.tar.gz"
             dest: "{{ local_log_file_path }}/central_logs_organized"
             remote_src: false
+
+        - name: Remove temporal compressed_individual_logs local directory
+          ansible.builtin.file:
+            path: "{{ local_log_file_path }}/compressed_individual_logs"
+            state: absent

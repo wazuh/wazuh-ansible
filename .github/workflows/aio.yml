@@ -599,7 +599,7 @@ jobs:
         if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
         run: |
           ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b -K \
-          --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central" \
+          --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=true" \
           -i $ALLOCATOR_PATH/inventory \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
