@@ -76,6 +76,15 @@
     vars:
       indexer_password_hash: "{{ indexer_kibanaserver_password_hashed.stdout_lines | last }}"
 
+  - name: Deploy OpenSearch Security config.yml (OIDC)
+    template:
+      src: templates/opensearch-security.yml.j2
+      dest: "{{ indexer_sec_plugin_conf_path }}/config.yml"
+      owner: wazuh-indexer
+      group: wazuh-indexer
+      mode: "0640"
+    register: indexer_config_changed
+
   - name: Initialize the Opensearch security index in Wazuh indexer
     command: >
       sudo -u wazuh-indexer OPENSEARCH_PATH_CONF={{ indexer_conf_path }}
