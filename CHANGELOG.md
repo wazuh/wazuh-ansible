@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Logs gathering playbook backport and adaptation ([#1842](https://github.com/wazuh/wazuh-ansible/pull/1842))
 - Distributed deployment adaptation from backport ([#1840](https://github.com/wazuh/wazuh-ansible/pull/1840))
 - Agent role backport and adaptation ([#1834](https://github.com/wazuh/wazuh-ansible/pull/1834))
 - Dashboard role backport and adaptation ([#1831](https://github.com/wazuh/wazuh-ansible/pull/1831))
