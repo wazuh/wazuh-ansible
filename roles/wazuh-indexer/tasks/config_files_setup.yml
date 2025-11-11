@@ -164,6 +164,12 @@
       args:
         creates: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
 
+- name: Cert-gen | Set node name variable
+  ansible.builtin.set_fact:
+    node_name: "{{ (single_node | bool) | ternary(instances['aio_node'].name, instances[inventory_hostname].name) }}"
+  when:
+    - generate_certs
+
 - name: Cert-gen | Copy certificates to each Wazuh indexer node
   ansible.builtin.copy:
     src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
@@ -174,8 +180,8 @@
   with_items:
     - root-ca.pem
     - root-ca.key
-    - "{{ instances[inventory_hostname].name }}-key.pem"
-    - "{{ instances[inventory_hostname].name }}.pem"
+    - "{{ node_name }}-key.pem"
+    - "{{ node_name }}.pem"
     - admin-key.pem
     - admin.pem
   when:

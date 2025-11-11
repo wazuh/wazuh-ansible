@@ -173,7 +173,7 @@
           ansible.builtin.replace:
             path: /var/ossec/etc/ossec.conf
             regexp: '(<node_type>)[^<]+(</node_type>)'
-            replace: '\1{% if inventory_hostname == "manager" or single_node %}master{% else %}worker{% endif %}\2'
+            replace: '\1{% if node_type == "master" or single_node %}master{% else %}worker{% endif %}\2'
 
         - name: Server-config | Edit cluster configuration in ossec.conf (bind address)
           ansible.builtin.replace:
@@ -195,7 +195,7 @@
         state: restarted
 
     - name: Wazuh Server | Health check (master)
-      when: inventory_hostname == "manager" or single_node
+      when: node_type == "master" or single_node
       block:
         - name: Wazuh Server | Authenticate and obtain API token (master)
           ansible.builtin.uri:
@@ -227,7 +227,7 @@
           delay: 5
 
     - name: Wazuh Server | Health check (worker)
-      when: inventory_hostname == "worker"
+      when: node_type == "worker" and not single_node
       block:
         - name: Wazuh Server | Perform CLI healthcheck (worker)
           ansible.builtin.command: /var/ossec/bin/cluster_control -l
