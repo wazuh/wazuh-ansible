@@ -29,3 +29,14 @@ indexer_admin_password: changeme
 dashboard_user: kibanaserver
 dashboard_password: changeme
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+
+# Auth configuration
+dashboard_auth_type: basic  # basic|saml|openid
+dashboard_openid_connect_url: ""
+dashboard_openid_client_id: ""
+dashboard_openid_client_secret: ""
+dashboard_openid_scope: "openid profile email"
+dashboard_openid_base_redirect_url: ""   # z.B. https://wazuh.example.com
+dashboard_openid_logout_url: ""
+dashboard_openid_roles_key: "roles"
+dashboard_openid_subject_key: "sub"
