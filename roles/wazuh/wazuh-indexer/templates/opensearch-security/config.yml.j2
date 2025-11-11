@@ -1,0 +1,21 @@
+authc:
+  # ... vorhandene Domains (basic, etc.)
+  {% if indexer_enable_openid | default(false) %}
+  openid_auth_domain:
+    description: "OpenID Connect"
+    http_enabled: true
+    transport_enabled: true
+    order: 0
+    http_authenticator:
+      type: openid
+      challenge: false
+      config:
+        subject_key: "{{ indexer_openid_subject_key | default('sub') }}"
+        roles_key: "{{ indexer_openid_roles_key | default('roles') }}"
+        openid_connect_url: "{{ indexer_openid_connect_url }}"
+        client_id: "{{ indexer_openid_client_id }}"
+        client_secret: "{{ indexer_openid_client_secret }}"
+        scope: "{{ indexer_openid_scope | default('openid profile email') }}"
+    authentication_backend:
+      type: noop
+  {% endif %}

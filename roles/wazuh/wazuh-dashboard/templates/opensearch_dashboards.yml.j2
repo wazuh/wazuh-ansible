@@ -5,7 +5,7 @@ opensearch.hosts:
   - https://{{ item }}:{{ indexer_http_port }}
 {% endfor %}
 opensearch.ssl.verificationMode: certificate
-opensearch.requestHeadersAllowlist: ["securitytenant","Authorization"]
+opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
 opensearch_security.multitenancy.enabled: false
 opensearch_security.readonly_mode.roles: ["kibana_read_only"]
 server.ssl.enabled: true
@@ -17,3 +17,18 @@ uiSettings.overrides.defaultRoute: /app/wz-home
 opensearch_security.cookie.ttl: 900000
 opensearch_security.session.ttl: 900000
 opensearch_security.session.keepalive: true
+# OIDC
+{% if wazuh_dashboard_oidc_enabled %}
+opensearch_security.auth.multiple_auth_enabled: "{{ wazuh_dashboard_oidc.multiple_auth_enabled | default('true') }}"
+opensearch_security.auth.type: {{ wazuh_dashboard_oidc.openid_auth_type | default('openid') | to_json }}
+opensearch_security.openid.connect_url: "{{ wazuh_dashboard_oidc.openid_connect_url }}"
+opensearch_security.openid.client_id: "{{ wazuh_dashboard_oidc.openid_client_id }}"
+opensearch_security.openid.client_secret: "{{ wazuh_dashboard_oidc.openid_client_secret }}"
+opensearch_security.openid.base_redirect_url: "{{ wazuh_dashboard_oidc.openid_base_redirect_url }}"
+opensearch_security.openid.trust_dynamic_headers: "{{ wazuh_dashboard_oidc.trust_dynamic_headers | default('true') }}"
+{% if wazuh_dashboard_oidc.openid_jwt_groups_claim is defined %}
+{% endif %}
+{% if wazuh_dashboard_oidc.openid_logout_url is defined %}
+opensearch_security.openid.logout_url: "{{ wazuh_dashboard_oidc.openid_logout_url }}"
+{% endif %}
+{% endif %}
