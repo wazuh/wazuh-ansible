@@ -109,6 +109,29 @@
         - { src: "{{ server_node_name }}-key.pem", dest: "server-1-key.pem" }
         - { src: "{{ server_node_name }}.pem", dest: "server-1.pem" }
 
+    # TEMP: make sure destination directory exists
+    - name: Create Filebeat certificates directory
+      ansible.builtin.file:
+        path: /etc/filebeat/certs
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    # TEMP: to make filebeat work
+    - name: Copy certificates to Filebeat directory
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0400'
+      with_items:
+        - { src: "/var/ossec/etc/certs/root-ca.pem", dest: "/etc/filebeat/certs/root-ca.pem" }
+        - { src: "/var/ossec/etc/certs/{{ server_node_name }}.pem", dest: "/etc/filebeat/certs/filebeat.pem" }
+        - { src: "/var/ossec/etc/certs/{{ server_node_name }}-key.pem", dest: "/etc/filebeat/certs/filebeat-key.pem" }
+
     - name: Generate the wazuh-keystore (username)
       ansible.builtin.shell:
         cmd: |
@@ -150,7 +173,13 @@
           ansible.builtin.replace:
             path: /var/ossec/etc/ossec.conf
             regexp: '(<node_type>)[^<]+(</node_type>)'
-            replace: '\1{% if inventory_hostname in ["manager", "aio_node"] %}master{% else %}worker{% endif %}\2'
+            replace: '\1{% if node_type == "master" or single_node %}master{% else %}worker{% endif %}\2'
+
+        - name: Server-config | Edit cluster configuration in ossec.conf (bind address)
+          ansible.builtin.replace:
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<bind_addr>)[\s\S]*?(</bind_addr>)'
+            replace: '<bind_addr>0.0.0.0</bind_addr>'
 
         - name: Server-config | Edit cluster configuration in ossec.conf (nodes list)
           ansible.builtin.replace:
@@ -165,9 +194,10 @@
         enabled: true
         state: restarted
 
-    - name: Wazuh Server | Health check
+    - name: Wazuh Server | Health check (master)
+      when: node_type == "master" or single_node
       block:
-        - name: Wazuh Server | Authenticate and obtain API token
+        - name: Wazuh Server | Authenticate and obtain API token (master)
           ansible.builtin.uri:
             url: "https://{{ private_ip }}:55000/security/user/authenticate"
             method: POST
@@ -181,7 +211,7 @@
           retries: 12
           delay: 5
 
-        - name: Wazuh Server | Perform API healthcheck
+        - name: Wazuh Server | Perform API healthcheck (master)
           ansible.builtin.uri:
             url: "https://{{ private_ip }}:55000/cluster/healthcheck"
             method: GET
@@ -193,6 +223,18 @@
           until:
             - wazuh_api_healthcheck.status == 200
             - server_node_name in wazuh_api_healthcheck.content
+          retries: 12
+          delay: 5
+
+    - name: Wazuh Server | Health check (worker)
+      when: node_type == "worker" and not single_node
+      block:
+        - name: Wazuh Server | Perform CLI healthcheck (worker)
+          ansible.builtin.command: /var/ossec/bin/cluster_control -l
+          register: cluster_control_list
+          until:
+            - cluster_control_list.rc == 0
+            - "'ERR' not in cluster_control_list.stdout"
           retries: 12
           delay: 5
 
