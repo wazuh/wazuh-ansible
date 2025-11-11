@@ -48,3 +48,12 @@ generate_certs: true
 perform_installation: true
 
 indexer_nolog_sensible: true
+
+# Auth configuration
+indexer_enable_openid: false
+indexer_openid_connect_url: ""
+indexer_openid_client_id: ""
+indexer_openid_client_secret: ""
+indexer_openid_roles_key: "roles"
+indexer_openid_subject_key: "sub"
+indexer_openid_scope: "openid profile email"
