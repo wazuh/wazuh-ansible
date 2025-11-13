@@ -10,7 +10,7 @@
   when: ansible_facts.distribution == 'Amazon'
   block:
     - name: Amazon Linux | Install Amazon extras in Amazon Linux 2
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: amazon-linux-extras
         state: present
       when:
@@ -34,7 +34,7 @@
   when: ansible_facts.os_family == 'RedHat'
   block:
     - name: RedHat/CentOS/Fedora | Install Indexer dependencies
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: "{{ packages }}"
       vars:
         packages:

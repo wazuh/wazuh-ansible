@@ -44,6 +44,8 @@
   block:
     - name: MacOS | Install Wazuh agent using installer
       ansible.builtin.command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
+      register: install_pkg
+      changed_when: install_pkg.rc == 0
 
     - name: MacOS | Initialize Wazuh agent service (MacOS 10.10+)
       ansible.builtin.command: "launchctl bootstrap system /Library/LaunchDaemons/com.wazuh.agent.plist"

@@ -51,7 +51,7 @@
             - ansible_facts.architecture == "aarch64"
 
         - name: RedHat/CentOS/Fedora | Install wazuh-server package
-          ansible.builtin.yum:
+          ansible.builtin.dnf:
             name: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
             state: present
             disable_gpg_check: true
@@ -232,6 +232,7 @@
         - name: Wazuh Server | Perform CLI healthcheck (worker)
           ansible.builtin.command: /var/ossec/bin/cluster_control -l
           register: cluster_control_list
+          changed_when: false
           until:
             - cluster_control_list.rc == 0
             - "'ERR' not in cluster_control_list.stdout"

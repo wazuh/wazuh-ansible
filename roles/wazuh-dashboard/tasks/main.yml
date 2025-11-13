@@ -13,7 +13,7 @@
   become: true
 
 - name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
     state: present
     disable_gpg_check: true

@@ -601,8 +601,6 @@ jobs:
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v25
         with:
-          args: |
-            -v
-            wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml
+          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
           working_directory: "wazuh-ansible"
           requirements_file: "requirements.yml"

@@ -18,7 +18,9 @@
       block:
         - name: Linux | Set required facts for logs gathering (1/2)
           ansible.builtin.set_fact:
-            logs_prefix: "{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}_{{ ansible_facts.architecture }}_{{ inventory_hostname }}"
+            logs_prefix: >-
+              {{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}_{{
+              ansible_facts.architecture }}_{{ inventory_hostname }}
 
         - name: Linux | Set required facts for logs gathering (2/2)
           ansible.builtin.set_fact:
@@ -57,6 +59,7 @@
               ansible.builtin.copy:
                 src: "{{ item.path }}"
                 dest: "{{ remote_logs_path }}/{{ logs_prefix }}_{{ item.path | basename }}"
+                mode: '0644'
                 remote_src: true
               loop: "{{ wazuh_agent_logs.files | default([]) }}"
               loop_control:
@@ -67,8 +70,8 @@
               ansible.builtin.copy:
                 src: /var/ossec/etc/ossec.conf
                 dest: "{{ remote_logs_path }}/{{ logs_prefix }}_ossec.conf"
-                remote_src: true
                 mode: '0644'
+                remote_src: true
 
         - name: Linux | Compress Wazuh logs
           block:
@@ -79,7 +82,7 @@
                 format: gz
                 mode: '0644'
           rescue:
-            - name: Compress Wazuh logs (tar command)
+            - name: Compress Wazuh logs (tar command) # noqa: command-instead-of-module
               ansible.builtin.shell: |
                 tar -czf {{ remote_gathering_path }}/compressed_wazuh_agent_logs_{{ logs_prefix }}.tar.gz -C {{ remote_logs_path }} .
               args:

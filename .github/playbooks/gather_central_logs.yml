@@ -68,8 +68,8 @@
           ansible.builtin.copy:
             src: "{{ item.path }}"
             dest: "{{ remote_logs_path }}/wazuh-indexer/{{ logs_prefix }}_{{ item.path | basename }}"
-            remote_src: true
             mode: '0644'
+            remote_src: true
           loop: "{{ wi_indexer_logs.files | default([]) }}"
           loop_control:
             label: "{{ item.path | basename }}"
@@ -79,8 +79,8 @@
           ansible.builtin.copy:
             src: /etc/wazuh-indexer/opensearch.yml
             dest: "{{ remote_logs_path }}/wazuh-indexer/{{ logs_prefix }}_opensearch.yml"
-            remote_src: true
             mode: '0644'
+            remote_src: true
 
     - name: Wazuh Server
       when: (single_node | bool) or inventory_hostname in ['manager', 'worker']
@@ -147,7 +147,7 @@
             format: gz
             mode: '0644'
       rescue:
-        - name: Compress Wazuh logs (tar command)
+        - name: Compress Wazuh logs (tar command) # noqa: command-instead-of-module
           ansible.builtin.shell: |
             tar -czf {{ remote_gathering_path }}/compressed_wazuh_logs_{{ logs_prefix }}.tar.gz -C {{ remote_logs_path }} .
           args:

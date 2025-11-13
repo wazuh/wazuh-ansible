@@ -25,7 +25,7 @@
   when: ansible_facts.os_family == 'RedHat'
   block:
     - name: RedHat/CentOS/Fedora | Install Dashboard dependencies
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: "{{ packages }}"
         state: present
         update_cache: true
