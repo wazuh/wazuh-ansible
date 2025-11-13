@@ -461,6 +461,26 @@
   </wodle>
 {% endif %}
 
+{% if monitor_github is defined and monitor_github.enabled == "yes" %}
+  <!-- GitHub -->
+  <github>
+    <enabled>{{ monitor_github.enabled }}</enabled>
+    <interval>{{ monitor_github.interval }}</interval>
+    <time_delay>{{ monitor_github.time_delay }}</time_delay>
+    <curl_max_size>{{ monitor_github.curl_max_size }}</curl_max_size>
+    <only_future_events>{{ monitor_github.only_future_events }}</only_future_events>
+    {% for org in monitor_github.orgs %}
+    <api_auth>
+      <org_name>{{ org.name }}</org_name>
+      <api_token>{{ org.api_token }}</api_token>
+    </api_auth>
+    {% endfor %}
+    <api_parameters>
+      <event_type>all</event_type>
+    </api_parameters>
+  </github>
+{% endif %}
+
 {% if wazuh_manager_config.labels.enable == true %}
   <labels>
   {% for label in wazuh_manager_config.labels.list %}
