@@ -242,6 +242,8 @@ jobs:
               # Append the processed line to the output file
               echo "$presigned_url_line" >> "$PRESIGNED_OUTPUT_FILE"
             else
+              echo "$line" >> "$PRESIGNED_OUTPUT_FILE"
+
               echo "Skipping line for presigning (no S3 URI found):"
               echo "$line"
             fi
@@ -454,7 +456,7 @@ jobs:
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Ansible Playbook run Wazuh agents
         run: |
-          ansible-playbook wazuh-ansible/wazuh-agent.yml \
+          ansible-playbook wazuh-ansible/wazuh-agent.yml --extra-vars "source=custom" \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}

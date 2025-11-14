@@ -47,7 +47,7 @@ env:
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
   ARTIFACT_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
   PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
-  INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker balancer"
+  INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 permissions:
   id-token: write # JWT
   contents: read # actions/checkout
@@ -244,6 +244,8 @@ jobs:
               # Append the processed line to the output file
               echo "$presigned_url_line" >> "$PRESIGNED_OUTPUT_FILE"
             else
+              echo "$line" >> "$PRESIGNED_OUTPUT_FILE"
+
               echo "Skipping line for presigning (no S3 URI found):"
               echo "$line"
             fi
@@ -347,7 +349,7 @@ jobs:
           instance_names=($INSTANCE_NAMES)
           inventory_file="$ALLOCATOR_PATH/inventory_all"
           ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
-          load_balancer_private_ip=""
+          manager_private_ip=""
 
           # Create all instances in parallel
           for i in ${!instance_names[@]}; do
@@ -395,11 +397,9 @@ jobs:
               echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 4 ]]; then
               echo "manager ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
+              manager_private_ip=$private_ip
             elif [[ $i -eq 5 ]]; then
               echo "worker ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
-            elif [[ $i -eq 6 ]]; then
-              echo "balancer ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
-              load_balancer_private_ip="$private_ip"
             fi
           done
 
@@ -416,8 +416,7 @@ jobs:
           echo "ansible_ssh_private_key_file=${ssh_key_path}" >> $inventory_file
 
           # Set the Wazuh server IP in the Ansible playbook
-          echo "Load balancer private IP: $load_balancer_private_ip"
-          sed -i "s|<Your Wazuh Server IP>|$load_balancer_private_ip|g" wazuh-ansible/wazuh-agent.yml
+          sed -i "s|<Your Wazuh Server IP>|$manager_private_ip|g" wazuh-ansible/wazuh-agent.yml
       - name: Allocate Agent instances
         run: |
           # Define variables
@@ -500,7 +499,7 @@ jobs:
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Ansible Playbook run Wazuh agents
         run: |
-          ansible-playbook wazuh-ansible/wazuh-agent.yml \
+          ansible-playbook wazuh-ansible/wazuh-agent.yml --extra-vars "source=custom" \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}

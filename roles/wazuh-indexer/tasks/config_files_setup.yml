@@ -195,8 +195,8 @@
     group: wazuh-indexer
     mode: "0400"
   with_items:
-    - { src: "{{ instances[inventory_hostname].name }}-key.pem", dest: "indexer-key.pem" }
-    - { src: "{{ instances[inventory_hostname].name }}.pem", dest: "indexer.pem" }
+    - { src: "{{ node_name }}-key.pem", dest: "indexer-key.pem" }
+    - { src: "{{ node_name }}.pem", dest: "indexer.pem" }
   when:
     - generate_certs
 
@@ -212,7 +212,7 @@
       ansible.builtin.lineinfile:
         path: /etc/wazuh-indexer/opensearch.yml
         regexp: '^node\.name:'
-        line: 'node.name: "{{ instances[inventory_hostname].name }}"'
+        line: 'node.name: "{{ node_name }}"'
 
     - name: OpenSearch Config | Configure cluster.initial_cluster_manager_nodes
       block:
