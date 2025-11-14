@@ -569,4 +569,37 @@
     <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
   </cluster>
 
+{% if wazuh_manager_integrations | length > 0 %}
+{% for item in wazuh_manager_integrations %}
+  <integration>
+    {% if item.name is defined %}
+    <name>{{ item.name }}</name>
+    {% endif %}
+    {% if item.hook_url is defined %}
+    <hook_url>{{ item.hook_url }}</hook_url>
+    {% endif %}
+    {% if item.api_key is defined %}
+    <api_key>{{ item.api_key }}</api_key>
+    {% endif %}
+    {% if item.alert_format is defined %}
+    <alert_format>{{ item.alert_format }}</alert_format>
+    {% endif %}
+    {% if item.rule_id is defined %}
+    <rule_id>{{ item.rule_id }}</rule_id>
+    {% endif %}
+    {% if item.level is defined %}
+    <level>{{ item.level }}</level>
+    {% endif %}
+    {% if item.group is defined %}
+    <group>{{ item.group }}</group>
+    {% endif %}
+    {% if item.event_location is defined %}
+    <event_location>{{ item.event_location }}</event_location>
+    {% endif %}
+    {% if item.options is defined %}
+    <options>{{ item.options }}</options>
+    {% endif %}
+  </integration>
+{% endfor %}
+{% endif %}
 </ossec_config>

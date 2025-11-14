@@ -206,6 +206,21 @@
     - init
     - config
 
+- name: Copy custom api integration
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ wazuh_dir }}/integrations/{{ item.name }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ custom_integration_files }}"
+  when: custom_integration_files is defined
+
+- name: Retrieving Agentless Credentials
+  include_vars: agentless_creds.yml
+  tags:
+    - config
+
 - name: Retrieving authd Credentials
   include_vars: authd_pass.yml
   tags:
