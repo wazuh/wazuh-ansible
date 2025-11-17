@@ -429,3 +429,30 @@ wazuh_manager_config_defaults:
 #         format: 'eventchannel'
 #       - location: 'System'
 #         format: 'eventlog'
+#
+
+wazuh_manager_integrations: []
+#   - name: slack
+#     hook_url: "https://your-mattermost-server.com/hooks/your-webhook-id"
+#     api_key: your_api_key
+#     alert_format: json
+#     rule_id: "" # < optional
+#     level: 13 # < optional
+#     group: "" # < optional
+#     event_location: "" # < optional
+#     options: "" # < optional
+#   - name: custom-integration # < add a list of files to copy bellow
+#     alert_format: json
+#
+
+custom_integration_files: []
+#    - name: mattermost-config.json # < files must be placed under files/yourfile.py
+#      src: path/to/mattermost-config.json
+#      owner: root
+#      group: wazuh
+#      mode: 0640
+#    - name: custom-mattermost.py
+#      src: path/to/custom-mattermost
+#      owner: root
+#      group: wazuh
+#      mode: 0750
