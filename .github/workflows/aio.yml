@@ -144,8 +144,8 @@ jobs:
           WAZUH_MAJOR=$(echo "$WAZUH_VERSION" | cut -d '.' -f 1)
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
 
-          # Download the S3 package URIs file=
-          S3_KEY="deployment/${WAZUH_MAJOR}.0/artifact_urls.yml"
+          # Download the S3 package URIs file
+          S3_KEY="deployment/artifact_urls.yml"
           aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACT_URLS_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
@@ -184,22 +184,16 @@ jobs:
               continue
             fi
 
-            # Replace MAJOR with the major version
-            line=${line//MAJOR/$WAZUH_MAJOR}
+            # Replace variables with their actual values
+            line=${line//\$\{\{ vars.AWS_S3_BUCKET_DEV \}\}/${{ vars.AWS_S3_BUCKET_DEV }}}
+            line=${line//\$\{\{ env.MAJOR \}\}/$WAZUH_MAJOR}
+            line=${line//\$\{\{ env.WAZUH_VERSION \}\}/$WAZUH_VERSION}
 
-            # Replace WAZUH_VERSION with the full version
-            line=${line//WAZUH_VERSION/$WAZUH_VERSION}
-
-            # Handle the different component revisions based on the URL pattern
-            if [[ "$line" == *"wazuh_indexer_url"* ]]; then
-              line=${line//latest/$INDEXER_COMMIT}
-            elif [[ "$line" == *"wazuh_server_url"* ]]; then
-              line=${line//latest/$SERVER_COMMIT}
-            elif [[ "$line" == *"wazuh_dashboard_url"* ]]; then
-              line=${line//latest/$DASHBOARD_COMMIT}
-            elif [[ "$line" == *"wazuh_agent_url"* ]]; then
-              line=${line//latest/$AGENT_COMMIT}
-            fi
+            # Replace component revisions
+            line=${line//\$\{\{ env.INDEXER_REVISION \}\}/$INDEXER_COMMIT}
+            line=${line//\$\{\{ env.MANAGER_REVISION \}\}/$SERVER_COMMIT}
+            line=${line//\$\{\{ env.DASHBOARD_REVISION \}\}/$DASHBOARD_COMMIT}
+            line=${line//\$\{\{ env.AGENT_REVISION \}\}/$AGENT_COMMIT}
 
             # Append the processed line to the output file
             echo "$line" >> "$OUTPUT_FILE"

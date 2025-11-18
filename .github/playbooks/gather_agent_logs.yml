@@ -2,7 +2,7 @@
 
 - name: Gather Wazuh Agent logs
   hosts: agents
-  strategy: free
+  # strategy: free
   tasks:
     - name: Make sure local_log_file_path directory exists on local machine
       delegate_to: localhost

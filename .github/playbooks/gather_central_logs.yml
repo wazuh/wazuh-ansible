@@ -2,7 +2,7 @@
 
 - name: Gather Wazuh Central Logs
   hosts: all
-  strategy: free
+  # strategy: free
   become: true
   tasks:
     - name: Make sure local_log_file_path directory exists on local machine
