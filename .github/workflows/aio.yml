@@ -10,7 +10,7 @@ on:
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+        default: '["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL8"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "server", "dashboard", "agent"]'
@@ -64,7 +64,7 @@ jobs:
           if [[ "${{ inputs.OS_LIST }}" != "null" && "${{ inputs.OS_LIST }}" != "" ]]; then
             OS_LIST='${{ inputs.OS_LIST }}'
           else
-            OS_LIST='["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+            OS_LIST='["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL8"]'
           fi
           echo "OS_LIST=$OS_LIST" >> $GITHUB_OUTPUT
 
@@ -307,8 +307,8 @@ jobs:
             "CentOS_8")
               SUBNAME="centos-8"
               ;;
-            "AmazonLinux_2")
-              SUBNAME="amazon-2"
+            "AmazonLinux_23")
+              SUBNAME="amazon-2023"
               ;;
             "Ubuntu_16")
               SUBNAME="ubuntu-16.04"
