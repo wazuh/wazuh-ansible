@@ -42,9 +42,8 @@ To perform an AIO deployment, use the `wazuh-aio.yml` playbook. This playbook in
 A distributed deployment spreads components across multiple nodes for improved scalability and redundancy. The components include:
 
 - Three Wazuh Indexer nodes
-- Two Wazuh Server nodes (one master and one worker)
+- Two Wazuh Server nodes (master and worker)
 - One Wazuh Dashboard node
-- One Nginx load balancer node to manage traffic distribution across Wazuh Server nodes
 
 To execute a distributed deployment, use the `wazuh-distributed.yml` playbook, which installs and configures all necessary components across multiple nodes.
 
