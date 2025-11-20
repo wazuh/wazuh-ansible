@@ -2,11 +2,11 @@
 
 ### All-in-One (AIO) Deployment
 
-A deployment method where all Wazuh components (Indexer, Server, and Dashboard) and its dependencies are installed on a single node. Suitable for small environments or testing purposes.
+A deployment method where all Wazuh components (Indexer, Manager, and Dashboard) and its dependencies are installed on a single node. Suitable for small environments or testing purposes.
 
 ### Distributed Deployment
 
-A deployment strategy in which Wazuh components are installed on separate nodes to enhance scalability, performance, and fault tolerance. It involves multiple Indexer nodes, Server nodes, and a single Dashboard node.
+A deployment strategy in which Wazuh components are installed on separate nodes to enhance scalability, performance, and fault tolerance. It involves multiple Indexer nodes, Manager nodes, and a single Dashboard node.
 
 ### Ansible
 
@@ -22,7 +22,7 @@ A YAML file containing a set of instructions (tasks) that Ansible executes on ta
 
 ### Roles
 
-Reusable Ansible configurations that define tasks for specific components. Examples include `wazuh-indexer`, `wazuh-server`, and `wazuh-dashboard`.
+Reusable Ansible configurations that define tasks for specific components. Examples include `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard`.
 
 ### SSH
 
@@ -34,7 +34,7 @@ The machine where Ansible is installed and from which playbooks are executed. It
 
 ### Target Node
 
-A server or host where Wazuh components (Indexer, Server, Dashboard, or Agent) are installed using Ansible.
+A server or host where Wazuh components (Indexer, Manager, Dashboard, or Agent) are installed using Ansible.
 
 ### Wazuh
 
@@ -42,7 +42,7 @@ An open-source security platform that provides threat detection, compliance mana
 
 ### Wazuh Agent
 
-A lightweight software component installed on monitored endpoints to collect and send security data to the Wazuh Server.
+A lightweight software component installed on monitored endpoints to collect and send security data to the Wazuh Manager.
 
 ### Wazuh Dashboard
 
@@ -52,7 +52,7 @@ A web-based user interface for managing and visualizing Wazuh data.
 
 A component responsible for storing and indexing security data collected by Wazuh Agents.
 
-### Wazuh Server
+### Wazuh Manager
 
 The central component of Wazuh that processes data from agents and communicates with the Indexer and Dashboard.
 

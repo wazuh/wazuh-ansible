@@ -13,7 +13,7 @@ on:
         default: '["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL8"]'
         type: string
       COMMIT_LIST:
-        description: 'Wazuh components revisions (comma-separated string list) ["indexer", "server", "dashboard", "agent"]'
+        description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent"]'
         required: true
         default: '["latest", "latest", "latest", "latest"]'
         type: string
@@ -93,7 +93,7 @@ jobs:
             COMMIT_LIST='["latest", "latest", "latest", "latest"]'
           fi
           echo "COMMIT_LIST=$COMMIT_LIST" >> $GITHUB_OUTPUT
-          echo "Revision list (indexer, server, dashboard, agent): $COMMIT_LIST"
+          echo "Revision list (indexer, manager, dashboard, agent): $COMMIT_LIST"
       - name: Configure AWS credentials (assume role)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -166,7 +166,7 @@ jobs:
 
           # Extract revisions using jq
           INDEXER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[0]')
-          SERVER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[1]')
+          MANAGER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[1]')
           DASHBOARD_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[2]')
           AGENT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[3]')
 
@@ -191,7 +191,7 @@ jobs:
 
             # Replace component revisions
             line=${line//\$\{\{ env.INDEXER_REVISION \}\}/$INDEXER_COMMIT}
-            line=${line//\$\{\{ env.MANAGER_REVISION \}\}/$SERVER_COMMIT}
+            line=${line//\$\{\{ env.MANAGER_REVISION \}\}/$MANAGER_COMMIT}
             line=${line//\$\{\{ env.DASHBOARD_REVISION \}\}/$DASHBOARD_COMMIT}
             line=${line//\$\{\{ env.AGENT_REVISION \}\}/$AGENT_COMMIT}
 
@@ -366,8 +366,8 @@ jobs:
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $ALLOCATOR_PATH/inventory
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $ALLOCATOR_PATH/inventory
 
-          # Set the Wazuh server IP in the Ansible playbook
-          sed -i "s|<Your Wazuh Server IP>|$private_ip|g" wazuh-ansible/wazuh-agent.yml
+          # Set the Wazuh manager IP in the Ansible playbook
+          sed -i "s|<Your Wazuh Manager IP>|$private_ip|g" wazuh-ansible/wazuh-agent.yml
       - name: Allocate Agent instances
         run: |
           # Define variables

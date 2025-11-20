@@ -13,7 +13,7 @@
 - name: Windows | Install Wazuh agent
   ansible.windows.win_package:
     path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
-    arguments: '/q WAZUH_MANAGER="{{ wazuh_server_address }}"'
+    arguments: '/q WAZUH_MANAGER="{{ wazuh_manager_address }}"'
     state: present
 
 - name: Windows | Stop Wazuh agent service (if already running)

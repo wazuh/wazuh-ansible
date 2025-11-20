@@ -88,7 +88,7 @@
         - name: Cert-gen | Add server nodes section (cluster mode)
           ansible.builtin.blockinfile:
             path: "{{ local_configs_path }}/config.yml"
-            marker: "# Server nodes"
+            marker: "# Manager nodes"
             state: present
             insertafter: "server:"
             block: |
@@ -133,7 +133,7 @@
             regexp: '<indexer-node-ip>'
             replace: "{{ hostvars[inventory_hostname].private_ip }}"
 
-        - name: Cert-gen | Add server node section (single node mode)
+        - name: Cert-gen | Add manager node section (single node mode)
           ansible.builtin.replace:
             path: "{{ local_configs_path }}/config.yml"
             regexp: '<wazuh-manager-ip>'
