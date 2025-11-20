@@ -28,7 +28,7 @@ Additionally, Wazuh Agents can be installed on one or multiple hosts, simplifyin
 In an AIO deployment, all components are installed on a single node, including:
 
 - Wazuh Indexer
-- Wazuh Server
+- Wazuh Manager
 - Wazuh Dashboard
 
 To perform an AIO deployment, use the `wazuh-aio.yml` playbook. This playbook installs and configures all required components on one node.
@@ -42,7 +42,7 @@ To perform an AIO deployment, use the `wazuh-aio.yml` playbook. This playbook in
 A distributed deployment spreads components across multiple nodes for improved scalability and redundancy. The components include:
 
 - Three Wazuh Indexer nodes
-- Two Wazuh Server nodes (master and worker)
+- Two Wazuh Manager nodes (master and worker)
 - One Wazuh Dashboard node
 
 To execute a distributed deployment, use the `wazuh-distributed.yml` playbook, which installs and configures all necessary components across multiple nodes.

@@ -4,7 +4,7 @@
   hosts: agents
   strategy: free
   vars:
-    wazuh_server_address: "<Your Wazuh Server IP>"
+    wazuh_manager_address: "<Your Wazuh Manager IP>"
   roles:
     - role: package-urls
   tasks:

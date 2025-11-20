@@ -45,11 +45,11 @@
 - name: Configure Wazuh Manager
   hosts: manager
   roles:
-    - role: wazuh-server
+    - role: wazuh-manager
   become: true
   vars:
     node_type: "master"
-    server_node_name: "node-4"
+    manager_node_name: "node-4"
     wazuh_indexer_hosts:
       - host: "{{ hostvars.wi1.private_ip }}"
         port: 9200
@@ -61,11 +61,11 @@
 - name: Configure Wazuh Worker
   hosts: worker
   roles:
-    - role: wazuh-server
+    - role: wazuh-manager
   become: true
   vars:
     node_type: "worker"
-    server_node_name: "node-5"
+    manager_node_name: "node-5"
     wazuh_indexer_hosts:
       - host: "{{ hostvars.wi1.private_ip }}"
         port: 9200
@@ -81,7 +81,7 @@
   become: true
   vars:
     dashboard_node_name: "node-6"
-    wazuh_server_master_address: "{{ hostvars.manager.private_ip }}"
+    wazuh_manager_master_address: "{{ hostvars.manager.private_ip }}"
     indexer_cluster_nodes:
       - "{{ hostvars.wi1.private_ip }}"
       - "{{ hostvars.wi2.private_ip }}"

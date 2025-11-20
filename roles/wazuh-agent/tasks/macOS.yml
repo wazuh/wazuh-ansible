@@ -25,7 +25,7 @@
 - name: MacOS | Create Wazuh environment variables file
   ansible.builtin.copy:
     content: |
-      WAZUH_MANAGER="{{ wazuh_server_address }}"
+      WAZUH_MANAGER="{{ wazuh_manager_address }}"
     dest: /tmp/wazuh_envs
     mode: '0644'
 

@@ -12,7 +12,7 @@ Key features include:
 
 ## How Wazuh-Ansible Works
 
-The project is organized with playbooks located in the project root directory and roles stored in the `roles` directory. Each role contains specific tasks to configure Wazuh components, such as the server, agents, or the web interface.
+The project is organized with playbooks located in the project root directory and roles stored in the `roles` directory. Each role contains specific tasks to configure Wazuh components, such as the manager, agents, or the web interface.
 
 When a playbook is executed, Ansible uses the defined roles to perform the required tasks. This structure ensures flexibility and code reusability, making it easier to manage configurations across multiple servers.
 
@@ -22,7 +22,7 @@ The available playbooks in the project include:
 
 - `wazuh-aio.yml`: Deploys Wazuh on a single server (All-in-One).
 - `wazuh-distributed.yml`: Deploys Wazuh in a distributed environment.
-- `wazuh-agent.yml`: Configures and enrolls one or more agents into the Wazuh server.
+- `wazuh-agent.yml`: Configures and enrolls one or more agents into the Wazuh manager.
 
 ### Roles
 
@@ -30,7 +30,7 @@ The roles utilized in the project, executed in sequence, are:
 
 - `package-urls`: Configures the URLs for Wazuh packages.
 - `wazuh-indexer`: Installs and configures the Wazuh Indexer component.
-- `wazuh-server`: Installs and configures the Wazuh server.
+- `wazuh-manager`: Installs and configures the Wazuh manager.
 - `wazuh-dashboard`: Installs and configures the Wazuh User Interface (WUI).
 
 ## Use Cases
