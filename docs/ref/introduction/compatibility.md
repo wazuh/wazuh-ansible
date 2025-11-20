@@ -4,7 +4,7 @@ This section outlines the supported platforms, versions, and dependencies for de
 
 It is important to note that since the Wazuh refactoring, wazuh-ansible is now only compatible with Wazuh version 6.0 and later.
 
-Tambien es importante que revise la documentacion oficial de Ansible para asegurarse de que su nodo de control cumple con los requisitos de compatibilidad. Encuentrela en el siguiente enlace: [Ansible documentation - Release and Maintenance](https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html)
+Also, review the official Ansible documentation to ensure your control node meets the compatibility requirements. You can find more information at the following link: [Ansible documentation - Release and Maintenance](https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html)
 
 ## Central Components Compatibility
 

@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Documentation backport and adaptation ([#1852](https://github.com/wazuh/wazuh-ansible/pull/1852))
 - GHA workflows backport and adaptation ([#1846](https://github.com/wazuh/wazuh-ansible/pull/1846))
 - Logs gathering playbook backport and adaptation ([#1842](https://github.com/wazuh/wazuh-ansible/pull/1842))
 - Distributed deployment adaptation from backport ([#1840](https://github.com/wazuh/wazuh-ansible/pull/1840))

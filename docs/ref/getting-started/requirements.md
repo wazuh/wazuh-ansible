@@ -9,8 +9,8 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 
 **Control Node Requirements**:
 
-- **Ansible**: Install Ansible version 2.9 or newer.
-- **Python**: Use Python version 3.6 or newer.
+- **Ansible**: Recomend to install ansible-core version 2.16 or newer.
+- **Python**: Use Python version 3.10 or newer.
 - **Additional Tools**:
   - Git: Required for cloning the wazuh-ansible repository.
   - SSH: Necessary for connecting to remote servers.
@@ -40,7 +40,7 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 
 **Target Node Requirements**:
 
-- **Python**: Python 3 or newer.
+- **Python**: Python 3.10 or newer.
 - **Additional Tools**:
   - For Linux: Ensure SSH is configured and accessible for remote connections.
   - For Windows: Configure and enable the `winrm` service for remote access.

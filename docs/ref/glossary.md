@@ -2,11 +2,11 @@
 
 ### All-in-One (AIO) Deployment
 
-A deployment method where all Wazuh components (Indexer, Server, and Dashboard) are installed on a single node. Suitable for small environments or testing purposes.
+A deployment method where all Wazuh components (Indexer, Server, and Dashboard) and its dependencies are installed on a single node. Suitable for small environments or testing purposes.
 
 ### Distributed Deployment
 
-A deployment method where Wazuh components are distributed across multiple nodes for scalability and redundancy. It includes multiple Indexer nodes, Server nodes, a Dashboard node, and a load balancer.
+A deployment strategy in which Wazuh components are installed on separate nodes to enhance scalability, performance, and fault tolerance. It involves multiple Indexer nodes, Server nodes, and a single Dashboard node.
 
 ### Ansible
 
@@ -14,19 +14,11 @@ An open-source automation tool used for configuration management, application de
 
 ### Ansible Inventory File
 
-A configuration file (`inventory.ini`) that defines the target nodes, their IP addresses, and connection variables for Ansible playbooks.
+A configuration file (typically `inventory.ini`) that defines the target nodes, their IP addresses, and connection variables for Ansible playbooks.
 
 ### Ansible Playbook
 
 A YAML file containing a set of instructions (tasks) that Ansible executes on target nodes. Examples include `wazuh-aio.yml`, `wazuh-distributed.yml`, and `wazuh-agent.yml`.
-
-### Distributed Deployment
-
-A deployment method where Wazuh components are distributed across multiple nodes for scalability and redundancy. Typically includes multiple Indexer nodes, Server nodes, a Dashboard node, and a load balancer.
-
-### Load Balancer
-
-A component (e.g., Nginx) used in distributed deployments to distribute traffic across multiple Wazuh Server nodes.
 
 ### Roles
 
@@ -34,7 +26,7 @@ Reusable Ansible configurations that define tasks for specific components. Examp
 
 ### SSH
 
-A protocol used for secure communication between the control node and target nodes during deployment.
+A secure network protocol used to establish encrypted communication between the control node and target nodes during playbook execution.
 
 ### Control Node
 
