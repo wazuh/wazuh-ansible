@@ -1,0 +1,9 @@
+wazuh_version_data: "{{ lookup('file', playbook_dir + '/VERSION.json') | from_json }}"
+wazuh_full_version: "{{ wazuh_version_data.version }}"
+wazuh_major_minor_version: "{{ wazuh_version_data.version.split('.')[0:2] | join('.') }}"
+wazuh_major_version: "{{ wazuh_version_data.version.split('.')[0] }}.x"
+wazuh_package_revision: "1"
+
+local_configs_path: "{{ playbook_dir }}/deployment-config-files"
+
+urls_file: "artifact_urls.yml"

@@ -1,0 +1,11 @@
+---
+
+single_node: false
+node_type: "master"
+manager_node_name: "wazuh-1"
+wazuh_indexer_hosts:
+  - host: "{{ hostvars[inventory_hostname].private_ip }}"
+    port: 9200
+
+wazuh_manager_package_download_path: "/tmp/wazuh-manager"
+wazuh_manager_package_name: "wazuh-manager-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"

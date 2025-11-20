@@ -1,0 +1,127 @@
+---
+
+- name: Importing variables [vars/main.yml]
+  ansible.builtin.include_vars:
+    file: ../../vars/main.yml
+
+- name: Importing urls_file variables
+  ansible.builtin.include_vars:
+    file: ../../vars/{{ urls_file }}
+
+- name: Importing dependencies.yml
+  ansible.builtin.import_tasks: dependencies.yml
+  become: true
+
+- name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
+  ansible.builtin.dnf:
+    name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: true
+  become: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Install wazuh-dashboard using APT
+  ansible.builtin.apt:
+    deb: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  become: true
+  when:
+    - ansible_facts.os_family == 'Debian'
+
+- name: Linux | Reload systemd configuration
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Dashboard-config | Configure Wazuh dashboard
+  block:
+    - name: Dashboard-config | Remove current opensearch.hosts configuration
+      ansible.builtin.replace:
+        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+        regexp: '^opensearch\.hosts:.*(?:\n\s+-\s+https?://[^\n]+)*'
+        replace: 'opensearch.hosts:'
+
+    - name: Dashboard-config | Add opensearch.hosts configuration
+      ansible.builtin.replace:
+        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+        regexp: '^opensearch\.hosts:\s*$'
+        replace: |
+          opensearch.hosts:
+          {% for node in indexer_cluster_nodes %}
+            - https://{{ node }}:9200
+          {% endfor %}
+
+    # - name: Dashboard-config | Configure Wazuh manager address in wazuh.yml
+    #   ansible.builtin.replace:
+    #     path: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+    #     regexp: 'url:\s+https://.*$'
+    #     replace: 'url: https://{{ wazuh_manager_master_address }}'
+    #   become: true
+
+- name: Copy the certificates from local to the Wazuh dashboard instance
+  ansible.builtin.copy:
+    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
+    dest: /etc/wazuh-dashboard/certs/
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: "0400"
+  with_items:
+    - "root-ca.pem"
+    - "{{ dashboard_node_name }}-key.pem"
+    - "{{ dashboard_node_name }}.pem"
+
+- name: Copy certificates to match default names
+  ansible.builtin.copy:
+    src: "/etc/wazuh-dashboard/certs/{{ item.src }}"
+    dest: "/etc/wazuh-dashboard/certs/{{ item.dest }}"
+    remote_src: true
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: "0400"
+  with_items:
+    - { src: "{{ dashboard_node_name }}.pem", dest: "dashboard.pem" }
+    - { src: "{{ dashboard_node_name }}-key.pem", dest: "dashboard-key.pem" }
+  when: dashboard_node_name != "dashboard"
+
+- name: Ensure Wazuh dashboard started
+  ansible.builtin.service:
+    name: wazuh-dashboard
+    enabled: true
+    state: restarted
+
+- name: Extract server host from dashboard configuration
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      grep '^server.host:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
+    executable: /bin/bash
+  register: server_host
+  changed_when: false
+
+- name: Extract server port from dashboard configuration
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      grep '^server.port:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
+    executable: /bin/bash
+  register: server_port
+  changed_when: false
+
+- name: Wait for Wazuh dashboard to be ready
+  ansible.builtin.uri:
+    url: "https://{{ server_host.stdout }}:{{ server_port.stdout }}/app/login"
+    method: GET
+    status_code: 200
+    validate_certs: false
+  register: result
+  retries: 10
+  delay: 5
+  until: result.status == 200
+
+- name: Remove installation leftovers
+  ansible.builtin.file:
+    path: "{{ wazuh_dashboard_package_download_path }}"
+    state: absent
+    force: true
+  become: true

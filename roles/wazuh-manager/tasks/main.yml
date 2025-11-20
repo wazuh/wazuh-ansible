@@ -1,0 +1,246 @@
+---
+
+- name: Importing variables [vars/main.yml]
+  ansible.builtin.include_vars:
+    file: ../../vars/main.yml
+
+- name: Importing urls_file variables
+  ansible.builtin.include_vars:
+    file: ../../vars/{{ urls_file }}
+
+- name: Install Wazuh Manager
+  block:
+    - name: Check if local_configs_path directory exists
+      run_once: true
+      delegate_to: localhost
+      become: false
+      block:
+        - name: Retrieve local_configs_path directory information
+          ansible.builtin.stat:
+            path: "{{ local_configs_path }}"
+          register: local_configs_path_stat
+
+        - name: Fail if local_configs_path does not exist
+          ansible.builtin.fail:
+            msg: "The directory {{ local_configs_path }} (local_configs_path) does not exist."
+          when: not local_configs_path_stat.stat.exists
+
+    - name: Ensure wazuh-manager package download directory exists
+      ansible.builtin.file:
+        path: "{{ wazuh_manager_package_download_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: RHEL-based | Download wazuh-manager package
+      when: ansible_facts.os_family == 'RedHat'
+      block:
+        - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-manager package
+          ansible.builtin.get_url:
+            url: "{{ wazuh_manager_amd64_rpm }}"
+            dest: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
+            mode: '0644'
+          when:
+            - ansible_facts.architecture == "x86_64"
+
+        - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-manager package
+          ansible.builtin.get_url:
+            url: "{{ wazuh_manager_arm64_rpm }}"
+            dest: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
+            mode: '0644'
+          when:
+            - ansible_facts.architecture == "aarch64"
+
+        - name: RedHat/CentOS/Fedora | Install wazuh-manager package
+          ansible.builtin.dnf:
+            name: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
+            state: present
+            disable_gpg_check: true
+
+    - name: Debian-based systems | Download wazuh-manager package
+      when: ansible_facts.os_family == 'Debian'
+      block:
+        - name: Debian-based (AMD64) | Download wazuh-manager package
+          ansible.builtin.get_url:
+            url: "{{ wazuh_manager_amd64_deb }}"
+            dest: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.deb"
+            mode: '0644'
+          when:
+            - ansible_facts.architecture == "x86_64"
+
+        - name: Debian-based (ARM64) | Download wazuh-manager package
+          ansible.builtin.get_url:
+            url: "{{ wazuh_manager_arm64_deb }}"
+            dest: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.deb"
+            mode: '0644'
+          when:
+            - ansible_facts.architecture == "aarch64"
+
+        - name: Debian-based | Install wazuh-manager package
+          ansible.builtin.apt:
+            deb: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.deb"
+            state: present
+
+    - name: Linux | Reload systemd configuration
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Copy the certificates from local to the Wazuh Manager instance
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
+        dest: /var/ossec/etc/certs/
+        owner: wazuh
+        group: wazuh
+        mode: '0400'
+      with_items:
+        - "root-ca.pem"
+        - "{{ manager_node_name }}-key.pem"
+        - "{{ manager_node_name }}.pem"
+
+    - name: Copy certificates to match default names
+      ansible.builtin.copy:
+        src: "/var/ossec/etc/certs/{{ item.src }}"
+        dest: "/var/ossec/etc/certs/{{ item.dest }}"
+        remote_src: true
+        owner: wazuh
+        group: wazuh
+        mode: '0400'
+      with_items:
+        - { src: "{{ manager_node_name }}-key.pem", dest: "manager-1-key.pem" }
+        - { src: "{{ manager_node_name }}.pem", dest: "manager-1.pem" }
+
+    # TEMP: make sure destination directory exists
+    - name: Create Filebeat certificates directory
+      ansible.builtin.file:
+        path: /etc/filebeat/certs
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    # TEMP: to make filebeat work
+    - name: Copy certificates to Filebeat directory
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0400'
+      with_items:
+        - { src: "/var/ossec/etc/certs/root-ca.pem", dest: "/etc/filebeat/certs/root-ca.pem" }
+        - { src: "/var/ossec/etc/certs/{{ manager_node_name }}.pem", dest: "/etc/filebeat/certs/filebeat.pem" }
+        - { src: "/var/ossec/etc/certs/{{ manager_node_name }}-key.pem", dest: "/etc/filebeat/certs/filebeat-key.pem" }
+
+    - name: Generate the wazuh-keystore (username)
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          echo 'admin' | /var/ossec/bin/wazuh-keystore -f indexer -k username
+        executable: /bin/bash
+      register: keystore_username_result
+      changed_when: keystore_username_result.rc == 0
+
+    - name: Generate the wazuh-keystore (password)
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          echo 'admin' | /var/ossec/bin/wazuh-keystore -f indexer -k password
+        executable: /bin/bash
+      register: keystore_password_result
+      changed_when: keystore_password_result.rc == 0
+
+    - name: Manager-config | Edit the ossec.conf file
+      block:
+        - name: Manager-config | Replace indexer hosts in ossec.conf
+          ansible.builtin.replace:
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(^[ \t]*)<hosts>[\s\S]*?</hosts>'
+            replace: |1
+                  <hosts>
+              {% for node in wazuh_indexer_hosts %}
+                    <host>https://{{ node.host }}:{{ node.port }}</host>
+              {% endfor %}
+                  </hosts>
+
+        - name: Manager-config | Edit cluster configuration in ossec.conf (node name)
+          ansible.builtin.replace:
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<node_name>)[^<]+(</node_name>)'
+            replace: '\1{{ manager_node_name }}\2'
+
+        - name: Manager-config | Edit cluster configuration in ossec.conf (node type)
+          ansible.builtin.replace:
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<node_type>)[^<]+(</node_type>)'
+            replace: '\1{% if node_type == "master" or single_node %}master{% else %}worker{% endif %}\2'
+
+        - name: Manager-config | Edit cluster configuration in ossec.conf (bind address)
+          ansible.builtin.replace:
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<bind_addr>)[\s\S]*?(</bind_addr>)'
+            replace: '<bind_addr>0.0.0.0</bind_addr>'
+
+        - name: Manager-config | Edit cluster configuration in ossec.conf (nodes list)
+          ansible.builtin.replace:
+            path: /var/ossec/etc/ossec.conf
+            regexp: '(<node>)[\s\S]*?(</node>)'
+            replace: '<node>{{ hostvars["manager"].private_ip }}</node>'
+          when: not single_node
+
+    - name: Ensure Wazuh Manager service is started
+      ansible.builtin.service:
+        name: "wazuh-manager"
+        enabled: true
+        state: restarted
+
+    - name: Wazuh Manager | Health check (master)
+      when: node_type == "master" or single_node
+      block:
+        - name: Wazuh Manager | Authenticate and obtain API token (master)
+          ansible.builtin.uri:
+            url: "https://{{ private_ip }}:55000/security/user/authenticate"
+            method: POST
+            user: "wazuh"
+            password: "wazuh"
+            force_basic_auth: true
+            validate_certs: false
+            return_content: true
+          register: wazuh_api_auth
+          until: wazuh_api_auth.status == 200
+          retries: 12
+          delay: 5
+
+        - name: Wazuh Manager | Perform API healthcheck (master)
+          ansible.builtin.uri:
+            url: "https://{{ private_ip }}:55000/cluster/healthcheck"
+            method: GET
+            headers:
+              Authorization: "Bearer {{ wazuh_api_auth.json.data.token }}"
+            validate_certs: false
+            return_content: true
+          register: wazuh_api_healthcheck
+          until:
+            - wazuh_api_healthcheck.status == 200
+            - manager_node_name in wazuh_api_healthcheck.content
+          retries: 12
+          delay: 5
+
+    - name: Wazuh Manager | Health check (worker)
+      when: node_type == "worker" and not single_node
+      block:
+        - name: Wazuh Manager | Perform CLI healthcheck (worker)
+          ansible.builtin.command: /var/ossec/bin/cluster_control -l
+          register: cluster_control_list
+          changed_when: false
+          until:
+            - cluster_control_list.rc == 0
+            - "'ERR' not in cluster_control_list.stdout"
+          retries: 12
+          delay: 5
+
+    - name: Remove leftover installation files
+      ansible.builtin.file:
+        path: "{{ wazuh_manager_package_download_path }}"
+        state: absent
+        force: true
