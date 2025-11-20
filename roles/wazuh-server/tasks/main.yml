@@ -36,7 +36,7 @@
       block:
         - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-server package
           ansible.builtin.get_url:
-            url: "{{ wazuh_server_url_x86_64_rpm }}"
+            url: "{{ wazuh_manager_amd64_rpm }}"
             dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
             mode: '0644'
           when:
@@ -44,14 +44,14 @@
 
         - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-server package
           ansible.builtin.get_url:
-            url: "{{ wazuh_server_url_aarch64_rpm }}"
+            url: "{{ wazuh_manager_arm64_rpm }}"
             dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
             mode: '0644'
           when:
             - ansible_facts.architecture == "aarch64"
 
         - name: RedHat/CentOS/Fedora | Install wazuh-server package
-          ansible.builtin.yum:
+          ansible.builtin.dnf:
             name: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.rpm"
             state: present
             disable_gpg_check: true
@@ -61,7 +61,7 @@
       block:
         - name: Debian-based (AMD64) | Download wazuh-server package
           ansible.builtin.get_url:
-            url: "{{ wazuh_server_url_amd64_deb }}"
+            url: "{{ wazuh_manager_amd64_deb }}"
             dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.deb"
             mode: '0644'
           when:
@@ -69,7 +69,7 @@
 
         - name: Debian-based (ARM64) | Download wazuh-server package
           ansible.builtin.get_url:
-            url: "{{ wazuh_server_url_arm64_deb }}"
+            url: "{{ wazuh_manager_arm64_deb }}"
             dest: "{{ wazuh_server_package_download_path }}/{{ wazuh_server_package_name }}_{{ ansible_facts.architecture }}.deb"
             mode: '0644'
           when:
@@ -232,6 +232,7 @@
         - name: Wazuh Server | Perform CLI healthcheck (worker)
           ansible.builtin.command: /var/ossec/bin/cluster_control -l
           register: cluster_control_list
+          changed_when: false
           until:
             - cluster_control_list.rc == 0
             - "'ERR' not in cluster_control_list.stdout"

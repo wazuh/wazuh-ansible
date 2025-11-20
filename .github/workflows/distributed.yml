@@ -6,15 +6,11 @@ on:
       AUTOMATION_REFERENCE:
         description: 'Branch or tag of the wazuh-automation repository'
         required: true
-<<<<<<< HEAD
         default: 'main'
-=======
-        default: '6.0.0'
->>>>>>> 6.0.0
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+        default: '["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL8"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "server", "dashboard", "agent"]'
@@ -45,17 +41,13 @@ on:
   release:
 env:
   COMPOSITE_NAME: "linux-SUBNAME-amd64"
-<<<<<<< HEAD
-  AGENT_COMPOSITE_NAMES: '["linux-centos-9-amd64", "linux-redhat-9-arm64", "linux-ubuntu-22.04-amd64", "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]'
-=======
   AGENT_COMPOSITE_NAMES: >
     ["linux-centos-9-amd64", "linux-redhat-9-arm64", "linux-ubuntu-22.04-amd64",
     "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]
->>>>>>> 6.0.0
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
   ARTIFACT_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
   PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
-  INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker balancer"
+  INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 permissions:
   id-token: write # JWT
   contents: read # actions/checkout
@@ -73,7 +65,7 @@ jobs:
           if [[ "${{ inputs.OS_LIST }}" != "null" && "${{ inputs.OS_LIST }}" != "" ]]; then
             OS_LIST='${{ inputs.OS_LIST }}'
           else
-            OS_LIST='["CentOS_8", "AmazonLinux_2", "Ubuntu_22", "RHEL8"]'
+            OS_LIST='["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL8"]'
           fi
           echo "OS_LIST=$OS_LIST" >> $GITHUB_OUTPUT
           echo "Operating Systems: $OS_LIST"
@@ -142,17 +134,12 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
           aws-region: us-east-1
-      - name: Checkout repository
+      - name: Checkout wazuh/wazuh-ansible repository
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
       - name: Download S3 package URIs file (if applicable)
         run: |
-<<<<<<< HEAD
-          # Download the S3 package URIs file
-          S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-          S3_KEY="deployment/5.0/artifact_urls.yml"
-=======
           # Define necessary variables
           VERSION_FILE="wazuh-ansible/VERSION.json"
           WAZUH_VERSION=$(jq -r '.version' "$VERSION_FILE")
@@ -160,8 +147,7 @@ jobs:
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
 
           # Download the S3 package URIs file
-          S3_KEY="deployment/${WAZUH_MAJOR}.0/artifact_urls.yml"
->>>>>>> 6.0.0
+          S3_KEY="deployment/artifact_urls.yml"
           aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACT_URLS_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
@@ -200,22 +186,16 @@ jobs:
               continue
             fi
 
-            # Replace MAJOR with the major version
-            line=${line//MAJOR/$WAZUH_MAJOR}
+            # Replace variables with their actual values
+            line=${line//\$\{\{ vars.AWS_S3_BUCKET_DEV \}\}/${{ vars.AWS_S3_BUCKET_DEV }}}
+            line=${line//\$\{\{ env.MAJOR \}\}/$WAZUH_MAJOR}
+            line=${line//\$\{\{ env.WAZUH_VERSION \}\}/$WAZUH_VERSION}
 
-            # Replace WAZUH_VERSION with the full version
-            line=${line//WAZUH_VERSION/$WAZUH_VERSION}
-
-            # Handle the different component revisions based on the URL pattern
-            if [[ "$line" == *"wazuh_indexer_url"* ]]; then
-              line=${line//latest/$INDEXER_COMMIT}
-            elif [[ "$line" == *"wazuh_server_url"* ]]; then
-              line=${line//latest/$SERVER_COMMIT}
-            elif [[ "$line" == *"wazuh_dashboard_url"* ]]; then
-              line=${line//latest/$DASHBOARD_COMMIT}
-            elif [[ "$line" == *"wazuh_agent_url"* ]]; then
-              line=${line//latest/$AGENT_COMMIT}
-            fi
+            # Replace component revisions
+            line=${line//\$\{\{ env.INDEXER_REVISION \}\}/$INDEXER_COMMIT}
+            line=${line//\$\{\{ env.MANAGER_REVISION \}\}/$SERVER_COMMIT}
+            line=${line//\$\{\{ env.DASHBOARD_REVISION \}\}/$DASHBOARD_COMMIT}
+            line=${line//\$\{\{ env.AGENT_REVISION \}\}/$AGENT_COMMIT}
 
             # Append the processed line to the output file
             echo "$line" >> "$OUTPUT_FILE"
@@ -258,6 +238,8 @@ jobs:
               # Append the processed line to the output file
               echo "$presigned_url_line" >> "$PRESIGNED_OUTPUT_FILE"
             else
+              echo "$line" >> "$PRESIGNED_OUTPUT_FILE"
+
               echo "Skipping line for presigning (no S3 URI found):"
               echo "$line"
             fi
@@ -273,7 +255,7 @@ jobs:
       - name: Save presigned URLs file to artifact
         uses: actions/upload-artifact@v4
         with:
-          name: presigned-artifacts-urls-${{ github.run_id }}
+          name: presigned-artifact-urls-${{ github.run_id }}
           path: "${{ env.PRESIGNED_OUTPUT_FILE }}"
   start-runner:
     name: Deploy Wazuh distributed cluster
@@ -293,11 +275,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
           aws-region: us-east-1
-<<<<<<< HEAD
       - name: Checkout wazuh/wazuh-ansible repository
-=======
-      - name: Checkout repository
->>>>>>> 6.0.0
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
@@ -324,23 +302,15 @@ jobs:
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
           pip install ansible-core==2.16
-<<<<<<< HEAD
-          ansible-galaxy collection install \
-            community.general \
-            community.docker \
-            ansible.windows \
-            community.windows
-=======
           ansible-galaxy collection install -r wazuh-ansible/requirements.yml
->>>>>>> 6.0.0
       - name: Set COMPOSITE_NAME variable
         run: |
           case "${{ matrix.system }}" in
             "CentOS_8")
               SUBNAME="centos-8"
               ;;
-            "AmazonLinux_2")
-              SUBNAME="amazon-2"
+            "AmazonLinux_23")
+              SUBNAME="amazon-2023"
               ;;
             "Ubuntu_16")
               SUBNAME="ubuntu-16.04"
@@ -373,7 +343,7 @@ jobs:
           instance_names=($INSTANCE_NAMES)
           inventory_file="$ALLOCATOR_PATH/inventory_all"
           ssh_key_path=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
-          load_balancer_private_ip=""
+          manager_private_ip=""
 
           # Create all instances in parallel
           for i in ${!instance_names[@]}; do
@@ -421,11 +391,9 @@ jobs:
               echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 4 ]]; then
               echo "manager ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
+              manager_private_ip=$private_ip
             elif [[ $i -eq 5 ]]; then
               echo "worker ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
-            elif [[ $i -eq 6 ]]; then
-              echo "balancer ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
-              load_balancer_private_ip="$private_ip"
             fi
           done
 
@@ -442,8 +410,7 @@ jobs:
           echo "ansible_ssh_private_key_file=${ssh_key_path}" >> $inventory_file
 
           # Set the Wazuh server IP in the Ansible playbook
-          echo "Load balancer private IP: $load_balancer_private_ip"
-          sed -i "s|<Your Wazuh Server IP>|$load_balancer_private_ip|g" wazuh-ansible/wazuh-agent.yml
+          sed -i "s|<Your Wazuh Server IP>|$manager_private_ip|g" wazuh-ansible/wazuh-agent.yml
       - name: Allocate Agent instances
         run: |
           # Define variables
@@ -478,12 +445,6 @@ jobs:
               ansible_password=$(yq e '.all.hosts[].ansible_password' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
               ansible_port=$(yq e '.all.hosts[].ansible_port' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
               ansible_user=$(yq e '.all.hosts[].ansible_user' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-<<<<<<< HEAD
-              ansible_winrm_server_cert_validation=$(yq e '.all.hosts[].ansible_winrm_server_cert_validation' $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-
-              # Append instance info to agents inventory file
-              instance_info="$AGENT_COMPOSITE_NAME ansible_host=$ansible_host private_ip=$private_ip ansible_connection=$ansible_connection ansible_port=$ansible_port ansible_user=$ansible_user" >> $AGENTS_INVENTORY_FILE
-=======
               ansible_winrm_server_cert_validation=$(
                 yq e '.all.hosts[].ansible_winrm_server_cert_validation' \
                 $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml
@@ -495,7 +456,6 @@ jobs:
               instance_info+=" ansible_user=$ansible_user"
               echo "$instance_info" >> $AGENTS_INVENTORY_FILE
 
->>>>>>> 6.0.0
               # if ansible_password or ansible_winrm_server_cert_validation are defined and not empty, append them to the instance info
               if [[ -n "$ansible_password" ]]; then
                 instance_info+=" ansible_password=$ansible_password"
@@ -514,20 +474,10 @@ jobs:
           echo "[agents:vars]" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $AGENTS_INVENTORY_FILE
-<<<<<<< HEAD
-      - name: Save ALLOCATOR_PATH directory as artifact
-        # Ensure allocator artifacts are saved, even if an error occurs, to facilitate cleanup in subsequent steps.
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
-          path: ${{ env.ALLOCATOR_PATH }}
-=======
->>>>>>> 6.0.0
       - name: Download the presigned urls file artifact
         uses: actions/download-artifact@v4
         with:
-          name: presigned-artifacts-urls-${{ github.run_id }}
+          name: presigned-artifact-urls-${{ github.run_id }}
           path: "/tmp/wazuh-ansible"
       - name: Copy the presigned urls file to Ansible roles variables path
         run: |
@@ -543,12 +493,10 @@ jobs:
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Ansible Playbook run Wazuh agents
         run: |
-          ansible-playbook wazuh-ansible/wazuh-agent.yml \
+          ansible-playbook wazuh-ansible/wazuh-agent.yml --extra-vars "source=custom" \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
-<<<<<<< HEAD
-=======
       - name: Copy deployment-config-files to the ALLOCATOR_PATH
         if: always()
         run: |
@@ -560,7 +508,6 @@ jobs:
         with:
           name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
           path: ${{ env.ALLOCATOR_PATH }}
->>>>>>> 6.0.0
       - name: Set deployment status to failure (in case of error)
         id: set-status
         if: failure()
@@ -568,13 +515,8 @@ jobs:
   stop-runner:
     name: Stop allocated EC2 instances
     needs:
-<<<<<<< HEAD
-        - setup-runner
-        - start-runner
-=======
       - setup-runner
       - start-runner
->>>>>>> 6.0.0
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false # all jobs will run even if one fails
@@ -594,11 +536,7 @@ jobs:
           ref: ${{ inputs.AUTOMATION_REFERENCE }}
           token: ${{ secrets.GH_CLONE_TOKEN }}
           path: wazuh-automation/
-      - name: Checkout repository
-<<<<<<< HEAD
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
-=======
->>>>>>> 6.0.0
+      - name: Checkout wazuh/wazuh-ansible repository
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
@@ -613,22 +551,10 @@ jobs:
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
       - name: Install and set Ansible requirements
-<<<<<<< HEAD
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
-        run: |
-          pip install -r wazuh-automation/deployability/deps/requirements.txt
-          pip install ansible-core==2.16
-          ansible-galaxy collection install \
-            community.general \
-            community.docker \
-            ansible.windows \
-            community.windows
-=======
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
           pip install ansible-core==2.16
           ansible-galaxy collection install -r wazuh-ansible/requirements.yml
->>>>>>> 6.0.0
       - name: Download the allocator artifact
         uses: actions/download-artifact@v4
         with:
@@ -720,14 +646,9 @@ jobs:
 
           # Wait for all deletion tasks to complete
           wait
-<<<<<<< HEAD
-=======
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v25
         with:
-          args: |
-            -v
-            wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml
+          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
           working_directory: "wazuh-ansible"
           requirements_file: "requirements.yml"
->>>>>>> 6.0.0

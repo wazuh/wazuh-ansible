@@ -8,7 +8,7 @@
 
 - name: MacOS (Intel) | Download Wazuh agent package
   ansible.builtin.get_url:
-    url: "{{ wazuh_agent_url_intel64_pkg }}"
+    url: "{{ wazuh_agent_macos_intel64 }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
     mode: '0644'
   when:
@@ -16,7 +16,7 @@
 
 - name: MacOS (ARM) | Download Wazuh agent package
   ansible.builtin.get_url:
-    url: "{{ wazuh_agent_url_arm64_pkg }}"
+    url: "{{ wazuh_agent_macos_arm64 }}"
     dest: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
     mode: '0644'
   when:
@@ -44,6 +44,8 @@
   block:
     - name: MacOS | Install Wazuh agent using installer
       ansible.builtin.command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
+      register: install_pkg
+      changed_when: install_pkg.rc == 0
 
     - name: MacOS | Initialize Wazuh agent service (MacOS 10.10+)
       ansible.builtin.command: "launchctl bootstrap system /Library/LaunchDaemons/com.wazuh.agent.plist"

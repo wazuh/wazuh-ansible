@@ -7,7 +7,7 @@
 
 - name: Windows | Download Wazuh agent installer
   ansible.windows.win_get_url:
-    url: "{{ wazuh_agent_url_msi }}"
+    url: "{{ wazuh_agent_windows }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
 
 - name: Windows | Install Wazuh agent
