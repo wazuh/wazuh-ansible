@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Deleted
 
-- None
+- Remove outdated parameters from opensearch template ([#1859](https://github.com/wazuh/wazuh-ansible/pull/1859))
 
 ## [4.14.1]
 
