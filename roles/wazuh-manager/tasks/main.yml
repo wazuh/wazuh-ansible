@@ -106,31 +106,8 @@
         group: wazuh
         mode: '0400'
       with_items:
-        - { src: "{{ manager_node_name }}-key.pem", dest: "manager-1-key.pem" }
-        - { src: "{{ manager_node_name }}.pem", dest: "manager-1.pem" }
-
-    # TEMP: make sure destination directory exists
-    - name: Create Filebeat certificates directory
-      ansible.builtin.file:
-        path: /etc/filebeat/certs
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
-
-    # TEMP: to make filebeat work
-    - name: Copy certificates to Filebeat directory
-      ansible.builtin.copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        remote_src: true
-        owner: root
-        group: root
-        mode: '0400'
-      with_items:
-        - { src: "/var/ossec/etc/certs/root-ca.pem", dest: "/etc/filebeat/certs/root-ca.pem" }
-        - { src: "/var/ossec/etc/certs/{{ manager_node_name }}.pem", dest: "/etc/filebeat/certs/filebeat.pem" }
-        - { src: "/var/ossec/etc/certs/{{ manager_node_name }}-key.pem", dest: "/etc/filebeat/certs/filebeat-key.pem" }
+        - { src: "{{ manager_node_name }}-key.pem", dest: "server-key.pem" }
+        - { src: "{{ manager_node_name }}.pem", dest: "server.pem" }
 
     - name: Generate the wazuh-keystore (username)
       ansible.builtin.shell:

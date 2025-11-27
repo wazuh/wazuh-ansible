@@ -52,12 +52,11 @@
             - https://{{ node }}:9200
           {% endfor %}
 
-    # - name: Dashboard-config | Configure Wazuh manager address in wazuh.yml
-    #   ansible.builtin.replace:
-    #     path: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
-    #     regexp: 'url:\s+https://.*$'
-    #     replace: 'url: https://{{ wazuh_manager_master_address }}'
-    #   become: true
+    - name: Dashboard-config | Set Wazuh server host URL
+      ansible.builtin.replace:
+        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+        regexp: '^(\s*)url:\s*https://.*$'
+        replace: '\1url: https://{{ wazuh_manager_master_address }}'
 
 - name: Copy the certificates from local to the Wazuh dashboard instance
   ansible.builtin.copy:
