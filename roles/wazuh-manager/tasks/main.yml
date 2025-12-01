@@ -165,6 +165,11 @@
             replace: '<node>{{ hostvars["manager"].private_ip }}</node>'
           when: not single_node
 
+    - name: Reload systemd configuration
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
     - name: Ensure Wazuh Manager service is started
       ansible.builtin.service:
         name: "wazuh-manager"

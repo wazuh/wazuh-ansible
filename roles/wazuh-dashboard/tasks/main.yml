@@ -83,6 +83,11 @@
     - { src: "{{ dashboard_node_name }}-key.pem", dest: "dashboard-key.pem" }
   when: dashboard_node_name != "dashboard"
 
+- name: Reload systemd configuration
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
 - name: Ensure Wazuh dashboard started
   ansible.builtin.service:
     name: wazuh-dashboard
