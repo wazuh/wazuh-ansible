@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- None
+- Add missing parameters SSL ciphers and protocols to opensearch.yml ([#1863](https://github.com/wazuh/wazuh-ansible/pull/1863))
 
 ### Changed
 
