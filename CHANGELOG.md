@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Implement pending adaptation tasks ([#1860](https://github.com/wazuh/wazuh-ansible/pull/1860))
 - Replace all occurrences of Wazuh server with Wazuh manager ([#1855](https://github.com/wazuh/wazuh-ansible/pull/1855))
 - Documentation backport and adaptation ([#1852](https://github.com/wazuh/wazuh-ansible/pull/1852))
 - GHA workflows backport and adaptation ([#1846](https://github.com/wazuh/wazuh-ansible/pull/1846))
