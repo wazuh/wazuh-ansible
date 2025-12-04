@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Update Filebeat version ([#1873](https://github.com/wazuh/wazuh-ansible/pull/1873))
 - Add missing parameters SSL ciphers and protocols to opensearch.yml ([#1863](https://github.com/wazuh/wazuh-ansible/pull/1863))
 
 ### Changed
