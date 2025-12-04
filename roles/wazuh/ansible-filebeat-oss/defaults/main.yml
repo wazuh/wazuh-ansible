@@ -8,7 +8,7 @@ filebeat_node_name: node-1
 filebeat_output_indexer_hosts:
   - "localhost"
 
-filebeat_module_package_name: wazuh-filebeat-0.4.tar.gz
+filebeat_module_package_name: wazuh-filebeat-0.5.tar.gz
 filebeat_module_package_path: /tmp/
 filebeat_module_destination: /usr/share/filebeat/module
 filebeat_module_folder: /usr/share/filebeat/module/wazuh
