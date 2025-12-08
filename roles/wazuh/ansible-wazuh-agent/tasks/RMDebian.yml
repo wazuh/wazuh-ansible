@@ -1,6 +1,7 @@
 ---
 - name: Remove Wazuh repository (and clean up left-over metadata)
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ wazuh_agent_config.repo.apt }}"
     state: absent
+  become: true
   changed_when: false
