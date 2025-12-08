@@ -1,32 +1,35 @@
 ---
 - name: Update apt-get repo and cache
-  apt: 
-    update_cache: yes
-    force_apt_get: yes
+  ansible.builtin.apt:
+    update_cache: true
+    force_apt_get: true
     cache_valid_time: 3600
-  
+  become: true
+
 - name: Debian/Ubuntu | Install ca-certificates and gnupg
-  apt:
+  ansible.builtin.apt:
     name:
       - ca-certificates
       - gnupg
     state: present
+  become: true
   register: wazuh_agent_ca_package_install
   until: wazuh_agent_ca_package_install is succeeded
 
 - name: Debian/Ubuntu | Install apt-transport-https and acl
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
       - acl
     state: present
+  become: true
   register: wazuh_agent_ca_package_install
   until: wazuh_agent_ca_package_install is succeeded
   when: not (ansible_distribution == "Debian" and ansible_distribution_major_version in ['11'])
 
 - name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
   become: true
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     curl -s {{ wazuh_agent_config.repo.gpg }} | apt-key add -
   args:
@@ -39,15 +42,21 @@
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Download Wazuh repository key
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ wazuh_agent_config.repo.gpg }}"
     dest: "{{ wazuh_agent_config.repo.path }}"
+    owner: root
+    group: root
+    mode: "0660"
+  become: true
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Import Wazuh GPG key
-  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_agent_config.repo.keyring_path }} --import {{ wazuh_agent_config.repo.path }}"
+  ansible.builtin.command: >
+    gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_agent_config.repo.keyring_path }} --import {{ wazuh_agent_config.repo.path }}
+  become: true
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_agent_enabled
@@ -55,58 +64,66 @@
     creates: "{{ wazuh_agent_config.repo.keyring_path }}"
 
 - name: Debian/Ubuntu | Set permissions for Wazuh GPG key
-  file:
+  ansible.builtin.file:
     path: "{{ wazuh_agent_config.repo.keyring_path }}"
     mode: '0644'
+  become: true
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Add Wazuh repositories
-  apt_repository:
+  ansible.builtin.apt_repository:
     filename: wazuh_repo
     repo: "{{ wazuh_agent_config.repo.apt }}"
     state: present
     update_cache: true
+  become: true
   when:
     - not wazuh_custom_packages_installation_agent_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for debian
-  set_fact:
+  ansible.builtin.set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
   when: ansible_os_family == "Debian"
 
 - name: Debian/Ubuntu | Install OpenJDK-8 repo
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: 'ppa:openjdk-r/ppa'
     state: present
     update_cache: true
+  become: true
   when:
     - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
-- when:
+- name: Debian/Ubuntu | Install OpenJDK
+  when:
     - wazuh_agent_config.cis_cat.disable == 'no'
     - wazuh_agent_config.cis_cat.install_java == 'yes'
-  block:
-    - name: Debian/Ubuntu | Install OpenJDK 1.8
-      apt: name=openjdk-8-jre state=present cache_valid_time=3600
   tags:
     - init
+  block:
+    - name: Debian/Ubuntu | Install OpenJDK 1.8
+      ansible.builtin.apt:
+        name: openjdk-8-jre
+        state: present
+        cache_valid_time: 3600
+      become: true
 
 - name: Debian/Ubuntu | Install OpenScap
-  apt:
+  ansible.builtin.apt:
     name:
       - libopenscap8
       - xsltproc
     state: present
-  when: wazuh_agent_config.openscap.disable == 'no'
+  become: true
   tags:
     - init
-  register: wazuh_agent_OpenScap_package_install
-  until: wazuh_agent_OpenScap_package_install is succeeded
+  register: wazuh_agent_openscap_package_install
+  until: wazuh_agent_openscap_package_install is succeeded
 
 - name: Debian/Ubuntu | Get OpenScap installed version
-  shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
+  ansible.builtin.shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
   register: openscap_version
   changed_when: false
   when: wazuh_agent_config.openscap.disable == 'no'
@@ -114,7 +131,7 @@
     - config
 
 - name: Debian/Ubuntu | Check OpenScap version
-  shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
+  ansible.builtin.shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
   register: openscap_version_valid
   changed_when: false
   when: wazuh_agent_config.openscap.disable == 'no'

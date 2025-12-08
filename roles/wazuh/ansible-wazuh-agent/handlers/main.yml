@@ -1,9 +1,17 @@
 ---
-- name: restart wazuh-agent
-  service: name=wazuh-agent state=restarted enabled=yes
+- name: Restart wazuh-agent
+  ansible.builtin.service:
+    name: wazuh-agent
+    state: restarted
+    enabled: true
+  become: true
 
 - name: Windows | Restart Wazuh Agent
-  win_service: name=WazuhSvc start_mode=auto state=restarted
+  ansible.windows.win_service:
+    name: WazuhSvc
+    start_mode: auto
+    state: restarted
 
-- name: macOS | Restart Wazuh Agent
-  command: /Library/Ossec/bin/wazuh-control restart
+- name: MacOS | Restart Wazuh Agent
+  ansible.builtin.command: /Library/Ossec/bin/wazuh-control restart
+  changed_when: false
