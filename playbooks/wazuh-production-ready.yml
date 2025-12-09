@@ -3,22 +3,22 @@
     - hosts: wi1
       roles:
         - role: ../roles/wazuh/wazuh-indexer
-          indexer_network_host: "{{ private_ip }}"
-          indexer_cluster_nodes:
+          wazuh_indexer_network_host: "{{ private_ip }}"
+          wazuh_indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
             - "{{ hostvars.wi3.private_ip }}"
-          indexer_discovery_nodes:
+          wazuh_indexer_discovery_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
             - "{{ hostvars.wi3.private_ip }}"
-          perform_installation: false
+          wazuh_perform_installation: false
       become: no
       vars:
-        indexer_node_master: true
+        wazuh_indexer_node_master: true
         instances:
           node1:
-            name: node-1       # Important: must be equal to indexer_node_name.
+            name: node-1       # Important: must be equal to wazuh_indexer_node_name.
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
@@ -51,22 +51,22 @@
       strategy: free
       roles:
         - role: ../roles/wazuh/wazuh-indexer
-          indexer_network_host: "{{ private_ip }}"
+          wazuh_indexer_network_host: "{{ private_ip }}"
       become: yes
       become_user: root
       vars:
-        indexer_cluster_nodes:
+        wazuh_indexer_cluster_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
           - "{{ hostvars.wi3.private_ip }}"
-        indexer_discovery_nodes:
+        wazuh_indexer_discovery_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
           - "{{ hostvars.wi3.private_ip }}"
-        indexer_node_master: true
+        wazuh_indexer_node_master: true
         instances:
           node1:
-            name: node-1       # Important: must be equal to indexer_node_name.
+            name: node-1       # Important: must be equal to wazuh_indexer_node_name.
             ip: "{{ hostvars.wi1.private_ip }}"   # When unzipping, the node will search for its node name folder to get the cert.
             role: indexer
           node2:
@@ -161,8 +161,8 @@
       become: yes
       become_user: root
       vars:
-        indexer_network_host: "{{ hostvars.wi1.private_ip }}"
-        indexer_cluster_nodes:
+        wazuh_indexer_network_host: "{{ hostvars.wi1.private_ip }}"
+        wazuh_indexer_cluster_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
           - "{{ hostvars.wi3.private_ip }}"

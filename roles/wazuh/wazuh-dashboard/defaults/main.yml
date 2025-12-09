@@ -1,7 +1,7 @@
 ---
 
 # Dashboard configuration
-indexer_http_port: 9200
+wazuh_indexer_http_port: 9200
 indexer_api_protocol: https
 dashboard_conf_path: /etc/wazuh-dashboard/
 dashboard_node_name: node-1
@@ -9,7 +9,7 @@ dashboard_server_host: "0.0.0.0"
 dashboard_server_port: "443"
 dashboard_server_name: "dashboard"
 wazuh_version: 4.14.2
-indexer_cluster_nodes:
+wazuh_indexer_cluster_nodes:
   - 127.0.0.1
 
 # The Wazuh dashboard package repository
@@ -25,7 +25,7 @@ wazuh_api_credentials:
 
 # Dashboard Security
 dashboard_security: true
-indexer_admin_password: changeme
+wazuh_indexer_admin_password: changeme
 dashboard_user: kibanaserver
-dashboard_password: changeme
-local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+wazuh_dashboard_password: changeme
+wazuh_local_certs_path: "{{ playbook_dir }}/indexer/certificates"

@@ -9,13 +9,13 @@ _meta:
 # Define your internal users here
 
 admin:
-  hash: "{{ indexer_admin_password }}"
+  hash: "{{ wazuh_indexer_admin_password }}"
   reserved: true
   backend_roles:
   - "admin"
   description: "admin user"
 
 kibanaserver:
-  hash: "{{ dashboard_password }}"
+  hash: "{{ wazuh_dashboard_password }}"
   reserved: true
   description: "kibanaserver user"
