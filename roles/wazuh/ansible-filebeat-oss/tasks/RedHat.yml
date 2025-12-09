@@ -1,6 +1,6 @@
 ---
 - name: RedHat/CentOS/Fedora/Amazon Linux | Install Filebeats repo
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: wazuh_repo
     description: Wazuh Repo
     baseurl: "{{ wazuh_repo.yum }}"

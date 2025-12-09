@@ -1,6 +1,6 @@
 ---
 - name: Debian/Ubuntu | Install apt-transport-https, ca-certificate, acl and gnupg
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
       - ca-certificates
@@ -11,22 +11,25 @@
   until: filebeat_ca_packages_install is succeeded
 
 - name: Debian/Ubuntu | Download Filebeat apt key.
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ wazuh_repo.gpg }}"
     dest: "{{ wazuh_repo.path }}"
+    owner: root
+    group: root
+    mode: "0660"
 
 - name: Import Filebeat GPG key
-  command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
+  ansible.builtin.command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
   args:
     creates: "{{ wazuh_repo.keyring_path }}"
 
 - name: Set permissions for Filebeat GPG key
-  file:
+  ansible.builtin.file:
     path: "{{ wazuh_repo.keyring_path }}"
     mode: '0644'
 
 - name: Debian/Ubuntu | Add Filebeat-oss repository.
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ wazuh_repo.apt }}"
     state: present
     update_cache: true
