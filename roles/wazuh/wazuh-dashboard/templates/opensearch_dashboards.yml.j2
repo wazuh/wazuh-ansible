@@ -1,8 +1,8 @@
 server.host: {{ dashboard_server_host }}
 server.port: {{ dashboard_server_port }}
 opensearch.hosts:
-{% for item in indexer_cluster_nodes %}
-  - https://{{ item }}:{{ indexer_http_port }}
+{% for item in wazuh_indexer_cluster_nodes %}
+  - https://{{ item }}:{{ wazuh_indexer_http_port }}
 {% endfor %}
 opensearch.ssl.verificationMode: certificate
 opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]

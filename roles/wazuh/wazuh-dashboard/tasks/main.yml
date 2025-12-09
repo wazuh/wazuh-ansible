@@ -48,7 +48,7 @@
     recurse: yes
 
 - name: Wait for Wazuh-Indexer port
-  wait_for: host={{ indexer_network_host }} port={{ indexer_http_port }}
+  wait_for: host={{ wazuh_indexer_network_host }} port={{ wazuh_indexer_http_port }}
 
 - name: Select correct API protocol
   set_fact:
@@ -56,10 +56,10 @@
 
 - name: Attempting to delete legacy Wazuh index if exists
   uri:
-    url: "{{ indexer_api_protocol }}://{{ indexer_network_host }}:{{ indexer_http_port }}/.wazuh"
+    url: "{{ indexer_api_protocol }}://{{ wazuh_indexer_network_host }}:{{ wazuh_indexer_http_port }}/.wazuh"
     method: DELETE
     user: "admin"
-    password: "{{ indexer_admin_password }}"
+    password: "{{ wazuh_indexer_admin_password }}"
     validate_certs: no
     status_code: 200, 404
 
@@ -84,7 +84,7 @@
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore
   shell: >-
-    echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
+    echo '{{ wazuh_dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
   args:
     executable: /bin/bash
   become: yes

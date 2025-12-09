@@ -7,11 +7,11 @@
       delegate_to: localhost
       run_once: true
     - role: ../../roles/wazuh/wazuh-indexer
-      perform_installation: false
+      wazuh_perform_installation: false
   vars:
     instances:
       node1:
-        name: node-1       # Important: must be equal to indexer_node_name.
+        name: node-1       # Important: must be equal to wazuh_indexer_node_name.
         ip: 127.0.0.1
         role: indexer
   tags:
