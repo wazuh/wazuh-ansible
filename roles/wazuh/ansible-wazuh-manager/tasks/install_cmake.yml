@@ -1,40 +1,45 @@
 ---
 
 # Vars
-# cmake_download_url: http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz
-# cmake_version: 3.18.3
+# wazuh_cmake_download_url: http://packages.wazuh.com/utils/cmake/cmake-3.18.3.tar.gz
+# wazuh_cmake_version: 3.18.3
 #
-  - name: Include CMake install vars 
-    include_vars: install_cmake.yml
+- name: Include CMake install vars
+  ansible.builtin.include_vars: install_cmake.yml
 
-  - name: Download CMake sources
-    get_url:
-      url: "{{ cmake_download_url }}"
-      dest: "/tmp/cmake-{{ cmake_version }}.tar.gz"
-    register: cmake_download
+- name: Download CMake sources
+  ansible.builtin.get_url:
+    url: "{{ wazuh_cmake_download_url }}"
+    dest: "/tmp/cmake-{{ wazuh_cmake_version }}.tar.gz"
+    mode: "0770"
+  register: cmake_download
 
-  - name: Unpack CMake
-    unarchive:
-      copy: no
-      dest: /tmp/
-      src: "{{ cmake_download.dest }}"
-    when: cmake_download.changed
-    register: cmake_unpack
+- name: Unpack CMake
+  ansible.builtin.unarchive: # noqa no-handler
+    copy: false
+    dest: /tmp/
+    src: "{{ cmake_download.dest }}"
+  when: cmake_download.changed
+  register: cmake_unpack
 
-  - name: Configure CMake
-    command: "./bootstrap"
-    args:
-      chdir: "/tmp/cmake-{{ cmake_version }}"
-    when: cmake_unpack.changed
-    register: cmake_configure
+- name: Configure CMake
+  ansible.builtin.command: # noqa no-handler
+    cmd: "./bootstrap"
+  args:
+    chdir: "/tmp/cmake-{{ wazuh_cmake_version }}"
+  changed_when: false
+  when: cmake_unpack.changed
+  register: cmake_configure
 
-  - name: Install CMake
-    shell: make && make install
-    args:
-      chdir: "/tmp/cmake-{{ cmake_version }}"
-    when: cmake_configure.changed
+- name: Install CMake
+  ansible.builtin.shell: # noqa no-handler
+    cmd: make && make install
+  args:
+    chdir: "/tmp/cmake-{{ wazuh_cmake_version }}"
+  changed_when: false
+  when: cmake_configure.changed
 
-  - name: Delete installation files
-    file:
-      state: absent
-      path: "/tmp/cmake-{{ cmake_version }}"
+- name: Delete installation files
+  ansible.builtin.file:
+    state: absent
+    path: "/tmp/cmake-{{ wazuh_cmake_version }}"

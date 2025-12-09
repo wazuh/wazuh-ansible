@@ -1,12 +1,12 @@
 ---
-- name: restart wazuh-manager
-  service:
+- name: Restart wazuh-manager
+  ansible.builtin.service:
     name: wazuh-manager
     state: restarted
     enabled: true
 
-- name: restart wazuh-api
-  service:
+- name: Restart wazuh-api
+  ansible.builtin.service:
     name: wazuh-api
     state: restarted
     enabled: true

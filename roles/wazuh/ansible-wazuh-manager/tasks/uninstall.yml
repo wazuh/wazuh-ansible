@@ -1,14 +1,14 @@
 ---
 
 - name: Debian/Ubuntu | Remove Wazuh repository.
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ wazuh_manager_config.repo.apt }}"
     state: absent
   changed_when: false
   when: ansible_os_family == "Debian"
 
 - name: RedHat/CentOS/Fedora | Remove Wazuh repository (and clean up left-over metadata)
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: wazuh_repo
     state: absent
   changed_when: false

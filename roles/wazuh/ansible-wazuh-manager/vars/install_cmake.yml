@@ -1,4 +1,4 @@
 # Install cmake vars
 
-cmake_version: 3.18.3
-cmake_download_url: "http://packages.wazuh.com/utils/cmake/cmake-{{ cmake_version }}.tar.gz"
+wazuh_cmake_version: 3.18.3
+wazuh_cmake_download_url: "http://packages.wazuh.com/utils/cmake/cmake-{{ wazuh_cmake_version }}.tar.gz"

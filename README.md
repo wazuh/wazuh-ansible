@@ -169,7 +169,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       become: yes
       become_user: root
       vars:
-        filebeat_node_name: node-4
+        wazuh_filebeat_node_name: node-4
         wazuh_manager_config:
           connection:
               - type: 'secure'
@@ -189,7 +189,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
         wazuh_api_users:
           - username: custom-user
             password: SecretPassword1!
-        filebeat_output_indexer_hosts:
+        wazuh_filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
                 - "{{ hostvars.wi3.private_ip }}"
@@ -201,7 +201,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       become: yes
       become_user: root
       vars:
-        filebeat_node_name: node-5
+        wazuh_filebeat_node_name: node-5
         wazuh_manager_config:
           connection:
               - type: 'secure'
@@ -218,7 +218,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
-        filebeat_output_indexer_hosts:
+        wazuh_filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
                 - "{{ hostvars.wi3.private_ip }}"
@@ -313,8 +313,8 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a sing
       minimum_master_nodes: 1
       indexer_node_master: true
       indexer_network_host: 127.0.0.1
-      filebeat_node_name: node-1
-      filebeat_output_indexer_hosts:
+      wazuh_filebeat_node_name: node-1
+      wazuh_filebeat_output_indexer_hosts:
       - 127.0.0.1
       instances:
         node1:
