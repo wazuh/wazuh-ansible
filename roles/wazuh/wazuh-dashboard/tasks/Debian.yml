@@ -1,40 +1,50 @@
 ---
-- block:
-
-  - include_vars: debian.yml
-  - name: Download apt repository signing key
-    get_url:
-      url: "{{ wazuh_repo.gpg }}"
-      dest: "{{ wazuh_repo.path }}"
-
-  - name: Debian/Ubuntu | Install gnupg
-    apt:
-      name:
-        - gnupg
-      state: present
-
-  - name: Import Wazuh repository GPG key
-    command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
-    args:
-      creates: "{{ wazuh_repo.keyring_path }}"
-
-  - name: Set permissions for Wazuh repository GPG key
-    file:
-      path: "{{ wazuh_repo.keyring_path }}"
-      mode: '0644'
-
-  - name: Debian systems | Add Wazuh dashboard repo
-    apt_repository:
-      repo: "{{ wazuh_repo.apt }}"
-      state: present
-      update_cache: yes
-
-  - name: Install Wazuh dashboard
-    apt:
-      name: "wazuh-dashboard={{ dashboard_version }}-*"
-      state: present
-      update_cache: yes
-    register: install
-
+- name: Debian/Ubuntu | Install Wazuh Dashboard
   tags:
     - install
+  block:
+    - name: Include Debian Variables
+      ansible.builtin.include_vars: debian.yml
+
+    - name: Download apt repository signing key
+      ansible.builtin.get_url:
+        url: "{{ wazuh_repo.gpg }}"
+        dest: "{{ wazuh_repo.path }}"
+        owner: root
+        group: root
+        mode: "0660"
+      become: true
+
+    - name: Debian/Ubuntu | Install gnupg
+      ansible.builtin.apt:
+        name:
+          - gnupg
+        state: present
+      become: true
+
+    - name: Import Wazuh repository GPG key
+      ansible.builtin.command: "gpg --no-default-keyring --keyring gnupg-ring:{{ wazuh_repo.keyring_path }} --import {{ wazuh_repo.path }}"
+      args:
+        creates: "{{ wazuh_repo.keyring_path }}"
+      become: true
+
+    - name: Set permissions for Wazuh repository GPG key
+      ansible.builtin.file:
+        path: "{{ wazuh_repo.keyring_path }}"
+        mode: '0644'
+      become: true
+
+    - name: Debian systems | Add Wazuh dashboard repo
+      ansible.builtin.apt_repository:
+        repo: "{{ wazuh_repo.apt }}"
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Install Wazuh dashboard
+      ansible.builtin.apt:
+        name: "wazuh-dashboard={{ wazuh_dashboard_version }}-*"
+        state: present
+        update_cache: true
+      register: install
+      become: true

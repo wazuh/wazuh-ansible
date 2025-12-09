@@ -20,7 +20,7 @@
 
 - name: Copy the node & admin certificates to Wazuh indexer cluster
   copy:
-    src: "{{ local_certs_path }}/wazuh-certificates/{{ item }}"
+    src: "{{ wazuh_local_certs_path }}/wazuh-certificates/{{ item }}"
     dest: "{{ indexer_conf_path }}/certs/"
     owner: wazuh-indexer
     group: wazuh-indexer
@@ -48,8 +48,8 @@
   - name: Hashing the custom admin password
     shell: |
       export JAVA_HOME=/usr/share/wazuh-indexer/jdk
-      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ indexer_admin_password }}'
-    register: indexer_admin_password_hashed
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ wazuh_indexer_admin_password }}'
+    register: wazuh_indexer_admin_password_hashed
     no_log: '{{ indexer_nolog_sensible | bool }}'
 
   - name: Set the Admin user password
@@ -58,13 +58,13 @@
       regexp: '(?<=admin:\n  hash: )(.*)(?=)'
       replace: "{{ indexer_password_hash | quote }}"
     vars:
-      indexer_password_hash: "{{ indexer_admin_password_hashed.stdout_lines | last }}"
+      indexer_password_hash: "{{ wazuh_indexer_admin_password_hashed.stdout_lines | last }}"
 
   # this can also be achieved with password_hash, but it requires dependencies on the controller
   - name: Hash the kibanaserver role/user pasword
     shell: |
       export JAVA_HOME=/usr/share/wazuh-indexer/jdk
-      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ dashboard_password }}'
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ wazuh_dashboard_password }}'
     register: indexer_kibanaserver_password_hashed
     no_log: '{{ indexer_nolog_sensible | bool }}'
 
@@ -97,13 +97,13 @@
 
 - name: Create custom user
   uri:
-    url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
+    url: "https://{{ target_address }}:{{ wazuh_indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
     method: PUT
     user: "admin" # Default Indexer user is always "admin"
-    password: "{{ indexer_admin_password }}"
+    password: "{{ wazuh_indexer_admin_password }}"
     body: |
       {
-        "password": "{{ indexer_admin_password }}",
+        "password": "{{ wazuh_indexer_admin_password }}",
         "backend_roles": ["{{ indexer_custom_user_role }}"]
       }
     body_format: json

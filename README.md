@@ -73,7 +73,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       roles:
         - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
-          indexer_cluster_nodes:
+          wazuh_indexer_cluster_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
             - "{{ hostvars.wi3.private_ip }}"
@@ -124,7 +124,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       become: yes
       become_user: root
       vars:
-        indexer_cluster_nodes:
+        wazuh_indexer_cluster_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
           - "{{ hostvars.wi3.private_ip }}"
@@ -231,7 +231,7 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       become_user: root
       vars:
         indexer_network_host: "{{ hostvars.wi1.private_ip }}"
-        dashboard_node_name: node-6
+        wazuh_dashboard_node_name: node-6
         wazuh_api_credentials:
           - id: default
             url: https://{{ hostvars.manager.private_ip }}
