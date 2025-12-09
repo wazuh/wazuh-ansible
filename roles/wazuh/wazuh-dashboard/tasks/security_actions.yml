@@ -10,7 +10,7 @@
 
   - name: Copy the certificates from local to the Wazuh dashboard instance
     copy:
-      src: "{{ local_certs_path }}/wazuh-certificates/{{ item }}"
+      src: "{{ wazuh_local_certs_path }}/wazuh-certificates/{{ item }}"
       dest: /etc/wazuh-dashboard/certs/
       owner: wazuh-dashboard
       group: wazuh-dashboard

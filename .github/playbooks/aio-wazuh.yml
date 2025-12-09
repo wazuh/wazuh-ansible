@@ -45,8 +45,8 @@
     - role: ../../roles/wazuh/ansible-wazuh-manager
     - role: ../../roles/wazuh/ansible-filebeat-oss
       vars:
-        filebeat_node_name: "wazuh-mgr01"
-        filebeat_output_indexer_hosts:
+        wazuh_filebeat_node_name: "wazuh-mgr01"
+        wazuh_filebeat_output_indexer_hosts:
         - "localhost:9200"
     # 3. Wazuh dashboard
     - role: ../../roles/wazuh/wazuh-dashboard

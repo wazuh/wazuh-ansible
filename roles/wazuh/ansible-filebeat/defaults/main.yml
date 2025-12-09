@@ -1,20 +1,20 @@
 ---
-filebeat_version: 7.10.2
+wazuh_filebeat_version: 7.10.2
 
 wazuh_template_branch: v4.4.1
 
 filebeat_create_config: true
 
-filebeat_node_name: node-1
+wazuh_filebeat_node_name: node-1
 
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
 
 filebeat_module_package_url: https://packages.wazuh.com/4.x/filebeat
-filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
-filebeat_module_package_path: /tmp/
-filebeat_module_destination: /usr/share/filebeat/module
-filebeat_module_folder: /usr/share/filebeat/module/wazuh
+wazuh_filebeat_module_package_name: wazuh-filebeat-0.1.tar.gz
+wazuh_filebeat_module_package_path: /tmp/
+wazuh_filebeat_module_destination: /usr/share/filebeat/module
+wazuh_filebeat_module_folder: /usr/share/filebeat/module/wazuh
 
 # Xpack Security
 filebeat_xpack_security: false

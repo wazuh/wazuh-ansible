@@ -19,7 +19,7 @@ Role Variables
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
 ```
-  filebeat_output_indexer_hosts:
+  wazuh_filebeat_output_indexer_hosts:
     - "localhost:9200"
 
 ```

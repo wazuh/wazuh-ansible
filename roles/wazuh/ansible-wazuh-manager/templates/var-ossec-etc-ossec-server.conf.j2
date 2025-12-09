@@ -274,10 +274,10 @@
 
     <ssl>
       <certificate_authorities>
-        <ca>{{ filebeat_ssl_dir }}/root-ca.pem</ca>
+        <ca>{{ wazuh_filebeat_ssl_dir }}/root-ca.pem</ca>
       </certificate_authorities>
-      <certificate>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem</certificate>
-      <key>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem</key>
+      <certificate>{{ wazuh_filebeat_ssl_dir }}/{{ wazuh_filebeat_node_name }}.pem</certificate>
+      <key>{{ wazuh_filebeat_ssl_dir }}/{{ wazuh_filebeat_node_name }}-key.pem</key>
     </ssl>
   </indexer>
 
