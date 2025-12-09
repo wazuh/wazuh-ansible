@@ -4,7 +4,7 @@ node.name: {{ indexer_node_name }}
 discovery.type: single-node
 {% else %}
 cluster.initial_master_nodes:
-{% for item in indexer_cluster_nodes %}
+{% for item in wazuh_indexer_cluster_nodes %}
   - {{ item }}
 {% endfor %}
 
