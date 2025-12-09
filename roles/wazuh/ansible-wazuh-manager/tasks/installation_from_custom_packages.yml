@@ -1,17 +1,23 @@
 ---
-  - block:
-      - name: Install Wazuh Manager from .deb packages
-        apt:
-          deb: "{{ wazuh_custom_packages_installation_manager_deb_url }}"
-          state: present
-        when:
-          - wazuh_custom_packages_installation_manager_enabled
-    when:
-      - ansible_os_family|lower == "debian"
+- name: Debian/Ubuntu | Install Wazuh Manager
+  when:
+    - ansible_os_family|lower == "debian"
 
-  - block:
+  block:
+    - name: Install Wazuh Manager from .deb packages
+      ansible.builtin.apt:
+        deb: "{{ wazuh_custom_packages_installation_manager_deb_url }}"
+        state: present
+      when:
+        - wazuh_custom_packages_installation_manager_enabled
+
+- name: RedHat/Centos | Install Wazuh Manager
+  when:
+    - ansible_os_family|lower == "redhat"
+
+  block:
     - name: Install Wazuh Manager from .rpm packages | yum
-      yum:
+      ansible.builtin.dnf:
         name: "{{ wazuh_custom_packages_installation_manager_rpm_url }}"
         state: present
         lock_timeout: 200
@@ -21,12 +27,10 @@
         - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
 
     - name: Install Wazuh Manager from .rpm packages | dnf
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ wazuh_custom_packages_installation_manager_rpm_url }}"
         state: present
       when:
         - wazuh_custom_packages_installation_manager_enabled
         - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
           (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
-    when:
-      - ansible_os_family|lower == "redhat"
