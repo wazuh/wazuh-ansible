@@ -25,11 +25,38 @@ All notable changes to this project will be documented in this file.
 - Replace OpenSearch deprecated settings ([#1699](https://github.com/wazuh/wazuh-ansible/pull/1699))
 - Bucket migration for packages-dev.wazuh.com ([#1709](https://github.com/wazuh/wazuh-ansible/pull/1709))
 
-## [4.14.2]
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.3]
 
 ### Added
 
 - None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.2]
+
+### Added
+
+- Update Filebeat version ([#1873](https://github.com/wazuh/wazuh-ansible/pull/1873))
+- Add missing parameters SSL ciphers and protocols to opensearch.yml ([#1863](https://github.com/wazuh/wazuh-ansible/pull/1863))
 
 ### Changed
 
