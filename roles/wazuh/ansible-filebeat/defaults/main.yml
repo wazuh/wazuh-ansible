@@ -5,7 +5,7 @@ wazuh_template_branch: v4.4.1
 
 filebeat_create_config: true
 
-filebeat_node_name: node-1
+wazuh_filebeat_node_name: node-1
 
 filebeat_output_elasticsearch_hosts:
   - "localhost:9200"
