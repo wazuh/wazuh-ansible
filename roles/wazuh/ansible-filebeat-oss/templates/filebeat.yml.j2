@@ -15,18 +15,18 @@ setup.ilm.enabled: false
 # Send events directly to Wazuh indexer
 output.elasticsearch:
   hosts:
-{% for item in filebeat_output_indexer_hosts %}
+{% for item in wazuh_filebeat_output_indexer_hosts %}
   - {{ item }}
 {% endfor %}
 
 {% if filebeat_security %}
-  username: {{ indexer_security_user }}
-  password: "{{ indexer_security_password }}"
+  username: {{ wazuh_indexer_security_user }}
+  password: "{{ wazuh_indexer_security_password }}"
   protocol: https
   ssl.certificate_authorities:
-    - {{ filebeat_ssl_dir }}/root-ca.pem
-  ssl.certificate: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem"
-  ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem"
+    - {{ wazuh_filebeat_ssl_dir }}/root-ca.pem
+  ssl.certificate: "{{ wazuh_filebeat_ssl_dir }}/{{ wazuh_filebeat_node_name }}.pem"
+  ssl.key: "{{ wazuh_filebeat_ssl_dir }}/{{ wazuh_filebeat_node_name }}-key.pem"
 {% endif %}
 
 # Optional. Send events to Logstash instead of Wazuh indexer
