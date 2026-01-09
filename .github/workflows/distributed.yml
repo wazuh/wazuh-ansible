@@ -40,10 +40,10 @@ on:
   pull_request:
   release:
 env:
-  COMPOSITE_NAME: "linux-SUBNAME-amd64"
+  COMPOSITE_NAME: "SUBNAME-amd64"
   AGENT_COMPOSITE_NAMES: >
-    ["linux-centos-9-amd64", "linux-redhat-9-arm64", "linux-ubuntu-22.04-amd64",
-    "linux-ubuntu-22.04-arm64", "linux-amazon-2023-amd64", "windows-server-2022-amd64"]
+    ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
+    "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
   ARTIFACT_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
   PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
