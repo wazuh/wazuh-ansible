@@ -1,11 +1,79 @@
 ---
+# Wazuh Manager Role - Default Variables
 
-single_node: false
-node_type: "master"
-manager_node_name: "wazuh-1"
-wazuh_indexer_hosts:
-  - host: "{{ hostvars[inventory_hostname].private_ip }}"
-    port: 9200
+# Package settings
+wazuh_manager_package_name: "wazuh-manager"
+wazuh_manager_service_name: "wazuh-manager"
 
-wazuh_manager_package_download_path: "/tmp/wazuh-manager"
-wazuh_manager_package_name: "wazuh-manager-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+# Manager configuration
+wazuh_manager_config_path: /var/ossec/etc/ossec.conf
+wazuh_manager_log_path: /var/ossec/logs
+
+# API settings
+wazuh_manager_api_bind_addr: "0.0.0.0"
+wazuh_manager_api_https: true
+
+# Agent enrollment
+wazuh_authd_enabled: true
+wazuh_authd_use_source_ip: false
+wazuh_authd_purge: false
+wazuh_authd_ssl_verify_host: false
+wazuh_authd_ssl_auto_negotiate: true
+
+# Cluster defaults
+wazuh_manager_cluster_enabled: false
+wazuh_manager_cluster_name: "wazuh-cluster"
+wazuh_manager_cluster_node_name: "manager-1"
+wazuh_manager_cluster_node_type: "master"
+wazuh_manager_cluster_key: ""
+wazuh_manager_cluster_port: 1516
+wazuh_manager_cluster_bind_addr: "0.0.0.0"
+
+# Syslog output
+wazuh_syslog_output_enabled: false
+wazuh_syslog_output_server: ""
+wazuh_syslog_output_port: 514
+wazuh_syslog_output_format: "default"
+
+# Email alerts
+wazuh_email_notification_enabled: false
+wazuh_email_smtp_server: ""
+wazuh_email_from: "wazuh@localhost"
+wazuh_email_to: ""
+
+# Global settings
+wazuh_manager_max_agents: 14000
+wazuh_manager_memory_size: 8192
+
+# Vulnerability detector
+wazuh_vulnerability_detection_enabled: true
+wazuh_vulnerability_detection_interval: "5m"
+wazuh_vulnerability_detection_min_full_scan_interval: "6h"
+
+# File integrity monitoring
+wazuh_fim_enabled: true
+wazuh_fim_frequency: 43200
+wazuh_fim_directories:
+  - /etc
+  - /usr/bin
+  - /usr/sbin
+  - /bin
+  - /sbin
+  - /boot
+
+# Rootcheck
+wazuh_rootkit_detection_enabled: true
+wazuh_rootcheck_frequency: 43200
+
+# Log collection defaults
+wazuh_log_collection_enabled: true
+
+# Active response
+wazuh_active_response_enabled: true
+wazuh_active_response_ca_verification: true
+
+# Integrations
+wazuh_integrations: []
+
+# Indexer connection
+wazuh_indexer_connection_enabled: true

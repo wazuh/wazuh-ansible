@@ -1,0 +1,33 @@
+---
+# Wazuh Agent Deployment Playbook
+# Run with: ansible-playbook playbooks/wazuh-agents.yml
+
+- name: Deploy Wazuh Agents
+  hosts: wazuh_agents
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Display agent deployment information
+      ansible.builtin.debug:
+        msg: |
+          Deploying Wazuh Agent
+          ══════════════════════════════════════════════
+          Wazuh Version: {{ wazuh_version }}
+          Manager Address: {{ wazuh_manager_nodes[0].ip }}
+          Agent Host: {{ ansible_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          ══════════════════════════════════════════════
+
+  roles:
+    - role: wazuh-agent
+
+  post_tasks:
+    - name: Verify Wazuh Agent service status (Linux)
+      ansible.builtin.service_facts:
+      when: ansible_system == 'Linux'
+
+    - name: Display agent service status (Linux)
+      ansible.builtin.debug:
+        msg: "Wazuh Agent service: {{ ansible_facts.services['wazuh-agent.service'].state | default('unknown') }}"
+      when: ansible_system == 'Linux'

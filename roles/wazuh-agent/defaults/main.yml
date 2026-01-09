@@ -1,5 +1,52 @@
 ---
+# Wazuh Agent Role - Default Variables
 
-wazuh_agent_package_download_path: "/tmp/wazuh-agent"
-wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
-wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+# Package settings
+wazuh_agent_package_name: "wazuh-agent"
+wazuh_agent_service_name: "wazuh-agent"
+
+# Agent configuration
+wazuh_agent_config_path: /var/ossec/etc/ossec.conf
+
+# Registration settings
+wazuh_agent_registration_address: ""  # Manager address for registration
+wazuh_agent_enrollment_enabled: true
+wazuh_agent_enrollment_delay: 30
+
+# Communication settings
+wazuh_agent_protocol: tcp
+wazuh_agent_notify_time: 10
+wazuh_agent_time_reconnect: 60
+wazuh_agent_auto_restart: true
+
+# File integrity monitoring
+wazuh_agent_fim_enabled: true
+wazuh_agent_fim_frequency: 43200
+wazuh_agent_fim_directories:
+  - /etc
+  - /usr/bin
+  - /usr/sbin
+  - /bin
+  - /sbin
+  - /boot
+
+# Rootcheck
+wazuh_agent_rootcheck_enabled: true
+wazuh_agent_rootcheck_frequency: 43200
+
+# Log collection
+wazuh_agent_log_collection_enabled: true
+
+# System inventory
+wazuh_agent_syscollector_enabled: true
+wazuh_agent_syscollector_interval: 1h
+
+# Security configuration analysis
+wazuh_agent_sca_enabled: true
+
+# Active response
+wazuh_agent_active_response_disabled: false
+
+# Windows specific settings (for Windows agents)
+wazuh_agent_windows_audit_enabled: true
+wazuh_agent_windows_eventchannel_enabled: true

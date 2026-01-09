@@ -1,0 +1,62 @@
+---
+# Wazuh Manager - Configuration
+
+- name: Configure ossec.conf from template
+  ansible.builtin.template:
+    src: ossec.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: wazuh
+    group: wazuh
+    mode: '0640'
+    backup: true
+  become: true
+  notify: restart wazuh-manager
+
+- name: Configure Wazuh keystore for indexer username
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo '{{ wazuh_indexer_admin_user }}' | /var/ossec/bin/wazuh-keystore -f indexer -k username
+  args:
+    executable: /bin/bash
+  become: true
+  changed_when: true
+  no_log: true
+  when: wazuh_indexer_connection_enabled | default(true)
+
+- name: Configure Wazuh keystore for indexer password
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo '{{ wazuh_indexer_admin_password }}' | /var/ossec/bin/wazuh-keystore -f indexer -k password
+  args:
+    executable: /bin/bash
+  become: true
+  changed_when: true
+  no_log: true
+  when: wazuh_indexer_connection_enabled | default(true)
+
+- name: Configure local rules directory
+  ansible.builtin.file:
+    path: /var/ossec/etc/rules
+    state: directory
+    owner: wazuh
+    group: wazuh
+    mode: '0750'
+  become: true
+
+- name: Configure local decoders directory
+  ansible.builtin.file:
+    path: /var/ossec/etc/decoders
+    state: directory
+    owner: wazuh
+    group: wazuh
+    mode: '0750'
+  become: true
+
+- name: Set correct permissions on /var/ossec
+  ansible.builtin.file:
+    path: /var/ossec
+    state: directory
+    owner: wazuh
+    group: wazuh
+    recurse: true
+  become: true

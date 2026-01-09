@@ -1,0 +1,99 @@
+---
+# Wazuh Manager - Firewall Configuration
+
+- name: Check if firewalld is installed
+  ansible.builtin.command: which firewall-cmd
+  register: firewalld_check
+  changed_when: false
+  failed_when: false
+
+- name: Check if ufw is installed
+  ansible.builtin.command: which ufw
+  register: ufw_check
+  changed_when: false
+  failed_when: false
+
+# UFW (Debian/Ubuntu)
+- name: Configure UFW rules
+  when: ufw_check.rc == 0
+  block:
+    - name: Allow Wazuh Manager agent communication port (1514/tcp)
+      community.general.ufw:
+        rule: allow
+        port: "{{ wazuh_manager_agent_port | default(1514) }}"
+        proto: tcp
+      become: true
+
+    - name: Allow Wazuh Manager agent communication port (1514/udp)
+      community.general.ufw:
+        rule: allow
+        port: "{{ wazuh_manager_agent_port | default(1514) }}"
+        proto: udp
+      become: true
+
+    - name: Allow Wazuh Manager registration port (1515)
+      community.general.ufw:
+        rule: allow
+        port: "1515"
+        proto: tcp
+      become: true
+
+    - name: Allow Wazuh API port
+      community.general.ufw:
+        rule: allow
+        port: "{{ wazuh_manager_api_port }}"
+        proto: tcp
+      become: true
+
+    - name: Allow Wazuh cluster port (for multi-node)
+      community.general.ufw:
+        rule: allow
+        port: "{{ wazuh_manager_cluster_port | default(1516) }}"
+        proto: tcp
+      become: true
+      when: wazuh_manager_cluster_enabled | default(false)
+
+# Firewalld (RHEL/CentOS)
+- name: Configure firewalld rules
+  when: firewalld_check.rc == 0
+  block:
+    - name: Allow Wazuh Manager agent communication port (1514/tcp)
+      ansible.posix.firewalld:
+        port: "{{ wazuh_manager_agent_port | default(1514) }}/tcp"
+        permanent: true
+        state: enabled
+      become: true
+      notify: reload firewalld
+
+    - name: Allow Wazuh Manager agent communication port (1514/udp)
+      ansible.posix.firewalld:
+        port: "{{ wazuh_manager_agent_port | default(1514) }}/udp"
+        permanent: true
+        state: enabled
+      become: true
+      notify: reload firewalld
+
+    - name: Allow Wazuh Manager registration port (1515)
+      ansible.posix.firewalld:
+        port: "1515/tcp"
+        permanent: true
+        state: enabled
+      become: true
+      notify: reload firewalld
+
+    - name: Allow Wazuh API port
+      ansible.posix.firewalld:
+        port: "{{ wazuh_manager_api_port }}/tcp"
+        permanent: true
+        state: enabled
+      become: true
+      notify: reload firewalld
+
+    - name: Allow Wazuh cluster port (for multi-node)
+      ansible.posix.firewalld:
+        port: "{{ wazuh_manager_cluster_port | default(1516) }}/tcp"
+        permanent: true
+        state: enabled
+      become: true
+      notify: reload firewalld
+      when: wazuh_manager_cluster_enabled | default(false)

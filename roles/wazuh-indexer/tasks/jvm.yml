@@ -1,0 +1,26 @@
+---
+# Wazuh Indexer - JVM Configuration
+
+- name: Configure JVM heap size (Xms)
+  ansible.builtin.lineinfile:
+    path: /etc/wazuh-indexer/jvm.options
+    regexp: '^-Xms'
+    line: "-Xms{{ wazuh_indexer_heap_size }}"
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Configure JVM heap size (Xmx)
+  ansible.builtin.lineinfile:
+    path: /etc/wazuh-indexer/jvm.options
+    regexp: '^-Xmx'
+    line: "-Xmx{{ wazuh_indexer_heap_size }}"
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Set JVM options file permissions
+  ansible.builtin.file:
+    path: /etc/wazuh-indexer/jvm.options
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0640'
+  become: true

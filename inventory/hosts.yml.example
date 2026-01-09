@@ -1,0 +1,48 @@
+---
+# Wazuh Ansible Inventory - Example Template
+# Copy this file to hosts.yml and customize for your environment
+# DO NOT commit hosts.yml - it contains sensitive configuration
+
+all:
+  vars:
+    ansible_user: wazuh-deploy
+    ansible_ssh_private_key_file: keys/wazuh_ansible_key
+    ansible_port: 22
+    ansible_become: true
+
+  children:
+    # Wazuh Indexer nodes (OpenSearch-based storage)
+    wazuh_indexers:
+      hosts:
+        192.168.1.10:
+          indexer_node_name: indexer-1
+          indexer_cluster_initial_master: true
+        # Add more indexer nodes for HA:
+        # 192.168.1.11:
+        #   indexer_node_name: indexer-2
+        # 192.168.1.12:
+        #   indexer_node_name: indexer-3
+
+    # Wazuh Manager nodes (central analysis)
+    wazuh_managers:
+      hosts:
+        192.168.1.20:
+          manager_node_name: manager-1
+          manager_node_type: master
+        # Add worker nodes for clustering:
+        # 192.168.1.21:
+        #   manager_node_name: manager-2
+        #   manager_node_type: worker
+
+    # Wazuh Dashboard nodes (web UI)
+    wazuh_dashboards:
+      hosts:
+        192.168.1.30:
+
+    # Wazuh Agent hosts (endpoints to monitor)
+    wazuh_agents:
+      hosts:
+        192.168.1.100:
+        192.168.1.101:
+        192.168.1.102:
+        # Add all hosts you want to monitor

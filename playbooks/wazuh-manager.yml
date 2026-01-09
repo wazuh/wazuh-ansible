@@ -1,0 +1,43 @@
+---
+# Wazuh Manager Deployment Playbook
+# Run with: ansible-playbook playbooks/wazuh-manager.yml
+
+- name: Deploy Wazuh Manager
+  hosts: wazuh_managers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Display manager deployment information
+      ansible.builtin.debug:
+        msg: |
+          Deploying Wazuh Manager
+          ══════════════════════════════════════════════
+          Wazuh Version: {{ wazuh_version }}
+          Node Name: {{ manager_node_name | default('manager-1') }}
+          Node Type: {{ manager_node_type | default('master') }}
+          API Port: {{ wazuh_manager_api_port }}
+          Agent Port: {{ wazuh_manager_agent_port }}
+          Cluster Enabled: {{ wazuh_manager_cluster_enabled | default(false) }}
+          ══════════════════════════════════════════════
+
+  roles:
+    - role: wazuh-manager
+
+  post_tasks:
+    - name: Verify Wazuh Manager API is running
+      ansible.builtin.uri:
+        url: "https://{{ ansible_default_ipv4.address }}:{{ wazuh_manager_api_port }}/"
+        user: "{{ wazuh_api_user }}"
+        password: "{{ wazuh_api_password }}"
+        force_basic_auth: true
+        validate_certs: false
+        return_content: true
+        status_code: [200, 401]
+      register: manager_health_check
+      when: manager_node_type | default('master') == 'master'
+
+    - name: Display manager status
+      ansible.builtin.debug:
+        msg: "Wazuh Manager API is accessible"
+      when: manager_node_type | default('master') == 'master'

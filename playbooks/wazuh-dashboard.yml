@@ -1,0 +1,37 @@
+---
+# Wazuh Dashboard Deployment Playbook
+# Run with: ansible-playbook playbooks/wazuh-dashboard.yml
+
+- name: Deploy Wazuh Dashboard
+  hosts: wazuh_dashboards
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Display dashboard deployment information
+      ansible.builtin.debug:
+        msg: |
+          Deploying Wazuh Dashboard
+          ══════════════════════════════════════════════
+          Wazuh Version: {{ wazuh_version }}
+          Dashboard Port: {{ wazuh_dashboard_port }}
+          SSL Enabled: {{ wazuh_dashboard_ssl_enabled | default(true) }}
+          ══════════════════════════════════════════════
+
+  roles:
+    - role: wazuh-dashboard
+
+  post_tasks:
+    - name: Verify Wazuh Dashboard is running
+      ansible.builtin.uri:
+        url: "https://{{ ansible_default_ipv4.address }}:{{ wazuh_dashboard_port }}/app/login"
+        validate_certs: false
+        status_code: [200, 302]
+      register: dashboard_health_check
+
+    - name: Display dashboard access information
+      ansible.builtin.debug:
+        msg: |
+          Wazuh Dashboard is accessible!
+          URL: https://{{ ansible_default_ipv4.address }}:{{ wazuh_dashboard_port }}
+          Username: {{ wazuh_dashboard_admin_user | default('admin') }}

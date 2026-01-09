@@ -1,0 +1,43 @@
+---
+# Wazuh Manager - API Configuration
+
+- name: Configure Wazuh API settings
+  ansible.builtin.template:
+    src: api.yaml.j2
+    dest: /var/ossec/api/configuration/api.yaml
+    owner: wazuh
+    group: wazuh
+    mode: '0640'
+  become: true
+  notify: restart wazuh-manager
+
+- name: Configure API SSL certificates directory
+  ansible.builtin.file:
+    path: /var/ossec/api/configuration/ssl
+    state: directory
+    owner: wazuh
+    group: wazuh
+    mode: '0750'
+  become: true
+
+- name: Copy API SSL certificate
+  ansible.builtin.copy:
+    src: /var/ossec/etc/certs/server.pem
+    dest: /var/ossec/api/configuration/ssl/server.crt
+    remote_src: true
+    owner: wazuh
+    group: wazuh
+    mode: '0400'
+  become: true
+  notify: restart wazuh-manager
+
+- name: Copy API SSL private key
+  ansible.builtin.copy:
+    src: /var/ossec/etc/certs/server-key.pem
+    dest: /var/ossec/api/configuration/ssl/server.key
+    remote_src: true
+    owner: wazuh
+    group: wazuh
+    mode: '0400'
+  become: true
+  notify: restart wazuh-manager

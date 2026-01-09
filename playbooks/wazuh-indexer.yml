@@ -1,0 +1,40 @@
+---
+# Wazuh Indexer Deployment Playbook
+# Run with: ansible-playbook playbooks/wazuh-indexer.yml
+
+- name: Deploy Wazuh Indexer
+  hosts: wazuh_indexers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Display indexer deployment information
+      ansible.builtin.debug:
+        msg: |
+          Deploying Wazuh Indexer
+          ══════════════════════════════════════════════
+          Wazuh Version: {{ wazuh_version }}
+          Cluster Name: {{ wazuh_indexer_cluster_name }}
+          Node Name: {{ indexer_node_name | default('indexer-1') }}
+          HTTP Port: {{ wazuh_indexer_http_port }}
+          Heap Size: {{ wazuh_indexer_heap_size }}
+          ══════════════════════════════════════════════
+
+  roles:
+    - role: wazuh-indexer
+
+  post_tasks:
+    - name: Verify Wazuh Indexer is running
+      ansible.builtin.uri:
+        url: "https://{{ ansible_default_ipv4.address }}:{{ wazuh_indexer_http_port }}/_cluster/health"
+        user: "{{ wazuh_indexer_admin_user }}"
+        password: "{{ wazuh_indexer_admin_password }}"
+        force_basic_auth: true
+        validate_certs: false
+        return_content: true
+      register: indexer_health_check
+      failed_when: indexer_health_check.status != 200
+
+    - name: Display indexer health
+      ansible.builtin.debug:
+        msg: "Indexer health status: {{ indexer_health_check.json.status | default('unknown') }}"

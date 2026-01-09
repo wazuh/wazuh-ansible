@@ -1,0 +1,36 @@
+---
+# Wazuh Indexer - Repository Configuration
+
+- name: Import Wazuh GPG key (Debian/Ubuntu)
+  ansible.builtin.apt_key:
+    url: "{{ wazuh_repo_gpg_key }}"
+    state: present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Add Wazuh repository (Debian/Ubuntu)
+  ansible.builtin.apt_repository:
+    repo: "deb {{ wazuh_repo_url_apt }} stable main"
+    state: present
+    filename: wazuh
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Import Wazuh GPG key (RHEL/CentOS)
+  ansible.builtin.rpm_key:
+    key: "{{ wazuh_repo_gpg_key }}"
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Add Wazuh repository (RHEL/CentOS)
+  ansible.builtin.yum_repository:
+    name: wazuh
+    description: Wazuh repository
+    baseurl: "{{ wazuh_repo_url_yum }}"
+    gpgcheck: true
+    gpgkey: "{{ wazuh_repo_gpg_key }}"
+    enabled: true
+  become: true
+  when: ansible_os_family == 'RedHat'

@@ -1,0 +1,38 @@
+---
+# Wazuh Dashboard - Configuration
+
+- name: Configure opensearch_dashboards.yml from template
+  ansible.builtin.template:
+    src: opensearch_dashboards.yml.j2
+    dest: /etc/wazuh-dashboard/opensearch_dashboards.yml
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0640'
+    backup: true
+  become: true
+  notify: restart wazuh-dashboard
+
+- name: Configure wazuh.yml from template
+  ansible.builtin.template:
+    src: wazuh.yml.j2
+    dest: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0640'
+  become: true
+  notify: restart wazuh-dashboard
+
+- name: Set correct ownership on config directory
+  ansible.builtin.file:
+    path: "{{ wazuh_dashboard_config_path }}"
+    state: directory
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    recurse: true
+  become: true
+
+- name: Allow Dashboard to bind to privileged port (if < 1024)
+  ansible.builtin.command: setcap 'cap_net_bind_service=+ep' /usr/share/wazuh-dashboard/node/bin/node
+  become: true
+  changed_when: true
+  when: wazuh_dashboard_port | int < 1024

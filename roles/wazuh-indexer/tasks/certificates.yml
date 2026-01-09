@@ -1,0 +1,61 @@
+---
+# Wazuh Indexer - Certificate Configuration
+
+- name: Create certificates directory
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_certs_path }}"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0500'
+  become: true
+
+- name: Copy root CA certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/root-ca.pem"
+    dest: "{{ wazuh_indexer_certs_path }}/root-ca.pem"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0400'
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Copy indexer node certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/{{ indexer_node_name | default('indexer-1') }}.pem"
+    dest: "{{ wazuh_indexer_certs_path }}/indexer.pem"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0400'
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Copy indexer node private key
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/{{ indexer_node_name | default('indexer-1') }}-key.pem"
+    dest: "{{ wazuh_indexer_certs_path }}/indexer-key.pem"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0400'
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Copy admin certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/admin.pem"
+    dest: "{{ wazuh_indexer_certs_path }}/admin.pem"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0400'
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Copy admin private key
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/admin-key.pem"
+    dest: "{{ wazuh_indexer_certs_path }}/admin-key.pem"
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0400'
+  become: true
+  notify: restart wazuh-indexer

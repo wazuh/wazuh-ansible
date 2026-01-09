@@ -1,0 +1,41 @@
+---
+# Wazuh Dashboard - Certificate Configuration
+
+- name: Create certificates directory
+  ansible.builtin.file:
+    path: "{{ wazuh_dashboard_certs_path }}"
+    state: directory
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0500'
+  become: true
+
+- name: Copy root CA certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/root-ca.pem"
+    dest: "{{ wazuh_dashboard_certs_path }}/root-ca.pem"
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0400'
+  become: true
+  notify: restart wazuh-dashboard
+
+- name: Copy dashboard certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/dashboard.pem"
+    dest: "{{ wazuh_dashboard_certs_path }}/dashboard.pem"
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0400'
+  become: true
+  notify: restart wazuh-dashboard
+
+- name: Copy dashboard private key
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/dashboard-key.pem"
+    dest: "{{ wazuh_dashboard_certs_path }}/dashboard-key.pem"
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0400'
+  become: true
+  notify: restart wazuh-dashboard

@@ -1,0 +1,20 @@
+---
+# Wazuh Manager - Handlers
+
+- name: restart wazuh-manager
+  ansible.builtin.service:
+    name: "{{ wazuh_manager_service_name }}"
+    state: restarted
+  become: true
+
+- name: reload wazuh-manager
+  ansible.builtin.service:
+    name: "{{ wazuh_manager_service_name }}"
+    state: reloaded
+  become: true
+
+- name: reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  become: true

@@ -1,0 +1,41 @@
+---
+# Wazuh Manager - Certificate Configuration
+
+- name: Create certificates directory
+  ansible.builtin.file:
+    path: /var/ossec/etc/certs
+    state: directory
+    owner: wazuh
+    group: wazuh
+    mode: '0750'
+  become: true
+
+- name: Copy root CA certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/root-ca.pem"
+    dest: /var/ossec/etc/certs/root-ca.pem
+    owner: wazuh
+    group: wazuh
+    mode: '0400'
+  become: true
+  notify: restart wazuh-manager
+
+- name: Copy manager certificate
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/{{ manager_node_name | default('manager-1') }}.pem"
+    dest: /var/ossec/etc/certs/server.pem
+    owner: wazuh
+    group: wazuh
+    mode: '0400'
+  become: true
+  notify: restart wazuh-manager
+
+- name: Copy manager private key
+  ansible.builtin.copy:
+    src: "{{ wazuh_certs_path | default('files/certs') }}/{{ manager_node_name | default('manager-1') }}-key.pem"
+    dest: /var/ossec/etc/certs/server-key.pem
+    owner: wazuh
+    group: wazuh
+    mode: '0400'
+  become: true
+  notify: restart wazuh-manager

@@ -1,131 +1,47 @@
 ---
+# Wazuh Dashboard Role - Main Tasks
 
-- name: Importing variables [vars/main.yml]
-  ansible.builtin.include_vars:
-    file: ../../vars/main.yml
+- name: Include OS-specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "default.yml"
+  ignore_errors: true
 
-- name: Importing urls_file variables
-  ansible.builtin.include_vars:
-    file: ../../vars/{{ urls_file }}
+- name: Install prerequisites
+  ansible.builtin.include_tasks: prerequisites.yml
 
-- name: Importing dependencies.yml
-  ansible.builtin.import_tasks: dependencies.yml
-  become: true
+- name: Configure Wazuh repository
+  ansible.builtin.include_tasks: repository.yml
 
-- name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
-  ansible.builtin.dnf:
-    name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
-    state: present
-    disable_gpg_check: true
-  become: true
-  when:
-    - ansible_facts.os_family == "RedHat"
+- name: Install Wazuh Dashboard
+  ansible.builtin.include_tasks: install.yml
 
-- name: Linux Debian | Install wazuh-dashboard using APT
-  ansible.builtin.apt:
-    deb: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.deb"
-    state: present
-  become: true
-  when:
-    - ansible_facts.os_family == 'Debian'
+- name: Configure certificates
+  ansible.builtin.include_tasks: certificates.yml
 
-- name: Linux | Reload systemd configuration
-  ansible.builtin.systemd:
-    daemon_reload: true
-  become: true
+- name: Configure Wazuh Dashboard
+  ansible.builtin.include_tasks: configure.yml
 
-- name: Dashboard-config | Configure Wazuh dashboard
-  block:
-    - name: Dashboard-config | Remove current opensearch.hosts configuration
-      ansible.builtin.replace:
-        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: '^opensearch\.hosts:.*(?:\n\s+-\s+https?://[^\n]+)*'
-        replace: 'opensearch.hosts:'
+- name: Configure firewall
+  ansible.builtin.include_tasks: firewall.yml
+  when: wazuh_configure_firewall | default(true)
 
-    - name: Dashboard-config | Add opensearch.hosts configuration
-      ansible.builtin.replace:
-        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: '^opensearch\.hosts:\s*$'
-        replace: |
-          opensearch.hosts:
-          {% for node in indexer_cluster_nodes %}
-            - https://{{ node }}:9200
-          {% endfor %}
-
-    - name: Dashboard-config | Set Wazuh server host URL
-      ansible.builtin.replace:
-        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: '^(\s*)url:\s*https://.*$'
-        replace: '\1url: https://{{ wazuh_manager_master_address }}'
-
-- name: Copy the certificates from local to the Wazuh dashboard instance
-  ansible.builtin.copy:
-    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-    dest: /etc/wazuh-dashboard/certs/
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
-    mode: "0400"
-  with_items:
-    - "root-ca.pem"
-    - "{{ dashboard_node_name }}-key.pem"
-    - "{{ dashboard_node_name }}.pem"
-
-- name: Copy certificates to match default names
-  ansible.builtin.copy:
-    src: "/etc/wazuh-dashboard/certs/{{ item.src }}"
-    dest: "/etc/wazuh-dashboard/certs/{{ item.dest }}"
-    remote_src: true
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
-    mode: "0400"
-  with_items:
-    - { src: "{{ dashboard_node_name }}.pem", dest: "dashboard.pem" }
-    - { src: "{{ dashboard_node_name }}-key.pem", dest: "dashboard-key.pem" }
-  when: dashboard_node_name != "dashboard"
-
-- name: Reload systemd configuration
-  ansible.builtin.systemd:
-    daemon_reload: true
-  become: true
-
-- name: Ensure Wazuh dashboard started
+- name: Start and enable Wazuh Dashboard service
   ansible.builtin.service:
-    name: wazuh-dashboard
+    name: "{{ wazuh_dashboard_service_name }}"
+    state: started
     enabled: true
-    state: restarted
-
-- name: Extract server host from dashboard configuration
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      grep '^server.host:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
-    executable: /bin/bash
-  register: server_host
-  changed_when: false
-
-- name: Extract server port from dashboard configuration
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      grep '^server.port:' /etc/wazuh-dashboard/opensearch_dashboards.yml | awk '{print $2}'
-    executable: /bin/bash
-  register: server_port
-  changed_when: false
-
-- name: Wait for Wazuh dashboard to be ready
-  ansible.builtin.uri:
-    url: "https://{{ server_host.stdout }}:{{ server_port.stdout }}/app/login"
-    method: GET
-    status_code: 200
-    validate_certs: false
-  register: result
-  retries: 10
-  delay: 5
-  until: result.status == 200
-
-- name: Remove installation leftovers
-  ansible.builtin.file:
-    path: "{{ wazuh_dashboard_package_download_path }}"
-    state: absent
-    force: true
   become: true
+
+- name: Wait for Wazuh Dashboard to be ready
+  ansible.builtin.uri:
+    url: "https://{{ ansible_default_ipv4.address }}:{{ wazuh_dashboard_port }}/app/login"
+    validate_certs: false
+    status_code: [200, 302]
+  register: dashboard_health
+  until: dashboard_health.status in [200, 302]
+  retries: 30
+  delay: 10

@@ -1,24 +1,23 @@
 ---
+# Wazuh Agent Role - Main Tasks
 
-- name: Importing variables [vars/main.yml]
-  ansible.builtin.include_vars:
-    file: ../../vars/main.yml
+- name: Include OS-specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "default.yml"
+  ignore_errors: true
 
-- name: Importing urls_file variables
-  ansible.builtin.include_vars:
-    file: ../../vars/{{ urls_file }}
+- name: Include Linux tasks
+  ansible.builtin.include_tasks: linux.yml
+  when: ansible_system == 'Linux'
 
-- name: Linux | Importing tasks for Linux systems
-  ansible.builtin.include_tasks:
-    file: "Linux.yml"
-  when: ansible_facts.system == "Linux"
+- name: Include Windows tasks
+  ansible.builtin.include_tasks: windows.yml
+  when: ansible_os_family == 'Windows'
 
-- name: Windows | Importing tasks for Windows systems
-  ansible.builtin.include_tasks:
-    file: "Windows.yml"
-  when: ansible_facts.os_family == "Windows"
-
-- name: MacOS | Importing tasks for macOS systems
-  ansible.builtin.include_tasks:
-    file: "macOS.yml"
-  when: ansible_facts.system == "Darwin"
+- name: Include macOS tasks
+  ansible.builtin.include_tasks: macos.yml
+  when: ansible_system == 'Darwin'

@@ -1,0 +1,104 @@
+---
+# Wazuh Ansible Deployment - Main Site Playbook
+# This playbook deploys the complete Wazuh stack in the correct order
+
+- name: Wazuh Deployment - Pre-flight Checks
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Display deployment information
+      ansible.builtin.debug:
+        msg: |
+          Starting Wazuh Deployment
+          ══════════════════════════════════════════════
+          Wazuh Version: {{ wazuh_version }}
+          Environment: {{ environment_name | default('production') }}
+          Organization: {{ organization_name | default('N/A') }}
+          ══════════════════════════════════════════════
+      run_once: true
+
+    - name: Verify connectivity to all hosts
+      ansible.builtin.ping:
+
+    - name: Gather facts from all hosts
+      ansible.builtin.setup:
+
+# Step 1: Deploy Wazuh Indexer
+- name: Deploy Wazuh Indexer
+  hosts: wazuh_indexers
+  become: true
+  gather_facts: true
+  roles:
+    - role: wazuh-indexer
+  tags:
+    - indexer
+    - wazuh-indexer
+
+# Step 2: Deploy Wazuh Manager
+- name: Deploy Wazuh Manager
+  hosts: wazuh_managers
+  become: true
+  gather_facts: true
+  roles:
+    - role: wazuh-manager
+  tags:
+    - manager
+    - wazuh-manager
+
+# Step 3: Deploy Wazuh Dashboard
+- name: Deploy Wazuh Dashboard
+  hosts: wazuh_dashboards
+  become: true
+  gather_facts: true
+  roles:
+    - role: wazuh-dashboard
+  tags:
+    - dashboard
+    - wazuh-dashboard
+
+# Step 4: Deploy Wazuh Agents (if hosts are defined)
+- name: Deploy Wazuh Agents
+  hosts: wazuh_agents
+  become: true
+  gather_facts: true
+  roles:
+    - role: wazuh-agent
+  tags:
+    - agent
+    - wazuh-agent
+
+# Post-deployment Summary
+- name: Wazuh Deployment - Summary
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display deployment summary
+      ansible.builtin.debug:
+        msg: |
+
+          ══════════════════════════════════════════════════════════════
+                        WAZUH DEPLOYMENT COMPLETE
+          ══════════════════════════════════════════════════════════════
+
+          Wazuh Dashboard URL: https://{{ groups['wazuh_dashboards'][0] }}:{{ wazuh_dashboard_port | default(443) }}
+
+          Default Credentials (CHANGE THESE!):
+            Dashboard User: {{ wazuh_dashboard_admin_user | default('admin') }}
+            Dashboard Pass: {{ wazuh_dashboard_admin_password | default('admin') }}
+
+          Wazuh API URL: https://{{ groups['wazuh_managers'][0] }}:{{ wazuh_manager_api_port | default(55000) }}
+
+          Manager Nodes:
+          {% for host in groups['wazuh_managers'] %}
+            - {{ host }}
+          {% endfor %}
+
+          Indexer Nodes:
+          {% for host in groups['wazuh_indexers'] %}
+            - {{ host }}
+          {% endfor %}
+
+          ══════════════════════════════════════════════════════════════
+          IMPORTANT: Please change the default passwords immediately!
+          ══════════════════════════════════════════════════════════════
+      run_once: true
