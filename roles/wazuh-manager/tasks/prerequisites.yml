@@ -1,0 +1,53 @@
+---
+# Wazuh Manager - Prerequisites
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install required packages (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - curl
+      - apt-transport-https
+      - lsb-release
+      - gnupg2
+      - python3
+      - python3-pip
+    state: present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install required packages (RHEL/CentOS)
+  ansible.builtin.dnf:
+    name:
+      - curl
+      - gnupg2
+      - python3
+      - python3-pip
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ wazuh_timezone | default('UTC') }}"
+  become: true
+  ignore_errors: true
+
+- name: Ensure /var/ossec directory exists
+  ansible.builtin.file:
+    path: /var/ossec
+    state: directory
+    mode: '0750'
+  become: true
+
+- name: Ensure certificates directory exists
+  ansible.builtin.file:
+    path: /var/ossec/etc/certs
+    state: directory
+    mode: '0750'
+  become: true

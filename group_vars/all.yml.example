@@ -1,0 +1,102 @@
+---
+# Wazuh Ansible Deployment - Group Variables Example
+# Copy this file to all.yml and customize for your environment
+# DO NOT commit all.yml - it contains passwords and sensitive data!
+
+# ═══════════════════════════════════════════════════════════════
+# General Settings
+# ═══════════════════════════════════════════════════════════════
+wazuh_version: "4.9.0"
+environment_name: "production"
+organization_name: "MyOrganization"
+
+# ═══════════════════════════════════════════════════════════════
+# Wazuh Indexer Settings
+# ═══════════════════════════════════════════════════════════════
+wazuh_indexer_cluster_name: "wazuh-cluster"
+wazuh_indexer_http_port: 9200
+wazuh_indexer_heap_size: "1g"
+
+# CHANGE THESE! Use strong, unique passwords
+wazuh_indexer_admin_user: "admin"
+wazuh_indexer_admin_password: "CHANGE_ME_STRONG_PASSWORD_HERE"
+
+# Indexer node list for cluster configuration
+wazuh_indexer_nodes:
+  - name: indexer-1
+    ip: 192.168.1.10
+  # - name: indexer-2
+  #   ip: 192.168.1.11
+  # - name: indexer-3
+  #   ip: 192.168.1.12
+
+# ═══════════════════════════════════════════════════════════════
+# Wazuh Manager Settings
+# ═══════════════════════════════════════════════════════════════
+wazuh_manager_api_port: 55000
+wazuh_manager_agent_port: 1514
+
+# CHANGE THESE! Use strong, unique passwords
+wazuh_api_user: "wazuh"
+wazuh_api_password: "CHANGE_ME_STRONG_PASSWORD_HERE"
+
+# Manager cluster settings (for multi-node)
+wazuh_manager_cluster_enabled: false
+# wazuh_manager_cluster_name: "wazuh-manager-cluster"
+# wazuh_manager_cluster_key: "CHANGE_ME_32_CHARACTER_KEY_HERE!"
+
+# Manager node list
+wazuh_manager_nodes:
+  - name: manager-1
+    ip: 192.168.1.20
+  # - name: manager-2
+  #   ip: 192.168.1.21
+
+# ═══════════════════════════════════════════════════════════════
+# Wazuh Dashboard Settings
+# ═══════════════════════════════════════════════════════════════
+wazuh_dashboard_port: 443
+
+# CHANGE THESE! Use strong, unique passwords
+wazuh_dashboard_admin_user: "admin"
+wazuh_dashboard_admin_password: "CHANGE_ME_STRONG_PASSWORD_HERE"
+
+# Dashboard node list
+wazuh_dashboard_nodes:
+  - ip: 192.168.1.30
+
+# ═══════════════════════════════════════════════════════════════
+# SSL/TLS Configuration
+# ═══════════════════════════════════════════════════════════════
+wazuh_generate_certs: true
+
+# If using your own certificates:
+# wazuh_generate_certs: false
+# wazuh_ca_cert_path: "/path/to/ca.pem"
+# wazuh_ca_key_path: "/path/to/ca-key.pem"
+
+# Certificate paths (on target hosts)
+wazuh_certs_path: /etc/wazuh-indexer/certs
+
+# ═══════════════════════════════════════════════════════════════
+# Feature Toggles
+# ═══════════════════════════════════════════════════════════════
+wazuh_vulnerability_detection_enabled: true
+wazuh_fim_enabled: true
+wazuh_rootkit_detection_enabled: true
+wazuh_log_collection_enabled: true
+wazuh_active_response_enabled: true
+
+# ═══════════════════════════════════════════════════════════════
+# System Settings
+# ═══════════════════════════════════════════════════════════════
+# Firewall configuration
+wazuh_configure_firewall: true
+
+# SELinux configuration
+wazuh_configure_selinux: true
+
+# Package repository settings
+wazuh_repo_gpg_key: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+wazuh_repo_url_apt: "https://packages.wazuh.com/4.x/apt/"
+wazuh_repo_url_yum: "https://packages.wazuh.com/4.x/yum/"

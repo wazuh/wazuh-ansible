@@ -1,0 +1,37 @@
+---
+# Wazuh Dashboard - Firewall Configuration
+
+- name: Check if firewalld is installed
+  ansible.builtin.command: which firewall-cmd
+  register: firewalld_check
+  changed_when: false
+  failed_when: false
+
+- name: Check if ufw is installed
+  ansible.builtin.command: which ufw
+  register: ufw_check
+  changed_when: false
+  failed_when: false
+
+# UFW (Debian/Ubuntu)
+- name: Configure UFW rules
+  when: ufw_check.rc == 0
+  block:
+    - name: Allow Wazuh Dashboard port
+      community.general.ufw:
+        rule: allow
+        port: "{{ wazuh_dashboard_port }}"
+        proto: tcp
+      become: true
+
+# Firewalld (RHEL/CentOS)
+- name: Configure firewalld rules
+  when: firewalld_check.rc == 0
+  block:
+    - name: Allow Wazuh Dashboard port
+      ansible.posix.firewalld:
+        port: "{{ wazuh_dashboard_port }}/tcp"
+        permanent: true
+        state: enabled
+      become: true
+      notify: reload firewalld

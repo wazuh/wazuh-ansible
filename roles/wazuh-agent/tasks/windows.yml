@@ -1,0 +1,44 @@
+---
+# Wazuh Agent - Windows Tasks
+
+- name: Set Wazuh Manager address for agent enrollment
+  ansible.builtin.set_fact:
+    wazuh_manager_address: "{{ wazuh_agent_registration_address | default(wazuh_manager_nodes[0].ip) }}"
+
+- name: Create temp directory for Wazuh installer
+  ansible.windows.win_file:
+    path: C:\Temp\wazuh
+    state: directory
+
+- name: Download Wazuh Agent MSI installer
+  ansible.windows.win_get_url:
+    url: "https://packages.wazuh.com/4.x/windows/wazuh-agent-{{ wazuh_version }}-1.msi"
+    dest: C:\Temp\wazuh\wazuh-agent.msi
+
+- name: Install Wazuh Agent
+  ansible.windows.win_package:
+    path: C:\Temp\wazuh\wazuh-agent.msi
+    state: present
+    arguments:
+      - /q
+      - WAZUH_MANAGER={{ wazuh_manager_address }}
+      - WAZUH_REGISTRATION_SERVER={{ wazuh_manager_address }}
+  notify: restart wazuh-agent-windows
+
+- name: Configure Wazuh Agent for Windows
+  ansible.windows.win_template:
+    src: ossec-windows.conf.j2
+    dest: 'C:\Program Files (x86)\ossec-agent\ossec.conf'
+    backup: true
+  notify: restart wazuh-agent-windows
+
+- name: Start Wazuh Agent service
+  ansible.windows.win_service:
+    name: WazuhSvc
+    state: started
+    start_mode: auto
+
+- name: Clean up temp files
+  ansible.windows.win_file:
+    path: C:\Temp\wazuh
+    state: absent

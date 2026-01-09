@@ -1,9 +1,28 @@
 ---
+# Wazuh Dashboard Role - Default Variables
 
-dashboard_node_name: "dashboard"
-wazuh_manager_master_address: "{{ hostvars[inventory_hostname].private_ip }}"
-indexer_cluster_nodes:
-  - "{{ hostvars[inventory_hostname].private_ip }}"
+# Package settings
+wazuh_dashboard_package_name: "wazuh-dashboard"
+wazuh_dashboard_service_name: "wazuh-dashboard"
 
-wazuh_dashboard_package_download_path: "/tmp/wazuh-dashboard"
-wazuh_dashboard_package_name: "wazuh-dashboard-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+# Dashboard configuration
+wazuh_dashboard_config_path: /etc/wazuh-dashboard
+wazuh_dashboard_data_path: /var/lib/wazuh-dashboard
+wazuh_dashboard_log_path: /var/log/wazuh-dashboard
+
+# Network settings
+wazuh_dashboard_port: 443
+wazuh_dashboard_host: "0.0.0.0"
+
+# SSL/TLS settings
+wazuh_dashboard_ssl_enabled: true
+
+# Session settings
+wazuh_dashboard_session_timeout: 60
+
+# Security settings
+wazuh_dashboard_admin_user: "admin"
+wazuh_dashboard_admin_password: "admin"
+
+# Paths
+wazuh_dashboard_certs_path: /etc/wazuh-dashboard/certs

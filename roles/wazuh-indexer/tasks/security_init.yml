@@ -1,0 +1,21 @@
+---
+# Wazuh Indexer - Security Initialization
+
+- name: Wait for Indexer to be fully started
+  ansible.builtin.wait_for:
+    port: "{{ wazuh_indexer_http_port }}"
+    delay: 10
+    timeout: 120
+  become: true
+
+- name: Initialize Wazuh Indexer security
+  ansible.builtin.command: /usr/share/wazuh-indexer/bin/indexer-security-init.sh
+  become: true
+  register: security_init
+  changed_when: security_init.rc == 0
+  run_once: true
+
+- name: Display security initialization result
+  ansible.builtin.debug:
+    var: security_init.stdout_lines
+  when: security_init is defined

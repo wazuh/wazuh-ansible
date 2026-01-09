@@ -1,0 +1,40 @@
+---
+# Wazuh Indexer - Configuration
+
+- name: Configure opensearch.yml from template
+  ansible.builtin.template:
+    src: opensearch.yml.j2
+    dest: /etc/wazuh-indexer/opensearch.yml
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    mode: '0640'
+    backup: true
+  become: true
+  notify: restart wazuh-indexer
+
+- name: Set correct ownership on data directory
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_data_path }}"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    recurse: true
+  become: true
+
+- name: Set correct ownership on log directory
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_log_path }}"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    recurse: true
+  become: true
+
+- name: Set correct ownership on config directory
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_config_path }}"
+    state: directory
+    owner: wazuh-indexer
+    group: wazuh-indexer
+    recurse: true
+  become: true

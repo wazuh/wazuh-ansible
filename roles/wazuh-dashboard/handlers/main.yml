@@ -1,0 +1,20 @@
+---
+# Wazuh Dashboard - Handlers
+
+- name: restart wazuh-dashboard
+  ansible.builtin.service:
+    name: "{{ wazuh_dashboard_service_name }}"
+    state: restarted
+  become: true
+
+- name: reload wazuh-dashboard
+  ansible.builtin.service:
+    name: "{{ wazuh_dashboard_service_name }}"
+    state: reloaded
+  become: true
+
+- name: reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  become: true
