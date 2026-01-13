@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Changed Wazuh API username to wazuh-wui ([#1901](https://github.com/wazuh/wazuh-ansible/pull/1901))
 
 ### Deleted
 
