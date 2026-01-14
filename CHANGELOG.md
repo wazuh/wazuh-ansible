@@ -46,7 +46,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Added run_as as true by default ([#1902](https://github.com/wazuh/wazuh-ansible/pull/1902))
+- Changed Wazuh API username to wazuh-wui ([#1901](https://github.com/wazuh/wazuh-ansible/pull/1901))
 
 ### Deleted
 
