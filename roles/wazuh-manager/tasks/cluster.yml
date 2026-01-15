@@ -1,0 +1,27 @@
+---
+# Wazuh Manager - Cluster Configuration
+
+- name: Ensure cluster key is set
+  ansible.builtin.assert:
+    that:
+      - wazuh_manager_cluster_key is defined
+      - wazuh_manager_cluster_key | length >= 32
+    fail_msg: "Cluster key must be at least 32 characters long"
+  when: wazuh_manager_cluster_enabled | default(false)
+
+- name: Get master node IP
+  ansible.builtin.set_fact:
+    wazuh_manager_master_ip: "{{ item.ip }}"
+  loop: "{{ wazuh_manager_nodes }}"
+  when:
+    - wazuh_manager_cluster_enabled | default(false)
+    - item.name == 'manager-1' or loop.index0 == 0
+
+- name: Display cluster configuration
+  ansible.builtin.debug:
+    msg: |
+      Cluster Name: {{ wazuh_manager_cluster_name }}
+      Node Name: {{ manager_node_name | default('manager-1') }}
+      Node Type: {{ manager_node_type | default('master') }}
+      Master IP: {{ wazuh_manager_master_ip | default('N/A') }}
+  when: wazuh_manager_cluster_enabled | default(false)

@@ -1,0 +1,47 @@
+---
+# Wazuh Agent - macOS Tasks
+
+- name: Set Wazuh Manager address for agent enrollment
+  ansible.builtin.set_fact:
+    wazuh_manager_address: "{{ wazuh_agent_registration_address | default(wazuh_manager_nodes[0].ip) }}"
+
+- name: Create temp directory for Wazuh installer
+  ansible.builtin.file:
+    path: /tmp/wazuh
+    state: directory
+    mode: '0755'
+
+- name: Download Wazuh Agent PKG installer
+  ansible.builtin.get_url:
+    url: "https://packages.wazuh.com/4.x/macos/wazuh-agent-{{ wazuh_version }}-1.pkg"
+    dest: /tmp/wazuh/wazuh-agent.pkg
+    mode: '0644'
+
+- name: Install Wazuh Agent
+  ansible.builtin.command: |
+    installer -pkg /tmp/wazuh/wazuh-agent.pkg -target /
+  become: true
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_address }}"
+  changed_when: true
+
+- name: Configure Wazuh Agent for macOS
+  ansible.builtin.template:
+    src: ossec-macos.conf.j2
+    dest: /Library/Ossec/etc/ossec.conf
+    owner: root
+    group: wazuh
+    mode: '0640'
+    backup: true
+  become: true
+  notify: restart wazuh-agent-macos
+
+- name: Load Wazuh Agent service
+  ansible.builtin.command: /Library/Ossec/bin/wazuh-control start
+  become: true
+  changed_when: true
+
+- name: Clean up temp files
+  ansible.builtin.file:
+    path: /tmp/wazuh
+    state: absent

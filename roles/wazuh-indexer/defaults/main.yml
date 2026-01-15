@@ -1,12 +1,43 @@
 ---
+# Wazuh Indexer Role - Default Variables
 
-single_node: false
-generate_certs: true
-instances:
-  aio_node:
-    name: node-1
-    ip: "{{ hostvars[inventory_hostname].private_ip }}"
-    role: aio
+# Package settings
+wazuh_indexer_package_name: "wazuh-indexer"
+wazuh_indexer_service_name: "wazuh-indexer"
 
-wazuh_indexer_package_download_path: "/tmp/wazuh-indexer"
-wazuh_indexer_package_name: "wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+# Indexer configuration
+wazuh_indexer_config_path: /etc/wazuh-indexer
+wazuh_indexer_data_path: /var/lib/wazuh-indexer
+wazuh_indexer_log_path: /var/log/wazuh-indexer
+
+# Network settings
+wazuh_indexer_http_port: 9200
+wazuh_indexer_transport_port: 9300
+wazuh_indexer_network_host: "0.0.0.0"
+
+# Cluster settings
+wazuh_indexer_cluster_name: "wazuh-cluster"
+wazuh_indexer_cluster_initial_master_nodes: []
+
+# JVM settings
+wazuh_indexer_heap_size: "1g"
+wazuh_indexer_max_map_count: 262144
+
+# Security settings
+wazuh_indexer_admin_user: "admin"
+wazuh_indexer_admin_password: "admin"
+
+# SSL/TLS settings
+wazuh_indexer_ssl_http_enabled: true
+wazuh_indexer_ssl_transport_enabled: true
+
+# Performance settings
+wazuh_indexer_thread_pool_search_size: 50
+wazuh_indexer_thread_pool_write_size: 50
+
+# Index settings
+wazuh_indexer_number_of_shards: 3
+wazuh_indexer_number_of_replicas: 0
+
+# Paths
+wazuh_indexer_certs_path: /etc/wazuh-indexer/certs

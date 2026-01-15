@@ -1,0 +1,20 @@
+---
+# Wazuh Indexer - Handlers
+
+- name: restart wazuh-indexer
+  ansible.builtin.service:
+    name: "{{ wazuh_indexer_service_name }}"
+    state: restarted
+  become: true
+
+- name: reload wazuh-indexer
+  ansible.builtin.service:
+    name: "{{ wazuh_indexer_service_name }}"
+    state: reloaded
+  become: true
+
+- name: reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  become: true

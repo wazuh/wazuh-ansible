@@ -1,0 +1,24 @@
+---
+# Wazuh Dashboard - Installation
+
+- name: Install Wazuh Dashboard (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: "wazuh-dashboard={{ wazuh_version }}-*"
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'Debian'
+  notify: restart wazuh-dashboard
+
+- name: Install Wazuh Dashboard (RHEL/CentOS)
+  ansible.builtin.dnf:
+    name: "wazuh-dashboard-{{ wazuh_version }}"
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+  notify: restart wazuh-dashboard
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true

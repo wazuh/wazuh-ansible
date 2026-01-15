@@ -1,0 +1,18 @@
+---
+# Wazuh Agent - Handlers
+
+- name: restart wazuh-agent
+  ansible.builtin.service:
+    name: "{{ wazuh_agent_service_name }}"
+    state: restarted
+  become: true
+
+- name: restart wazuh-agent-windows
+  ansible.windows.win_service:
+    name: WazuhSvc
+    state: restarted
+
+- name: restart wazuh-agent-macos
+  ansible.builtin.command: /Library/Ossec/bin/wazuh-control restart
+  become: true
+  changed_when: true

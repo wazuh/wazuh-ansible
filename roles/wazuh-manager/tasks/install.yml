@@ -1,0 +1,24 @@
+---
+# Wazuh Manager - Installation
+
+- name: Install Wazuh Manager (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: "wazuh-manager={{ wazuh_version }}-*"
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'Debian'
+  notify: restart wazuh-manager
+
+- name: Install Wazuh Manager (RHEL/CentOS)
+  ansible.builtin.dnf:
+    name: "wazuh-manager-{{ wazuh_version }}"
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+  notify: restart wazuh-manager
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
