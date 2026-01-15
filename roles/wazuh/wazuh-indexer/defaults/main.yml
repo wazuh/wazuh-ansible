@@ -12,12 +12,12 @@ indexer_node_data: true
 indexer_node_ingest: true
 indexer_start_timeout: 90
 
-indexer_cluster_nodes:
+wazuh_indexer_cluster_nodes:
   - 127.0.0.1
 indexer_discovery_nodes:
   - 127.0.0.1
 
-local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+wazuh_local_certs_path: "{{ playbook_dir }}/indexer/certificates"
 
 # Minimum master nodes in cluster, 2 for 3 nodes Wazuh indexer cluster
 minimum_master_nodes: 2
@@ -38,10 +38,10 @@ indexer_custom_user_role: "admin"
 # Set JVM memory limits
 indexer_jvm_xms: null
 
-indexer_http_port: 9200
+wazuh_indexer_http_port: 9200
 
-indexer_admin_password: changeme
-dashboard_password: changeme
+wazuh_indexer_admin_password: changeme
+wazuh_dashboard_password: changeme
 
 # Deployment settings
 generate_certs: true

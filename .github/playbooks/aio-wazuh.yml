@@ -51,7 +51,7 @@
     # 3. Wazuh dashboard
     - role: ../../roles/wazuh/wazuh-dashboard
       vars:
-        dashboard_node_name: "wazuh-dash01"
+        wazuh_dashboard_node_name: "wazuh-dash01"
   vars:
     instances:
       node1:
