@@ -43,7 +43,7 @@ kibana_telemetry_enabled: "false"
 opendistro_admin_password: changeme
 opendistro_kibana_user: kibanaserver
 opendistro_kibana_password: changeme
-local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
+wazuh_local_certs_path: "{{ playbook_dir }}/opendistro/certificates"
 
 # Nodejs
 nodejs:
