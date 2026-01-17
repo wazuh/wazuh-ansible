@@ -1,6 +1,43 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [4.14.4]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.3]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- Added run_as as true by default ([#1902](https://github.com/wazuh/wazuh-ansible/pull/1902))
+- Changed Wazuh API username to wazuh-wui ([#1901](https://github.com/wazuh/wazuh-ansible/pull/1901))
+
+### Deleted
+
+- None
+
 ## [4.14.2]
 
 ### Added
