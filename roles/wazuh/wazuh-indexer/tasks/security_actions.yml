@@ -114,5 +114,6 @@
   register: result
   until: result.status in [200,201,401]
   when:
-    - indexer_custom_user is defined and indexer_custom_user
+    - indexer_create_custom_user | default(false) | bool
+    - indexer_custom_user | default('') | trim | length > 0
     - inventory_hostname == ansible_play_hosts[0]
