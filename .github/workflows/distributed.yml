@@ -307,22 +307,22 @@ jobs:
         run: |
           case "${{ matrix.system }}" in
             "CentOS_8")
-              SUBNAME="centos-8"
+              SUBNAME="centos_stream-8"
               ;;
             "AmazonLinux_23")
               SUBNAME="amazon-2023"
               ;;
             "Ubuntu_16")
-              SUBNAME="ubuntu-16.04"
+              SUBNAME="ubuntu-16"
               ;;
             "Ubuntu_18")
-              SUBNAME="ubuntu-18.04"
+              SUBNAME="ubuntu-18"
               ;;
             "Ubuntu_20")
-              SUBNAME="ubuntu-20.04"
+              SUBNAME="ubuntu-20"
               ;;
             "Ubuntu_22")
-              SUBNAME="ubuntu-22.04"
+              SUBNAME="ubuntu-22"
               ;;
             "RHEL7")
               SUBNAME="redhat-7"
