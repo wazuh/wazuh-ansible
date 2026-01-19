@@ -316,7 +316,7 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size medium \
+                --action create --provider aws --size medium --storage 64 \
                 --composite-name ${{ matrix.system }} \
                 --working-dir $ALLOCATOR_PATH --track-output $ALLOCATOR_PATH/track_${instance_name}.yml \
                 --inventory-output $ALLOCATOR_PATH/inventory_${instance_name}.yml \
@@ -390,7 +390,7 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size small \
+                --action create --provider aws --size small --storage 64 \
                 --composite-name "$AGENT_COMPOSITE_NAME" \
                 --working-dir $ALLOCATOR_PATH \
                 --track-output $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml \
@@ -528,12 +528,14 @@ jobs:
       - name: Set SSH key permissions
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Create logs directory (if failure occured)
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
+        # if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
+        if: always()
         run: |
           mkdir -p ${{ github.workspace }}/wazuh-logs/central
           mkdir -p ${{ github.workspace }}/wazuh-logs/agents
       - name: Fetch Wazuh central components logs (if failure occured)
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
+        # if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
+        if: always()
         run: |
           ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b -K \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=false" \
@@ -541,7 +543,8 @@ jobs:
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Fetch Wazuh agents logs (if failure occured)
-        if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
+        # if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
+        if: always()
         run: |
           ansible-playbook wazuh-ansible/.github/playbooks/gather_agent_logs.yml \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/agents" \
@@ -549,12 +552,14 @@ jobs:
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Set permissions for Wazuh logs directory
-        if: always() && needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure'
+        # if: always() && needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure'
+        if: always()
         run: |
           sudo chown -R $USER:$USER ${{ github.workspace }}/wazuh-logs
           sudo chmod -R u+rw ${{ github.workspace }}/wazuh-logs
       - name: Upload Wazuh logs (if failure occured)
-        if: always() && needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure'
+        # if: always() && needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Wazuh-logs--${{ matrix.system }}-${{ github.run_id }}
