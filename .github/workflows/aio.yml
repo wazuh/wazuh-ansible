@@ -521,47 +521,47 @@ jobs:
         with:
           name: Wazuh-logs--${{ matrix.system }}-${{ github.run_id }}
           path: ${{ github.workspace }}/wazuh-logs
-      - name: Delete allocated AIO instance
-        if: always()
-        run: |
-          # Create instance_dir (in track output file) if it does not exist [to avoid errors]
-          instance_dir=$(grep '^instance_dir' $ALLOCATOR_PATH/track.yml | awk '{print $2}')
-          if [ ! -d "$instance_dir" ]; then
-            mkdir -p "$instance_dir"
-            date > "$instance_dir/date.txt"
-          fi
+      # - name: Delete allocated AIO instance
+      #   if: always()
+      #   run: |
+      #     # Create instance_dir (in track output file) if it does not exist [to avoid errors]
+      #     instance_dir=$(grep '^instance_dir' $ALLOCATOR_PATH/track.yml | awk '{print $2}')
+      #     if [ ! -d "$instance_dir" ]; then
+      #       mkdir -p "$instance_dir"
+      #       date > "$instance_dir/date.txt"
+      #     fi
 
-          python3 wazuh-automation/deployability/modules/allocation/main.py --action delete --track-output $ALLOCATOR_PATH/track.yml
-      - name: Delete allocated Agent instances
-        if: always()
-        run: |
-          # Loop through the agents and delete them
-          AGENT_COMPOSITE_NAME_LIST=($(echo $AGENT_COMPOSITE_NAMES | jq -r '.[]'))
-          for AGENT_COMPOSITE_NAME in "${AGENT_COMPOSITE_NAME_LIST[@]}"; do
-            TRACK_FILE="$ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml"
+      #     python3 wazuh-automation/deployability/modules/allocation/main.py --action delete --track-output $ALLOCATOR_PATH/track.yml
+      # - name: Delete allocated Agent instances
+      #   if: always()
+      #   run: |
+      #     # Loop through the agents and delete them
+      #     AGENT_COMPOSITE_NAME_LIST=($(echo $AGENT_COMPOSITE_NAMES | jq -r '.[]'))
+      #     for AGENT_COMPOSITE_NAME in "${AGENT_COMPOSITE_NAME_LIST[@]}"; do
+      #       TRACK_FILE="$ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml"
 
-            # Check if the track file exists
-            if [ ! -f "$TRACK_FILE" ]; then
-              echo "Track file $TRACK_FILE does not exist. Skipping deletion for $AGENT_COMPOSITE_NAME." >&2
-              continue
-            fi
+      #       # Check if the track file exists
+      #       if [ ! -f "$TRACK_FILE" ]; then
+      #         echo "Track file $TRACK_FILE does not exist. Skipping deletion for $AGENT_COMPOSITE_NAME." >&2
+      #         continue
+      #       fi
 
-            # Create instance_dir (in track output file) if it does not exist [to avoid errors]
-            instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
-            if [ ! -d "$instance_dir" ]; then
-              mkdir -p "$instance_dir"
-              date > "$instance_dir/date.txt"
-            fi
+      #       # Create instance_dir (in track output file) if it does not exist [to avoid errors]
+      #       instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
+      #       if [ ! -d "$instance_dir" ]; then
+      #         mkdir -p "$instance_dir"
+      #         date > "$instance_dir/date.txt"
+      #       fi
 
-            # Delete instance in parallel
-            (
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action delete --track-output "$TRACK_FILE"
-            ) &
-          done
+      #       # Delete instance in parallel
+      #       (
+      #         python3 wazuh-automation/deployability/modules/allocation/main.py \
+      #           --action delete --track-output "$TRACK_FILE"
+      #       ) &
+      #     done
 
-          # Wait for all deletion tasks to complete
-          wait
+      #     # Wait for all deletion tasks to complete
+      #     wait
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v25
         with:

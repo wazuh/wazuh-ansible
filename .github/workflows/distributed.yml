@@ -564,58 +564,58 @@ jobs:
         with:
           name: Wazuh-logs--${{ matrix.system }}-${{ github.run_id }}
           path: ${{ github.workspace }}/wazuh-logs
-      - name: Delete allocated EC2 instance
-        if: always()
-        run: |
-          instance_names=($INSTANCE_NAMES)
-          for i in ${!instance_names[@]}; do
-            instance_name=${instance_names[$i]}
-            track_file="$ALLOCATOR_PATH/track_${instance_name}.yml"
-            echo "Deleting instance: $instance_name using track file $track_file"
-            (
+      # - name: Delete allocated EC2 instance
+      #   if: always()
+      #   run: |
+      #     instance_names=($INSTANCE_NAMES)
+      #     for i in ${!instance_names[@]}; do
+      #       instance_name=${instance_names[$i]}
+      #       track_file="$ALLOCATOR_PATH/track_${instance_name}.yml"
+      #       echo "Deleting instance: $instance_name using track file $track_file"
+      #       (
 
-              # create instance_dir (in track output file) if it does not exist [to avoid errors]
-              instance_dir=$(grep '^instance_dir' $track_file | awk '{print $2}')
-              if [ ! -d "$instance_dir" ]; then
-                mkdir -p "$instance_dir"
-                date > "$instance_dir/date.txt"
-              fi
+      #         # create instance_dir (in track output file) if it does not exist [to avoid errors]
+      #         instance_dir=$(grep '^instance_dir' $track_file | awk '{print $2}')
+      #         if [ ! -d "$instance_dir" ]; then
+      #           mkdir -p "$instance_dir"
+      #           date > "$instance_dir/date.txt"
+      #         fi
 
-              # Delete instance
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action delete --provider aws --track-output $track_file
-            ) &
-          done
-      - name: Delete allocated Agent instances
-        if: always()
-        run: |
-          # Loop through the agents and delete them
-          AGENT_COMPOSITE_NAME_LIST=($(echo $AGENT_COMPOSITE_NAMES | jq -r '.[]'))
-          for AGENT_COMPOSITE_NAME in "${AGENT_COMPOSITE_NAME_LIST[@]}"; do
-            TRACK_FILE="$ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml"
+      #         # Delete instance
+      #         python3 wazuh-automation/deployability/modules/allocation/main.py \
+      #           --action delete --provider aws --track-output $track_file
+      #       ) &
+      #     done
+      # - name: Delete allocated Agent instances
+      #   if: always()
+      #   run: |
+      #     # Loop through the agents and delete them
+      #     AGENT_COMPOSITE_NAME_LIST=($(echo $AGENT_COMPOSITE_NAMES | jq -r '.[]'))
+      #     for AGENT_COMPOSITE_NAME in "${AGENT_COMPOSITE_NAME_LIST[@]}"; do
+      #       TRACK_FILE="$ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml"
 
-            # Check if the track file exists
-            if [ ! -f "$TRACK_FILE" ]; then
-              echo "Track file $TRACK_FILE does not exist. Skipping deletion for $AGENT_COMPOSITE_NAME." >&2
-              continue
-            fi
+      #       # Check if the track file exists
+      #       if [ ! -f "$TRACK_FILE" ]; then
+      #         echo "Track file $TRACK_FILE does not exist. Skipping deletion for $AGENT_COMPOSITE_NAME." >&2
+      #         continue
+      #       fi
 
-            # Create instance_dir (in track output file) if it does not exist [to avoid errors]
-            instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
-            if [ ! -d "$instance_dir" ]; then
-              mkdir -p "$instance_dir"
-              date > "$instance_dir/date.txt"
-            fi
+      #       # Create instance_dir (in track output file) if it does not exist [to avoid errors]
+      #       instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
+      #       if [ ! -d "$instance_dir" ]; then
+      #         mkdir -p "$instance_dir"
+      #         date > "$instance_dir/date.txt"
+      #       fi
 
-            # Delete instance in parallel
-            (
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action delete --track-output "$TRACK_FILE"
-            ) &
-          done
+      #       # Delete instance in parallel
+      #       (
+      #         python3 wazuh-automation/deployability/modules/allocation/main.py \
+      #           --action delete --track-output "$TRACK_FILE"
+      #       ) &
+      #     done
 
-          # Wait for all deletion tasks to complete
-          wait
+      #     # Wait for all deletion tasks to complete
+      #     wait
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v25
         with:
