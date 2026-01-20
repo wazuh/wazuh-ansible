@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Adapt main branch to latest changes ([#1912](https://github.com/wazuh/wazuh-ansible/pull/1912))
 - Composite names update ([#1896](https://github.com/wazuh/wazuh-ansible/pull/1896))
 - Implement pending adaptation tasks ([#1860](https://github.com/wazuh/wazuh-ansible/pull/1860))
 - Replace all occurrences of Wazuh server with Wazuh manager ([#1855](https://github.com/wazuh/wazuh-ansible/pull/1855))
