@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Ensure boolean condition evaluations - from community PR #1897 ([#1911](https://github.com/wazuh/wazuh-ansible/pull/1911))
+- Ensure boolean condition evaluations - from community PR #1897 ([#1916](https://github.com/wazuh/wazuh-ansible/pull/1916))
 
 ### Fixed
 
