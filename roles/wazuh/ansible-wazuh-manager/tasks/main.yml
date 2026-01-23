@@ -10,7 +10,7 @@
           - tar
         state: present
       register: package_status
-      until: "package_status is not failed"  
+      until: "package_status is not failed"
       retries: 10
       delay: 10
 
@@ -20,7 +20,7 @@
         state: present
       when: ansible_distribution != "Amazon" and ansible_distribution_version != "2023"
       register: package_status
-      until: "package_status is not failed"  
+      until: "package_status is not failed"
       retries: 10
       delay: 10
 
@@ -30,7 +30,7 @@
         state: present
       when: ansible_distribution == "Amazon" and ansible_distribution_version == "2023"
       register: package_status
-      until: "package_status is not failed"  
+      until: "package_status is not failed"
       retries: 10
       delay: 10
 
@@ -73,7 +73,7 @@
   tags:
     - init
     - config
-  
+
 - name: Install expect
   package:
     name: expect
@@ -242,7 +242,7 @@
   notify: restart wazuh-manager
   when:
     - csyslog_enabled.stdout == '0' or "skipped" in csyslog_enabled.stdout
-    - syslog_output is defined and syslog_output
+    - syslog_output is defined and (syslog_output | bool)
   tags:
     - config
 
