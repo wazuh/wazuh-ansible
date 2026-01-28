@@ -35,6 +35,24 @@ All notable changes to this project will be documented in this file.
 
 - None
 
+## [4.14.4]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.14.3]
 
 ### Added
