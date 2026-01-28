@@ -10,7 +10,7 @@ on:
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL9"]'
+        default: '["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent"]'
@@ -40,7 +40,6 @@ on:
   pull_request:
   release:
 env:
-  COMPOSITE_NAME: "SUBNAME-amd64"
   AGENT_COMPOSITE_NAMES: >
     ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
     "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
@@ -65,7 +64,7 @@ jobs:
           if [[ "${{ inputs.OS_LIST }}" != "null" && "${{ inputs.OS_LIST }}" != "" ]]; then
             OS_LIST='${{ inputs.OS_LIST }}'
           else
-            OS_LIST='["CentOS_8", "AmazonLinux_23", "Ubuntu_22", "RHEL9"]'
+            OS_LIST='["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
           fi
           echo "OS_LIST=$OS_LIST" >> $GITHUB_OUTPUT
           echo "Operating Systems: $OS_LIST"
@@ -303,40 +302,6 @@ jobs:
           pip install -r wazuh-automation/deployability/deps/requirements.txt
           pip install ansible-core==2.16
           ansible-galaxy collection install -r wazuh-ansible/requirements.yml
-      - name: Set COMPOSITE_NAME variable
-        run: |
-          case "${{ matrix.system }}" in
-            "CentOS_8")
-              SUBNAME="centos-8"
-              ;;
-            "AmazonLinux_23")
-              SUBNAME="amazon-2023"
-              ;;
-            "Ubuntu_16")
-              SUBNAME="ubuntu-16.04"
-              ;;
-            "Ubuntu_18")
-              SUBNAME="ubuntu-18.04"
-              ;;
-            "Ubuntu_20")
-              SUBNAME="ubuntu-20.04"
-              ;;
-            "Ubuntu_22")
-              SUBNAME="ubuntu-22.04"
-              ;;
-            "RHEL7")
-              SUBNAME="redhat-7"
-              ;;
-            "RHEL9")
-              SUBNAME="redhat-9"
-              ;;
-            *)
-              echo "Invalid SYSTEM selection" >&2
-              exit 1
-              ;;
-          esac
-          COMPOSITE_NAME="${COMPOSITE_NAME/SUBNAME/$SUBNAME}"
-          echo "COMPOSITE_NAME=$COMPOSITE_NAME" >> $GITHUB_ENV
       - name: Allocate distributed cluster of EC2 instances
         id: allocator_instance
         run: |
@@ -352,7 +317,7 @@ jobs:
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
                 --action create --provider aws --size medium \
-                --composite-name ${{ env.COMPOSITE_NAME }} \
+                --composite-name ${{ matrix.system }} \
                 --working-dir $ALLOCATOR_PATH --track-output $ALLOCATOR_PATH/track_${instance_name}.yml \
                 --inventory-output $ALLOCATOR_PATH/inventory_${instance_name}.yml \
                 --ssh-key "$ssh_key_path" \

@@ -62,6 +62,58 @@
         update_cache: true
         state: present
 
+    - name: Debian-based | Check if needrestart is available
+      ansible.builtin.command: which needrestart
+      register: needrestart_check
+      failed_when: false
+      changed_when: false
+
+    - name: Debian-based | Restart required services after dependencies installation
+      when: needrestart_check is defined
+      block:
+        - name: Debian-based | Get services that need restart
+          ansible.builtin.shell: |
+            set -o pipefail
+            DEBIAN_FRONTEND=noninteractive needrestart -b 2>/dev/null | grep '^NEEDRESTART-SVC:' | awk '{print $2}'
+          args:
+            executable: /bin/bash
+          register: services_to_restart
+          changed_when: false
+          when: needrestart_check.rc == 0
+
+        - name: Debian-based | Restart required services (except SSH)
+          ansible.builtin.systemd:
+            name: "{{ item }}"
+            state: restarted
+          loop: "{{ services_to_restart.stdout_lines | default([]) }}"
+          when:
+            - needrestart_check.rc == 0
+            - services_to_restart.stdout_lines is defined
+            - item not in ['ssh.service', 'sshd.service']
+          failed_when: false
+
+        - name: Debian-based | Restart SSH service if needed
+          ansible.builtin.systemd:
+            name: "{{ item }}"
+            state: restarted
+          loop: "{{ services_to_restart.stdout_lines | default([]) }}"
+          when:
+            - needrestart_check.rc == 0
+            - services_to_restart.stdout_lines is defined
+            - item in ['ssh.service', 'sshd.service']
+          async: 1
+          poll: 0
+          failed_when: false
+
+        - name: Debian-based | Wait for SSH connection to be available again
+          ansible.builtin.wait_for_connection:
+            delay: 30
+            timeout: 300
+          when:
+            - needrestart_check.rc == 0
+            - services_to_restart.stdout_lines is defined
+            - "'ssh.service' in services_to_restart.stdout_lines or 'sshd.service' in services_to_restart.stdout_lines"
+
     - name: Debian-based (AMD64) | Download wazuh-dashboard package
       ansible.builtin.get_url:
         url: "{{ wazuh_dashboard_amd64_deb }}"
