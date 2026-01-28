@@ -139,7 +139,7 @@ jobs:
         run: |
           # Download the S3 package URIs file
           S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-          S3_KEY="deployment/artifact_urls.yml"
+          S3_KEY="deployment/artifact_urls_test.yml"
           aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACT_URLS_FILE_TEMP --region us-west-1
 
           # Verify the file was downloaded
@@ -300,7 +300,7 @@ jobs:
       - name: Allocate AIO EC2 instance
         run: |
           python3 wazuh-automation/deployability/modules/allocation/main.py \
-            --action create --provider aws --size medium \
+            --action create --provider aws --size medium --storage 64 \
             --composite-name ${{ matrix.system }} \
             --working-dir $ALLOCATOR_PATH \
             --track-output $ALLOCATOR_PATH/track.yml \
@@ -344,7 +344,7 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size small \
+                --action create --provider aws --size small --storage 64 \
                 --composite-name "$AGENT_COMPOSITE_NAME" \
                 --working-dir $ALLOCATOR_PATH \
                 --track-output $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml \
