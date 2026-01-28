@@ -13,9 +13,9 @@ on:
         default: '["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
         type: string
       COMMIT_LIST:
-        description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent"]'
+        description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent", "installation-assistant"]'
         required: true
-        default: '["latest", "latest", "latest", "latest"]'
+        default: '["latest", "latest", "latest", "latest", "latest"]'
         type: string
       ENVIRONMENT:
         description: 'Environment to run the playbook'
@@ -89,10 +89,10 @@ jobs:
           if [[ "${{ inputs.COMMIT_LIST }}" != "null" && "${{ inputs.COMMIT_LIST }}" != "" ]]; then
             COMMIT_LIST='${{ inputs.COMMIT_LIST }}'
           else
-            COMMIT_LIST='["latest", "latest", "latest", "latest"]'
+            COMMIT_LIST='["latest", "latest", "latest", "latest", "latest"]'
           fi
           echo "COMMIT_LIST=$COMMIT_LIST" >> $GITHUB_OUTPUT
-          echo "Revision list (indexer, manager, dashboard, agent): $COMMIT_LIST"
+          echo "Revision list (indexer, manager, dashboard, agent, installation-assistant): $COMMIT_LIST"
       - name: Configure AWS credentials (assume role)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -137,13 +137,8 @@ jobs:
           path: wazuh-ansible/
       - name: Download S3 package URIs file (if applicable)
         run: |
-          # Define necessary variables
-          VERSION_FILE="wazuh-ansible/VERSION.json"
-          WAZUH_VERSION=$(jq -r '.version' "$VERSION_FILE")
-          WAZUH_MAJOR=$(echo "$WAZUH_VERSION" | cut -d '.' -f 1)
-          S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-
           # Download the S3 package URIs file
+          S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
           S3_KEY="deployment/artifact_urls.yml"
           aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACT_URLS_FILE_TEMP --region us-west-1
 
@@ -168,6 +163,7 @@ jobs:
           MANAGER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[1]')
           DASHBOARD_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[2]')
           AGENT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[3]')
+          INST_ASSISTANT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[4]')
 
           # Verify if the input file exists
           if [ ! -f "$ARTIFACT_URLS_FILE_TEMP" ]; then
@@ -193,6 +189,7 @@ jobs:
             line=${line//\$\{\{ env.MANAGER_REVISION \}\}/$MANAGER_COMMIT}
             line=${line//\$\{\{ env.DASHBOARD_REVISION \}\}/$DASHBOARD_COMMIT}
             line=${line//\$\{\{ env.AGENT_REVISION \}\}/$AGENT_COMMIT}
+            line=${line//\$\{\{ env.ASSISTANT_REVISION \}\}/$INST_ASSISTANT_COMMIT}
 
             # Append the processed line to the output file
             echo "$line" >> "$OUTPUT_FILE"
