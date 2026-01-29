@@ -29,8 +29,8 @@
       minimum_master_nodes: 1
       indexer_node_master: true
       indexer_network_host: 127.0.0.1
-      filebeat_node_name: node-1
-      filebeat_output_indexer_hosts:
+      wazuh_filebeat_node_name: node-1
+      wazuh_filebeat_output_indexer_hosts:
       - 127.0.0.1
       instances:
         node1:

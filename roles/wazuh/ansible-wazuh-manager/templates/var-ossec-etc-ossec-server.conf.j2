@@ -268,16 +268,16 @@
     <enabled>{% if wazuh_manager_config.vulnerability_detection.enabled == 'yes' or wazuh_manager_config.indexer.enabled == 'yes' %}yes{% else %}no{% endif %}</enabled>
     <hosts>
     {% for item in wazuh_manager_config.indexer.hosts %}
-      <host>https://{{ item }}:{{ filebeat_output_indexer_port }}</host>
+      <host>https://{{ item }}:{{ wazuh_filebeat_output_indexer_port }}</host>
     {% endfor %}
     </hosts>
 
     <ssl>
       <certificate_authorities>
-        <ca>{{ filebeat_ssl_dir }}/root-ca.pem</ca>
+        <ca>{{ wazuh_filebeat_ssl_dir }}/root-ca.pem</ca>
       </certificate_authorities>
-      <certificate>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}.pem</certificate>
-      <key>{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem</key>
+      <certificate>{{ wazuh_filebeat_ssl_dir }}/{{ wazuh_filebeat_node_name }}.pem</certificate>
+      <key>{{ wazuh_filebeat_ssl_dir }}/{{ wazuh_filebeat_node_name }}-key.pem</key>
     </ssl>
   </indexer>
 
@@ -397,37 +397,37 @@
 {% for localfile in wazuh_manager_config.localfiles.common %}
 
   <localfile>
-     <log_format>{{ localfile.format }}</log_format>
-     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-     <command>{{ localfile.command }}</command>
-     {% if localfile.alias is defined %}
-     <alias>{{ localfile.alias }}</alias>
-     {% endif %}
-     {% if localfile.frequency is defined %}
-     <frequency>{{ localfile.frequency }}</frequency>
-     {% endif %}
-     {% else %}
-     <location>{{ localfile.location }}</location>
-     {% if localfile.format == 'eventchannel' %}
-     {% if localfile.only_future_events is defined %}
-     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
-     {% endif %}
-     {% if localfile.query is defined %}
-     <query>{{ localfile.query }}</query>
-     {% endif %}
-     {% endif %}
-     {% endif %}
-     {% if localfile.format == 'json' and localfile.labels is defined %}
-     {% for key, value in localfile.labels.items() %}
-     <label key="{{ key }}">{{ value }}</label>
-     {% endfor %}
-     {% endif %}
-     {% if localfile.target is defined %}
-     <target>{{ localfile.target }}</target>
-     {% endif %}
-     {% if localfile.out_format is defined %}
-     <out_format>{{ localfile.out_format }}</out_format>
-     {% endif %}
+    <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+    <command>{{ localfile.command }}</command>
+    {% if localfile.alias is defined %}
+    <alias>{{ localfile.alias }}</alias>
+    {% endif %}
+    {% if localfile.frequency is defined %}
+    <frequency>{{ localfile.frequency }}</frequency>
+    {% endif %}
+    {% else %}
+    <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'eventchannel' %}
+    {% if localfile.only_future_events is defined %}
+    <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+    {% endif %}
+    {% if localfile.query is defined %}
+    <query>{{ localfile.query }}</query>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    {% if localfile.format == 'json' and localfile.labels is defined %}
+    {% for key, value in localfile.labels.items() %}
+    <label key="{{ key }}">{{ value }}</label>
+    {% endfor %}
+    {% endif %}
+    {% if localfile.target is defined %}
+    <target>{{ localfile.target }}</target>
+    {% endif %}
+    {% if localfile.out_format is defined %}
+    <out_format>{{ localfile.out_format }}</out_format>
+    {% endif %}
   </localfile>
 {% endfor %}
 
@@ -435,37 +435,37 @@
 {% for localfile in wazuh_manager_config.localfiles.debian %}
 
   <localfile>
-     <log_format>{{ localfile.format }}</log_format>
-     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-     <command>{{ localfile.command }}</command>
-     {% if localfile.alias is defined %}
-     <alias>{{ localfile.alias }}</alias>
-     {% endif %}
-     {% if localfile.frequency is defined %}
-     <frequency>{{ localfile.frequency }}</frequency>
-     {% endif %}
-     {% else %}
-     <location>{{ localfile.location }}</location>
-     {% if localfile.format == 'eventchannel' %}
-     {% if localfile.only_future_events is defined %}
-     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
-     {% endif %}
-     {% if localfile.query is defined %}
-     <query>{{ localfile.query }}</query>
-     {% endif %}
-     {% endif %}
-     {% endif %}
-     {% if localfile.format == 'json' and localfile.labels is defined %}
-     {% for key, value in localfile.labels.items() %}
-     <label key="{{ key }}">{{ value }}</label>
-     {% endfor %}
-     {% endif %}
-     {% if localfile.target is defined %}
-     <target>{{ localfile.target }}</target>
-     {% endif %}
-     {% if localfile.out_format is defined %}
-     <out_format>{{ localfile.out_format }}</out_format>
-     {% endif %}
+    <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+    <command>{{ localfile.command }}</command>
+    {% if localfile.alias is defined %}
+    <alias>{{ localfile.alias }}</alias>
+    {% endif %}
+    {% if localfile.frequency is defined %}
+    <frequency>{{ localfile.frequency }}</frequency>
+    {% endif %}
+    {% else %}
+    <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'eventchannel' %}
+    {% if localfile.only_future_events is defined %}
+    <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+    {% endif %}
+    {% if localfile.query is defined %}
+    <query>{{ localfile.query }}</query>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    {% if localfile.format == 'json' and localfile.labels is defined %}
+    {% for key, value in localfile.labels.items() %}
+    <label key="{{ key }}">{{ value }}</label>
+    {% endfor %}
+    {% endif %}
+    {% if localfile.target is defined %}
+    <target>{{ localfile.target }}</target>
+    {% endif %}
+    {% if localfile.out_format is defined %}
+    <out_format>{{ localfile.out_format }}</out_format>
+    {% endif %}
   </localfile>
 {% endfor %}
 {% endif -%}
@@ -474,37 +474,37 @@
 {% for localfile in wazuh_manager_config.localfiles.centos %}
 
   <localfile>
-     <log_format>{{ localfile.format }}</log_format>
-     {% if localfile.format == 'command' or localfile.format == 'full_command' %}
-     <command>{{ localfile.command }}</command>
-     {% if localfile.alias is defined %}
-     <alias>{{ localfile.alias }}</alias>
-     {% endif %}
-     {% if localfile.frequency is defined %}
-     <frequency>{{ localfile.frequency }}</frequency>
-     {% endif %}
-     {% else %}
-     <location>{{ localfile.location }}</location>
-     {% if localfile.format == 'eventchannel' %}
-     {% if localfile.only_future_events is defined %}
-     <only-future-events>{{ localfile.only_future_events }}</only_future_events>
-     {% endif %}
-     {% if localfile.query is defined %}
-     <query>{{ localfile.query }}</query>
-     {% endif %}
-     {% endif %}
-     {% endif %}
-     {% if localfile.format == 'json' and localfile.labels is defined %}
-     {% for key, value in localfile.labels.items() %}
-     <label key="{{ key }}">{{ value }}</label>
-     {% endfor %}
-     {% endif %}
-     {% if localfile.target is defined %}
-     <target>{{ localfile.target }}</target>
-     {% endif %}
-     {% if localfile.out_format is defined %}
-     <out_format>{{ localfile.out_format }}</out_format>
-     {% endif %}
+    <log_format>{{ localfile.format }}</log_format>
+    {% if localfile.format == 'command' or localfile.format == 'full_command' %}
+    <command>{{ localfile.command }}</command>
+    {% if localfile.alias is defined %}
+    <alias>{{ localfile.alias }}</alias>
+    {% endif %}
+    {% if localfile.frequency is defined %}
+    <frequency>{{ localfile.frequency }}</frequency>
+    {% endif %}
+    {% else %}
+    <location>{{ localfile.location }}</location>
+    {% if localfile.format == 'eventchannel' %}
+    {% if localfile.only_future_events is defined %}
+    <only-future-events>{{ localfile.only_future_events }}</only_future_events>
+    {% endif %}
+    {% if localfile.query is defined %}
+    <query>{{ localfile.query }}</query>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    {% if localfile.format == 'json' and localfile.labels is defined %}
+    {% for key, value in localfile.labels.items() %}
+    <label key="{{ key }}">{{ value }}</label>
+    {% endfor %}
+    {% endif %}
+    {% if localfile.target is defined %}
+    <target>{{ localfile.target }}</target>
+    {% endif %}
+    {% if localfile.out_format is defined %}
+    <out_format>{{ localfile.out_format }}</out_format>
+    {% endif %}
   </localfile>
 {% endfor %}
 {% endif -%}
