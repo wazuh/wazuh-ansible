@@ -1,6 +1,6 @@
 ---
 - name: Debian/Ubuntu | Remove Filebeat repository (and clean up left-over metadata)
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ wazuh_repo.apt }}"
     state: absent
   changed_when: false
