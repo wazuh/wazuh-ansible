@@ -2,7 +2,7 @@
 
 This section outlines the supported platforms, versions, and dependencies for deploying Wazuh using `wazuh-ansible`. Ensuring compatibility is essential for a successful deployment.
 
-It is important to note that since the Wazuh refactoring, wazuh-ansible is now only compatible with Wazuh version 6.0 and later.
+It is important to note that since the Wazuh refactoring, wazuh-ansible is now only compatible with Wazuh version 5.0 and later.
 
 Also, review the official Ansible documentation to ensure your control node meets the compatibility requirements. You can find more information at the following link: [Ansible documentation - Release and Maintenance](https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html)
 

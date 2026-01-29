@@ -9,7 +9,7 @@ Before proceeding, configure your Ansible inventory file (`inventory.ini`) based
 Additionally, ensure you clone the `wazuh-ansible` repository and install the necessary dependencies:
 
 ```bash
-  git clone --branch v6.0.0 https://github.com/wazuh/wazuh-ansible.git
+  git clone --branch v5.0.0 https://github.com/wazuh/wazuh-ansible.git
   cd wazuh-ansible
   ansible-galaxy install -r requirements.yml
 ```
