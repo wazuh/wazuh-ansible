@@ -1,0 +1,7 @@
+[book]
+title = "Wazuh Ansible Documentation"
+description = "The technical documentation for Wazuh Ansible deployment method, composed by the development documentation and the reference manual."
+authors = ["Wazuh DevOps Team"]
+language = "en"
+multilingual = false
+src = "."
