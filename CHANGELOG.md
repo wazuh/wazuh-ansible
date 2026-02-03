@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Fix mismatched tags in .j2 template files ([#1930](https://github.com/wazuh/wazuh-ansible/pull/1930))
 - Remove meta yamls that prevent indexer and agent role installation from PR #1806 ([#1921](https://github.com/wazuh/wazuh-ansible/pull/1921))
 - Ensure boolean condition evaluations - from community PR #1897 ([#1916](https://github.com/wazuh/wazuh-ansible/pull/1916))
 
