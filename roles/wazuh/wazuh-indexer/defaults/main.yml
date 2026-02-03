@@ -13,7 +13,7 @@ indexer_node_ingest: true
 indexer_start_timeout: 90
 
 indexer_cluster_nodes:
-  - 127.0.0.1
+  - "{{ indexer_node_name }}"
 indexer_discovery_nodes:
   - 127.0.0.1
 

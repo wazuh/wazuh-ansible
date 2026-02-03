@@ -5,9 +5,9 @@
         - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
           indexer_cluster_nodes:
-            - "{{ hostvars.wi1.private_ip }}"
-            - "{{ hostvars.wi2.private_ip }}"
-            - "{{ hostvars.wi3.private_ip }}"
+            - "{{ hostvars.wi1.indexer_node_name }}"
+            - "{{ hostvars.wi2.indexer_node_name }}"
+            - "{{ hostvars.wi3.indexer_node_name }}"
           indexer_discovery_nodes:
             - "{{ hostvars.wi1.private_ip }}"
             - "{{ hostvars.wi2.private_ip }}"
@@ -56,9 +56,9 @@
       become_user: root
       vars:
         indexer_cluster_nodes:
-          - "{{ hostvars.wi1.private_ip }}"
-          - "{{ hostvars.wi2.private_ip }}"
-          - "{{ hostvars.wi3.private_ip }}"
+          - "{{ hostvars.wi1.indexer_node_name }}"
+          - "{{ hostvars.wi2.indexer_node_name }}"
+          - "{{ hostvars.wi3.indexer_node_name }}"
         indexer_discovery_nodes:
           - "{{ hostvars.wi1.private_ip }}"
           - "{{ hostvars.wi2.private_ip }}"
