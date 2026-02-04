@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Update workflows to include installation-assistant in COMMIT_LIST ([#1922](https://github.com/wazuh/wazuh-ansible/pull/1922))
+- Update outdated references to branch v5.0.0 ([#1925](https://github.com/wazuh/wazuh-ansible/pull/1925))
 - Adapt main branch to latest changes ([#1912](https://github.com/wazuh/wazuh-ansible/pull/1912))
 - Composite names update ([#1896](https://github.com/wazuh/wazuh-ansible/pull/1896))
 - Implement pending adaptation tasks ([#1860](https://github.com/wazuh/wazuh-ansible/pull/1860))
@@ -44,7 +45,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Remove meta yamls that prevent indexer and agent role installation from PR #1806 ([#1921](https://github.com/wazuh/wazuh-ansible/pull/1921))
+- Ensure boolean condition evaluations - from community PR #1897 ([#1916](https://github.com/wazuh/wazuh-ansible/pull/1916))
 
 ### Fixed
 
