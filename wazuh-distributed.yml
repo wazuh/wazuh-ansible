@@ -30,12 +30,12 @@
       manager:
         name: node-4
         ip: "{{ hostvars.manager.private_ip }}"
-        role: server
+        role: manager
         node_type: master
       worker:
         name: node-5
         ip: "{{ hostvars.worker.private_ip }}"
-        role: server
+        role: manager
         node_type: worker
       dashboard:
         name: node-6

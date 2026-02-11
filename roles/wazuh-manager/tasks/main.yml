@@ -88,9 +88,9 @@
     - name: Copy the certificates from local to the Wazuh Manager instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: /var/ossec/etc/certs/
-        owner: wazuh
-        group: wazuh
+        dest: /var/wazuh-manager/etc/certs/
+        owner: wazuh-manager
+        group: wazuh-manager
         mode: '0400'
       with_items:
         - "root-ca.pem"
@@ -99,21 +99,21 @@
 
     - name: Copy certificates to match default names
       ansible.builtin.copy:
-        src: "/var/ossec/etc/certs/{{ item.src }}"
-        dest: "/var/ossec/etc/certs/{{ item.dest }}"
+        src: "/var/wazuh-manager/etc/certs/{{ item.src }}"
+        dest: "/var/wazuh-manager/etc/certs/{{ item.dest }}"
         remote_src: true
-        owner: wazuh
-        group: wazuh
+        owner: wazuh-manager
+        group: wazuh-manager
         mode: '0400'
       with_items:
-        - { src: "{{ manager_node_name }}-key.pem", dest: "server-key.pem" }
-        - { src: "{{ manager_node_name }}.pem", dest: "server.pem" }
+        - { src: "{{ manager_node_name }}-key.pem", dest: "manager-key.pem" }
+        - { src: "{{ manager_node_name }}.pem", dest: "manager.pem" }
 
     - name: Generate the wazuh-keystore (username)
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /var/ossec/bin/wazuh-keystore -f indexer -k username
+          echo 'admin' | /var/wazuh-manager/bin/wazuh-keystore -f indexer -k username
         executable: /bin/bash
       register: keystore_username_result
       changed_when: keystore_username_result.rc == 0
@@ -122,16 +122,16 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /var/ossec/bin/wazuh-keystore -f indexer -k password
+          echo 'admin' | /var/wazuh-manager/bin/wazuh-keystore -f indexer -k password
         executable: /bin/bash
       register: keystore_password_result
       changed_when: keystore_password_result.rc == 0
 
-    - name: Manager-config | Edit the ossec.conf file
+    - name: Manager-config | Edit the wazuh-manager.conf file
       block:
-        - name: Manager-config | Replace indexer hosts in ossec.conf
+        - name: Manager-config | Replace indexer hosts in wazuh-manager.conf
           ansible.builtin.replace:
-            path: /var/ossec/etc/ossec.conf
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
             regexp: '(^[ \t]*)<hosts>[\s\S]*?</hosts>'
             replace: |1
                   <hosts>
@@ -140,27 +140,27 @@
               {% endfor %}
                   </hosts>
 
-        - name: Manager-config | Edit cluster configuration in ossec.conf (node name)
+        - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (node name)
           ansible.builtin.replace:
-            path: /var/ossec/etc/ossec.conf
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
             regexp: '(<node_name>)[^<]+(</node_name>)'
             replace: '\1{{ manager_node_name }}\2'
 
-        - name: Manager-config | Edit cluster configuration in ossec.conf (node type)
+        - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (node type)
           ansible.builtin.replace:
-            path: /var/ossec/etc/ossec.conf
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
             regexp: '(<node_type>)[^<]+(</node_type>)'
             replace: '\1{% if node_type == "master" or single_node %}master{% else %}worker{% endif %}\2'
 
-        - name: Manager-config | Edit cluster configuration in ossec.conf (bind address)
+        - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (bind address)
           ansible.builtin.replace:
-            path: /var/ossec/etc/ossec.conf
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
             regexp: '(<bind_addr>)[\s\S]*?(</bind_addr>)'
             replace: '<bind_addr>0.0.0.0</bind_addr>'
 
-        - name: Manager-config | Edit cluster configuration in ossec.conf (nodes list)
+        - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (nodes list)
           ansible.builtin.replace:
-            path: /var/ossec/etc/ossec.conf
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
             regexp: '(<node>)[\s\S]*?(</node>)'
             replace: '<node>{{ hostvars["manager"].private_ip }}</node>'
           when: not single_node
@@ -212,7 +212,7 @@
       when: node_type == "worker" and not single_node
       block:
         - name: Wazuh Manager | Perform CLI healthcheck (worker)
-          ansible.builtin.command: /var/ossec/bin/cluster_control -l
+          ansible.builtin.command: /var/wazuh-manager/bin/cluster_control -l
           register: cluster_control_list
           changed_when: false
           until:

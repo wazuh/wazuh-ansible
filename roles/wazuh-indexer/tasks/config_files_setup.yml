@@ -85,15 +85,15 @@
               {% endif %}
               {% endfor %}
 
-        - name: Cert-gen | Add server nodes section (cluster mode)
+        - name: Cert-gen | Add manager nodes section (cluster mode)
           ansible.builtin.blockinfile:
             path: "{{ local_configs_path }}/config.yml"
             marker: "# Manager nodes"
             state: present
-            insertafter: "server:"
+            insertafter: "manager:"
             block: |
               {% for key, value in instances.items() %}
-              {% if value.role is defined and value.role == 'server' %}
+              {% if value.role is defined and value.role == 'manager' %}
                   - name: {{ value.name }}
                     ip: {{ value.ip }}
               {% if value.node_type is defined and value.node_type == 'master' %}
