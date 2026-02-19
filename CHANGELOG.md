@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Development - Separate Agent/Manager - Ansible - GitHub playbooks and workflows updates ([#1950](https://github.com/wazuh/wazuh-ansible/pull/1950))
 - Update workflows to include installation-assistant in COMMIT_LIST ([#1922](https://github.com/wazuh/wazuh-ansible/pull/1922))
 - Update outdated references to branch v5.0.0 ([#1925](https://github.com/wazuh/wazuh-ansible/pull/1925))
 - Adapt main branch to latest changes ([#1912](https://github.com/wazuh/wazuh-ansible/pull/1912))
