@@ -1,0 +1,5 @@
+---
+
+source: "production"
+package_urls_file_uri: "packages.wazuh.com/{{ wazuh_major_minor_version }}/artifact_urls.yml"
+package_urls_file_uri_prerelease: "packages-dev.wazuh.com/{{ wazuh_major_minor_version }}/artifact_urls.yml"
