@@ -170,10 +170,47 @@
   when:
     - generate_certs
 
+- name: Detect expected indexer SSL certificate names from opensearch.yml
+  when:
+    - generate_certs
+  block:
+    - name: Read opensearch.yml
+      ansible.builtin.slurp:
+        path: /etc/wazuh-indexer/opensearch.yml
+      register: wazuh_indexer_conf_raw
+      changed_when: false
+
+    - name: Extract expected certificate/key
+      ansible.builtin.set_fact:
+        expected_cert_path: "{{ (certificate_paths | first | default('') | trim) }}"
+        expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
+      vars:
+        conf_text: "{{ wazuh_indexer_conf_raw.content | b64decode }}"
+        certificate_paths: "{{ conf_text | regex_findall('(?m)^\\s*plugins\\.security\\.ssl\\.transport\\.pemcert_filepath\\s*:\\s*(/\\S+\\.pem)(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
+        key_paths: "{{ conf_text | regex_findall('(?m)^\\s*plugins\\.security\\.ssl\\.transport\\.pemkey_filepath\\s*:\\s*(/\\S+\\.pem)(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
+
+    - name: Validate expected certificate and key paths
+      ansible.builtin.assert:
+        that:
+          - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
+          - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+        fail_msg: >-
+          Invalid indexer SSL certificate/key paths detected from
+          /etc/wazuh-indexer/opensearch.yml.
+      changed_when: false
+
+    - name: Create expected cert/key directory (if does not exist)
+      ansible.builtin.file:
+        path: "{{ expected_cert_path | dirname }}"
+        state: directory
+        owner: wazuh-indexer
+        group: wazuh-indexer
+        mode: "0700"
+
 - name: Cert-gen | Copy certificates to each Wazuh indexer node
   ansible.builtin.copy:
     src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-    dest: "/etc/wazuh-indexer/certs/"
+    dest: "{{ expected_cert_path | dirname }}/{{ item }}"
     owner: wazuh-indexer
     group: wazuh-indexer
     mode: "0400"
@@ -189,16 +226,18 @@
 
 - name: Cert-gen | Copy and rename indexer key and certificate files to match default names
   ansible.builtin.copy:
-    src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
-    dest: "/etc/wazuh-indexer/certs/{{ item.dest }}"
+    src: "{{ expected_cert_path | dirname }}/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: true
     owner: wazuh-indexer
     group: wazuh-indexer
     mode: "0400"
   with_items:
-    - { src: "{{ node_name }}-key.pem", dest: "indexer-key.pem" }
-    - { src: "{{ node_name }}.pem", dest: "indexer.pem" }
+    - { src: "{{ node_name }}.pem", dest: "{{ expected_cert_path }}" }
+    - { src: "{{ node_name }}-key.pem", dest: "{{ expected_key_path }}" }
   when:
     - generate_certs
+    - (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
 
 - name: OpenSearch Config | Configure Wazuh indexer
   block:

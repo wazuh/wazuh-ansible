@@ -85,10 +85,45 @@
         daemon_reload: true
       become: true
 
+    - name: Detect expected indexer SSL certificate names from wazuh-manager.conf
+      block:
+        - name: Read wazuh-manager.conf
+          ansible.builtin.slurp:
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
+          register: wazuh_manager_conf_raw
+          changed_when: false
+
+        - name: Extract expected certificate/key
+          ansible.builtin.set_fact:
+            expected_cert_path: "{{ (certificate_paths | first | default('') | trim) }}"
+            expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
+          vars:
+            conf_text: "{{ wazuh_manager_conf_raw.content | b64decode }}"
+            certificate_paths: "{{ conf_text | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
+            key_paths: "{{ conf_text | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
+
+        - name: Validate expected certificate and key filenames
+          ansible.builtin.assert:
+            that:
+              - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
+              - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+            fail_msg: >-
+              Invalid indexer SSL certificate/key filenames detected from
+              /var/wazuh-manager/etc/wazuh-manager.conf.
+          changed_when: false
+
+        - name: Create expected cert/key directory (if does not exist)
+          ansible.builtin.file:
+            path: "{{ expected_cert_path | dirname }}"
+            state: directory
+            owner: wazuh-manager
+            group: wazuh-manager
+            mode: "0700"
+
     - name: Copy the certificates from local to the Wazuh Manager instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: /var/wazuh-manager/etc/certs/
+        dest: "{{ expected_cert_path | dirname }}/{{ item }}"
         owner: wazuh-manager
         group: wazuh-manager
         mode: '0400'
@@ -99,15 +134,16 @@
 
     - name: Copy certificates to match default names
       ansible.builtin.copy:
-        src: "/var/wazuh-manager/etc/certs/{{ item.src }}"
-        dest: "/var/wazuh-manager/etc/certs/{{ item.dest }}"
+        src: "{{ expected_cert_path | dirname }}/{{ item.src }}"
+        dest: "{{ item.dest }}"
         remote_src: true
         owner: wazuh-manager
         group: wazuh-manager
         mode: '0400'
       with_items:
-        - { src: "{{ manager_node_name }}-key.pem", dest: "manager-key.pem" }
-        - { src: "{{ manager_node_name }}.pem", dest: "manager.pem" }
+        - { src: "{{ manager_node_name }}.pem", dest: "{{ expected_cert_path }}" }
+        - { src: "{{ manager_node_name }}-key.pem", dest: "{{ expected_key_path }}" }
+      when: (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
 
     - name: Generate the wazuh-keystore (username)
       ansible.builtin.shell:
