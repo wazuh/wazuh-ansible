@@ -34,7 +34,7 @@ The machine where Ansible is installed and from which playbooks are executed. It
 
 ### Target Node
 
-A server or host where Wazuh components (Indexer, Manager, Dashboard, or Agent) are installed using Ansible.
+A host where Wazuh components (Indexer, Manager, Dashboard, or Agent) are installed using Ansible.
 
 ### Wazuh
 
