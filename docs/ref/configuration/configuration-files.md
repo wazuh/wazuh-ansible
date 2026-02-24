@@ -26,7 +26,7 @@ For a distributed deployment, the inventory file specifies multiple nodes, each 
 - `manager`, `worker`: Wazuh Managers.
 - `dashboard`: Wazuh Dashboard.
 
-Each entry defines the required connection details, allowing Ansible to efficiently manage and configure the environment.Ensure that node names remain consistent with those used in the documentation's inventory examples.
+Each entry defines the required connection details, allowing Ansible to efficiently manage and configure the environment. Ensure that node names remain consistent with those used in the documentation's inventory examples.
 
 ```ini
 [all]
@@ -90,16 +90,17 @@ The playbook `wazuh-distributed.yml` includes:
 - Wazuh Indexer role: Handles the configuration and certificate generation for each node.
 - Wazuh Manager role:
   - Configures the `manager` and `worker` nodes and their connectivity to the Indexer nodes.
+  - When customizing the `instances` section in `wazuh-distributed.yml`, set `role: manager` for both manager and worker nodes, and use `node_type: master` or `node_type: worker` as needed.
 - Wazuh Dashboard role: Configures connectivity to both the Wazuh Indexer and Wazuh Manager nodes.
 
 ### Wazuh Agent Deployment Playbook
 
 The Wazuh Agent deployment playbook is designed to install and configure the Wazuh agent service on multiple hosts. This playbook supports Linux, MacOS and Windows systems. Check the [Requirements](../getting-started/requirements.md) section for further details.
 
-The playbook wazuh-agent.yml includes:
+The playbook `wazuh-agent.yml` includes:
 
-- **Wazuh Agent Role**: Installs and configures the Wazuh agent on each host and enrolls to the Wazuh Manager manager node.
+- **Wazuh Agent Role**: Installs and configures the Wazuh agent on each host and enrolls to the Wazuh Manager node.
 - **Package URLs Role**: Manages package sources for agent installation.
 
 **Important:**
-Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Manager IP>` with the actual IP address of your Wazuh Manager manager node.
+Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Manager IP>` with the actual IP address of your Wazuh Manager node.
