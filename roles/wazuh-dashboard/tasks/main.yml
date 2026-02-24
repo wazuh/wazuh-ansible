@@ -58,10 +58,45 @@
         regexp: '^(\s*)url:\s*https://.*$'
         replace: '\1url: https://{{ wazuh_manager_master_address }}'
 
+- name: Detect expected dashboard SSL certificate names from opensearch_dashboards.yml
+  block:
+    - name: Read opensearch_dashboards.yml
+      ansible.builtin.slurp:
+        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+      register: wazuh_dashboard_conf_raw
+      changed_when: false
+
+    - name: Extract expected certificate/key
+      ansible.builtin.set_fact:
+        expected_cert_path: "{{ (certificate_paths | first | default('') | trim) }}"
+        expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
+      vars:
+        conf_text: "{{ wazuh_dashboard_conf_raw.content | b64decode }}"
+        certificate_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.certificate\\s*:\\s*\"?(/\\S+\\.pem)\"?(?:\\s+#.*)?$') }}"
+        key_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.key\\s*:\\s*\"?(/\\S+\\.pem)\"?(?:\\s+#.*)?$') }}"
+
+    - name: Validate expected certificate and key filenames
+      ansible.builtin.assert:
+        that:
+          - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
+          - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+        fail_msg: >-
+          Invalid dashboard SSL certificate/key filenames detected from
+          /etc/wazuh-dashboard/opensearch_dashboards.yml.
+      changed_when: false
+
+    - name: Create expected cert/key directory (if does not exist)
+      ansible.builtin.file:
+        path: "{{ expected_cert_path | dirname }}"
+        state: directory
+        owner: wazuh-dashboard
+        group: wazuh-dashboard
+        mode: "0700"
+
 - name: Copy the certificates from local to the Wazuh dashboard instance
   ansible.builtin.copy:
     src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-    dest: /etc/wazuh-dashboard/certs/
+    dest: "{{ expected_cert_path | dirname }}/{{ item }}"
     owner: wazuh-dashboard
     group: wazuh-dashboard
     mode: "0400"
@@ -72,16 +107,16 @@
 
 - name: Copy certificates to match default names
   ansible.builtin.copy:
-    src: "/etc/wazuh-dashboard/certs/{{ item.src }}"
-    dest: "/etc/wazuh-dashboard/certs/{{ item.dest }}"
+    src: "{{ expected_cert_path | dirname }}/{{ item.src }}"
+    dest: "{{ item.dest }}"
     remote_src: true
     owner: wazuh-dashboard
     group: wazuh-dashboard
     mode: "0400"
   with_items:
-    - { src: "{{ dashboard_node_name }}.pem", dest: "dashboard.pem" }
-    - { src: "{{ dashboard_node_name }}-key.pem", dest: "dashboard-key.pem" }
-  when: dashboard_node_name != "dashboard"
+    - { src: "{{ dashboard_node_name }}.pem", dest: "{{ expected_cert_path }}" }
+    - { src: "{{ dashboard_node_name }}-key.pem", dest: "{{ expected_key_path }}" }
+  when: (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
 
 - name: Reload systemd configuration
   ansible.builtin.systemd:
