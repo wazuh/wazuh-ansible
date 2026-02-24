@@ -92,7 +92,7 @@
 
         - name: Wazuh Manager | Fetching logs (2/3)
           ansible.builtin.find:
-            paths: /var/ossec/logs/
+            paths: /var/wazuh-manager/logs/
             file_type: file
           register: wazuh_manager_logs
 
@@ -109,8 +109,8 @@
 
         - name: Wazuh Manager | Fetching configuration
           ansible.builtin.copy:
-            src: /var/ossec/etc/ossec.conf
-            dest: "{{ remote_logs_path }}/wazuh-manager/{{ logs_prefix }}_ossec.conf"
+            src: /var/wazuh-manager/etc/wazuh-manager.conf
+            dest: "{{ remote_logs_path }}/wazuh-manager/{{ logs_prefix }}_wazuh-manager.conf"
             remote_src: true
             mode: '0644'
 
@@ -123,17 +123,10 @@
           ansible.builtin.shell: |
             journalctl -u wazuh-dashboard > {{ remote_logs_path }}/wazuh-dashboard/{{ logs_prefix }}_journalctl.log
 
-        - name: Wazuh Dashboard | Fetching configuration (1/2)
+        - name: Wazuh Dashboard | Fetching configuration
           ansible.builtin.copy:
             src: /etc/wazuh-dashboard/opensearch_dashboards.yml
             dest: "{{ remote_logs_path }}/wazuh-dashboard/{{ logs_prefix }}_opensearch_dashboards.yml"
-            remote_src: true
-            mode: '0644'
-
-        - name: Wazuh Dashboard | Fetching configuration (2/2)
-          ansible.builtin.copy:
-            src: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
-            dest: "{{ remote_logs_path }}/wazuh-dashboard/{{ logs_prefix }}_wazuh.yml"
             remote_src: true
             mode: '0644'
 
