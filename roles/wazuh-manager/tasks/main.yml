@@ -145,20 +145,20 @@
         - { src: "{{ manager_node_name }}-key.pem", dest: "{{ expected_key_path }}" }
       when: (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
 
-    - name: Generate the wazuh-keystore (username)
+    - name: Keystore | Set Indexer username
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /var/wazuh-manager/bin/wazuh-keystore -f indexer -k username
+          echo 'admin' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k username
         executable: /bin/bash
       register: keystore_username_result
       changed_when: keystore_username_result.rc == 0
 
-    - name: Generate the wazuh-keystore (password)
+    - name: Keystore | Set Indexer password
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /var/wazuh-manager/bin/wazuh-keystore -f indexer -k password
+          echo 'admin' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k password
         executable: /bin/bash
       register: keystore_password_result
       changed_when: keystore_password_result.rc == 0
