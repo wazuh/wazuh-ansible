@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Wazuh Manager/agent Separation - Breaking changes ([#1956](https://github.com/wazuh/wazuh-ansible/pull/1956))
 - Development - Separate Agent/Manager - Ansible - Roles and playbooks update ([#1944](https://github.com/wazuh/wazuh-ansible/pull/1944))
 - Development - Separate Agent/Manager - Ansible - GitHub playbooks and workflows updates ([#1950](https://github.com/wazuh/wazuh-ansible/pull/1950))
 - Development - Separate Agent/Manager - Ansible - Documentation update ([#1951](https://github.com/wazuh/wazuh-ansible/pull/1951))
