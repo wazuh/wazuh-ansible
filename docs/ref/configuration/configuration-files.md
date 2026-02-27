@@ -54,8 +54,9 @@ Deploying Wazuh Agents using Ansible requires an inventory file that lists all t
 
 ```ini
 [agents]
-agent1 ansible_host=<agent1_ip>
-agent2 ansible_host=<agent2_ip>
+agent_linux_1 ansible_host=<agent1_ip>
+agent_linux_2 ansible_host=<agent2_ip>
+agent_windows ansible_host=<windows_agent_ip> ansible_user=<windows_agent_user> ansible_password=<windows_agent_password> ansible_connection=winrm ansible_port=5986 ansible_winrm_server_cert_validation=ignore
 
 [agents:vars]
 ansible_user=vagrant
