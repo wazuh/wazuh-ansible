@@ -47,6 +47,13 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 
 ## Hardware and Network Requirements
 
+Depending on the deployment method (AIO or distributed) and the scale of your environment, hardware requirements can vary.
+
+| Deployment Type | Control Nodes | Target Nodes  | Node Roles                                                    |
+|-----------------|---------------|---------------|---------------------------------------------------------------|
+| AIO             | 1             | 1             | -                                                             |
+| Distributed     | 1             | 6             | Wazuh Indexer: 3<br>Wazuh Manager: 2<br>Wazuh Dashboard: 1    |
+
 Refer to the official documentation of each Wazuh component for detailed hardware requirements:
 
 - **Wazuh Indexer**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-indexer/index.html)
