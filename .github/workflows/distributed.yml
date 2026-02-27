@@ -368,7 +368,7 @@ jobs:
           echo "" >> $inventory_file
           echo "[all:vars]" >> $inventory_file
           echo "ansible_port=2200" >> $inventory_file
-          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $inventory_file
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $inventory_file
           echo "ansible_ssh_private_key_file=${ssh_key_path}" >> $inventory_file
 
           # Set the Wazuh manager IP in the Ansible playbook
@@ -434,7 +434,7 @@ jobs:
 
           echo "" >> $AGENTS_INVENTORY_FILE
           echo "[agents:vars]" >> $AGENTS_INVENTORY_FILE
-          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $AGENTS_INVENTORY_FILE
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $AGENTS_INVENTORY_FILE
       - name: Download the presigned urls file artifact
         uses: actions/download-artifact@v4
@@ -449,7 +449,7 @@ jobs:
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Ansible Playbook run Wazuh Distributed cluster
         run: |
-          ansible-playbook wazuh-ansible/wazuh-distributed.yml --extra-vars "source=custom" -b -K \
+          ansible-playbook wazuh-ansible/wazuh-distributed.yml --extra-vars "source=custom" -b \
           -i $ALLOCATOR_PATH/inventory_all \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
@@ -532,7 +532,7 @@ jobs:
       - name: Fetch Wazuh central components logs (if failure occured)
         if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
         run: |
-          ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b -K \
+          ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=false" \
           -i $ALLOCATOR_PATH/inventory_all \
           -l all \
