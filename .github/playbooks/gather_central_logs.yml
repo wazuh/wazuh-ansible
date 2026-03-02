@@ -159,6 +159,7 @@
     - name: Local actions
       delegate_to: localhost
       become: false
+      run_once: true
       when: not (single_node | bool)
       block:
         - name: Create central_logs_organized directory on local machine
@@ -167,11 +168,22 @@
             state: directory
             mode: '0755'
 
-        - name: Unpack Wazuh logs into central_logs_organized directory
+        - name: Find compressed Wazuh logs archives on local machine
+          ansible.builtin.find:
+            paths: "{{ local_log_file_path }}/compressed_individual_logs"
+            patterns: "compressed_wazuh_logs_*.tar.gz"
+            file_type: file
+          register: local_wazuh_archives
+
+        - name: Unpack Wazuh logs archives into central_logs_organized directory
           ansible.builtin.unarchive:
-            src: "{{ local_log_file_path }}/compressed_individual_logs/compressed_wazuh_logs_{{ logs_prefix }}.tar.gz"
+            src: "{{ item.path }}"
             dest: "{{ local_log_file_path }}/central_logs_organized"
             remote_src: false
+          loop: "{{ local_wazuh_archives.files | default([]) }}"
+          loop_control:
+            label: "{{ item.path | basename }}"
+          when: local_wazuh_archives is defined and (local_wazuh_archives.matched | int) > 0
 
         - name: Remove temporal compressed_individual_logs local directory
           ansible.builtin.file:

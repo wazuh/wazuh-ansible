@@ -325,7 +325,7 @@ jobs:
           echo "" >> $ALLOCATOR_PATH/inventory # blank line to separate groups
           echo "[all:vars]" >> $ALLOCATOR_PATH/inventory
           echo "ansible_port=$ansible_port" >> $ALLOCATOR_PATH/inventory
-          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $ALLOCATOR_PATH/inventory
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $ALLOCATOR_PATH/inventory
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $ALLOCATOR_PATH/inventory
 
           # Set the Wazuh manager IP in the Ansible playbook
@@ -391,7 +391,7 @@ jobs:
 
           echo "" >> $AGENTS_INVENTORY_FILE # blank line to separate groups
           echo "[agents:vars]" >> $AGENTS_INVENTORY_FILE
-          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> $AGENTS_INVENTORY_FILE
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $AGENTS_INVENTORY_FILE
       - name: Download the presigned urls file artifact
         uses: actions/download-artifact@v4
@@ -406,7 +406,7 @@ jobs:
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Ansible Playbook run Wazuh AIO Single instance
         run: |
-          ansible-playbook wazuh-ansible/wazuh-aio.yml --extra-vars "source=custom" -b -K \
+          ansible-playbook wazuh-ansible/wazuh-aio.yml --extra-vars "source=custom" -b \
           -i $ALLOCATOR_PATH/inventory \
           -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
@@ -489,7 +489,7 @@ jobs:
       - name: Fetch Wazuh central components logs (if failure occured)
         if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
         run: |
-          ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b -K \
+          ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=true" \
           -i $ALLOCATOR_PATH/inventory \
           -l all \
