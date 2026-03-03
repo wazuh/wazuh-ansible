@@ -109,6 +109,9 @@ jobs:
           aws ec2 create-key-pair --key-name ${key_name} > key_pair_output.json
           jq -r '.KeyMaterial' key_pair_output.json > ${private_key_file}
 
+          # Set KEY_NAME output
+          echo "KEY_NAME=${key_name}" >> $GITHUB_OUTPUT
+
           # Set PRIVATE_KEY_PATH output
           echo "PRIVATE_KEY_PATH=${private_key_file}" >> $GITHUB_OUTPUT
       - name: Upload artifact (ALLOCATOR_PATH directory)
@@ -119,6 +122,7 @@ jobs:
     outputs:
       OS_LIST: ${{ steps.compute-outputs.outputs.OS_LIST }}
       VERBOSITY: ${{ steps.compute-outputs.outputs.VERBOSITY }}
+      KEY_NAME: ${{ steps.create-ssh-key.outputs.KEY_NAME }}
       PRIVATE_KEY_PATH: ${{ steps.create-ssh-key.outputs.PRIVATE_KEY_PATH }}
       ENVIRONMENT: ${{ steps.compute-outputs.outputs.ENVIRONMENT }}
       COMMIT_LIST: ${{ steps.compute-outputs.outputs.COMMIT_LIST }}
@@ -578,6 +582,9 @@ jobs:
                 --action delete --provider aws --track-output $track_file
             ) &
           done
+
+          # Wait for all deletion tasks to complete
+          wait
       - name: Delete allocated Agent instances
         if: always()
         run: |
@@ -608,6 +615,43 @@ jobs:
 
           # Wait for all deletion tasks to complete
           wait
+  final-cleanup:
+    name: Final validation and cleanup
+    needs:
+      - setup-runner
+      - stop-runner
+    runs-on: ubuntu-22.04
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          aws-region: us-east-1
+      - name: Delete key pair
+        run: |
+          KEY_NAME="${{ needs.setup-runner.outputs.KEY_NAME }}"
+
+          if [[ -z "$KEY_NAME" ]]; then
+            echo "KEY_NAME output is empty. Cannot delete key pair." >&2
+            exit 1
+          fi
+
+          if ! DESCRIBE_OUTPUT=$(aws ec2 describe-key-pairs --key-names "$KEY_NAME" --region us-east-1 2>&1); then
+            if grep -q "InvalidKeyPair.NotFound" <<< "$DESCRIBE_OUTPUT"; then
+              echo "Key pair $KEY_NAME was already removed. Skipping deletion."
+              exit 0
+            fi
+            echo "$DESCRIBE_OUTPUT" >&2
+            exit 1
+          fi
+
+          aws ec2 delete-key-pair --key-name "$KEY_NAME" --region us-east-1
+          echo "Deleted key pair: $KEY_NAME"
+      - name: Checkout wazuh/wazuh-ansible repository
+        uses: actions/checkout@v4
+        with:
+          path: wazuh-ansible/
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v25
         with:
