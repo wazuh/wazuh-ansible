@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Standardize URL presigning process in AIO and distributed workflows ([#1959](https://github.com/wazuh/wazuh-ansible/pull/1959))
 - Enhance key management in workflows ([#1958](https://github.com/wazuh/wazuh-ansible/pull/1958))
 - Development - Separate Agent/Manager - Ansible - E2E Tests enhancements ([#1957](https://github.com/wazuh/wazuh-ansible/pull/1957))
 - Wazuh Manager/agent Separation - Breaking changes ([#1956](https://github.com/wazuh/wazuh-ansible/pull/1956))
