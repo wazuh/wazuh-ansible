@@ -370,11 +370,65 @@ jobs:
         id: set-status
         if: failure()
         run: echo "DEPLOYMENT_STATUS=failure" >> $GITHUB_OUTPUT
+
+  test-environment:
+    name: Run integration tests
+    needs:
+      - setup-runner
+      - start-runner
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        system: ${{ fromJson(needs.setup-runner.outputs.OS_LIST) }}
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          aws-region: us-east-1
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install test module requirements
+        run: |
+          cd wazuh-automation/integration-test-module
+          pip install -e .
+          pip install ansible-core==2.16
+      - name: Download the allocator artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Set SSH key permissions
+        run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+      - name: Run AIO tests
+        run: |
+          cd wazuh-automation/integration-test-module
+          test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory --components manager,indexer,dashboard
+      - name: Run Agent tests
+        run: |
+          cd wazuh-automation/integration-test-module
+          AGENTS=$(awk -F ' ' '/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}' ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini)
+          for agent in $AGENTS; do
+            echo "Testing agent: $agent"
+            test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --host $agent --components agent
+          done
   stop-runner:
     name: Stop allocated EC2 instances
     needs:
       - setup-runner
       - start-runner
+      - test-environment
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false # all jobs will run even if one fails
