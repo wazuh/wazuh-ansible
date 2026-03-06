@@ -404,8 +404,8 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install test module requirements
+        working-directory: wazuh-automation/integration-test-module
         run: |
-          cd wazuh-automation/integration-test-module
           pip install -e .
           pip install ansible-core==2.16
       - name: Download the allocator artifact
@@ -415,17 +415,21 @@ jobs:
           path: ${{ env.ALLOCATOR_PATH }}
       - name: Set SSH key permissions
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+      - name: Create inventory files for tests
+        run: |
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory --list --yaml > ${{ env.ALLOCATOR_PATH }}/inventory.yml
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list --yaml > ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml
       - name: Run AIO tests
+        working-directory: wazuh-automation/integration-test-module
         run: |
-          cd wazuh-automation/integration-test-module
-          test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory --components manager,indexer,dashboard
+          test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory.yml --components manager,indexer,dashboard
       - name: Run Agent tests
+        working-directory: wazuh-automation/integration-test-module
         run: |
-          cd wazuh-automation/integration-test-module
-          AGENTS=$(awk -F ' ' '/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}' ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini)
+          AGENTS=$(ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list | jq -r '._meta.hostvars | keys[]')
           for agent in $AGENTS; do
             echo "Testing agent: $agent"
-            test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --host $agent --components agent
+            test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml --host $agent --components agent
           done
   stop-runner:
     name: Stop allocated EC2 instances
