@@ -139,109 +139,44 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
-      - name: Download S3 package URIs file (if applicable)
-        run: |
-          # Download the S3 package URIs file
-          S3_BUCKET="${{ secrets.ARTIFACTS_S3_BUCKET }}"
-          S3_KEY="deployment/artifact_urls.yml"
-          aws s3 cp s3://$S3_BUCKET/$S3_KEY $ARTIFACT_URLS_FILE_TEMP --region us-west-1
-
-          # Verify the file was downloaded
-          if [ -f $ARTIFACT_URLS_FILE_TEMP ]; then
-            echo "S3 package URIs file downloaded successfully."
-          else
-            echo "Failed to download S3 package URIs file." >&2
-            exit 1
-          fi
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation/
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install URL signing Python dependencies
+        run: python -m pip install PyYAML
       - name: Generate the variables file (signing each package URI)
         run: |
-          # Define necessary variables
           VERSION_FILE="wazuh-ansible/VERSION.json"
           WAZUH_VERSION=$(jq -r '.version' "$VERSION_FILE")
-          WAZUH_MAJOR=$(echo "$WAZUH_VERSION" | cut -d '.' -f 1)
           COMMIT_LIST='${{ needs.setup-runner.outputs.COMMIT_LIST }}'
-          OUTPUT_FILE="/tmp/artifact_urls_processed.yml"
 
-          # Extract revisions using jq
-          INDEXER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[0]')
-          MANAGER_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[1]')
-          DASHBOARD_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[2]')
-          AGENT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[3]')
-          INST_ASSISTANT_COMMIT=$(echo "$COMMIT_LIST" | jq -r '.[4]')
+          INDEXER_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[0]')
+          MANAGER_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[1]')
+          DASHBOARD_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[2]')
+          AGENT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[3]')
+          ASSISTANT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[4]')
 
-          # Verify if the input file exists
-          if [ ! -f "$ARTIFACT_URLS_FILE_TEMP" ]; then
-            echo "The input file $ARTIFACT_URLS_FILE_TEMP does not exist." >&2
-            exit 1
-          fi
+          python wazuh-automation/tools/sign_urls/generate_presigned_dev_urls.py \
+            --process test_ansible \
+            --wazuh-version "$WAZUH_VERSION" \
+            --aws-s3-bucket-dev "${{ vars.AWS_S3_BUCKET_DEV }}" \
+            --indexer-revision "$INDEXER_REVISION" \
+            --manager-revision "$MANAGER_REVISION" \
+            --dashboard-revision "$DASHBOARD_REVISION" \
+            --agent-revision "$AGENT_REVISION" \
+            --assistant-revision "$ASSISTANT_REVISION" \
+            --expires-in 43200
 
-          # Process the file line by line (replacing ocurrences)
-          while IFS= read -r line || [ -n "$line" ]; do
-            # Skip empty lines and comments
-            if [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]]; then
-              echo "$line" >> "$OUTPUT_FILE"
-              continue
-            fi
-
-            # Replace variables with their actual values
-            line=${line//\$\{\{ vars.AWS_S3_BUCKET_DEV \}\}/${{ vars.AWS_S3_BUCKET_DEV }}}
-            line=${line//\$\{\{ env.MAJOR \}\}/$WAZUH_MAJOR}
-            line=${line//\$\{\{ env.WAZUH_VERSION \}\}/$WAZUH_VERSION}
-
-            # Replace component revisions
-            line=${line//\$\{\{ env.INDEXER_REVISION \}\}/$INDEXER_COMMIT}
-            line=${line//\$\{\{ env.MANAGER_REVISION \}\}/$MANAGER_COMMIT}
-            line=${line//\$\{\{ env.DASHBOARD_REVISION \}\}/$DASHBOARD_COMMIT}
-            line=${line//\$\{\{ env.AGENT_REVISION \}\}/$AGENT_COMMIT}
-            line=${line//\$\{\{ env.ASSISTANT_REVISION \}\}/$INST_ASSISTANT_COMMIT}
-
-            # Append the processed line to the output file
-            echo "$line" >> "$OUTPUT_FILE"
-          done < "$ARTIFACT_URLS_FILE_TEMP"
-
-          # Verify the output file
-          if [ -f "$OUTPUT_FILE" ]; then
-            echo "The downloaded file artifact_urls.yml was successfully processed at $OUTPUT_FILE."
-          else
-            echo "Failed to create processed artifact_urls.yml file." >&2
-            exit 1
-          fi
-
-          # Generate the presigned URLs for each package
-          while IFS= read -r line || [ -n "$line" ]; do
-            # Skip empty lines and comments
-            if [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]]; then
-              echo "$line" >> "$PRESIGNED_OUTPUT_FILE"
-              continue
-            fi
-
-            # Extract both package_name and package_s3_uri from the line
-            if [[ "$line" =~ ^([a-zA-Z0-9_]+):[[:space:]]*s3://([^[:space:]]+) ]]; then
-              PACKAGE_NAME="${BASH_REMATCH[1]}"
-              PACKAGE_S3_URI="s3://${BASH_REMATCH[2]}"
-
-              # Check if the object exists in S3
-              BUCKET_NAME=$(echo "$PACKAGE_S3_URI" | cut -d '/' -f 3)
-              OBJ_KEY=$(echo "$PACKAGE_S3_URI" | cut -d '/' -f 4-)
-              if ! aws s3api head-object --bucket "$BUCKET_NAME" --key "$OBJ_KEY" --region us-west-1 > /dev/null 2>&1; then
-                echo "Object $PACKAGE_S3_URI does not exist. Skipping..." >&2
-                continue
-              fi
-
-              # Generate a pre-signed URL for the S3 URI
-              echo "Generating pre-signed URL for $PACKAGE_NAME..."
-              PRESIGNED_URL=$(aws s3 presign "$PACKAGE_S3_URI" --expires-in 43200 --region us-west-1)
-              presigned_url_line="$PACKAGE_NAME: \"$PRESIGNED_URL\""
-
-              # Append the processed line to the output file
-              echo "$presigned_url_line" >> "$PRESIGNED_OUTPUT_FILE"
-            else
-              echo "$line" >> "$PRESIGNED_OUTPUT_FILE"
-
-              echo "Skipping line for presigning (no S3 URI found):"
-              echo "$line"
-            fi
-          done < "$OUTPUT_FILE"
+          mkdir -p "$(dirname "$PRESIGNED_OUTPUT_FILE")"
+          cp "/tmp/artifact_urls.yml" "$PRESIGNED_OUTPUT_FILE"
 
           # Verify the presigned urls file
           if [ -f "$PRESIGNED_OUTPUT_FILE" ]; then
