@@ -4,13 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       AUTOMATION_REFERENCE:
-        description: 'Branch or tag of the wazuh-automation repository'
+        # description: 'Branch or tag of the wazuh-automation repository'
+        description: 'Branch or tag of the wazuh-automation repository (hardcoded to "enh/1920-ansible-integration-testing-module" for testing purposes)'
         required: true
-        default: 'main'
+        # default: 'main'
+        default: 'enh/1920-ansible-integration-testing-module'
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        default: '["centos_stream-10-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent", "installation-assistant"]'
@@ -63,7 +65,7 @@ jobs:
           if [[ "${{ inputs.OS_LIST }}" != "null" && "${{ inputs.OS_LIST }}" != "" ]]; then
             OS_LIST='${{ inputs.OS_LIST }}'
           else
-            OS_LIST='["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+            OS_LIST='["centos_stream-10-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
           fi
           echo "OS_LIST=$OS_LIST" >> $GITHUB_OUTPUT
 
@@ -216,7 +218,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: wazuh/wazuh-automation
-          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          # ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          ref: "enh/1920-ansible-integration-testing-module"
           token: ${{ secrets.GH_CLONE_TOKEN }}
           path: wazuh-automation/
       - name: Download the (SSH) artifact
@@ -239,7 +242,7 @@ jobs:
       - name: Allocate AIO EC2 instance
         run: |
           python3 wazuh-automation/deployability/modules/allocation/main.py \
-            --action create --provider aws --size medium \
+            --action create --provider aws --size medium --storage 64 \
             --composite-name ${{ matrix.system }} \
             --working-dir $ALLOCATOR_PATH \
             --track-output $ALLOCATOR_PATH/track.yml \
@@ -283,7 +286,7 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size small \
+                --action create --provider aws --size small --storage 64 \
                 --composite-name "$AGENT_COMPOSITE_NAME" \
                 --working-dir $ALLOCATOR_PATH \
                 --track-output $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml \
@@ -370,11 +373,72 @@ jobs:
         id: set-status
         if: failure()
         run: echo "DEPLOYMENT_STATUS=failure" >> $GITHUB_OUTPUT
+
+  test-environment:
+    name: Run integration tests
+    needs:
+      - setup-runner
+      - start-runner
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        system: ${{ fromJson(needs.setup-runner.outputs.OS_LIST) }}
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          aws-region: us-east-1
+      - name: Checkout wazuh/wazuh-automation repository
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          # ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          ref: "enh/1920-ansible-integration-testing-module"
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install test module requirements
+        working-directory: wazuh-automation/integration-test-module
+        run: |
+          pip install -e .
+          pip install ansible-core==2.16
+      - name: Download the allocator artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: allocator-instance-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ env.ALLOCATOR_PATH }}
+      - name: Set SSH key permissions
+        run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+      - name: Create inventory files for tests
+        run: |
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory --list \
+            | jq '{"all":{"hosts": ._meta.hostvars}}' > ${{ env.ALLOCATOR_PATH }}/inventory.yml
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list \
+            | jq '{"all":{"hosts": ._meta.hostvars}}' > ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml
+      - name: Run AIO tests
+        working-directory: wazuh-automation/integration-test-module
+        run: |
+          test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory.yml --components manager,indexer,dashboard
+      - name: Run Agent tests
+        working-directory: wazuh-automation/integration-test-module
+        run: |
+          AGENTS=$(ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list | jq -r '._meta.hostvars | keys[]')
+          for agent in $AGENTS; do
+            echo "Testing agent: $agent"
+            test_runner --test-type ansible --inventory ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml --host $agent --components agent
+          done
   stop-runner:
     name: Stop allocated EC2 instances
     needs:
       - setup-runner
       - start-runner
+      - test-environment
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false # all jobs will run even if one fails
@@ -391,7 +455,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: wazuh/wazuh-automation
-          ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          # ref: ${{ inputs.AUTOMATION_REFERENCE }}
+          ref: "enh/1920-ansible-integration-testing-module"
           token: ${{ secrets.GH_CLONE_TOKEN }}
           path: wazuh-automation/
       - name: Checkout wazuh/wazuh-ansible repository
