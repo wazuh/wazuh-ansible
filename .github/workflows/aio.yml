@@ -417,8 +417,10 @@ jobs:
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Create inventory files for tests
         run: |
-          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory --list --yaml > ${{ env.ALLOCATOR_PATH }}/inventory.yml
-          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list --yaml > ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory --list \
+            | jq '{"all":{"hosts": ._meta.hostvars}}' > ${{ env.ALLOCATOR_PATH }}/inventory.yml
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list \
+            | jq '{"all":{"hosts": ._meta.hostvars}}' > ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml
       - name: Run AIO tests
         working-directory: wazuh-automation/integration-test-module
         run: |
