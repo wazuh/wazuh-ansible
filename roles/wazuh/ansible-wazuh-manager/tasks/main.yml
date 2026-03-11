@@ -2,6 +2,15 @@
 
 - name: "Install dependencies"
   block:
+    - name: "Refresh APT cache on Debian"
+      apt:
+        update_cache: true
+      when: ansible_facts.os_family == "Debian"
+      register: package_status
+      until: "package_status is not failed"
+      retries: 10
+      delay: 10
+
     - name: "Install common dependencies"
       package:
         name:
