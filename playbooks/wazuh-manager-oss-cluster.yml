@@ -25,6 +25,7 @@
         wazuh_api_users:
           - username: custom-user
             password: SecretPassword1!
+            run_as: true
 
     - hosts: worker01
       roles:

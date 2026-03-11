@@ -1,4 +1,6 @@
 
 {% for api in wazuh_api_users %}
-{"username":"{{ api['username'] }}", "password": "{{ api['password'] }}"}
+{% if loop.first %}
+{"username":"{{ api['username'] }}", "password": "{{ api['password'] }}", "run_as": {{ api['run_as'] | to_json }}}
+{% endif %}
 {% endfor %}

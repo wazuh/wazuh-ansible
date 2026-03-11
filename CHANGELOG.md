@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Add run_as functionality to user creation and JSON template ([#1966](https://github.com/wazuh/wazuh-ansible/pull/1966))
 - Fix mismatched tags in .j2 template files ([#1930](https://github.com/wazuh/wazuh-ansible/pull/1930))
 - Address Misconfiguration of indexer_cluster_nodes Parameter ([#1929](https://github.com/wazuh/wazuh-ansible/pull/1929))
 - Remove meta yamls that prevent indexer and agent role installation from PR #1806 ([#1921](https://github.com/wazuh/wazuh-ansible/pull/1921))
