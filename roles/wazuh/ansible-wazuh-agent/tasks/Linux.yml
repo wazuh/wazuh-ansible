@@ -1,11 +1,20 @@
 ---
-- include_tasks: "RedHat.yml"
+- include_tasks:
+    file: "RedHat.yml"
+    apply:
+      become: yes
   when: ansible_facts.os_family == "RedHat"
 
-- include_tasks: "Debian.yml"
+- include_tasks:
+    file: "Debian.yml"
+    apply:
+      become: yes
   when: ansible_facts.os_family == "Debian"
 
-- include_tasks: "installation_from_custom_packages.yml"
+- include_tasks:
+    file: "installation_from_custom_packages.yml"
+    apply:
+      become: yes
   when:
     - wazuh_custom_packages_installation_agent_enabled
 
@@ -262,10 +271,16 @@
     state: started
   tags: config
 
-- include_tasks: "RMRedHat.yml"
+- include_tasks:
+    file: "RMRedHat.yml"
+    apply:
+      become: yes
   when:
     - ansible_facts.os_family == "RedHat"
 
-- include_tasks: "RMDebian.yml"
+- include_tasks:
+    file: "RMDebian.yml"
+    apply:
+      become: yes
   when:
     - ansible_facts.os_family == "Debian"
