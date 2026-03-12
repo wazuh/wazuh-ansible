@@ -117,9 +117,6 @@
               nodes:
                   - "{{ hostvars.manager.private_ip }}"
               hidden: 'no'
-        wazuh_api_users:
-          - username: custom-user
-            password: SecretPassword1!
         filebeat_output_indexer_hosts:
                 - "{{ hostvars.wi1.private_ip }}"
                 - "{{ hostvars.wi2.private_ip }}"
@@ -167,10 +164,4 @@
           - "{{ hostvars.wi2.private_ip }}"
           - "{{ hostvars.wi3.private_ip }}"
         dashboard_node_name: node-6
-        wazuh_api_credentials:
-          - id: default
-            url: https://{{ hostvars.manager.private_ip }}
-            port: 55000
-            username: custom-user
-            password: SecretPassword1!
         ansible_shell_allow_world_readable_temp: true

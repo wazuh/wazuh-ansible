@@ -363,9 +363,6 @@ wazuh_manager_api:
   remote_commands_localfile_exceptions: []
   remote_commands_wodle: yes
   remote_commands_wodle_exceptions: []
-# wazuh_api_users:
-#   - username: custom-user
-#     password: .S3cur3Pa55w0rd*- # Must comply with requirements (8+ length, uppercase, lowercase, specials chars)
 
 # NOTE: As wazuh_manager_config is built dynamically per playbooks and ansible.cfg provided in the repo,
 # we should also cover the case for partial settings in inventory variables overlayed on top of role's
