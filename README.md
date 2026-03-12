@@ -229,6 +229,12 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
       vars:
         indexer_network_host: "{{ hostvars.wi1.private_ip }}"
         dashboard_node_name: node-6
+        wazuh_api_credentials:
+          - id: default
+            url: https://{{ hostvars.manager.private_ip }}
+            port: 55000
+            username: "wazuh-wui"
+            password: "wazuh-wui"
         ansible_shell_allow_world_readable_temp: true
 ```
 
