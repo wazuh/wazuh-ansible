@@ -60,7 +60,7 @@
       register: agent_auth_output
       notify: macOS | Restart Wazuh Agent
       vars:
-        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_hostname }}{% endif %}"
+        agent_name: "{% if single_agent_name is defined %}{{ single_agent_name }}{% else %}{{ ansible_facts.hostname }}{% endif %}"
       when:
         - not client_keys_file.stat.exists or client_keys_file.stat.size == 0
         - wazuh_agent_authd.registration_address is not none
@@ -125,7 +125,7 @@
       changed_when: api_agent_post.json.error == 0
       register: api_agent_post
       vars:
-        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
+        agent_name: '{{ target_manager.agent_name | default(ansible_facts.hostname) }}'
         jwt_token: '{{ api_jwt_result.json.data.token }}'
       tags:
         - config
@@ -167,7 +167,7 @@
         OSSEC_ACTION_CONFIRMED: y
       register: manage_agents_output
       vars:
-        agent_name: '{{ target_manager.agent_name | default(ansible_hostname) }}'
+        agent_name: '{{ target_manager.agent_name | default(ansible_facts.hostname) }}'
       notify: macOS | Restart Wazuh Agent
   when:
     - not ( wazuh_agent_authd.enable | bool )

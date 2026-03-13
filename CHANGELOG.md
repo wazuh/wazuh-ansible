@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Migrate injected ansible_*facts to ansible_facts.* ([#1964](https://github.com/wazuh/wazuh-ansible/pull/1964))
 
 ### Fixed
 

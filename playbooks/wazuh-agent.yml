@@ -1,7 +1,5 @@
 ---
 - hosts: <your wazuh agents hosts>
-  become: yes
-  become_user: root
   roles:
     - ../roles/wazuh/ansible-wazuh-agent
   vars:
