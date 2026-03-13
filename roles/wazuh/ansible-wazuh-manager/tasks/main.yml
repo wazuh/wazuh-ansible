@@ -313,44 +313,6 @@
   tags:
     - config
 
-- name: Create custom API user
-  block:
-    - name: Copy create_user script
-      copy:
-        src: create_user.py
-        dest: "{{ wazuh_dir }}/framework/scripts/create_user.py"
-        owner: root
-        group: wazuh
-        mode: 0644
-
-    - name: Create admin.json
-      template:
-        src: templates/admin.json.j2
-        dest: "{{ wazuh_dir }}/api/configuration/admin.json"
-        owner: wazuh
-        group: wazuh
-        mode: 0644
-      no_log: true
-
-    - name: Execute create_user script
-      script:
-        chdir: "{{ wazuh_dir }}/framework/scripts/"
-        cmd: create_user.py --username "{{ item.username }}" --password "{{ item.password }}"
-        executable: "{{ wazuh_dir }}/framework/python/bin/python3"
-      with_items:
-        - "{{ wazuh_api_users }}"
-
-    - name: Delete create_user script
-      file:
-        path: "{{ wazuh_dir }}/framework/scripts/create_user.py"
-        state: absent
-
-  tags:
-    - config_api_users
-  when:
-    - wazuh_api_users is defined
-    - wazuh_manager_config.cluster.node_type == "master"
-
 - name: Agentless Hosts & Passwd
   template:
     src: agentless.j2
