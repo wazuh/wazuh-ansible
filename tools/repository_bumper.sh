@@ -10,7 +10,7 @@ LOG_FILE="${DIR}/tools/repository_bumper_$(date +"%Y-%m-%d_%H-%M-%S-%3N").log"
 VERSION=""
 STAGE=""
 FILES_EDITED=()
-FILES_EXCLUDED='--exclude="repository_bumper_*.log" --exclude="CHANGELOG.md" --exclude="repository_bumper.sh" --exclude="4_bumper_repository.yml"'
+FILES_EXCLUDED='--exclude="repository_bumper_*.log" --exclude="CHANGELOG.md" --exclude="*repository_bumper.sh"'
 
 get_old_version_and_stage() {
     local VERSION_FILE="${DIR}/VERSION.json"
@@ -125,11 +125,6 @@ main() {
     # Get old version and stage
     get_old_version_and_stage
 
-    if [[ "$OLD_VERSION" == "$VERSION" && "$OLD_STAGE" == "$STAGE" ]]; then
-        echo "Version and stage are already up to date." | tee -a "${LOG_FILE}"
-        echo "No changes needed." | tee -a "${LOG_FILE}"
-        exit 0
-    fi
     if [[ "$OLD_VERSION" != "$VERSION" ]]; then
         echo "Updating version from $OLD_VERSION to $VERSION" | tee -a "${LOG_FILE}"
         update_version_in_files "$VERSION"
