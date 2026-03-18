@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Fix bumper script early exit ([#1979](https://github.com/wazuh/wazuh-ansible/pull/1979))
 
 ### Deleted
 
