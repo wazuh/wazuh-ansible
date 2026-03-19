@@ -2,3 +2,6 @@ roles/vars/artifact_urls.yml
 deployment-config-files/
 *.pem
 *.ini
+
+# Documentation
+docs/book/
