@@ -44,8 +44,7 @@ env:
     ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
     "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
-  ARTIFACT_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
-  PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
+  PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yaml"
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 permissions:
   id-token: write # JWT
@@ -178,13 +177,13 @@ jobs:
             --expires-in 43200
 
           mkdir -p "$(dirname "$PRESIGNED_OUTPUT_FILE")"
-          cp "/tmp/artifact_urls.yml" "$PRESIGNED_OUTPUT_FILE"
+          cp "/tmp/artifact_urls.yaml" "$PRESIGNED_OUTPUT_FILE"
 
           # Verify the presigned urls file
           if [ -f "$PRESIGNED_OUTPUT_FILE" ]; then
             echo "Presigned URLs file created successfully at $PRESIGNED_OUTPUT_FILE."
           else
-            echo "Failed to create presigned artifact_urls.yml file." >&2
+            echo "Failed to create presigned artifact_urls.yaml file." >&2
             exit 1
           fi
       - name: Save presigned URLs file to artifact
@@ -383,7 +382,7 @@ jobs:
       - name: Copy the presigned urls file to Ansible roles variables path
         run: |
           # Copy the presigned URLs file to the Ansible roles variables path
-          cp ${{ env.PRESIGNED_OUTPUT_FILE }} wazuh-ansible/roles/vars/artifact_urls.yml
+          cp "${{ env.PRESIGNED_OUTPUT_FILE }}" "wazuh-ansible/roles/vars/artifact_urls.yaml"
       - name: Set SSH key permissions
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
       - name: Ansible Playbook run Wazuh Distributed cluster
