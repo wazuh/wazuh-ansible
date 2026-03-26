@@ -10,7 +10,7 @@ on:
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        default: '["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent", "installation-assistant"]'
@@ -63,7 +63,7 @@ jobs:
           if [[ "${{ inputs.OS_LIST }}" != "null" && "${{ inputs.OS_LIST }}" != "" ]]; then
             OS_LIST='${{ inputs.OS_LIST }}'
           else
-            OS_LIST='["centos_stream-8-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+            OS_LIST='["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
           fi
           echo "OS_LIST=$OS_LIST" >> $GITHUB_OUTPUT
           echo "Operating Systems: $OS_LIST"
@@ -196,7 +196,6 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - setup-runner
-      - package-urls
     strategy:
       fail-fast: false # all jobs will run even if one fails
       matrix:
@@ -375,27 +374,37 @@ jobs:
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $AGENTS_INVENTORY_FILE
       - name: Download the presigned urls file artifact
+        if: ${{ needs.setup-runner.outputs.ENVIRONMENT == 'development' }}
         uses: actions/download-artifact@v4
         with:
           name: presigned-artifact-urls-${{ github.run_id }}
           path: "/tmp/wazuh-ansible"
       - name: Copy the presigned urls file to Ansible roles variables path
+        if: ${{ needs.setup-runner.outputs.ENVIRONMENT == 'development' }}
         run: |
           # Copy the presigned URLs file to the Ansible roles variables path
           cp "${{ env.PRESIGNED_OUTPUT_FILE }}" "wazuh-ansible/roles/vars/artifact_urls.yaml"
       - name: Set SSH key permissions
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+      - name: Set EXTRA_VARS environment variable
+        run: |
+          ENVIRONMENT="${{ needs.setup-runner.outputs.ENVIRONMENT }}"
+          EXTRAVARS_CONTENT=""
+          if [ "$ENVIRONMENT" == "development" ]; then
+            EXTRAVARS_CONTENT="--extra-vars source=custom"
+          elif [ "$ENVIRONMENT" == "prerelease" ]; then
+            EXTRAVARS_CONTENT="--extra-vars source=prerelease"
+          fi
+          echo "EXTRA_VARS=$EXTRAVARS_CONTENT" >> $GITHUB_ENV
       - name: Ansible Playbook run Wazuh Distributed cluster
         run: |
-          ansible-playbook wazuh-ansible/wazuh-distributed.yml --extra-vars "source=custom" -b \
+          ansible-playbook wazuh-ansible/wazuh-distributed.yml $EXTRA_VARS -b \
           -i $ALLOCATOR_PATH/inventory_all \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Ansible Playbook run Wazuh agents
         run: |
-          ansible-playbook wazuh-ansible/wazuh-agent.yml --extra-vars "source=custom" \
+          ansible-playbook wazuh-ansible/wazuh-agent.yml $EXTRA_VARS \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Copy deployment-config-files to the ALLOCATOR_PATH
         if: always()
@@ -473,7 +482,6 @@ jobs:
           ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=false" \
           -i $ALLOCATOR_PATH/inventory_all \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Fetch Wazuh agents logs (if failure occured)
         if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
@@ -481,7 +489,6 @@ jobs:
           ansible-playbook wazuh-ansible/.github/playbooks/gather_agent_logs.yml \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/agents" \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Set permissions for Wazuh logs directory
         if: always() && needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure'
