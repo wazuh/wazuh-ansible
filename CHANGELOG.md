@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Update package artifact URLs and standardize artifact file extension ([#3063](https://github.com/wazuh/wazuh-ansible/pull/3063))
+- Update package artifact URLs and standardize artifact file extension ([#1986](https://github.com/wazuh/wazuh-ansible/pull/1986))
 - Fixed INSTALLATION.md file. ([#1981](https://github.com/wazuh/wazuh-ansible/pull/1981))
 - Updated wazuh-ansible documentation config and tooling versions to meet new standards. ([#1980](https://github.com/wazuh/wazuh-ansible/pull/1980))
 - Standardize URL presigning process in AIO and distributed workflows ([#1959](https://github.com/wazuh/wazuh-ansible/pull/1959))
