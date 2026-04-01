@@ -236,8 +236,12 @@ jobs:
           ansible-galaxy collection install -r wazuh-ansible/requirements.yml
       - name: Allocate AIO EC2 instance
         run: |
+          # disk size increased (only on AIO instances) to ensure enough space for all components
           python3 wazuh-automation/deployability/modules/allocation/main.py \
-            --action create --provider aws --size medium \
+            --action create \
+            --provider aws \
+            --size medium \
+            --disk-size 32 \
             --composite-name ${{ matrix.system }} \
             --working-dir $ALLOCATOR_PATH \
             --track-output $ALLOCATOR_PATH/track.yml \
@@ -281,7 +285,9 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size small \
+                --action create \
+                --provider aws \
+                --size small \
                 --composite-name "$AGENT_COMPOSITE_NAME" \
                 --working-dir $ALLOCATOR_PATH \
                 --track-output $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml \
