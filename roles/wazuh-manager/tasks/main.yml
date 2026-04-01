@@ -36,7 +36,7 @@
       block:
         - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-manager package
           ansible.builtin.get_url:
-            url: "{{ wazuh_manager_amd64_rpm }}"
+            url: "{{ wazuh_manager_x86_64_rpm }}"
             dest: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
             mode: '0644'
           when:
@@ -44,7 +44,7 @@
 
         - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-manager package
           ansible.builtin.get_url:
-            url: "{{ wazuh_manager_arm64_rpm }}"
+            url: "{{ wazuh_manager_aarch64_rpm }}"
             dest: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
             mode: '0644'
           when:
