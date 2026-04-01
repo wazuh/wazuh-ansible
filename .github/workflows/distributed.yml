@@ -281,11 +281,11 @@ jobs:
 
             # Add instance to corresponding group
             if [[ $i -eq 0 ]]; then
-              echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-1 ansible_ssh_user=$ansible_user" >> $inventory_file
+              echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 1 ]]; then
-              echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-2 ansible_ssh_user=$ansible_user" >> $inventory_file
+              echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer-2 ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 2 ]]; then
-              echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-3 ansible_ssh_user=$ansible_user" >> $inventory_file
+              echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer-3 ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 3 ]]; then
               echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 4 ]]; then
