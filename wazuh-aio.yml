@@ -1,0 +1,12 @@
+---
+
+- name: Wazuh All-in-One Deployment
+  hosts: aio
+  become: true
+  roles:
+    - role: package-urls
+    - role: wazuh-indexer
+    - role: wazuh-manager
+    - role: wazuh-dashboard
+  vars:
+    single_node: true

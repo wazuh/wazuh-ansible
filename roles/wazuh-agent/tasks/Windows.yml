@@ -1,0 +1,32 @@
+---
+
+- name: Windows | Ensure Wazuh agent download directory exists
+  ansible.windows.win_file:
+    path: "{{ wazuh_agent_win_package_download_path }}"
+    state: directory
+
+- name: Windows | Download Wazuh agent installer
+  ansible.windows.win_get_url:
+    url: "{{ wazuh_agent_windows }}"
+    dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
+
+- name: Windows | Install Wazuh agent
+  ansible.windows.win_package:
+    path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
+    arguments: '/q WAZUH_MANAGER="{{ wazuh_manager_address }}"'
+    state: present
+
+- name: Windows | Stop Wazuh agent service (if already running)
+  ansible.windows.win_service:
+    name: "Wazuh"
+    state: stopped
+
+- name: Windows | Start Wazuh agent service
+  ansible.windows.win_service:
+    name: "Wazuh"
+    state: started
+
+- name: Windows | Delete Wazuh agent download directory
+  ansible.windows.win_file:
+    path: "{{ wazuh_agent_win_package_download_path }}"
+    state: absent
