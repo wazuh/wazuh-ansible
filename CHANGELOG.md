@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- The versions of the actions used in the workflows are updated. ([#1998](https://github.com/wazuh/wazuh-ansible/pull/1998))
 - Migrate injected ansible_*facts to ansible_facts.* ([#1964](https://github.com/wazuh/wazuh-ansible/pull/1964))
 
 ### Fixed
