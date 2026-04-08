@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Conditionally select RPM artifact URL keys based on source environment ([#1997](https://github.com/wazuh/wazuh-ansible/pull/1997))
 - Update package artifact URLs and standardize artifact file extension ([#1986](https://github.com/wazuh/wazuh-ansible/pull/1986))
 - Fixed INSTALLATION.md file. ([#1981](https://github.com/wazuh/wazuh-ansible/pull/1981))
 - Updated wazuh-ansible documentation config and tooling versions to meet new standards. ([#1980](https://github.com/wazuh/wazuh-ansible/pull/1980))
@@ -55,11 +56,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- The versions of the actions used in the workflows are updated. ([#1998](https://github.com/wazuh/wazuh-ansible/pull/1998))
 - Migrate injected ansible_*facts to ansible_facts.* ([#1964](https://github.com/wazuh/wazuh-ansible/pull/1964))
 
 ### Fixed
 
-- None
+- Fix bumper script early exit ([#1979](https://github.com/wazuh/wazuh-ansible/pull/1979))
 
 ### Deleted
 
