@@ -2,7 +2,7 @@
 
 single_node: false
 node_type: "master"
-manager_node_name: "wazuh-1"
+manager_node_name: "manager"
 wazuh_indexer_hosts:
   - host: "{{ hostvars[inventory_hostname].private_ip }}"
     port: 9200

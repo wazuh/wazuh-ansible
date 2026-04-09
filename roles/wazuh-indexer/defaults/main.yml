@@ -4,7 +4,7 @@ single_node: false
 generate_certs: true
 instances:
   aio_node:
-    name: node-1
+    name: indexer
     ip: "{{ hostvars[inventory_hostname].private_ip }}"
     role: aio
 
