@@ -25,7 +25,7 @@ grep_command() {
     # This function is used to search for a specific string in the specified directory.
     # It takes two arguments: the string to search for and the directory to search in.
     # Usage: grep_command <string> <directory>
-    eval grep -Rl "${1}" "${2}" --exclude-dir=".git" $FILES_EXCLUDED "${3}"
+    eval grep -Rl \"${1}\" \"${2}\" --exclude-dir=".git" $FILES_EXCLUDED "${3}"
 }
 
 update_version_in_files() {
@@ -45,7 +45,7 @@ update_version_in_files() {
     done
     m_m_files=( $(grep_command "${OLD_MAYOR}\.${OLD_MINOR}" "${DIR}") )
     for file in "${m_m_files[@]}"; do
-        sed -i -E "/[0-9]+\.[0-9]+\.[0-9]+/! s/(^|[^0-9.])(${OLD_MAYOR}\.${OLD_MINOR})([^0-9.]|$)/\1${NEW_MAYOR}.${NEW_MINOR}\3/g" "$file"
+        sed -i -E "s/(^|[^0-9.])(${OLD_MAYOR}\.${OLD_MINOR})([^0-9.]|$)/\1${NEW_MAYOR}.${NEW_MINOR}\3/g" "$file"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
@@ -97,7 +97,6 @@ update_stage_in_files() {
 }
 
 update_main_in_files() {
-    set -x
     if [[ $STAGE == "alpha0" ]]; then
             bump_string="default: '${VERSION}'"
     else
@@ -113,7 +112,6 @@ update_main_in_files() {
             FILES_EDITED+=("${file}")
         fi
     done
-    set +x
 }
 
 main() {
