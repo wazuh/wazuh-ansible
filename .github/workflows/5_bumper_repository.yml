@@ -1,0 +1,45 @@
+name: Repository bumper 5.x
+run-name: Bump ${{ github.ref_name }} (${{ inputs.id }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Target version (e.g. 1.2.3)'
+        default: ''
+        required: false
+        type: string
+      stage:
+        description: 'Version stage (e.g. alpha0)'
+        default: ''
+        required: false
+        type: string
+      issue-link:
+        description: 'Issue link in format https://github.com/wazuh/<REPO>/issues/<ISSUE-NUMBER>'
+        required: true
+        type: string
+      id:
+        description: 'Optional identifier for the run'
+        required: false
+        type: string
+
+jobs:
+  bump:
+    name: Repository bumper 5.x
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    env:
+      CI_COMMIT_AUTHOR: wazuhci
+      CI_COMMIT_EMAIL: 22834044+wazuhci@users.noreply.github.com
+      CI_GPG_PRIVATE_KEY: ${{ secrets.CI_WAZUHCI_GPG_PRIVATE }}
+      GH_TOKEN: ${{ secrets.CI_WAZUHCI_BUMPER_TOKEN }}
+      BUMP_SCRIPT_PATH: tools/repository_bumper.sh
+      BUMP_LOG_PATH: tools
+
+    steps:
+      - name: Dump event payload
+        run: |
+          cat $GITHUB_EVENT_PATH | jq '.inputs'
