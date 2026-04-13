@@ -1,0 +1,15 @@
+Starting repository version bumping process...
+Updating version from main to 5.2.0
+Old version: 5.0.0
+Old stage: alpha0
+Updating version from 5.0.0 to 5.2.0
+Updating stage from alpha0 to alpha0
+The following files were edited:
+/home/runner/work/wazuh-ansible/wazuh-ansible/.github/workflows/aio.yml
+/home/runner/work/wazuh-ansible/wazuh-ansible/.github/workflows/distributed.yml
+/home/runner/work/wazuh-ansible/wazuh-ansible/CHANGELOG.md
+/home/runner/work/wazuh-ansible/wazuh-ansible/VERSION.json
+/home/runner/work/wazuh-ansible/wazuh-ansible/docs/dev/setup.md
+/home/runner/work/wazuh-ansible/wazuh-ansible/docs/ref/deployment.md
+/home/runner/work/wazuh-ansible/wazuh-ansible/docs/ref/introduction/compatibility.md
+Version and stage updated successfully.
