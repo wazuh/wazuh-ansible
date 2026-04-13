@@ -30,29 +30,29 @@ grep_command() {
 
 update_version_in_files() {
 
-    local OLD_MAYOR="$(echo "${OLD_VERSION}" | cut -d '.' -f 1)"
+    local OLD_MAJOR="$(echo "${OLD_VERSION}" | cut -d '.' -f 1)"
     local OLD_MINOR="$(echo "${OLD_VERSION}" | cut -d '.' -f 2)"
     local OLD_PATCH="$(echo "${OLD_VERSION}" | cut -d '.' -f 3)"
-    local NEW_MAYOR="$(echo "${VERSION}" | cut -d '.' -f 1)"
+    local NEW_MAJOR="$(echo "${VERSION}" | cut -d '.' -f 1)"
     local NEW_MINOR="$(echo "${VERSION}" | cut -d '.' -f 2)"
     local NEW_PATCH="$(echo "${VERSION}" | cut -d '.' -f 3)"
-    m_m_p_files=( $(grep_command "${OLD_MAYOR}\.${OLD_MINOR}\.${OLD_PATCH}" "${DIR}") )
+    m_m_p_files=( $(grep_command "${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}" "${DIR}") )
     for file in "${m_m_p_files[@]}"; do
-        sed -i "s/\bv${OLD_MAYOR}\.${OLD_MINOR}\.${OLD_PATCH}\b/v${NEW_MAYOR}\.${NEW_MINOR}\.${NEW_PATCH}/g; s/\b${OLD_MAYOR}\.${OLD_MINOR}\.${OLD_PATCH}/${NEW_MAYOR}\.${NEW_MINOR}\.${NEW_PATCH}/g" "${file}"
+        sed -i "s/\bv${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}\b/v${NEW_MAJOR}\.${NEW_MINOR}\.${NEW_PATCH}/g; s/\b${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}/${NEW_MAJOR}\.${NEW_MINOR}\.${NEW_PATCH}/g" "${file}"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
     done
-    m_m_files=( $(grep_command "${OLD_MAYOR}\.${OLD_MINOR}" "${DIR}") )
+    m_m_files=( $(grep_command "${OLD_MAJOR}\.${OLD_MINOR}" "${DIR}") )
     for file in "${m_m_files[@]}"; do
-        sed -i -E "s/(^|[^0-9.])(${OLD_MAYOR}\.${OLD_MINOR})([^0-9.]|$)/\1${NEW_MAYOR}.${NEW_MINOR}\3/g" "$file"
+        sed -i -E "s/(^|[^0-9.])(${OLD_MAJOR}\.${OLD_MINOR})([^0-9.]|$)/\1${NEW_MAJOR}.${NEW_MINOR}\3/g" "$file"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
     done
-    m_x_files=( $(grep_command "${OLD_MAYOR}\.x" "${DIR}" | grep -v "${DIR}/kitchen/README.md") )
+    m_x_files=( $(grep_command "${OLD_MAJOR}\.x" "${DIR}" | grep -v "${DIR}/kitchen/README.md") )
     for file in "${m_x_files[@]}"; do
-        sed -i "s/\b${OLD_MAYOR}\.x\b/${NEW_MAYOR}\.x/g" "${file}"
+        sed -i "s/\b${OLD_MAJOR}\.x\b/${NEW_MAJOR}\.x/g" "${file}"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
