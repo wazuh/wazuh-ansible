@@ -89,7 +89,7 @@ jobs:
           set_as_main=${{ inputs.set_as_main }}
 
           if [[ "$set_as_main" == "true" ]]; then
-            script_params="--set_as_main"
+            script_params="--set-as-main"
           fi
 
           # Both version and stage provided
