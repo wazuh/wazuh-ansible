@@ -10,7 +10,7 @@ on:
         required: false
         type: string
       stage:
-        description: 'Version stage (e.g. rc1)'
+        description: 'Version stage (e.g. alpha0)'
         default: ''
         required: false
         type: string
