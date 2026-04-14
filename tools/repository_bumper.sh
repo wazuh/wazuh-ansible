@@ -10,7 +10,7 @@ LOG_FILE="${DIR}/tools/repository_bumper_$(date +"%Y-%m-%d_%H-%M-%S-%3N").log"
 VERSION=""
 STAGE=""
 FILES_EDITED=()
-FILES_EXCLUDED='--exclude="repository_bumper_*.log" --exclude="CHANGELOG.md" --exclude="repository_bumper.sh" --exclude="4_bumper_repository.yml"'
+FILES_EXCLUDED='--exclude="repository_bumper_*.log" --exclude="CHANGELOG.md" --exclude="repository_bumper.sh" --exclude="4_bumper_repository.yml" --exclude="mermaid-init.js" --exclude="mermaid.min.js"'
 
 get_old_version_and_stage() {
     local VERSION_FILE="${DIR}/VERSION.json"
@@ -25,34 +25,34 @@ grep_command() {
     # This function is used to search for a specific string in the specified directory.
     # It takes two arguments: the string to search for and the directory to search in.
     # Usage: grep_command <string> <directory>
-    eval grep -Rl "${1}" "${2}" --exclude-dir=".git" $FILES_EXCLUDED "${3}"
+    eval grep -Rl \"${1}\" \"${2}\" --exclude-dir=".git" $FILES_EXCLUDED "${3}"
 }
 
 update_version_in_files() {
 
-    local OLD_MAYOR="$(echo "${OLD_VERSION}" | cut -d '.' -f 1)"
+    local OLD_MAJOR="$(echo "${OLD_VERSION}" | cut -d '.' -f 1)"
     local OLD_MINOR="$(echo "${OLD_VERSION}" | cut -d '.' -f 2)"
     local OLD_PATCH="$(echo "${OLD_VERSION}" | cut -d '.' -f 3)"
-    local NEW_MAYOR="$(echo "${VERSION}" | cut -d '.' -f 1)"
+    local NEW_MAJOR="$(echo "${VERSION}" | cut -d '.' -f 1)"
     local NEW_MINOR="$(echo "${VERSION}" | cut -d '.' -f 2)"
     local NEW_PATCH="$(echo "${VERSION}" | cut -d '.' -f 3)"
-    m_m_p_files=( $(grep_command "${OLD_MAYOR}\.${OLD_MINOR}\.${OLD_PATCH}" "${DIR}") )
+    m_m_p_files=( $(grep_command "${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}" "${DIR}") )
     for file in "${m_m_p_files[@]}"; do
-        sed -i "s/\bv${OLD_MAYOR}\.${OLD_MINOR}\.${OLD_PATCH}\b/v${NEW_MAYOR}\.${NEW_MINOR}\.${NEW_PATCH}/g; s/\b${OLD_MAYOR}\.${OLD_MINOR}\.${OLD_PATCH}/${NEW_MAYOR}\.${NEW_MINOR}\.${NEW_PATCH}/g" "${file}"
+        sed -i "s/\bv${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}\b/v${NEW_MAJOR}\.${NEW_MINOR}\.${NEW_PATCH}/g; s/\b${OLD_MAJOR}\.${OLD_MINOR}\.${OLD_PATCH}/${NEW_MAJOR}\.${NEW_MINOR}\.${NEW_PATCH}/g" "${file}"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
     done
-    m_m_files=( $(grep_command "${OLD_MAYOR}\.${OLD_MINOR}" "${DIR}") )
+    m_m_files=( $(grep_command "${OLD_MAJOR}\.${OLD_MINOR}" "${DIR}") )
     for file in "${m_m_files[@]}"; do
-        sed -i -E "/[0-9]+\.[0-9]+\.[0-9]+/! s/(^|[^0-9.])(${OLD_MAYOR}\.${OLD_MINOR})([^0-9.]|$)/\1${NEW_MAYOR}.${NEW_MINOR}\3/g" "$file"
+        sed -i -E "s/(^|[^0-9.])(${OLD_MAJOR}\.${OLD_MINOR})([^0-9.]|$)/\1${NEW_MAJOR}.${NEW_MINOR}\3/g" "$file"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
     done
-    m_x_files=( $(grep_command "${OLD_MAYOR}\.x" "${DIR}" | grep -v "${DIR}/kitchen/README.md") )
+    m_x_files=( $(grep_command "${OLD_MAJOR}\.x" "${DIR}" | grep -v "${DIR}/kitchen/README.md") )
     for file in "${m_x_files[@]}"; do
-        sed -i "s/\b${OLD_MAYOR}\.x\b/${NEW_MAYOR}\.x/g" "${file}"
+        sed -i "s/\b${OLD_MAJOR}\.x\b/${NEW_MAJOR}\.x/g" "${file}"
         if [[ $(git diff --name-only "${file}") ]]; then
             FILES_EDITED+=("${file}")
         fi
@@ -74,6 +74,44 @@ update_stage_in_files() {
             FILES_EDITED+=("${file}")
         fi
     done
+
+    if [ $STAGE != "alpha0" ]; then
+        version_tag_string="default: 'v${VERSION}'"
+        files_tag=( $(grep_command "${version_tag_string}" "${DIR}") )
+        for file in "${files_tag[@]}"; do
+            sed -i "s/${version_tag_string}/default: 'v${VERSION}-${STAGE}'/g" "${file}"
+            if [[ $(git diff --name-only "${file}") ]]; then
+                FILES_EDITED+=("${file}")
+            fi
+        done
+
+        version_number_string="default: '${VERSION}'"
+        files_version=( $(grep -RlE "default: '[0-9]\.[0-9]+\.[0-9]+'" "${DIR}") )
+        for file in "${files_version[@]}"; do
+            sed -i "s/${version_number_string}/default: 'v${VERSION}-${STAGE}'/g" "${file}"
+            if [[ $(git diff --name-only "${file}") ]]; then
+                FILES_EDITED+=("${file}")
+            fi
+        done
+    fi
+}
+
+update_main_in_files() {
+    if [[ $STAGE == "alpha0" ]]; then
+            bump_string="default: '${VERSION}'"
+    else
+            bump_string="default: 'v${VERSION}'"
+    fi
+    main_string="default: 'main'"
+    files=( $(grep_command "${main_string}" "${DIR}") )
+    for file in "${files[@]}"; do
+        if [[ "$skip_urls" != "yes" ]]; then
+            sed -Ei "s/${main_string}/${bump_string}/g" ${file}
+        fi
+        if [[ $(git diff --name-only "${file}") ]]; then
+            FILES_EDITED+=("${file}")
+        fi
+    done
 }
 
 main() {
@@ -90,6 +128,10 @@ main() {
             --stage)
                 STAGE="$2"
                 shift 2
+                ;;
+            --set-as-main)
+                set_as_main="yes"
+                shift 1
                 ;;
             *)
                 echo "Unknown argument: $1"
@@ -122,6 +164,12 @@ main() {
         exit 1
     fi
 
+    # Set skip_urls variable based on set_as_main flag
+    if [[ -z "$set_as_main" ]]; then
+        echo "Updating version from main to $VERSION" | tee -a "${LOG_FILE}"
+        update_main_in_files "$VERSION" "$STAGE"
+    fi
+
     # Get old version and stage
     get_old_version_and_stage
 
@@ -129,9 +177,9 @@ main() {
         echo "Updating version from $OLD_VERSION to $VERSION" | tee -a "${LOG_FILE}"
         update_version_in_files "$VERSION"
     fi
-    if [[ "$OLD_STAGE" != "$STAGE" ]]; then
+    if [[ -n "$STAGE" ]]; then
         echo "Updating stage from $OLD_STAGE to $STAGE" | tee -a "${LOG_FILE}"
-        update_stage_in_files "$STAGE"
+        update_stage_in_files "$VERSION" "$STAGE"
     fi
 
     echo "The following files were edited:" | tee -a "${LOG_FILE}"

@@ -2,6 +2,7 @@ roles/vars/artifact_urls.yaml
 deployment-config-files/
 *.pem
 *.ini
+*.log
 
 # Documentation
 docs/book/
