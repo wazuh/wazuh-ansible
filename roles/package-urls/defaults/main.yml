@@ -1,5 +1,0 @@
----
-
-source: "production"
-package_urls_file_uri: "packages.wazuh.com/production/{{ wazuh_major_version }}/artifact_urls_{{ wazuh_full_version }}.yaml"
-package_urls_file_uri_prerelease: "packages-staging.xdrsiem.wazuh.info/pre-release/{{ wazuh_major_version }}/artifact_urls_{{ wazuh_full_version }}-{{ wazuh_stage }}.yaml" # noqa: yaml[line-length]
