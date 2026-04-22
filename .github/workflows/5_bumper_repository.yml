@@ -133,9 +133,9 @@ jobs:
           git add .
           git commit -m "feat: bump ${{ github.ref_name }}"
 
-      #- name: Fetch full history (Revert)
-      #  if: inputs.revert == true
-      #  run: git fetch --unshallow
+      - name: Fetch full history (Revert)
+        if: inputs.revert == true
+        run: git fetch --unshallow
 
       - name: Revert references (Revert)
         id: revert_step
