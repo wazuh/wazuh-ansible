@@ -133,6 +133,10 @@ jobs:
           git add .
           git commit -m "feat: bump ${{ github.ref_name }}"
 
+      #- name: Fetch full history (Revert)
+      #  if: inputs.revert == true
+      #  run: git fetch --unshallow
+
       - name: Revert references (Revert)
         id: revert_step
         if: inputs.revert == true
@@ -152,13 +156,25 @@ jobs:
           echo "Original PR found: #$PR_NUMBER"
 
           MERGE_COMMIT=$(gh pr view $PR_NUMBER --json mergeCommit --jq '.mergeCommit.oid')
+          
+          GIT_STATUS=$(git status)
+
+          echo "Status1: $GIT_STATUS"
 
           git revert -m 1 $MERGE_COMMIT --no-commit
+
+          GIT_STATUS=$(git status)
+
+          echo "Status2: $GIT_STATUS"
 
           # Remove the files to prevent them from being included in the revert commit
           git checkout HEAD -- VERSION.json 2>/dev/null || true
           git checkout HEAD -- CHANGELOG.md 2>/dev/null || true
           # Add any other repository-specific version files here
+
+          GIT_STATUS=$(git status)
+
+          echo "Status3: $GIT_STATUS"
 
           if git diff --staged --quiet; then
             echo "No references to revert. Skipping commit."
@@ -167,6 +183,10 @@ jobs:
             git commit -m "feat: revert ${{ github.ref_name }} references"
             echo "has_changes=true" >> $GITHUB_OUTPUT
           fi
+          
+          GIT_STATUS=$(git status)
+
+          echo "Status4: $GIT_STATUS"
 
       - name: Push changes
         if: inputs.revert != true || (inputs.revert == true && steps.revert_step.outputs.has_changes == 'true')
