@@ -1,6 +1,0 @@
----
-collections:
-  - name: community.general
-  - name: community.docker
-  - name: ansible.windows
-  - name: community.windows
