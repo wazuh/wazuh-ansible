@@ -102,6 +102,12 @@
             certificate_paths: "{{ conf_text | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
             key_paths: "{{ conf_text | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
 
+        - name: Inspect extraction results
+          ansible.builtin.debug:
+            msg: 
+              - "Cert Path Found: '{{ expected_cert_path }}'"
+              - "Key Path Found: '{{ expected_key_path }}'"
+
         - name: Validate expected certificate and key filenames
           ansible.builtin.assert:
             that:
