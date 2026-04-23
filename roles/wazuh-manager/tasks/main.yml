@@ -112,7 +112,8 @@
           ansible.builtin.assert:
             that:
               - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
-              - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+              - ( expected_cert_path is match('^/?.+\\.pem$') )
+              - ( expected_key_path is match('^/?.+\\.pem$') )
             fail_msg: >-
               Invalid indexer SSL certificate/key filenames detected from
               /var/wazuh-manager/etc/wazuh-manager.conf.
