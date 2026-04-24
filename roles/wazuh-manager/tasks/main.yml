@@ -104,7 +104,7 @@
 
         - name: Inspect extraction results
           ansible.builtin.debug:
-            msg: 
+            msg:
               - "Cert Path Found: '{{ expected_cert_path }}'"
               - "Key Path Found: '{{ expected_key_path }}'"
 
