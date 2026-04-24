@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- URLs file path update ([#2039](https://github.com/wazuh/wazuh-ansible/pull/2039))
 - Adapted the Ansible deployment according to the config.yml changes. ([#2000](https://github.com/wazuh/wazuh-ansible/pull/2000))
 - Conditionally select RPM artifact URL keys based on source environment ([#1997](https://github.com/wazuh/wazuh-ansible/pull/1997))
 - Update package artifact URLs and standardize artifact file extension ([#1986](https://github.com/wazuh/wazuh-ansible/pull/1986))

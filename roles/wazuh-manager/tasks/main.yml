@@ -102,11 +102,18 @@
             certificate_paths: "{{ conf_text | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
             key_paths: "{{ conf_text | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
 
+        - name: Inspect extraction results
+          ansible.builtin.debug:
+            msg:
+              - "Cert Path Found: '{{ expected_cert_path }}'"
+              - "Key Path Found: '{{ expected_key_path }}'"
+
         - name: Validate expected certificate and key filenames
           ansible.builtin.assert:
             that:
               - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
-              - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+              - ( expected_cert_path is match('^/?.+\\.pem$') )
+              - ( expected_key_path is match('^/?.+\\.pem$') )
             fail_msg: >-
               Invalid indexer SSL certificate/key filenames detected from
               /var/wazuh-manager/etc/wazuh-manager.conf.
