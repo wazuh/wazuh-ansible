@@ -1,0 +1,55 @@
+---
+
+- name: Linux | Create directory for wazuh-agent package
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
+  ansible.builtin.include_tasks:
+    file: "RedHat.yml"
+  when: ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Importing tasks for Debian-based systems
+  ansible.builtin.include_tasks:
+    file: "Debian.yml"
+  when: ansible_facts.os_family == "Debian"
+
+- name: Linux CentOS/RedHat | Install wazuh-agent
+  ansible.builtin.dnf:
+    name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: true
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_address }}"
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Install wazuh-agent
+  ansible.builtin.apt:
+    deb: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_address }}"
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Linux | Start and enable Wazuh Agent service
+  block:
+    - name: Linux | Reload systemd configuration
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Linux | Start and enable Wazuh Agent service
+      ansible.builtin.service:
+        name: wazuh-agent
+        enabled: true
+        state: restarted
+
+- name: Linux | Remove leftover wazuh-agent installation directory
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: absent
+    force: true

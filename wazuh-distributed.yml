@@ -1,0 +1,88 @@
+---
+
+- name: Configure package URLs
+  hosts: localhost
+  roles:
+    - role: package-urls
+  run_once: true
+  become: false
+
+- name: Configure Wazuh Indexer cluster
+  hosts: wi_cluster
+  roles:
+    - role: wazuh-indexer
+  become: true
+  vars:
+    # generate_certs: false                    # Set to false if you are using your own certificates
+    instances:
+      wi1:                                     # Must be same as inventory hostname
+        name: indexer
+        ip: "{{ hostvars.wi1.private_ip }}"
+        role: indexer
+      wi2:
+        name: indexer-2
+        ip: "{{ hostvars.wi2.private_ip }}"
+        role: indexer
+      wi3:
+        name: indexer-3
+        ip: "{{ hostvars.wi3.private_ip }}"
+        role: indexer
+      manager:
+        name: manager
+        ip: "{{ hostvars.manager.private_ip }}"
+        role: manager
+        node_type: master
+      worker:
+        name: manager-2
+        ip: "{{ hostvars.worker.private_ip }}"
+        role: manager
+        node_type: worker
+      dashboard:
+        name: dashboard
+        ip: "{{ hostvars.dashboard.private_ip }}"
+        role: dashboard
+
+- name: Configure Wazuh Manager
+  hosts: manager
+  roles:
+    - role: wazuh-manager
+  become: true
+  vars:
+    node_type: "master"
+    manager_node_name: "manager"
+    wazuh_indexer_hosts:
+      - host: "{{ hostvars.wi1.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi2.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi3.private_ip }}"
+        port: 9200
+
+- name: Configure Wazuh Worker
+  hosts: worker
+  roles:
+    - role: wazuh-manager
+  become: true
+  vars:
+    node_type: "worker"
+    manager_node_name: "manager-2"
+    wazuh_indexer_hosts:
+      - host: "{{ hostvars.wi1.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi2.private_ip }}"
+        port: 9200
+      - host: "{{ hostvars.wi3.private_ip }}"
+        port: 9200
+
+- name: Configure Wazuh Dashboard
+  hosts: dashboard
+  roles:
+    - role: wazuh-dashboard
+  become: true
+  vars:
+    dashboard_node_name: "dashboard"
+    wazuh_manager_master_address: "{{ hostvars.manager.private_ip }}"
+    indexer_cluster_nodes:
+      - "{{ hostvars.wi1.private_ip }}"
+      - "{{ hostvars.wi2.private_ip }}"
+      - "{{ hostvars.wi3.private_ip }}"
