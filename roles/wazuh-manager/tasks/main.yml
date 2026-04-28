@@ -121,7 +121,7 @@
 
         - name: Create expected cert/key directory (if does not exist)
           ansible.builtin.file:
-            path: "{{ expected_cert_path | dirname }}"
+            path: "{{ wazuh_manager_install_path }}{{ expected_cert_path | dirname }}"
             state: directory
             owner: wazuh-manager
             group: wazuh-manager
@@ -130,7 +130,7 @@
     - name: Copy the certificates from local to the Wazuh Manager instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: "{{ expected_cert_path | dirname }}/{{ item }}"
+        dest: "{{ wazuh_manager_install_path }}{{ expected_cert_path | dirname }}/{{ item }}"
         owner: wazuh-manager
         group: wazuh-manager
         mode: '0400'
@@ -141,16 +141,16 @@
 
     - name: Copy certificates to match default names
       ansible.builtin.copy:
-        src: "{{ expected_cert_path | dirname }}/{{ item.src }}"
+        src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         remote_src: true
         owner: wazuh-manager
         group: wazuh-manager
         mode: '0400'
       with_items:
-        - { src: "{{ manager_node_name }}.pem", dest: "{{ expected_cert_path }}" }
-        - { src: "{{ manager_node_name }}-key.pem", dest: "{{ expected_key_path }}" }
-      when: (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
+        - { src: "{{wazuh_manager_install_path}}{{ expected_cert_path | dirname }}/{{ manager_node_name }}.pem", dest: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}" }
+        - { src: "{{wazuh_manager_install_path}}{{ expected_cert_path | dirname }}/{{ manager_node_name }}-key.pem", dest: "{{ wazuh_manager_install_path }}{{ expected_key_path }}" }
+      when: item.src != item.dest
 
     - name: Keystore | Set Indexer username
       ansible.builtin.shell:

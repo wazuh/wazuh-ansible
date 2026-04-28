@@ -9,3 +9,4 @@ wazuh_indexer_hosts:
 
 wazuh_manager_package_download_path: "/tmp/wazuh-manager"
 wazuh_manager_package_name: "wazuh-manager-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+wazuh_manager_install_path: "/var/wazuh-manager/"
