@@ -108,6 +108,11 @@
               - "Cert Path Found: '{{ expected_cert_path }}'"
               - "Key Path Found: '{{ expected_key_path }}'"
 
+        - name: Set cert and key full paths
+          ansible.builtin.set_fact:
+            full_cert_path: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}"
+            full_key_path: "{{ wazuh_manager_install_path }}{{ expected_key_path }}"
+
         - name: Validate expected certificate and key filenames
           ansible.builtin.assert:
             that:
@@ -121,7 +126,7 @@
 
         - name: Create expected cert/key directory (if does not exist)
           ansible.builtin.file:
-            path: "{{ wazuh_manager_install_path }}{{ expected_cert_path | dirname }}"
+            path: "{{ full_cert_path | dirname }}"
             state: directory
             owner: wazuh-manager
             group: wazuh-manager
@@ -130,7 +135,7 @@
     - name: Copy the certificates from local to the Wazuh Manager instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: "{{ wazuh_manager_install_path }}{{ expected_cert_path | dirname }}/{{ item }}"
+        dest: "{{ full_cert_path | dirname }}/{{ item }}"
         owner: wazuh-manager
         group: wazuh-manager
         mode: '0400'
@@ -148,8 +153,8 @@
         group: wazuh-manager
         mode: '0400'
       with_items:
-        - { src: "{{wazuh_manager_install_path}}{{ expected_cert_path | dirname }}/{{ manager_node_name }}.pem", dest: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}" }
-        - { src: "{{wazuh_manager_install_path}}{{ expected_cert_path | dirname }}/{{ manager_node_name }}-key.pem", dest: "{{ wazuh_manager_install_path }}{{ expected_key_path }}" }
+        - { src: "{{ full_cert_path | dirname }}/{{ manager_node_name }}.pem", dest: "{{ full_cert_path }}" }
+        - { src: "{{ full_key_path | dirname }}/{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
       when: item.src != item.dest
 
     - name: Keystore | Set Indexer username
