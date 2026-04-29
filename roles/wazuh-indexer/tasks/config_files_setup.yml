@@ -258,7 +258,7 @@
         - name: Remove existing nodes in cluster.initial_cluster_manager_nodes
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
-            regexp: '(^cluster\.initial_cluster_manager_nodes:\n)(\s*#?- "node-\d+"\n?)+'
+            regexp: '(^cluster\.initial_cluster_manager_nodes:\n)(\s*#?-\s*.*\n?)+'
             replace: '\1'
           when: not single_node
 
@@ -278,7 +278,7 @@
         - name: OpenSearch Config | Remove cluster.initial_cluster_manager_nodes for single-node cluster
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
-            regexp: '(^cluster\.initial_cluster_manager_nodes:\n)(\s*#?- ".*"\n?)*'
+            regexp: '(^cluster\.initial_cluster_manager_nodes:\n)(\s*#?-\s*.*\n?)*'
             replace: ''
           when: single_node
 
@@ -291,6 +291,12 @@
             regexp: '^#discovery\.seed_hosts:'
             line: 'discovery.seed_hosts:'
             state: present
+
+        - name: OpenSearch Config | Remove existing hosts in discovery.seed_hosts
+          ansible.builtin.replace:
+            path: /etc/wazuh-indexer/opensearch.yml
+            regexp: '(^discovery\.seed_hosts:\n)(\s*#?-\s*.*\n?)+'
+            replace: '\1'
 
         - name: OpenSearch Config | Update discovery.seed_hosts value
           ansible.builtin.replace:
@@ -309,7 +315,7 @@
         - name: OpenSearch Config | Remove existing SSL configuration lines in plugins.security.nodes_dn
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
-            regexp: '(plugins\.security\.nodes_dn:\n)(?:\s*#?-\s*"CN=node-\d+,OU=Wazuh,O=Wazuh,L=California,C=US"\n?)+'
+            regexp: '(plugins\.security\.nodes_dn:\n)(?:\s*#?-\s*"CN=.*,OU=Wazuh,O=Wazuh,L=California,C=US"\n?)+'
             replace: 'plugins.security.nodes_dn:\n'
 
         - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn

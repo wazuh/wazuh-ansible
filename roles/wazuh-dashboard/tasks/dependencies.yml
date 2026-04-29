@@ -78,6 +78,7 @@
           args:
             executable: /bin/bash
           register: services_to_restart
+          failed_when: false
           changed_when: false
           when: needrestart_check.rc == 0
 
@@ -88,6 +89,7 @@
           loop: "{{ services_to_restart.stdout_lines | default([]) }}"
           when:
             - needrestart_check.rc == 0
+            - services_to_restart.rc == 0
             - services_to_restart.stdout_lines is defined
             - item not in ['ssh.service', 'sshd.service']
           failed_when: false
@@ -99,6 +101,7 @@
           loop: "{{ services_to_restart.stdout_lines | default([]) }}"
           when:
             - needrestart_check.rc == 0
+            - services_to_restart.rc == 0
             - services_to_restart.stdout_lines is defined
             - item in ['ssh.service', 'sshd.service']
           async: 1
@@ -111,6 +114,7 @@
             timeout: 300
           when:
             - needrestart_check.rc == 0
+            - services_to_restart.rc == 0
             - services_to_restart.stdout_lines is defined
             - "'ssh.service' in services_to_restart.stdout_lines or 'sshd.service' in services_to_restart.stdout_lines"
 
