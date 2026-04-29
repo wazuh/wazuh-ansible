@@ -47,7 +47,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Wazuh indexer idempotency fix ([#2058](https://github.com/wazuh/wazuh-ansible/pull/2058))
 
 ### Deleted
 
