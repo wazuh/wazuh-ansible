@@ -1,4 +1,4 @@
-name: Repository bumper 5.x
+name: Repository bumper 10.x
 run-name: Bump ${{ github.ref_name }} (${{ inputs.id }})
 
 on:
@@ -35,7 +35,7 @@ on:
 
 jobs:
   bump:
-    name: Repository bumper 5.x
+    name: Repository bumper 10.x
     runs-on: ubuntu-24.04
     permissions:
       contents: write
