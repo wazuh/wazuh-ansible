@@ -72,6 +72,9 @@
       when: needrestart_check.rc == 0
       block:
         - name: Debian-based | Get services that need restart
+          # noqa: risky-shell-pipe - pipefail is intentionally omitted: grep returns rc=1 when no
+          # NEEDRESTART-SVC lines are found (no services need restart), which is not an error.
+          # The trailing '|| true' ensures the pipeline always exits with rc=0.
           ansible.builtin.shell: |
             DEBIAN_FRONTEND=noninteractive needrestart -b 2>/dev/null | grep '^NEEDRESTART-SVC:' | awk '{print $2}' || true
           args:
