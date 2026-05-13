@@ -38,6 +38,7 @@ on:
           - -vvv
           - -vvvv
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   release:
 env:
   AGENT_COMPOSITE_NAMES: >
