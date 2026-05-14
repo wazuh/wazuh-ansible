@@ -38,6 +38,7 @@ on:
           - -vvv
           - -vvvv
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   release:
 env:
   AGENT_COMPOSITE_NAMES: >
@@ -51,6 +52,7 @@ permissions:
 jobs:
   setup-runner:
     name: Setup runner
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-22.04
     steps:
       - name: Display workflow inputs
