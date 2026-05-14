@@ -38,7 +38,6 @@ on:
           - -vvv
           - -vvvv
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
   release:
 env:
   AGENT_COMPOSITE_NAMES: >
@@ -53,7 +52,6 @@ jobs:
   setup-runner:
     name: Setup runner
     runs-on: ubuntu-22.04
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     steps:
       - name: Display workflow inputs
         run: echo "${{ toJson(inputs) }}"
