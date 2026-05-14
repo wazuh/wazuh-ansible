@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Forbid run test in draft PRs ([#2093](https://github.com/wazuh/wazuh-ansible/pull/2093))
 - Fixed Wazuh manager certificates handling ([#2055](https://github.com/wazuh/wazuh-ansible/pull/2055))
 - URLs file path update ([#2039](https://github.com/wazuh/wazuh-ansible/pull/2039))
 - Adapted the Ansible deployment according to the config.yml changes. ([#2000](https://github.com/wazuh/wazuh-ansible/pull/2000))

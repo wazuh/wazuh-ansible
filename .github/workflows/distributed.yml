@@ -38,6 +38,7 @@ on:
           - -vvv
           - -vvvv
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   release:
 env:
   AGENT_COMPOSITE_NAMES: >
@@ -52,6 +53,7 @@ permissions:
 jobs:
   setup-runner:
     name: Setup runner
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-22.04
     steps:
       - name: Display workflow inputs
@@ -94,6 +96,16 @@ jobs:
           fi
           echo "COMMIT_LIST=$COMMIT_LIST" >> $GITHUB_OUTPUT
           echo "Revision list (indexer, manager, dashboard, agent, installation-assistant): $COMMIT_LIST"
+      - name: Checkout wazuh/wazuh-ansible repository
+        uses: actions/checkout@v4
+        with:
+          path: wazuh-ansible/
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25
+        with:
+          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
+          working_directory: "wazuh-ansible"
+          requirements_file: "requirements.yml"
       - name: Configure AWS credentials (assume role)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -435,7 +447,7 @@ jobs:
       fail-fast: false # all jobs will run even if one fails
       matrix:
         system: ${{ fromJson(needs.setup-runner.outputs.OS_LIST) }}
-    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ always() && needs.setup-runner.result != 'skipped' }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -561,12 +573,12 @@ jobs:
           # Wait for all deletion tasks to complete
           wait
   final-cleanup:
-    name: Final validation and cleanup
+    name: Delete key pair for allocated instances
     needs:
       - setup-runner
       - stop-runner
     runs-on: ubuntu-22.04
-    if: ${{ always() }}
+    if: ${{ always() && needs.setup-runner.result != 'skipped' }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -593,13 +605,3 @@ jobs:
 
           aws ec2 delete-key-pair --key-name "$KEY_NAME" --region us-east-1
           echo "Deleted key pair: $KEY_NAME"
-      - name: Checkout wazuh/wazuh-ansible repository
-        uses: actions/checkout@v4
-        with:
-          path: wazuh-ansible/
-      - name: Run ansible-lint
-        uses: ansible/ansible-lint@v25
-        with:
-          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
-          working_directory: "wazuh-ansible"
-          requirements_file: "requirements.yml"
