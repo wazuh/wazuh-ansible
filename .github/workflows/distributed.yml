@@ -110,7 +110,8 @@ jobs:
           if [[ "${{ inputs.ISSUE }}" != "null" && "${{ inputs.ISSUE }}" != "" ]]; then
             ISSUE='${{ inputs.ISSUE }}'
           else
-            ISSUE='https://github.com/wazuh/wazuh-ansible/pull/${{ github.event.number }}'
+            # This link redirects to the pull request that triggers the test, since the URL is formed depending on whether the event.number belongs to an issue or a pull request.
+            ISSUE='https://github.com/wazuh/wazuh-ansible/issues/${{ github.event.number }}'
           fi
           echo "ISSUE=$ISSUE" >> $GITHUB_OUTPUT
           echo "Issue: $ISSUE"
