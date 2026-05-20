@@ -300,7 +300,7 @@ jobs:
                 --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} \
                 --label-team devops --label-termination-date 1d \
                 --label-creator github-actions  --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
-                --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }}"
+                --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
             ) &
           done
 
@@ -380,7 +380,7 @@ jobs:
                 --instance-name gha_ansible_agent_${{ matrix.system }}_${AGENT_COMPOSITE_NAME}_${{ github.run_id }} \
                 --label-team devops --label-termination-date 1d \
                 --label-creator github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
-                --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }}"
+                --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
 
               instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml | awk '{print $2}')
               private_ip=$(aws ec2 describe-instances \
