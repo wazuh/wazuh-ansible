@@ -290,8 +290,8 @@ jobs:
             --ssh-key "${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" \
             --instance-name gha_ansible_${{ matrix.system }}_${{ github.run_id }} \
             --label-team devops --label-termination-date 1d \
-            --label-creator github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \  
-            --custom-tags "Release=${{ needs.setup-runner.outputs.RELEASE }},Stage=${{ needs.setup-runner.outputs.STAGE }},StageLevel=${{ needs.setup-runner.outputs.STAGE_LEVEL }}"
+            --label-creator github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
+            --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }}"
             
 
           instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track.yml | awk '{print $2}')
