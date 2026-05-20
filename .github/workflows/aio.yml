@@ -37,6 +37,11 @@ on:
           - -vv
           - -vvv
           - -vvvv
+      ISSUE:
+        description: 'Issue number to link the deployment logs to (optional)'
+        required: false
+        default: ''
+        type: string
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   release:
@@ -55,6 +60,10 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout wazuh/wazuh-ansible repository
+        uses: actions/checkout@v4
+        with:
+          path: wazuh-ansible/
       - name: Display workflow inputs
         run: echo "${{ toJson(inputs) }}"
       - name: Compute outputs
@@ -94,10 +103,24 @@ jobs:
           fi
           echo "COMMIT_LIST=$COMMIT_LIST" >> $GITHUB_OUTPUT
           echo "Revision list (indexer, manager, dashboard, agent, installation-assistant): $COMMIT_LIST"
-      - name: Checkout wazuh/wazuh-ansible repository
-        uses: actions/checkout@v4
-        with:
-          path: wazuh-ansible/
+
+          # Set ISSUE
+          if [[ "${{ inputs.ISSUE }}" != "null" && "${{ inputs.ISSUE }}" != "" ]]; then
+            ISSUE='${{ inputs.ISSUE }}'
+          else
+            ISSUE='https://github.com/wazuh/wazuh-ansible/pull/${{ github.event.number }}'
+          fi
+          echo "ISSUE=$ISSUE" >> $GITHUB_OUTPUT
+          echo "Issue: $ISSUE"
+
+          # Set RELEASE, STAGE and STAGELEVEL 
+          WAZUH_VERSION=$(jq -r '.version' VERSION.json)
+          WAZUH_STAGE=$(jq -r '.stage | display | capture("(?<s >[a-zA-Z]+)") | .s' VERSION.json 2>/dev/null || jq -r '.stage | select(type=="string") | sub("[0-9]+$"; "")' VERSION.json)
+          WAZUH_STAGE_LEVEL=$(jq -r '.stage | select(type=="string") | sub("^[^0-9]+"; "")' VERSION.json)
+          echo "RELEASE=$WAZUH_VERSION" >> $GITHUB_OUTPUT
+          echo "STAGE=$WAZUH_STAGE" >> $GITHUB_OUTPUT
+          echo "STAGE_LEVEL=$WAZUH_STAGE_LEVEL" >> $GITHUB_OUTPUT
+          echo "Release: $WAZUH_VERSION, Stage: $WAZUH_STAGE, Stage level: $WAZUH_STAGE_LEVEL"
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v25
         with:
@@ -135,6 +158,10 @@ jobs:
       PRIVATE_KEY_PATH: ${{ steps.create-ssh-key.outputs.PRIVATE_KEY_PATH }}
       ENVIRONMENT: ${{ steps.compute-outputs.outputs.ENVIRONMENT }}
       COMMIT_LIST: ${{ steps.compute-outputs.outputs.COMMIT_LIST }}
+      ISSUE: ${{ steps.compute-outputs.outputs.ISSUE }}
+      RELEASE: ${{ steps.compute-outputs.outputs.RELEASE }}
+      STAGE: ${{ steps.compute-outputs.outputs.STAGE }}
+      STAGE_LEVEL: ${{ steps.compute-outputs.outputs.STAGE_LEVEL }}
   package-urls:
     name: Generate package URLs
     runs-on: ubuntu-22.04
@@ -260,7 +287,10 @@ jobs:
             --inventory-output $ALLOCATOR_PATH/inventory.yml \
             --ssh-key "${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" \
             --instance-name gha_ansible_${{ matrix.system }}_${{ github.run_id }} \
-            --label-team devops --label-termination-date 1d
+            --label-team devops --label-termination-date 1d \
+            --label-creator=github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \  
+            --custom-tags "Release=${{ needs.setup-runner.outputs.RELEASE }},Stage=${{ needs.setup-runner.outputs.STAGE }},StageLevel=${{ needs.setup-runner.outputs.STAGE_LEVEL }}"
+            
 
           instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track.yml | awk '{print $2}')
           private_ip=$(aws ec2 describe-instances \
@@ -306,7 +336,9 @@ jobs:
                 --inventory-output $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml \
                 --ssh-key "${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" \
                 --instance-name gha_ansible_agent_${{ matrix.system }}_${AGENT_COMPOSITE_NAME}_${{ github.run_id }} \
-                --label-team devops --label-termination-date 1d
+                --label-team devops --label-termination-date 1d \
+                --label-creator=github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \  
+            --custom-tags "Release=${{ needs.setup-runner.outputs.RELEASE }},Stage=${{ needs.setup-runner.outputs.STAGE }},StageLevel=${{ needs.setup-runner.outputs.STAGE_LEVEL }}"
 
               instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml | awk '{print $2}')
               private_ip=$(aws ec2 describe-instances \
