@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Delete PR option into test workflow ([#2109](https://github.com/wazuh/wazuh-ansible/pull/2109))
 
 ### Fixed
 
