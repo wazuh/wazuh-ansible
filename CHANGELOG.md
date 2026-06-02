@@ -256,6 +256,79 @@ All notable changes to this project will be documented in this file.
 
 - None
 
+## [4.10.5]
+
+### Added
+
+- None
+
+### Changed
+
+- Delete PR option into test workflow ([#2109](https://github.com/wazuh/wazuh-ansible/pull/2109))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.4]
+
+### Added
+
+- None
+
+### Changed
+
+- Bucket migration for packages-dev.wazuh.com ([#1713](https://github.com/wazuh/wazuh-ansible/pull/1713))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1718](https://github.com/wazuh/wazuh-ansible/pull/1718))- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.3]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.2]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [v4.10.1]
 
 ### Added
