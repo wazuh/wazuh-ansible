@@ -1,0 +1,9 @@
+---
+
+dashboard_node_name: "dashboard"
+wazuh_manager_master_address: "{{ hostvars[inventory_hostname].private_ip }}"
+indexer_cluster_nodes:
+  - "{{ hostvars[inventory_hostname].private_ip }}"
+
+wazuh_dashboard_package_download_path: "/tmp/wazuh-dashboard"
+wazuh_dashboard_package_name: "wazuh-dashboard-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
