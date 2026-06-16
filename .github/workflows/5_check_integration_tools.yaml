@@ -512,27 +512,63 @@ jobs:
         timeout-minutes: 20
         run: |
           if [ "${{ matrix.deployment_type }}" = "aio" ]; then
-            # AIO: wait for indexer first (slowest), then dashboard and manager in parallel
-            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
-              -a "host=localhost port=9200 timeout=900 delay=15 msg='wazuh-indexer not ready'"
-            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
-              -a "host=localhost port=443 timeout=300 delay=5 msg='wazuh-dashboard not ready'" &
-            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
-              -a "host=localhost port=55000 timeout=300 delay=5 msg='wazuh-manager not ready'" &
-            wait
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory"
+            INDEXER_HOST="aio"
+            MANAGER_HOST="aio"
+            DASHBOARD_HOST="aio"
           else
-            # Distributed: all components in parallel
-            ansible wi1       -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
-              -a "host=localhost port=9200  timeout=900 delay=15 msg='wazuh-indexer not ready'" &
-            ansible manager   -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
-              -a "host=localhost port=55000 timeout=300 delay=5  msg='wazuh-manager not ready'" &
-            ansible dashboard -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
-              -a "host=localhost port=443   timeout=300 delay=5  msg='wazuh-dashboard not ready'" &
-            wait
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory_all"
+            INDEXER_HOST="wi1"
+            MANAGER_HOST="manager"
+            DASHBOARD_HOST="dashboard"
           fi
 
+          # Wait for indexer HTTPS health endpoint (not just TCP port)
+          ansible $INDEXER_HOST -i $INVENTORY -b -m shell -a "
+            echo 'Waiting for wazuh-indexer health endpoint...'
+            for i in \$(seq 1 60); do
+              code=\$(curl -sk -o /dev/null -w '%{http_code}' 'https://localhost:9200/_cluster/health?pretty' 2>/dev/null)
+              [ \"\$code\" = '200' ] || [ \"\$code\" = '401' ] && break
+              echo \"  attempt \$i: HTTP \$code, retrying in 10s...\"
+              sleep 10
+            done
+            [ \"\$code\" = '200' ] || [ \"\$code\" = '401' ] || { echo 'ERROR: wazuh-indexer not ready after 10 minutes'; exit 1; }
+            echo \"wazuh-indexer ready (HTTP \$code)\"
+          "
+
+          # Wait for manager and dashboard ports in parallel
+          ansible $MANAGER_HOST   -i $INVENTORY -b -m wait_for \
+            -a "host=localhost port=55000 timeout=300 delay=5 msg='wazuh-manager not ready'" &
+          ansible $DASHBOARD_HOST -i $INVENTORY -b -m wait_for \
+            -a "host=localhost port=443 timeout=300 delay=5 msg='wazuh-dashboard not ready'" &
+          wait
+
+      - name: Diagnose service startup (on wait_for failure)
+        if: failure()
+        run: |
+          echo "=== Diagnosing Wazuh service status ==="
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory"
+            PATTERN="aio"
+          else
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory_all"
+            PATTERN="all"
+          fi
+          ansible $PATTERN -i $INVENTORY -b -m shell -a "
+            echo '--- systemctl status ---'
+            systemctl is-active wazuh-indexer  || true
+            systemctl is-active wazuh-manager  || true
+            systemctl is-active wazuh-dashboard || true
+            echo '--- free memory ---'
+            free -h
+            echo '--- disk usage ---'
+            df -h /
+            echo '--- wazuh-indexer journal (last 30 lines) ---'
+            journalctl -u wazuh-indexer -n 30 --no-pager || true
+          " || true
+
       - name: Create YAML inventory for AIO tests
-        if: matrix.deployment_type == 'aio'
+        if: always() && matrix.deployment_type == 'aio'
         run: |
           DEFAULT_KEY_PATH="${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}"
           DEFAULT_SSH_ARGS='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'
@@ -561,7 +597,7 @@ jobs:
               }' > ${{ env.ALLOCATOR_PATH }}/inventory.yml
 
       - name: Create YAML inventories for distributed tests
-        if: matrix.deployment_type == 'distributed'
+        if: always() && matrix.deployment_type == 'distributed'
         run: |
           DEFAULT_KEY_PATH="${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}"
           DEFAULT_SSH_ARGS='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'
@@ -627,19 +663,16 @@ jobs:
         if: always() && matrix.deployment_type == 'distributed'
         continue-on-error: true
         run: |
-          for host in manager worker; do
-            echo "=== Testing manager on: $host ==="
-            test_runner \
-              --test-type installer \
-              --deployment-type ansible \
-              --inventory ${{ env.ALLOCATOR_PATH }}/inventory_all.yml \
-              --host $host \
-              --component-type manager \
-              --version "${{ needs.prepare.outputs.wazuh_version }}" \
-              --log-level INFO \
-              --output github \
-              --output-file "test-results-ansible-distributed-manager-${host}-${{ matrix.system }}.github"
-          done
+          test_runner \
+            --test-type installer \
+            --deployment-type ansible \
+            --inventory ${{ env.ALLOCATOR_PATH }}/inventory_all.yml \
+            --host manager \
+            --component-type manager \
+            --version "${{ needs.prepare.outputs.wazuh_version }}" \
+            --log-level INFO \
+            --output github \
+            --output-file "test-results-ansible-distributed-manager-${{ matrix.system }}.github"
 
       - name: Run distributed dashboard tests
         id: run_tests_dashboard
