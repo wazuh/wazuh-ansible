@@ -57,7 +57,6 @@ permissions:
 env:
   AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'enhancement/1920-implement-ansible-integration-testing' }}
   ALLOCATOR_PATH: /tmp/wazuh-ansible/allocator_instance
-  PRESIGNED_OUTPUT_FILE: /tmp/wazuh-ansible/artifact_urls_presigned.yaml
   AGENT_COMPOSITE_NAMES: >
     ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
     "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
@@ -283,91 +282,14 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # ---------------------------------------------------------------------------
-  # Job 3: Generate presigned S3 URLs (development environment only)
-  # ---------------------------------------------------------------------------
-  package_urls:
-    name: Generate package URLs
-    needs: [prepare]
-    if: ${{ needs.prepare.outputs.environment == 'development' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
-          aws-region: us-east-1
-
-      - name: Checkout wazuh-ansible
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.prepare.outputs.pr_head_ref }}
-          path: wazuh-ansible/
-
-      - name: Checkout wazuh-automation
-        uses: actions/checkout@v4
-        with:
-          repository: wazuh/wazuh-automation
-          ref: ${{ env.AUTOMATION_REFERENCE }}
-          token: ${{ secrets.GH_CLONE_TOKEN }}
-          path: wazuh-automation/
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install URL signing Python dependencies
-        run: python -m pip install PyYAML
-
-      - name: Generate the variables file (signing each package URI)
-        run: |
-          VERSION_FILE="wazuh-ansible/VERSION.json"
-          WAZUH_VERSION=$(jq -r '.version' "$VERSION_FILE")
-          COMMIT_LIST='${{ needs.prepare.outputs.commit_list }}'
-
-          INDEXER_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[0]')
-          MANAGER_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[1]')
-          DASHBOARD_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[2]')
-          AGENT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[3]')
-          ASSISTANT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[4]')
-
-          python wazuh-automation/tools/sign_urls/generate_presigned_dev_urls.py \
-            --process test_ansible \
-            --wazuh-version "$WAZUH_VERSION" \
-            --aws-s3-bucket-dev "${{ vars.AWS_S3_BUCKET_DEV }}" \
-            --indexer-revision "$INDEXER_REVISION" \
-            --manager-revision "$MANAGER_REVISION" \
-            --dashboard-revision "$DASHBOARD_REVISION" \
-            --agent-revision "$AGENT_REVISION" \
-            --assistant-revision "$ASSISTANT_REVISION" \
-            --expires-in 43200
-
-          mkdir -p "$(dirname "$PRESIGNED_OUTPUT_FILE")"
-          cp "/tmp/artifact_urls.yaml" "$PRESIGNED_OUTPUT_FILE"
-
-          if [ -f "$PRESIGNED_OUTPUT_FILE" ]; then
-            echo "Presigned URLs file created successfully at $PRESIGNED_OUTPUT_FILE."
-          else
-            echo "Failed to create presigned artifact_urls.yaml file." >&2
-            exit 1
-          fi
-
-      - name: Save presigned URLs file to artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: presigned-artifact-urls-${{ github.run_id }}
-          path: "${{ env.PRESIGNED_OUTPUT_FILE }}"
-
-  # ---------------------------------------------------------------------------
-  # Job 4: For each deployment type × OS — provision, deploy, test, clean up
+  # Job 3: For each deployment type × OS — provision, deploy, test, clean up
   # ---------------------------------------------------------------------------
   ansible_test:
     name: Ansible ${{ matrix.deployment_type }} (${{ matrix.system }})
-    needs: [get_pr_info, prepare, package_urls]
+    needs: [get_pr_info, prepare]
     if: |
       always() &&
-      needs.prepare.result == 'success' &&
-      (needs.package_urls.result == 'success' || needs.package_urls.result == 'skipped')
+      needs.prepare.result == 'success'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -593,17 +515,29 @@ jobs:
       # -----------------------------------------------------------------------
       # Configure: presigned URLs and extra vars
       # -----------------------------------------------------------------------
-      - name: Download presigned URLs artifact
-        if: ${{ needs.prepare.outputs.environment == 'development' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: presigned-artifact-urls-${{ github.run_id }}
-          path: /tmp/wazuh-ansible
-
-      - name: Copy presigned URLs to Ansible roles
-        if: ${{ needs.prepare.outputs.environment == 'development' }}
+      - name: Generate and install presigned URLs
+        if: needs.prepare.outputs.environment == 'development'
         run: |
-          cp "${{ env.PRESIGNED_OUTPUT_FILE }}" "wazuh-ansible/roles/vars/artifact_urls.yaml"
+          COMMIT_LIST='${{ needs.prepare.outputs.commit_list }}'
+          INDEXER_REVISION=$(echo "$COMMIT_LIST"   | jq -r '.[0]')
+          MANAGER_REVISION=$(echo "$COMMIT_LIST"   | jq -r '.[1]')
+          DASHBOARD_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[2]')
+          AGENT_REVISION=$(echo "$COMMIT_LIST"     | jq -r '.[3]')
+          ASSISTANT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[4]')
+
+          python wazuh-automation/tools/sign_urls/generate_presigned_dev_urls.py \
+            --process test_ansible \
+            --wazuh-version "${{ needs.prepare.outputs.wazuh_version }}" \
+            --aws-s3-bucket-dev "${{ vars.AWS_S3_BUCKET_DEV }}" \
+            --indexer-revision   "$INDEXER_REVISION" \
+            --manager-revision   "$MANAGER_REVISION" \
+            --dashboard-revision "$DASHBOARD_REVISION" \
+            --agent-revision     "$AGENT_REVISION" \
+            --assistant-revision "$ASSISTANT_REVISION" \
+            --expires-in 43200
+
+          mkdir -p "wazuh-ansible/roles/vars"
+          cp /tmp/artifact_urls.yaml "wazuh-ansible/roles/vars/artifact_urls.yaml"
 
       - name: Set EXTRA_VARS for environment
         run: |
@@ -1067,7 +1001,7 @@ jobs:
   # Job 5: Update the GitHub check run (issue_comment trigger only)
   # ---------------------------------------------------------------------------
   update_check:
-    needs: [get_pr_info, prepare, package_urls, ansible_test]
+    needs: [get_pr_info, prepare, ansible_test]
     if: always() && github.event_name == 'issue_comment' && needs.get_pr_info.result == 'success'
     runs-on: ubuntu-latest
     steps:
