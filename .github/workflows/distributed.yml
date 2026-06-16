@@ -12,7 +12,7 @@ on:
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["centos_stream-10-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        default: '["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent", "installation-assistant"]'
@@ -39,15 +39,20 @@ on:
           - -vv
           - -vvv
           - -vvvv
+      ISSUE:
+        description: 'Issue number to link the deployment logs to (optional)'
+        required: false
+        default: ''
+        type: string
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   release:
 env:
   AGENT_COMPOSITE_NAMES: >
     ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
     "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
   ALLOCATOR_PATH: "/tmp/wazuh-ansible/allocator_instance"
-  ARTIFACT_URLS_FILE_TEMP: "/tmp/wazuh-ansible/artifact_urls.yml"
-  PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yml"
+  PRESIGNED_OUTPUT_FILE: "/tmp/wazuh-ansible/artifact_urls_presigned.yaml"
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 permissions:
   id-token: write # JWT
@@ -55,10 +60,15 @@ permissions:
 jobs:
   setup-runner:
     name: Setup runner
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-22.04
     steps:
       - name: Display workflow inputs
         run: echo "${{ toJson(inputs) }}"
+      - name: Checkout wazuh/wazuh-ansible repository
+        uses: actions/checkout@v4
+        with:
+          path: wazuh-ansible/
       - name: Compute outputs
         id: compute-outputs
         run: |
@@ -66,7 +76,7 @@ jobs:
           if [[ "${{ inputs.OS_LIST }}" != "null" && "${{ inputs.OS_LIST }}" != "" ]]; then
             OS_LIST='${{ inputs.OS_LIST }}'
           else
-            OS_LIST='["centos_stream-10-arm64", "amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+            OS_LIST='["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
           fi
           echo "OS_LIST=$OS_LIST" >> $GITHUB_OUTPUT
           echo "Operating Systems: $OS_LIST"
@@ -97,6 +107,31 @@ jobs:
           fi
           echo "COMMIT_LIST=$COMMIT_LIST" >> $GITHUB_OUTPUT
           echo "Revision list (indexer, manager, dashboard, agent, installation-assistant): $COMMIT_LIST"
+
+          # Set ISSUE
+          if [[ "${{ inputs.ISSUE }}" != "null" && "${{ inputs.ISSUE }}" != "" ]]; then
+            ISSUE='${{ inputs.ISSUE }}'
+          else
+            # This link redirects to the pull request that triggers the test, since the URL is formed depending on whether the event.number belongs to an issue or a pull request.
+            ISSUE='https://github.com/wazuh/wazuh-ansible/issues/${{ github.event.number }}'
+          fi
+          echo "ISSUE=$ISSUE" >> $GITHUB_OUTPUT
+          echo "Issue: $ISSUE"
+
+          # Set RELEASE, STAGE and STAGELEVEL 
+          WAZUH_VERSION=$(jq -r '.version' wazuh-ansible/VERSION.json)
+          WAZUH_STAGE=$(jq -r '.stage | display | capture("(?<s >[a-zA-Z]+)") | .s' wazuh-ansible/VERSION.json 2>/dev/null || jq -r '.stage | select(type=="string") | sub("[0-9]+$"; "")' wazuh-ansible/VERSION.json)
+          WAZUH_STAGE_LEVEL=$(jq -r '.stage | select(type=="string") | sub("^[^0-9]+"; "")' wazuh-ansible/VERSION.json)
+          echo "RELEASE=$WAZUH_VERSION" >> $GITHUB_OUTPUT
+          echo "STAGE=$WAZUH_STAGE" >> $GITHUB_OUTPUT
+          echo "STAGE_LEVEL=$WAZUH_STAGE_LEVEL" >> $GITHUB_OUTPUT
+          echo "Release: $WAZUH_VERSION, Stage: $WAZUH_STAGE, Stage level: $WAZUH_STAGE_LEVEL"
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25
+        with:
+          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
+          working_directory: "wazuh-ansible"
+          requirements_file: "requirements.yml"
       - name: Configure AWS credentials (assume role)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -128,6 +163,10 @@ jobs:
       PRIVATE_KEY_PATH: ${{ steps.create-ssh-key.outputs.PRIVATE_KEY_PATH }}
       ENVIRONMENT: ${{ steps.compute-outputs.outputs.ENVIRONMENT }}
       COMMIT_LIST: ${{ steps.compute-outputs.outputs.COMMIT_LIST }}
+      ISSUE: ${{ steps.compute-outputs.outputs.ISSUE }}
+      RELEASE: ${{ steps.compute-outputs.outputs.RELEASE }}
+      STAGE: ${{ steps.compute-outputs.outputs.STAGE }}
+      STAGE_LEVEL: ${{ steps.compute-outputs.outputs.STAGE_LEVEL }}
   package-urls:
     name: Generate package URLs
     runs-on: ubuntu-22.04
@@ -180,13 +219,13 @@ jobs:
             --expires-in 43200
 
           mkdir -p "$(dirname "$PRESIGNED_OUTPUT_FILE")"
-          cp "/tmp/artifact_urls.yml" "$PRESIGNED_OUTPUT_FILE"
+          cp "/tmp/artifact_urls.yaml" "$PRESIGNED_OUTPUT_FILE"
 
           # Verify the presigned urls file
           if [ -f "$PRESIGNED_OUTPUT_FILE" ]; then
             echo "Presigned URLs file created successfully at $PRESIGNED_OUTPUT_FILE."
           else
-            echo "Failed to create presigned artifact_urls.yml file." >&2
+            echo "Failed to create presigned artifact_urls.yaml file." >&2
             exit 1
           fi
       - name: Save presigned URLs file to artifact
@@ -199,7 +238,6 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - setup-runner
-      - package-urls
     strategy:
       fail-fast: false # all jobs will run even if one fails
       matrix:
@@ -255,12 +293,17 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size medium --storage 64 \
+                --action create \
+                --provider aws \
+                --size medium \
                 --composite-name ${{ matrix.system }} \
                 --working-dir $ALLOCATOR_PATH --track-output $ALLOCATOR_PATH/track_${instance_name}.yml \
                 --inventory-output $ALLOCATOR_PATH/inventory_${instance_name}.yml \
                 --ssh-key "$ssh_key_path" \
-                --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} --label-team devops --label-termination-date 1d
+                --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} \
+                --label-team devops --label-termination-date 1d \
+                --label-creator github-actions  --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
+                --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
             ) &
           done
 
@@ -286,11 +329,11 @@ jobs:
 
             # Add instance to corresponding group
             if [[ $i -eq 0 ]]; then
-              echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-1 ansible_ssh_user=$ansible_user" >> $inventory_file
+              echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 1 ]]; then
-              echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-2 ansible_ssh_user=$ansible_user" >> $inventory_file
+              echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer-2 ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 2 ]]; then
-              echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=node-3 ansible_ssh_user=$ansible_user" >> $inventory_file
+              echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer-3 ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 3 ]]; then
               echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $inventory_file
             elif [[ $i -eq 4 ]]; then
@@ -329,14 +372,18 @@ jobs:
             # Provision instance in parallel
             (
               python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create --provider aws --size small --storage 64 \
+                --action create \
+                --provider aws \
+                --size small \
                 --composite-name "$AGENT_COMPOSITE_NAME" \
                 --working-dir $ALLOCATOR_PATH \
                 --track-output $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml \
                 --inventory-output $ALLOCATOR_PATH/inventory_agent_${AGENT_COMPOSITE_NAME}.yml \
                 --ssh-key "${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" \
                 --instance-name gha_ansible_agent_${{ matrix.system }}_${AGENT_COMPOSITE_NAME}_${{ github.run_id }} \
-                --label-team devops --label-termination-date 1d
+                --label-team devops --label-termination-date 1d \
+                --label-creator github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
+                --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }},Purpose:pr-check,Product:wazuh-agent,ExecutionId=${{ github.run_id }}"
 
               instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track_agent_${AGENT_COMPOSITE_NAME}.yml | awk '{print $2}')
               private_ip=$(aws ec2 describe-instances \
@@ -379,27 +426,37 @@ jobs:
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $AGENTS_INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}" >> $AGENTS_INVENTORY_FILE
       - name: Download the presigned urls file artifact
+        if: ${{ needs.setup-runner.outputs.ENVIRONMENT == 'development' }}
         uses: actions/download-artifact@v4
         with:
           name: presigned-artifact-urls-${{ github.run_id }}
           path: "/tmp/wazuh-ansible"
       - name: Copy the presigned urls file to Ansible roles variables path
+        if: ${{ needs.setup-runner.outputs.ENVIRONMENT == 'development' }}
         run: |
           # Copy the presigned URLs file to the Ansible roles variables path
-          cp ${{ env.PRESIGNED_OUTPUT_FILE }} wazuh-ansible/roles/vars/artifact_urls.yml
+          cp "${{ env.PRESIGNED_OUTPUT_FILE }}" "wazuh-ansible/roles/vars/artifact_urls.yaml"
       - name: Set SSH key permissions
         run: chmod 0600 ${{ needs.setup-runner.outputs.PRIVATE_KEY_PATH }}
+      - name: Set EXTRA_VARS environment variable
+        run: |
+          ENVIRONMENT="${{ needs.setup-runner.outputs.ENVIRONMENT }}"
+          EXTRAVARS_CONTENT=""
+          if [ "$ENVIRONMENT" == "development" ]; then
+            EXTRAVARS_CONTENT="--extra-vars source=custom"
+          elif [ "$ENVIRONMENT" == "prerelease" ]; then
+            EXTRAVARS_CONTENT="--extra-vars source=prerelease"
+          fi
+          echo "EXTRA_VARS=$EXTRAVARS_CONTENT" >> $GITHUB_ENV
       - name: Ansible Playbook run Wazuh Distributed cluster
         run: |
-          ansible-playbook wazuh-ansible/wazuh-distributed.yml --extra-vars "source=custom" -b \
+          ansible-playbook wazuh-ansible/wazuh-distributed.yml $EXTRA_VARS -b \
           -i $ALLOCATOR_PATH/inventory_all \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Ansible Playbook run Wazuh agents
         run: |
-          ansible-playbook wazuh-ansible/wazuh-agent.yml --extra-vars "source=custom" \
+          ansible-playbook wazuh-ansible/wazuh-agent.yml $EXTRA_VARS \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Copy deployment-config-files to the ALLOCATOR_PATH
         if: always()
@@ -550,7 +607,7 @@ jobs:
       fail-fast: false # all jobs will run even if one fails
       matrix:
         system: ${{ fromJson(needs.setup-runner.outputs.OS_LIST) }}
-    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ always() && needs.setup-runner.result != 'skipped' }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -602,7 +659,6 @@ jobs:
           ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=false" \
           -i $ALLOCATOR_PATH/inventory_all \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Fetch Wazuh agents logs (if failure occured)
         if: ${{ needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure' }}
@@ -610,7 +666,6 @@ jobs:
           ansible-playbook wazuh-ansible/.github/playbooks/gather_agent_logs.yml \
           --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/agents" \
           -i $ALLOCATOR_PATH/inventory_agents.ini \
-          -l all \
           ${{ needs.setup-runner.outputs.VERBOSITY }}
       - name: Set permissions for Wazuh logs directory
         if: always() && needs.start-runner.outputs.DEPLOYMENT_STATUS == 'failure'
@@ -679,12 +734,12 @@ jobs:
           # Wait for all deletion tasks to complete
           wait
   final-cleanup:
-    name: Final validation and cleanup
+    name: Delete key pair for allocated instances
     needs:
       - setup-runner
       - stop-runner
     runs-on: ubuntu-22.04
-    if: ${{ always() }}
+    if: ${{ always() && needs.setup-runner.result != 'skipped' }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -711,13 +766,3 @@ jobs:
 
           aws ec2 delete-key-pair --key-name "$KEY_NAME" --region us-east-1
           echo "Deleted key pair: $KEY_NAME"
-      - name: Checkout wazuh/wazuh-ansible repository
-        uses: actions/checkout@v4
-        with:
-          path: wazuh-ansible/
-      - name: Run ansible-lint
-        uses: ansible/ansible-lint@v25
-        with:
-          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
-          working_directory: "wazuh-ansible"
-          requirements_file: "requirements.yml"

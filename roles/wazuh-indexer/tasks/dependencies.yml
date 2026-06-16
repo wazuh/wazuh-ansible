@@ -44,7 +44,7 @@
 
     - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-indexer package
       ansible.builtin.get_url:
-        url: "{{ wazuh_indexer_amd64_rpm }}"
+        url: "{{ wazuh_indexer_x86_64_rpm }}"
         dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
         mode: '0644'
       when:
@@ -52,7 +52,7 @@
 
     - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-indexer package
       ansible.builtin.get_url:
-        url: "{{ wazuh_indexer_arm64_rpm }}"
+        url: "{{ wazuh_indexer_aarch64_rpm }}"
         dest: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
         mode: '0644'
       when:

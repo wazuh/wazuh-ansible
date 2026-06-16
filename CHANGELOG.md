@@ -5,10 +5,22 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add new tags on PR tests ([#2095](https://github.com/wazuh/wazuh-ansible/pull/2095))
+- Add roles and variables documentation ([#2088](https://github.com/wazuh/wazuh-ansible/pull/2088))
+- 5.x bumper revert changes added ([#2023](https://github.com/wazuh/wazuh-ansible/pull/2023))
+- Added set-as-main option to repository bumper ([#2002](https://github.com/wazuh/wazuh-ansible/pull/2002))
 - Bring missing GHA workflows aio.yml and distributed.yml to main ([#1644](https://github.com/wazuh/wazuh-ansible/pull/1644))
 
 ### Changed
 
+- Forbid run test in draft PRs ([#2093](https://github.com/wazuh/wazuh-ansible/pull/2093))
+- Fixed Wazuh manager certificates handling ([#2055](https://github.com/wazuh/wazuh-ansible/pull/2055))
+- URLs file path update ([#2039](https://github.com/wazuh/wazuh-ansible/pull/2039))
+- Adapted the Ansible deployment according to the config.yml changes. ([#2000](https://github.com/wazuh/wazuh-ansible/pull/2000))
+- Conditionally select RPM artifact URL keys based on source environment ([#1997](https://github.com/wazuh/wazuh-ansible/pull/1997))
+- Update package artifact URLs and standardize artifact file extension ([#1986](https://github.com/wazuh/wazuh-ansible/pull/1986))
+- Fixed INSTALLATION.md file. ([#1981](https://github.com/wazuh/wazuh-ansible/pull/1981))
+- Updated wazuh-ansible documentation config and tooling versions to meet new standards. ([#1980](https://github.com/wazuh/wazuh-ansible/pull/1980))
 - Standardize URL presigning process in AIO and distributed workflows ([#1959](https://github.com/wazuh/wazuh-ansible/pull/1959))
 - Enhance key management in workflows ([#1958](https://github.com/wazuh/wazuh-ansible/pull/1958))
 - Development - Separate Agent/Manager - Ansible - E2E Tests enhancements ([#1957](https://github.com/wazuh/wazuh-ansible/pull/1957))
@@ -38,13 +50,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Fix needrestart task for debian in the dashboard role ([#2087](https://github.com/wazuh/wazuh-ansible/pull/2087))
+- Wazuh indexer idempotency fix ([#2058](https://github.com/wazuh/wazuh-ansible/pull/2058))
 
 ### Deleted
 
 - None
 
-## [4.14.5]
+## [4.14.7]
 
 ### Added
 
@@ -62,6 +75,43 @@ All notable changes to this project will be documented in this file.
 
 - None
 
+## [4.14.6]
+
+### Added
+
+- None
+
+### Changed
+
+- Delete PR option into test workflow ([#2108](https://github.com/wazuh/wazuh-ansible/pull/2108))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.14.5]
+
+### Added
+
+- None
+
+### Changed
+
+- The versions of the actions used in the workflows are updated. ([#1998](https://github.com/wazuh/wazuh-ansible/pull/1998))
+- Migrate injected ansible_*facts to ansible_facts.* ([#1964](https://github.com/wazuh/wazuh-ansible/pull/1964))
+
+### Fixed
+
+- Fix bumper script early exit ([#1979](https://github.com/wazuh/wazuh-ansible/pull/1979))
+
+### Deleted
+
+- None
+
 ## [4.14.4]
 
 ### Added
@@ -70,6 +120,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Remove custom user configuration and related scripts ([#1967](https://github.com/wazuh/wazuh-ansible/pull/1967))
 - Fix mismatched tags in .j2 template files ([#1930](https://github.com/wazuh/wazuh-ansible/pull/1930))
 - Address Misconfiguration of indexer_cluster_nodes Parameter ([#1929](https://github.com/wazuh/wazuh-ansible/pull/1929))
 - Remove meta yamls that prevent indexer and agent role installation from PR #1806 ([#1921](https://github.com/wazuh/wazuh-ansible/pull/1921))
@@ -186,7 +237,7 @@ All notable changes to this project will be documented in this file.
 - Remove root-ca.key from the list of certificates copied to indexer nodes ([#1653](https://github.com/wazuh/wazuh-ansible/pull/1653))
 - Remove 'stable' branch ocurrencies ([#1593](https://github.com/wazuh/wazuh-ansible/pull/1593))
 
-## [v4.12.0]
+## [4.12.0]
 
 ### Added
 
@@ -203,29 +254,136 @@ All notable changes to this project will be documented in this file.
 - Add gnupg dependency to indexer, filebeat-oss, and dashboard roles ([#1623](https://github.com/wazuh/wazuh-ansible/pull/1623))
 - Update the Filebeat installation for arm64 to include revision ([#1616](https://github.com/wazuh/wazuh-ansible/pull/1616))
 
-## [v4.11.2]
+### Deleted
+
+- None
+
+## [4.11.2]
 
 ### Added
 
-- Update to [Wazuh v4.11.2](https://github.com/wazuh/wazuh/blob/v4.11.2/CHANGELOG.md#v4112)
+- None
 
-## [v4.11.1]
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.11.1]
 
 ### Added
 
-- Update to [Wazuh v4.11.1](https://github.com/wazuh/wazuh/blob/v4.11.1/CHANGELOG.md#v4111)
+- None
 
-## [v4.11.0]
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.11.0]
 
 ### Added
 
-- Update to [Wazuh v4.11.0](https://github.com/wazuh/wazuh/blob/v4.11.0/CHANGELOG.md#v4110)
+- None
 
-## [v4.10.2]
+### Changed
+
+- Add Yum lock timeout to Ansible task ([#1511](https://github.com/wazuh/wazuh-ansible/pull/1511))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.5]
 
 ### Added
 
-- Update to [Wazuh v4.10.2](https://github.com/wazuh/wazuh/blob/v4.10.2/CHANGELOG.md#v4102)
+- None
+
+### Changed
+
+- Delete PR option into test workflow ([#2109](https://github.com/wazuh/wazuh-ansible/pull/2109))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.4]
+
+### Added
+
+- None
+
+### Changed
+
+- Bucket migration for packages-dev.wazuh.com ([#1713](https://github.com/wazuh/wazuh-ansible/pull/1713))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1718](https://github.com/wazuh/wazuh-ansible/pull/1718))- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.3]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.2]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
 
 ## [v4.10.1]
 

@@ -35,7 +35,7 @@
 
     - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-dashboard package
       ansible.builtin.get_url:
-        url: "{{ wazuh_dashboard_amd64_rpm }}"
+        url: "{{ wazuh_dashboard_x86_64_rpm }}"
         dest: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
         mode: '0644'
       when:
@@ -43,7 +43,7 @@
 
     - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-dashboard package
       ansible.builtin.get_url:
-        url: "{{ wazuh_dashboard_arm64_rpm }}"
+        url: "{{ wazuh_dashboard_aarch64_rpm }}"
         dest: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
         mode: '0644'
       when:
@@ -69,26 +69,26 @@
       changed_when: false
 
     - name: Debian-based | Restart required services after dependencies installation
-      when: needrestart_check is defined
+      when: needrestart_check.rc == 0
       block:
         - name: Debian-based | Get services that need restart
+          # noqa: risky-shell-pipe - pipefail is intentionally omitted: grep returns rc=1 when no
+          # NEEDRESTART-SVC lines are found (no services need restart), which is not an error.
+          # The trailing '|| true' ensures the pipeline always exits with rc=0.
           ansible.builtin.shell: |
-            set -o pipefail
-            DEBIAN_FRONTEND=noninteractive needrestart -b 2>/dev/null | grep '^NEEDRESTART-SVC:' | awk '{print $2}'
+            DEBIAN_FRONTEND=noninteractive needrestart -b 2>/dev/null | grep '^NEEDRESTART-SVC:' | awk '{print $2}' || true
           args:
             executable: /bin/bash
           register: services_to_restart
           changed_when: false
-          when: needrestart_check.rc == 0
 
         - name: Debian-based | Restart required services (except SSH)
           ansible.builtin.systemd:
             name: "{{ item }}"
             state: restarted
-          loop: "{{ services_to_restart.stdout_lines | default([]) }}"
+          loop: "{{ services_to_restart.stdout_lines }}"
           when:
-            - needrestart_check.rc == 0
-            - services_to_restart.stdout_lines is defined
+            - services_to_restart.stdout_lines | length > 0
             - item not in ['ssh.service', 'sshd.service']
           failed_when: false
 
@@ -96,10 +96,9 @@
           ansible.builtin.systemd:
             name: "{{ item }}"
             state: restarted
-          loop: "{{ services_to_restart.stdout_lines | default([]) }}"
+          loop: "{{ services_to_restart.stdout_lines }}"
           when:
-            - needrestart_check.rc == 0
-            - services_to_restart.stdout_lines is defined
+            - services_to_restart.stdout_lines | length > 0
             - item in ['ssh.service', 'sshd.service']
           async: 1
           poll: 0
@@ -109,10 +108,7 @@
           ansible.builtin.wait_for_connection:
             delay: 30
             timeout: 300
-          when:
-            - needrestart_check.rc == 0
-            - services_to_restart.stdout_lines is defined
-            - "'ssh.service' in services_to_restart.stdout_lines or 'sshd.service' in services_to_restart.stdout_lines"
+          when: "'ssh.service' in services_to_restart.stdout_lines or 'sshd.service' in services_to_restart.stdout_lines"
 
     - name: Debian-based (AMD64) | Download wazuh-dashboard package
       ansible.builtin.get_url:
