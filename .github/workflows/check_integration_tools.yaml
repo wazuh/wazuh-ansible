@@ -1,0 +1,70 @@
+---
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch'
+    && format('Ansible Integration Test - Manual {0} on {1}', inputs.deployment_type, inputs.pr_head_ref)
+    || format('Ansible Integration Test - #{0} {1}', github.event.issue.number, github.event.issue.title) }}
+name: PR Check - Ansible Integration Tests
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_head_ref:
+        description: 'Branch of wazuh-ansible to test'
+        required: true
+        type: string
+      automation_reference:
+        description: 'Branch of wazuh-automation to use'
+        required: false
+        default: 'enhancement/1920-implement-ansible-integration-testing'
+        type: string
+      deployment_type:
+        description: 'Deployment type to test'
+        required: true
+        type: choice
+        options:
+          - aio
+          - distributed
+          - both
+      os_list:
+        description: 'Operating Systems JSON array (e.g. ["amazon-2023-amd64","ubuntu-22-arm64"])'
+        required: false
+        default: '["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        type: string
+      environment:
+        description: 'Environment to run the playbook'
+        required: false
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - prerelease
+          - production
+      commit_list:
+        description: 'Wazuh components revisions ["indexer","manager","dashboard","agent","installation-assistant"]'
+        required: false
+        default: '["latest", "latest", "latest", "latest", "latest"]'
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+env:
+  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'enhancement/1920-implement-ansible-integration-testing' }}
+  ALLOCATOR_PATH: /tmp/wazuh-ansible/allocator_instance
+  PRESIGNED_OUTPUT_FILE: /tmp/wazuh-ansible/artifact_urls_presigned.yaml
+  AGENT_COMPOSITE_NAMES: >
+    ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
+    "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
+  INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow registered. Use workflow_dispatch selecting the feature branch."
