@@ -500,6 +500,23 @@ jobs:
           ansible-playbook wazuh-ansible/wazuh-distributed.yml $EXTRA_VARS -b \
             -i ${{ env.ALLOCATOR_PATH }}/inventory_all
 
+      - name: Configure indexer HTTP host for test health checks
+        run: |
+          # The indexer role binds network.host to the private IP only.
+          # For test health checks (curl localhost:9200), also expose HTTP on all interfaces.
+          # This is test-only config; the role itself is not modified.
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory"
+            HOSTS="aio"
+          else
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory_all"
+            HOSTS="wi1,wi2,wi3"
+          fi
+          ansible $HOSTS -i $INVENTORY -b -m lineinfile \
+            -a "path=/etc/wazuh-indexer/opensearch.yml regexp='^http\\.host:' line='http.host: 0.0.0.0' insertafter='^network\\.host:'"
+          ansible $HOSTS -i $INVENTORY -b -m systemd \
+            -a "name=wazuh-indexer state=restarted"
+
       # -----------------------------------------------------------------------
       # Test: install test module and run integration tests
       # -----------------------------------------------------------------------

@@ -245,7 +245,7 @@
       ansible.builtin.lineinfile:
         path: /etc/wazuh-indexer/opensearch.yml
         regexp: '^network\.host:'
-        line: "network.host: ['{{ hostvars[inventory_hostname].private_ip }}', '_local_']"
+        line: "network.host: '{{ hostvars[inventory_hostname].private_ip }}'"
 
     - name: OpenSearch Config | Update node.name configuration
       ansible.builtin.lineinfile:
