@@ -500,28 +500,6 @@ jobs:
           ansible-playbook wazuh-ansible/wazuh-distributed.yml $EXTRA_VARS -b \
             -i ${{ env.ALLOCATOR_PATH }}/inventory_all
 
-      - name: Wait for Wazuh services to be ready
-        timeout-minutes: 10
-        run: |
-          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
-            # AIO: all services on the single host
-            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
-              -a "host=localhost port=9200 timeout=540 delay=10 msg='wazuh-indexer not ready'"
-            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
-              -a "host=localhost port=443  timeout=300 delay=5  msg='wazuh-dashboard not ready'"
-            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
-              -a "host=localhost port=55000 timeout=300 delay=5 msg='wazuh-manager not ready'"
-          else
-            # Distributed: check each component on its host in parallel
-            ansible wi1       -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
-              -a "host=localhost port=9200  timeout=540 delay=10 msg='wazuh-indexer not ready'" &
-            ansible manager   -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
-              -a "host=localhost port=55000 timeout=300 delay=5  msg='wazuh-manager not ready'" &
-            ansible dashboard -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
-              -a "host=localhost port=443   timeout=300 delay=5  msg='wazuh-dashboard not ready'" &
-            wait
-          fi
-
       # -----------------------------------------------------------------------
       # Test: install test module and run integration tests
       # -----------------------------------------------------------------------
@@ -529,6 +507,29 @@ jobs:
         run: |
           pip install -r wazuh-automation/integration-test-module/requirements.txt
           pip install -e wazuh-automation/integration-test-module/
+
+      - name: Wait for Wazuh services to be ready
+        timeout-minutes: 20
+        run: |
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            # AIO: wait for indexer first (slowest), then dashboard and manager in parallel
+            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
+              -a "host=localhost port=9200 timeout=900 delay=15 msg='wazuh-indexer not ready'"
+            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
+              -a "host=localhost port=443 timeout=300 delay=5 msg='wazuh-dashboard not ready'" &
+            ansible aio -i ${{ env.ALLOCATOR_PATH }}/inventory -b -m wait_for \
+              -a "host=localhost port=55000 timeout=300 delay=5 msg='wazuh-manager not ready'" &
+            wait
+          else
+            # Distributed: all components in parallel
+            ansible wi1       -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
+              -a "host=localhost port=9200  timeout=900 delay=15 msg='wazuh-indexer not ready'" &
+            ansible manager   -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
+              -a "host=localhost port=55000 timeout=300 delay=5  msg='wazuh-manager not ready'" &
+            ansible dashboard -i ${{ env.ALLOCATOR_PATH }}/inventory_all -b -m wait_for \
+              -a "host=localhost port=443   timeout=300 delay=5  msg='wazuh-dashboard not ready'" &
+            wait
+          fi
 
       - name: Create YAML inventory for AIO tests
         if: matrix.deployment_type == 'aio'
