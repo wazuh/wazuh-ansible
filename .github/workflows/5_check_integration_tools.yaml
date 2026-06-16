@@ -57,9 +57,6 @@ permissions:
 env:
   AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'enhancement/1920-implement-ansible-integration-testing' }}
   ALLOCATOR_PATH: /tmp/wazuh-ansible/allocator_instance
-  AGENT_COMPOSITE_NAMES: >
-    ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
-    "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 
 jobs:
@@ -386,8 +383,6 @@ jobs:
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $INVENTORY_FILE
           echo "ansible_ssh_private_key_file=${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}" >> $INVENTORY_FILE
 
-          sed -i "s|<Your Wazuh Manager IP>|$private_ip|g" wazuh-ansible/wazuh-agent.yml
-
       - name: Allocate distributed cluster EC2 instances
         if: matrix.deployment_type == 'distributed'
         run: |
@@ -417,7 +412,6 @@ jobs:
           wait
 
           echo "[all]" > $INVENTORY_FILE
-          manager_private_ip=""
 
           for i in ${!instance_names[@]}; do
             instance_name=${instance_names[$i]}
@@ -439,7 +433,6 @@ jobs:
               echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
             elif [[ $i -eq 4 ]]; then
               echo "manager ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
-              manager_private_ip=$private_ip
             elif [[ $i -eq 5 ]]; then
               echo "worker ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
             fi
@@ -456,62 +449,6 @@ jobs:
           echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $INVENTORY_FILE
           echo "ansible_ssh_private_key_file=$SSH_KEY" >> $INVENTORY_FILE
 
-          sed -i "s|<Your Wazuh Manager IP>|$manager_private_ip|g" wazuh-ansible/wazuh-agent.yml
-
-      - name: Allocate agent instances
-        run: |
-          AGENT_COMPOSITE_NAME_LIST=($(echo $AGENT_COMPOSITE_NAMES | jq -r '.[]'))
-          AGENTS_INVENTORY_FILE="${{ env.ALLOCATOR_PATH }}/inventory_agents.ini"
-          echo "[agents]" > $AGENTS_INVENTORY_FILE
-
-          for AGENT_COMPOSITE_NAME in "${AGENT_COMPOSITE_NAME_LIST[@]}"; do
-            (
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action create \
-                --provider aws \
-                --size small \
-                --composite-name "$AGENT_COMPOSITE_NAME" \
-                --working-dir ${{ env.ALLOCATOR_PATH }} \
-                --track-output ${{ env.ALLOCATOR_PATH }}/track_agent_${AGENT_COMPOSITE_NAME}.yml \
-                --inventory-output ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml \
-                --ssh-key "${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}" \
-                --instance-name gha_ansible_agent_${{ matrix.system }}_${AGENT_COMPOSITE_NAME}_${{ github.run_id }} \
-                --label-team devops --label-termination-date 1d \
-                --label-creator github-actions \
-                --label-issue "${{ needs.prepare.outputs.issue_url }}" \
-                --custom-tags "Release:${{ needs.prepare.outputs.wazuh_version }},Stage:${{ needs.prepare.outputs.wazuh_stage }},Purpose:pr-check,Product:wazuh-agent,ExecutionId=${{ github.run_id }}"
-
-              instance_id=$(grep '^identifier' ${{ env.ALLOCATOR_PATH }}/track_agent_${AGENT_COMPOSITE_NAME}.yml | awk '{print $2}')
-              private_ip=$(aws ec2 describe-instances \
-                --instance-ids $instance_id \
-                --query 'Reservations[*].Instances[*].PrivateIpAddress' \
-                --output text)
-
-              ansible_connection=$(yq e '.all.hosts[].ansible_connection' ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-              ansible_host=$(yq e '.all.hosts[].ansible_host' ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-              ansible_password=$(yq e '.all.hosts[].ansible_password' ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-              ansible_port=$(yq e '.all.hosts[].ansible_port' ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-              ansible_user=$(yq e '.all.hosts[].ansible_user' ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-              ansible_winrm=$(yq e '.all.hosts[].ansible_winrm_server_cert_validation' ${{ env.ALLOCATOR_PATH }}/inventory_agent_${AGENT_COMPOSITE_NAME}.yml)
-
-              instance_info="$AGENT_COMPOSITE_NAME ansible_host=$ansible_host private_ip=$private_ip"
-              instance_info+=" ansible_connection=$ansible_connection ansible_port=$ansible_port ansible_user=$ansible_user"
-              if [[ -n "$ansible_password" && "$ansible_password" != "null" ]]; then
-                instance_info+=" ansible_password=$ansible_password"
-              fi
-              if [[ -n "$ansible_winrm" && "$ansible_winrm" != "null" ]]; then
-                instance_info+=" ansible_winrm_server_cert_validation=$ansible_winrm"
-              fi
-              echo "$instance_info" >> $AGENTS_INVENTORY_FILE
-            ) &
-          done
-          wait
-
-          echo "" >> $AGENTS_INVENTORY_FILE
-          echo "[agents:vars]" >> $AGENTS_INVENTORY_FILE
-          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $AGENTS_INVENTORY_FILE
-          echo "ansible_ssh_private_key_file=${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}" >> $AGENTS_INVENTORY_FILE
-
       # -----------------------------------------------------------------------
       # Configure: presigned URLs and extra vars
       # -----------------------------------------------------------------------
@@ -522,7 +459,6 @@ jobs:
           INDEXER_REVISION=$(echo "$COMMIT_LIST"   | jq -r '.[0]')
           MANAGER_REVISION=$(echo "$COMMIT_LIST"   | jq -r '.[1]')
           DASHBOARD_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[2]')
-          AGENT_REVISION=$(echo "$COMMIT_LIST"     | jq -r '.[3]')
           ASSISTANT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[4]')
 
           python wazuh-automation/tools/sign_urls/generate_presigned_dev_urls.py \
@@ -532,7 +468,6 @@ jobs:
             --indexer-revision   "$INDEXER_REVISION" \
             --manager-revision   "$MANAGER_REVISION" \
             --dashboard-revision "$DASHBOARD_REVISION" \
-            --agent-revision     "$AGENT_REVISION" \
             --assistant-revision "$ASSISTANT_REVISION" \
             --expires-in 43200
 
@@ -564,11 +499,6 @@ jobs:
         run: |
           ansible-playbook wazuh-ansible/wazuh-distributed.yml $EXTRA_VARS -b \
             -i ${{ env.ALLOCATOR_PATH }}/inventory_all
-
-      - name: Run Wazuh agent playbook
-        run: |
-          ansible-playbook wazuh-ansible/wazuh-agent.yml $EXTRA_VARS \
-            -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini
 
       # -----------------------------------------------------------------------
       # Test: install test module and run integration tests
@@ -635,35 +565,6 @@ jobs:
                   )
                 }
               }' > ${{ env.ALLOCATOR_PATH }}/inventory_all.yml
-
-      - name: Create YAML inventory for agent tests
-        run: |
-          DEFAULT_KEY_PATH="${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}"
-          DEFAULT_SSH_ARGS='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'
-
-          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list \
-            | jq --arg key "$DEFAULT_KEY_PATH" --arg ssh_args "$DEFAULT_SSH_ARGS" '
-              {
-                "all": {
-                  "hosts": (
-                    ._meta.hostvars
-                    | with_entries(
-                        .value = (
-                          {
-                            ansible_connection: (.value.ansible_connection // "ssh"),
-                            ansible_host: .value.ansible_host,
-                            ansible_port: (.value.ansible_port // 22),
-                            ansible_ssh_common_args: (.value.ansible_ssh_common_args // $ssh_args),
-                            ansible_ssh_private_key_file: (.value.ansible_ssh_private_key_file // $key),
-                            ansible_user: (.value.ansible_user // .value.ansible_ssh_user)
-                          }
-                          + (if .value.ansible_password then {ansible_password: .value.ansible_password} else {} end)
-                          + (if .value.ansible_winrm_server_cert_validation then {ansible_winrm_server_cert_validation: .value.ansible_winrm_server_cert_validation} else {} end)
-                        )
-                      )
-                  )
-                }
-              }' > ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml
 
       - name: Run AIO integration tests
         id: run_tests_aio
@@ -733,27 +634,6 @@ jobs:
             --output github \
             --output-file "test-results-ansible-distributed-dashboard-${{ matrix.system }}.github"
 
-      - name: Run agent tests
-        id: run_tests_agents
-        if: always()
-        continue-on-error: true
-        run: |
-          AGENTS=$(ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini --list \
-            | jq -r '._meta.hostvars | keys[]')
-          for agent in $AGENTS; do
-            echo "=== Testing agent: $agent ==="
-            test_runner \
-              --test-type installer \
-              --deployment-type ansible \
-              --inventory ${{ env.ALLOCATOR_PATH }}/inventory_agents.yml \
-              --host "$agent" \
-              --component-type agent \
-              --version "${{ needs.prepare.outputs.wazuh_version }}" \
-              --log-level INFO \
-              --output github \
-              --output-file "test-results-ansible-agents-${agent}-${{ matrix.system }}.github"
-          done
-
       # -----------------------------------------------------------------------
       # Reporting
       # -----------------------------------------------------------------------
@@ -765,7 +645,6 @@ jobs:
           echo "Indexer tests:   ${{ steps.run_tests_indexer.outcome }}"
           echo "Manager tests:   ${{ steps.run_tests_manager.outcome }}"
           echo "Dashboard tests: ${{ steps.run_tests_dashboard.outcome }}"
-          echo "Agent tests:     ${{ steps.run_tests_agents.outcome }}"
           echo ""
           echo "=== Result files ==="
           for f in test-results-ansible-*.github; do
@@ -807,7 +686,6 @@ jobs:
           INDEXER_OUTCOME: ${{ steps.run_tests_indexer.outcome }}
           MANAGER_OUTCOME: ${{ steps.run_tests_manager.outcome }}
           DASHBOARD_OUTCOME: ${{ steps.run_tests_dashboard.outcome }}
-          AGENTS_OUTCOME: ${{ steps.run_tests_agents.outcome }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -821,7 +699,6 @@ jobs:
               process.env.INDEXER_OUTCOME,
               process.env.MANAGER_OUTCOME,
               process.env.DASHBOARD_OUTCOME,
-              process.env.AGENTS_OUTCOME,
             ].filter(o => o && o !== 'skipped');
             const allPassed = outcomes.length > 0 && outcomes.every(o => o === 'success');
 
@@ -894,14 +771,6 @@ jobs:
             --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=${SINGLE_NODE}" \
             $INVENTORY_ARG || true
 
-      - name: Collect Wazuh agent logs
-        if: failure()
-        run: |
-          mkdir -p ${{ github.workspace }}/wazuh-logs/agents
-          ansible-playbook wazuh-ansible/.github/playbooks/gather_agent_logs.yml \
-            --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/agents" \
-            -i ${{ env.ALLOCATOR_PATH }}/inventory_agents.ini || true
-
       - name: Set permissions for Wazuh logs
         if: failure()
         run: |
@@ -940,28 +809,6 @@ jobs:
           instance_names=($INSTANCE_NAMES)
           for instance_name in "${instance_names[@]}"; do
             TRACK_FILE="${{ env.ALLOCATOR_PATH }}/track_${instance_name}.yml"
-            if [ ! -f "$TRACK_FILE" ]; then
-              echo "Track file $TRACK_FILE not found, skipping." >&2
-              continue
-            fi
-            instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
-            if [ ! -d "$instance_dir" ]; then
-              mkdir -p "$instance_dir"
-              date > "$instance_dir/date.txt"
-            fi
-            (
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
-                --action delete --track-output "$TRACK_FILE"
-            ) &
-          done
-          wait
-
-      - name: Delete agent instances
-        if: always()
-        run: |
-          AGENT_COMPOSITE_NAME_LIST=($(echo $AGENT_COMPOSITE_NAMES | jq -r '.[]'))
-          for AGENT_COMPOSITE_NAME in "${AGENT_COMPOSITE_NAME_LIST[@]}"; do
-            TRACK_FILE="${{ env.ALLOCATOR_PATH }}/track_agent_${AGENT_COMPOSITE_NAME}.yml"
             if [ ! -f "$TRACK_FILE" ]; then
               echo "Track file $TRACK_FILE not found, skipping." >&2
               continue
