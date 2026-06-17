@@ -1,5 +1,5 @@
 ---
-name: Wazuh-AL-Single-Instance
+name: (4.x) AIO-CentOS-Single-Instance
 on: [workflow_dispatch, release]
 jobs:
   start-runner:
@@ -21,26 +21,35 @@ jobs:
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ${{ secrets.AL2_AMI_ID }}
-          ec2-instance-type: t3.small
+          ec2-image-id: ${{ secrets.CENTOS8_AMI_ID }}
+          ec2-instance-type: t3a.large
           subnet-id: ${{ secrets.SUBNET_ID }}
           security-group-id: ${{ secrets.SG_ID }}
           aws-resource-tags: > # optional, requires additional permissions
             [
-              {"Key": "Name", "Value": "wazuh-ansible-gh-runner-wazuh"},
+              {"Key": "Name", "Value": "wazuh-ansible-gh-runner-aio"},
               {"Key": "GitHubRepository", "Value": "${{ github.repository }}"},
               {"Key": "team", "Value": "CICD"},
               {"Key": "termination_date", "Value": "2022-12-31 21:00:00"}
             ]
-  install-wazuh-single-instance:
-    name: Installs Wazuh server single instance
+  install-aio-single-instance:
+    name: Installs AIO single instance
     needs: start-runner # required to start the main job when the runner is ready
     runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v6
-      - name: Ansible Playbook run Wazuh Single instance
-        run: ansible-playbook ./.github/playbooks/single-wazuh.yml
+      - name: Hack to get setup-python to work on act. See act issue 251
+        run: |
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+      - name: Set up Python 3.
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Ansible Playbook run Wazuh AIO Single instance
+        run: ansible-playbook ./.github/playbooks/aio-wazuh.yml
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
@@ -48,7 +57,7 @@ jobs:
     name: Stop self-hosted EC2 runner
     needs:
       - start-runner # required to get output from the start-runner job
-      - install-wazuh-single-instance # required to wait when the main job is done
+      - install-aio-single-instance # required to wait when the main job is done
     runs-on: ubuntu-22.04
     if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
