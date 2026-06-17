@@ -73,7 +73,9 @@ jobs:
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
       github.event.issue.state == 'open' &&
-      !github.event.issue.draft &&
+      (github.event.comment.author_association == 'MEMBER' ||
+       github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'COLLABORATOR') &&
       (contains(github.event.comment.body, '/test-ansible-aio') ||
        contains(github.event.comment.body, '/test-ansible-distributed') ||
        contains(github.event.comment.body, '/test-ansible'))
@@ -105,6 +107,11 @@ jobs:
         run: |
           PR_NUMBER="${{ github.event.issue.number }}"
           PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${PR_NUMBER})
+          IS_DRAFT=$(echo "$PR_DATA" | jq -r '.draft')
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "PR #${PR_NUMBER} is in draft state — skipping tests." >&2
+            exit 1
+          fi
           PR_HEAD_REF=$(echo "$PR_DATA" | jq -r '.head.ref')
           PR_HEAD_SHA=$(echo "$PR_DATA" | jq -r '.head.sha')
           echo "pr_number=${PR_NUMBER}"     >> $GITHUB_OUTPUT
@@ -728,6 +735,15 @@ jobs:
             fi
           done
 
+      - name: Fail job if any integration test step failed
+        if: always()
+        run: |
+          outcomes="${{ steps.run_tests_aio.outcome }} ${{ steps.run_tests_indexer.outcome }} ${{ steps.run_tests_manager.outcome }} ${{ steps.run_tests_dashboard.outcome }}"
+          if echo "$outcomes" | grep -qw failure; then
+            echo "One or more integration test steps failed: $outcomes" >&2
+            exit 1
+          fi
+
       - name: Create step summary
         if: always()
         run: |
@@ -918,7 +934,7 @@ jobs:
           echo "Deleted key pair: $KEY_NAME"
 
   # ---------------------------------------------------------------------------
-  # Job 5: Update the GitHub check run (issue_comment trigger only)
+  # Job 4: Update the GitHub check run (issue_comment trigger only)
   # ---------------------------------------------------------------------------
   update_check:
     needs: [get_pr_info, prepare, ansible_test]
