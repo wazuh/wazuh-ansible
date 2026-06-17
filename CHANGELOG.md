@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Change file and workflow names for PR Revamp tasks LTS ([#2144](https://github.com/wazuh/wazuh-ansible/pull/2144))
 - Delete PR option into test workflow ([#2109](https://github.com/wazuh/wazuh-ansible/pull/2109))
 
 ### Fixed
