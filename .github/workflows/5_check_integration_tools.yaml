@@ -55,7 +55,7 @@ permissions:
   checks: write
 
 env:
-  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'enhancement/1920-implement-ansible-integration-testing' }}
+  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'main' }}
   ALLOCATOR_PATH: /tmp/wazuh-ansible/allocator_instance
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 
