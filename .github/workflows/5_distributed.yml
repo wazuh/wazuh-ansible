@@ -1,5 +1,5 @@
 ---
-name: Distributed-Wazuh-Test
+name: (5.x) Distributed-Wazuh-Test
 on:
   workflow_dispatch:
     inputs:
