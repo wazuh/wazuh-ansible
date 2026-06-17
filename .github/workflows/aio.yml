@@ -10,7 +10,7 @@ on:
       OS_LIST:
         description: 'Operating Systems (comma-separated string list)'
         required: true
-        default: '["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        default: '["amazon-2023-amd64", "ubuntu-26-arm64",  "ubuntu-24-amd64", "redhat-10-arm64"]'
         type: string
       COMMIT_LIST:
         description: 'Wazuh components revisions (comma-separated string list) ["indexer", "manager", "dashboard", "agent", "installation-assistant"]'
@@ -114,7 +114,7 @@ jobs:
           echo "ISSUE=$ISSUE" >> $GITHUB_OUTPUT
           echo "Issue: $ISSUE"
 
-          # Set RELEASE, STAGE and STAGELEVEL 
+          # Set RELEASE, STAGE and STAGELEVEL
           pwd
           ls -ltr
           WAZUH_VERSION=$(jq -r '.version' wazuh-ansible/VERSION.json)
@@ -293,7 +293,7 @@ jobs:
             --label-team devops --label-termination-date 1d \
             --label-creator github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
             --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
-            
+
 
           instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track.yml | awk '{print $2}')
           private_ip=$(aws ec2 describe-instances \

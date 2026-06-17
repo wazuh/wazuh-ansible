@@ -30,7 +30,7 @@ on:
       os_list:
         description: 'Operating Systems JSON array (e.g. ["amazon-2023-amd64","ubuntu-22-arm64"])'
         required: false
-        default: '["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        default: '["amazon-2023-amd64", "ubuntu-26-arm64",  "ubuntu-24-amd64", "redhat-10-arm64"]'
         type: string
       environment:
         description: 'Environment to run the playbook'
