@@ -1,5 +1,5 @@
 ---
-name: AIO-Single-Instance-Test
+name: (5.x) AIO-Single-Instance-Test
 on:
   workflow_dispatch:
     inputs:
@@ -44,6 +44,13 @@ on:
         type: string
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+    paths:
+      - 'roles/**'
+      - 'tools/**'
+      - '.github/**'
+      - '*.yml'
   release:
 env:
   AGENT_COMPOSITE_NAMES: >
