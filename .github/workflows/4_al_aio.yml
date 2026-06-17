@@ -1,5 +1,5 @@
 ---
-name: AIO-AL-Single-Instance
+name: (4.x) AIO-AL-Single-Instance
 on: [workflow_dispatch, release]
 jobs:
   start-runner:

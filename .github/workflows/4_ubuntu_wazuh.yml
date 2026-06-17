@@ -1,5 +1,5 @@
 ---
-name: Wazuh-Ubuntu-Single-Instance
+name: (4.x) Wazuh-Ubuntu-Single-Instance
 on: [workflow_dispatch, release]
 jobs:
   start-runner:
