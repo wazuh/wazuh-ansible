@@ -271,13 +271,10 @@ jobs:
         with:
           name: allocator-instance-ssh-${{ github.run_id }}
           path: ${{ env.ALLOCATOR_PATH }}
-      - name: Install python and create virtual environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-venv
-          python3 -m pip install --upgrade pip
-          python3 -m venv venv
-          source venv/bin/activate
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Install and set allocator requirements
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
@@ -466,13 +463,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: wazuh-ansible/
-      - name: Install python and create virtual environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-venv
-          python3 -m pip install --upgrade pip
-          python3 -m venv venv
-          source venv/bin/activate
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Install and set allocator requirements
         run: |
           pip install -r wazuh-automation/deployability/deps/requirements.txt
