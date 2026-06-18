@@ -65,6 +65,6 @@ env:
 
 jobs:
   placeholder:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - run: echo "Workflow registered. Use workflow_dispatch selecting the feature branch."

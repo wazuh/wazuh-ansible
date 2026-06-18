@@ -65,7 +65,7 @@ jobs:
   setup-runner:
     name: Setup runner
     if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout wazuh/wazuh-ansible repository
         uses: actions/checkout@v4
@@ -121,7 +121,7 @@ jobs:
           echo "ISSUE=$ISSUE" >> $GITHUB_OUTPUT
           echo "Issue: $ISSUE"
 
-          # Set RELEASE, STAGE and STAGELEVEL 
+          # Set RELEASE, STAGE and STAGELEVEL
           pwd
           ls -ltr
           WAZUH_VERSION=$(jq -r '.version' wazuh-ansible/VERSION.json)
@@ -174,7 +174,7 @@ jobs:
       STAGE_LEVEL: ${{ steps.compute-outputs.outputs.STAGE_LEVEL }}
   package-urls:
     name: Generate package URLs
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     needs: setup-runner
     if: ${{ needs.setup-runner.outputs.ENVIRONMENT == 'development' }}
     steps:
@@ -240,7 +240,7 @@ jobs:
           path: "${{ env.PRESIGNED_OUTPUT_FILE }}"
   start-runner:
     name: Deploy Wazuh AIO cluster
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     needs:
       - setup-runner
     strategy:
@@ -300,7 +300,7 @@ jobs:
             --label-team devops --label-termination-date 1d \
             --label-creator github-actions --label-issue "${{ needs.setup-runner.outputs.ISSUE }}" \
             --custom-tags "Release:${{ needs.setup-runner.outputs.RELEASE }},Stage:${{ needs.setup-runner.outputs.STAGE }},StageLevel:${{ needs.setup-runner.outputs.STAGE_LEVEL }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
-            
+
 
           instance_id=$(grep '^identifier' $ALLOCATOR_PATH/track.yml | awk '{print $2}')
           private_ip=$(aws ec2 describe-instances \
@@ -443,7 +443,7 @@ jobs:
     needs:
       - setup-runner
       - start-runner
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     strategy:
       fail-fast: false # all jobs will run even if one fails
       matrix:
@@ -564,7 +564,7 @@ jobs:
     needs:
       - setup-runner
       - stop-runner
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     if: ${{ always() && needs.setup-runner.result != 'skipped' }}
     steps:
       - name: Configure AWS credentials
