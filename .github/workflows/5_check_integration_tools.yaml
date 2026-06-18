@@ -338,6 +338,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
           pip install -r wazuh-automation/deployability/deps/requirements.txt
           pip install ansible-core==2.16
           ansible-galaxy collection install -r wazuh-ansible/requirements.yml
