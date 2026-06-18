@@ -17,7 +17,7 @@ on:
       automation_reference:
         description: 'Branch of wazuh-automation to use'
         required: false
-        default: 'enhancement/1920-implement-ansible-integration-testing'
+        default: 'main'
         type: string
       deployment_type:
         description: 'Deployment type to test'
@@ -30,7 +30,7 @@ on:
       os_list:
         description: 'Operating Systems JSON array (e.g. ["amazon-2023-amd64","ubuntu-22-arm64"])'
         required: false
-        default: '["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+        default: '["amazon-2023-amd64", "ubuntu-26-arm64",  "ubuntu-24-amd64", "redhat-10-arm64"]'
         type: string
       environment:
         description: 'Environment to run the playbook'
@@ -55,16 +55,923 @@ permissions:
   checks: write
 
 env:
-  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'enhancement/1920-implement-ansible-integration-testing' }}
+  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'main' }}
   ALLOCATOR_PATH: /tmp/wazuh-ansible/allocator_instance
-  PRESIGNED_OUTPUT_FILE: /tmp/wazuh-ansible/artifact_urls_presigned.yaml
-  AGENT_COMPOSITE_NAMES: >
-    ["centos_stream-9-amd64", "redhat-9-arm64", "ubuntu-22-amd64",
-    "ubuntu-22-arm64", "amazon-2023-amd64", "windows_server-2022-amd64"]
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 
 jobs:
-  placeholder:
+  # ---------------------------------------------------------------------------
+  # Job 1: Parse PR info and determine which deployment(s) to test
+  #
+  # Available commands:
+  #   /test-ansible-aio         — test AIO deployment
+  #   /test-ansible-distributed — test distributed deployment
+  #   /test-ansible             — test both
+  # ---------------------------------------------------------------------------
+  get_pr_info:
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      github.event.issue.state == 'open' &&
+      (github.event.comment.author_association == 'MEMBER' ||
+       github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'COLLABORATOR') &&
+      (contains(github.event.comment.body, '/test-ansible-aio') ||
+       contains(github.event.comment.body, '/test-ansible-distributed') ||
+       contains(github.event.comment.body, '/test-ansible'))
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
+    outputs:
+      pr_number: ${{ steps.pr_data.outputs.pr_number }}
+      pr_head_ref: ${{ steps.pr_data.outputs.pr_head_ref }}
+      pr_head_sha: ${{ steps.pr_data.outputs.pr_head_sha }}
+      check_run_id: ${{ steps.create_check.outputs.result }}
+      deployment_matrix: ${{ steps.parse_command.outputs.deployment_matrix }}
+      check_name: ${{ steps.parse_command.outputs.check_name }}
+
+    steps:
+      - name: React to comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
+
+      - name: Extract PR data
+        id: pr_data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="${{ github.event.issue.number }}"
+          PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${PR_NUMBER})
+          IS_DRAFT=$(echo "$PR_DATA" | jq -r '.draft')
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "PR #${PR_NUMBER} is in draft state — skipping tests." >&2
+            exit 1
+          fi
+          PR_HEAD_REF=$(echo "$PR_DATA" | jq -r '.head.ref')
+          PR_HEAD_SHA=$(echo "$PR_DATA" | jq -r '.head.sha')
+          echo "pr_number=${PR_NUMBER}"     >> $GITHUB_OUTPUT
+          echo "pr_head_ref=${PR_HEAD_REF}" >> $GITHUB_OUTPUT
+          echo "pr_head_sha=${PR_HEAD_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Parse command and set deployment metadata
+        id: parse_command
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          if echo "$COMMENT_BODY" | grep -q '/test-ansible-aio'; then
+            echo 'deployment_matrix=["aio"]'                          >> $GITHUB_OUTPUT
+            echo 'check_name=Ansible Integration Check (AIO)'         >> $GITHUB_OUTPUT
+          elif echo "$COMMENT_BODY" | grep -q '/test-ansible-distributed'; then
+            echo 'deployment_matrix=["distributed"]'                  >> $GITHUB_OUTPUT
+            echo 'check_name=Ansible Integration Check (Distributed)' >> $GITHUB_OUTPUT
+          elif echo "$COMMENT_BODY" | grep -q '/test-ansible'; then
+            echo 'deployment_matrix=["aio","distributed"]'            >> $GITHUB_OUTPUT
+            echo 'check_name=Ansible Integration Check'               >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create check run
+        id: create_check
+        uses: actions/github-script@v7
+        env:
+          HEAD_SHA: ${{ steps.pr_data.outputs.pr_head_sha }}
+          CHECK_NAME: ${{ steps.parse_command.outputs.check_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        with:
+          script: |
+            const { data: check } = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: process.env.CHECK_NAME,
+              head_sha: process.env.HEAD_SHA,
+              status: 'in_progress',
+              started_at: new Date().toISOString(),
+              details_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {
+                title: `Running ${process.env.CHECK_NAME}...`,
+                summary: `Triggered by comment: \`${process.env.COMMENT_BODY}\``,
+                text: 'Allocating EC2 instances and running Ansible integration tests'
+              }
+            });
+            console.log('Check run created:', check.id);
+            return check.id;
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Resolve context and display test plan
+  # ---------------------------------------------------------------------------
+  prepare:
+    needs: [get_pr_info]
+    if: |
+      always() &&
+      (needs.get_pr_info.result == 'success' || github.event_name == 'workflow_dispatch')
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
+    outputs:
+      pr_head_ref: ${{ steps.ctx.outputs.pr_head_ref }}
+      deployment_matrix: ${{ steps.ctx.outputs.deployment_matrix }}
+      os_list: ${{ steps.ctx.outputs.os_list }}
+      environment: ${{ steps.ctx.outputs.environment }}
+      commit_list: ${{ steps.ctx.outputs.commit_list }}
+      wazuh_version: ${{ steps.version.outputs.wazuh_version }}
+      wazuh_stage: ${{ steps.version.outputs.wazuh_stage }}
+      issue_url: ${{ steps.ctx.outputs.issue_url }}
+
+    steps:
+      - name: Resolve context
+        id: ctx
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "pr_head_ref=${{ inputs.pr_head_ref }}" >> $GITHUB_OUTPUT
+
+            DEPLOY_TYPE="${{ inputs.deployment_type }}"
+            if [ "$DEPLOY_TYPE" = "both" ]; then
+              echo 'deployment_matrix=["aio","distributed"]' >> $GITHUB_OUTPUT
+            else
+              echo "deployment_matrix=[\"${DEPLOY_TYPE}\"]" >> $GITHUB_OUTPUT
+            fi
+
+            OS_LIST='${{ inputs.os_list }}'
+            if [ -z "$OS_LIST" ] || [ "$OS_LIST" = "null" ]; then
+              OS_LIST='["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
+            fi
+            echo "os_list=${OS_LIST}" >> $GITHUB_OUTPUT
+
+            ENVIRONMENT="${{ inputs.environment }}"
+            if [ -z "$ENVIRONMENT" ] || [ "$ENVIRONMENT" = "null" ]; then
+              ENVIRONMENT="development"
+            fi
+            echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+
+            COMMIT_LIST='${{ inputs.commit_list }}'
+            if [ -z "$COMMIT_LIST" ] || [ "$COMMIT_LIST" = "null" ]; then
+              COMMIT_LIST='["latest", "latest", "latest", "latest", "latest"]'
+            fi
+            echo "commit_list=${COMMIT_LIST}" >> $GITHUB_OUTPUT
+
+            echo "issue_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "pr_head_ref=${{ needs.get_pr_info.outputs.pr_head_ref }}" >> $GITHUB_OUTPUT
+            echo "deployment_matrix=${{ needs.get_pr_info.outputs.deployment_matrix }}" >> $GITHUB_OUTPUT
+            echo 'os_list=["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]' >> $GITHUB_OUTPUT
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo 'commit_list=["latest", "latest", "latest", "latest", "latest"]' >> $GITHUB_OUTPUT
+            echo "issue_url=https://github.com/${{ github.repository }}/issues/${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout wazuh-ansible
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ctx.outputs.pr_head_ref }}
+          path: wazuh-ansible/
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25
+        with:
+          args: "-v wazuh-agent.yml wazuh-aio.yml wazuh-distributed.yml .github/playbooks/gather_agent_logs.yml .github/playbooks/gather_central_logs.yml"
+          working_directory: "wazuh-ansible"
+          requirements_file: "requirements.yml"
+
+      - name: Read version info from VERSION.json
+        id: version
+        run: |
+          VERSION=$(python3 -c "import json; d=json.load(open('wazuh-ansible/VERSION.json')); print(d['version'])")
+          STAGE=$(python3 -c "import json; d=json.load(open('wazuh-ansible/VERSION.json')); print(d.get('stage',''))")
+          echo "wazuh_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "wazuh_stage=${STAGE}"     >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}  Stage: ${STAGE:-<release>}"
+
+      - name: Show test plan
+        run: |
+          WAZUH_VERSION="${{ steps.version.outputs.wazuh_version }}"
+          WAZUH_STAGE="${{ steps.version.outputs.wazuh_stage }}"
+
+          echo "============================================="
+          echo "  ANSIBLE INTEGRATION TEST PLAN"
+          echo "============================================="
+          echo "Branch:        ${{ steps.ctx.outputs.pr_head_ref }}"
+          echo "Trigger:       ${{ github.event_name }}"
+          echo "Deployments:   ${{ steps.ctx.outputs.deployment_matrix }}"
+          echo "OS list:       ${{ steps.ctx.outputs.os_list }}"
+          echo "Environment:   ${{ steps.ctx.outputs.environment }}"
+          echo "Wazuh version: ${WAZUH_VERSION}${WAZUH_STAGE:+-${WAZUH_STAGE}}"
+          echo "Commit list:   ${{ steps.ctx.outputs.commit_list }}"
+          echo "============================================="
+
+          {
+            echo "## Ansible Integration Test Plan"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Branch** | \`${{ steps.ctx.outputs.pr_head_ref }}\` |"
+            echo "| **Trigger** | \`${{ github.event_name }}\` |"
+            echo "| **Deployments** | \`${{ steps.ctx.outputs.deployment_matrix }}\` |"
+            echo "| **OS list** | \`${{ steps.ctx.outputs.os_list }}\` |"
+            echo "| **Environment** | \`${{ steps.ctx.outputs.environment }}\` |"
+            echo ""
+            echo "### Version information"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Wazuh version** | \`${WAZUH_VERSION}\` |"
+            echo "| **Stage** | \`${WAZUH_STAGE:-<release>}\` |"
+            echo "| **Automation branch** | \`${{ env.AUTOMATION_REFERENCE }}\` |"
+            echo ""
+            echo "### Component revisions"
+            echo ""
+            echo "| Component | Revision |"
+            echo "|-----------|----------|"
+            echo "| indexer | \`$(echo '${{ steps.ctx.outputs.commit_list }}' | jq -r '.[0]')\` |"
+            echo "| manager | \`$(echo '${{ steps.ctx.outputs.commit_list }}' | jq -r '.[1]')\` |"
+            echo "| dashboard | \`$(echo '${{ steps.ctx.outputs.commit_list }}' | jq -r '.[2]')\` |"
+            echo "| agent | \`$(echo '${{ steps.ctx.outputs.commit_list }}' | jq -r '.[3]')\` |"
+            echo "| installation-assistant | \`$(echo '${{ steps.ctx.outputs.commit_list }}' | jq -r '.[4]')\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # Job 3: For each deployment type × OS — provision, deploy, test, clean up
+  # ---------------------------------------------------------------------------
+  ansible_test:
+    name: Ansible ${{ matrix.deployment_type }} (${{ matrix.system }})
+    needs: [get_pr_info, prepare]
+    if: |
+      always() &&
+      needs.prepare.result == 'success'
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment_type: ${{ fromJSON(needs.prepare.outputs.deployment_matrix) }}
+        system: ${{ fromJSON(needs.prepare.outputs.os_list) }}
+
+    steps:
+      # -----------------------------------------------------------------------
+      # Setup
+      # -----------------------------------------------------------------------
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          role-session-name: ansible-test-${{ github.run_id }}-${{ matrix.deployment_type }}-${{ matrix.system }}
+          aws-region: us-east-1
+
+      - name: Checkout wazuh-ansible
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.pr_head_ref }}
+          path: wazuh-ansible/
+
+      - name: Checkout wazuh-automation
+        uses: actions/checkout@v4
+        with:
+          repository: wazuh/wazuh-automation
+          ref: ${{ env.AUTOMATION_REFERENCE }}
+          token: ${{ secrets.GH_CLONE_TOKEN }}
+          path: wazuh-automation/
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r wazuh-automation/deployability/deps/requirements.txt
+          pip install ansible-core==2.16
+          ansible-galaxy collection install -r wazuh-ansible/requirements.yml
+
+      # -----------------------------------------------------------------------
+      # Provision: create SSH key and allocate EC2 instances
+      # -----------------------------------------------------------------------
+      - name: Create SSH key pair
+        id: ssh_key
+        run: |
+          mkdir -p ${{ env.ALLOCATOR_PATH }}
+          KEY_NAME=gha_ansible_key_${{ github.run_id }}_${{ matrix.deployment_type }}_${{ matrix.system }}
+          PRIVATE_KEY_FILE=${{ env.ALLOCATOR_PATH }}/${KEY_NAME}
+          aws ec2 create-key-pair --key-name ${KEY_NAME} > key_pair_output.json
+          jq -r '.KeyMaterial' key_pair_output.json > ${PRIVATE_KEY_FILE}
+          chmod 0600 ${PRIVATE_KEY_FILE}
+          echo "KEY_NAME=${KEY_NAME}"               >> $GITHUB_OUTPUT
+          echo "PRIVATE_KEY_FILE=${PRIVATE_KEY_FILE}" >> $GITHUB_OUTPUT
+
+      - name: Allocate AIO EC2 instance
+        if: matrix.deployment_type == 'aio'
+        run: |
+          python3 wazuh-automation/deployability/modules/allocation/main.py \
+            --action create \
+            --provider aws \
+            --size medium \
+            --disk-size 32 \
+            --composite-name ${{ matrix.system }} \
+            --working-dir ${{ env.ALLOCATOR_PATH }} \
+            --track-output ${{ env.ALLOCATOR_PATH }}/track.yml \
+            --inventory-output ${{ env.ALLOCATOR_PATH }}/inventory_raw.yml \
+            --ssh-key "${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}" \
+            --instance-name gha_ansible_${{ matrix.system }}_aio_${{ github.run_id }} \
+            --label-team devops --label-termination-date 1d \
+            --label-creator github-actions \
+            --label-issue "${{ needs.prepare.outputs.issue_url }}" \
+            --custom-tags "Release:${{ needs.prepare.outputs.wazuh_version }},Stage:${{ needs.prepare.outputs.wazuh_stage }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
+
+          instance_id=$(grep '^identifier' ${{ env.ALLOCATOR_PATH }}/track.yml | awk '{print $2}')
+          private_ip=$(aws ec2 describe-instances \
+            --instance-ids $instance_id \
+            --query 'Reservations[*].Instances[*].PrivateIpAddress' \
+            --output text)
+
+          ansible_host=$(yq e '.all.hosts[].ansible_host' ${{ env.ALLOCATOR_PATH }}/inventory_raw.yml)
+          ansible_port=$(yq e '.all.hosts[].ansible_port' ${{ env.ALLOCATOR_PATH }}/inventory_raw.yml)
+          ansible_user=$(yq e '.all.hosts[].ansible_user' ${{ env.ALLOCATOR_PATH }}/inventory_raw.yml)
+
+          INVENTORY_FILE="${{ env.ALLOCATOR_PATH }}/inventory"
+          echo "[all]" > $INVENTORY_FILE
+          echo "aio ansible_host=$ansible_host private_ip=$private_ip ansible_user=$ansible_user" >> $INVENTORY_FILE
+          echo "" >> $INVENTORY_FILE
+          echo "[all:vars]" >> $INVENTORY_FILE
+          echo "ansible_port=$ansible_port" >> $INVENTORY_FILE
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $INVENTORY_FILE
+          echo "ansible_ssh_private_key_file=${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}" >> $INVENTORY_FILE
+
+      - name: Allocate distributed cluster EC2 instances
+        if: matrix.deployment_type == 'distributed'
+        run: |
+          instance_names=($INSTANCE_NAMES)
+          INVENTORY_FILE="${{ env.ALLOCATOR_PATH }}/inventory_all"
+          SSH_KEY="${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}"
+
+          for i in ${!instance_names[@]}; do
+            instance_name=${instance_names[$i]}
+            (
+              python3 wazuh-automation/deployability/modules/allocation/main.py \
+                --action create \
+                --provider aws \
+                --size medium \
+                --composite-name ${{ matrix.system }} \
+                --working-dir ${{ env.ALLOCATOR_PATH }} \
+                --track-output ${{ env.ALLOCATOR_PATH }}/track_${instance_name}.yml \
+                --inventory-output ${{ env.ALLOCATOR_PATH }}/inventory_${instance_name}.yml \
+                --ssh-key "$SSH_KEY" \
+                --instance-name gha_ansible_${{ matrix.system }}_${instance_name}_${{ github.run_id }} \
+                --label-team devops --label-termination-date 1d \
+                --label-creator github-actions \
+                --label-issue "${{ needs.prepare.outputs.issue_url }}" \
+                --custom-tags "Release:${{ needs.prepare.outputs.wazuh_version }},Stage:${{ needs.prepare.outputs.wazuh_stage }},Purpose:pr-check,Product:central-components,ExecutionId=${{ github.run_id }}"
+            ) &
+          done
+          wait
+
+          echo "[all]" > $INVENTORY_FILE
+
+          for i in ${!instance_names[@]}; do
+            instance_name=${instance_names[$i]}
+            instance_id=$(grep '^identifier' ${{ env.ALLOCATOR_PATH }}/track_${instance_name}.yml | awk '{print $2}')
+            private_ip=$(aws ec2 describe-instances \
+              --instance-ids $instance_id \
+              --query 'Reservations[*].Instances[*].PrivateIpAddress' \
+              --output text)
+            ansible_host=$(yq e '.all.hosts[].ansible_host' ${{ env.ALLOCATOR_PATH }}/inventory_${instance_name}.yml)
+            ansible_user=$(yq e '.all.hosts[].ansible_user' ${{ env.ALLOCATOR_PATH }}/inventory_${instance_name}.yml)
+
+            if [[ $i -eq 0 ]]; then
+              echo "wi1 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
+            elif [[ $i -eq 1 ]]; then
+              echo "wi2 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer-2 ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
+            elif [[ $i -eq 2 ]]; then
+              echo "wi3 ansible_host=$ansible_host private_ip=$private_ip indexer_node_name=indexer-3 ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
+            elif [[ $i -eq 3 ]]; then
+              echo "dashboard ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
+            elif [[ $i -eq 4 ]]; then
+              echo "manager ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
+            elif [[ $i -eq 5 ]]; then
+              echo "worker ansible_host=$ansible_host private_ip=$private_ip ansible_ssh_user=$ansible_user" >> $INVENTORY_FILE
+            fi
+          done
+
+          echo "" >> $INVENTORY_FILE
+          echo "[wi_cluster]" >> $INVENTORY_FILE
+          echo "wi1" >> $INVENTORY_FILE
+          echo "wi2" >> $INVENTORY_FILE
+          echo "wi3" >> $INVENTORY_FILE
+          echo "" >> $INVENTORY_FILE
+          echo "[all:vars]" >> $INVENTORY_FILE
+          echo "ansible_port=2200" >> $INVENTORY_FILE
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'" >> $INVENTORY_FILE
+          echo "ansible_ssh_private_key_file=$SSH_KEY" >> $INVENTORY_FILE
+
+      # -----------------------------------------------------------------------
+      # Configure: presigned URLs and extra vars
+      # -----------------------------------------------------------------------
+      - name: Generate and install presigned URLs
+        if: needs.prepare.outputs.environment == 'development'
+        run: |
+          COMMIT_LIST='${{ needs.prepare.outputs.commit_list }}'
+          INDEXER_REVISION=$(echo "$COMMIT_LIST"   | jq -r '.[0]')
+          MANAGER_REVISION=$(echo "$COMMIT_LIST"   | jq -r '.[1]')
+          DASHBOARD_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[2]')
+          ASSISTANT_REVISION=$(echo "$COMMIT_LIST" | jq -r '.[4]')
+
+          python wazuh-automation/tools/sign_urls/generate_presigned_dev_urls.py \
+            --process test_ansible \
+            --wazuh-version "${{ needs.prepare.outputs.wazuh_version }}" \
+            --aws-s3-bucket-dev "${{ vars.AWS_S3_BUCKET_DEV }}" \
+            --indexer-revision   "$INDEXER_REVISION" \
+            --manager-revision   "$MANAGER_REVISION" \
+            --dashboard-revision "$DASHBOARD_REVISION" \
+            --assistant-revision "$ASSISTANT_REVISION" \
+            --expires-in 43200
+
+          mkdir -p "wazuh-ansible/roles/vars"
+          cp /tmp/artifact_urls.yaml "wazuh-ansible/roles/vars/artifact_urls.yaml"
+
+      - name: Set EXTRA_VARS for environment
+        run: |
+          ENVIRONMENT="${{ needs.prepare.outputs.environment }}"
+          if [ "$ENVIRONMENT" = "development" ]; then
+            echo "EXTRA_VARS=--extra-vars source=custom" >> $GITHUB_ENV
+          elif [ "$ENVIRONMENT" = "prerelease" ]; then
+            echo "EXTRA_VARS=--extra-vars source=prerelease" >> $GITHUB_ENV
+          else
+            echo "EXTRA_VARS=" >> $GITHUB_ENV
+          fi
+
+      # -----------------------------------------------------------------------
+      # Deploy: run Ansible playbooks
+      # -----------------------------------------------------------------------
+      - name: Run Wazuh AIO playbook
+        if: matrix.deployment_type == 'aio'
+        run: |
+          ansible-playbook wazuh-ansible/wazuh-aio.yml $EXTRA_VARS -b \
+            -i ${{ env.ALLOCATOR_PATH }}/inventory
+
+      - name: Run Wazuh distributed playbook
+        if: matrix.deployment_type == 'distributed'
+        run: |
+          ansible-playbook wazuh-ansible/wazuh-distributed.yml $EXTRA_VARS -b \
+            -i ${{ env.ALLOCATOR_PATH }}/inventory_all
+
+      - name: Configure indexer HTTP host for test health checks
+        run: |
+          # The indexer role binds network.host to the private IP only.
+          # For test health checks (curl localhost:9200), also expose HTTP on all interfaces.
+          # This is test-only config; the role itself is not modified.
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory"
+            HOSTS="aio"
+          else
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory_all"
+            HOSTS="wi1,wi2,wi3"
+          fi
+          ansible $HOSTS -i $INVENTORY -b -m lineinfile \
+            -a "path=/etc/wazuh-indexer/opensearch.yml regexp='^http\\.host:' line='http.host: 0.0.0.0' insertafter='^network\\.host:'"
+          ansible $HOSTS -i $INVENTORY -b -m systemd \
+            -a "name=wazuh-indexer state=restarted"
+
+      # -----------------------------------------------------------------------
+      # Test: install test module and run integration tests
+      # -----------------------------------------------------------------------
+      - name: Install test module
+        run: |
+          pip install -r wazuh-automation/integration-test-module/requirements.txt
+          pip install -e wazuh-automation/integration-test-module/
+
+      - name: Wait for Wazuh services to be ready
+        timeout-minutes: 20
+        run: |
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory"
+            INDEXER_HOST="aio"
+            MANAGER_HOST="aio"
+            DASHBOARD_HOST="aio"
+          else
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory_all"
+            INDEXER_HOST="wi1"
+            MANAGER_HOST="manager"
+            DASHBOARD_HOST="dashboard"
+          fi
+
+          # Wait for indexer HTTPS health endpoint (not just TCP port)
+          ansible $INDEXER_HOST -i $INVENTORY -b -m shell -a "
+            echo 'Waiting for wazuh-indexer health endpoint...'
+            for i in \$(seq 1 60); do
+              code=\$(curl -sk -o /dev/null -w '%{http_code}' 'https://localhost:9200/_cluster/health?pretty' 2>/dev/null)
+              [ \"\$code\" = '200' ] || [ \"\$code\" = '401' ] && break
+              echo \"  attempt \$i: HTTP \$code, retrying in 10s...\"
+              sleep 10
+            done
+            [ \"\$code\" = '200' ] || [ \"\$code\" = '401' ] || { echo 'ERROR: wazuh-indexer not ready after 10 minutes'; exit 1; }
+            echo \"wazuh-indexer ready (HTTP \$code)\"
+          "
+
+          # Wait for manager and dashboard ports in parallel
+          ansible $MANAGER_HOST   -i $INVENTORY -b -m wait_for \
+            -a "host=localhost port=55000 timeout=300 delay=5 msg='wazuh-manager not ready'" &
+          ansible $DASHBOARD_HOST -i $INVENTORY -b -m wait_for \
+            -a "host=localhost port=443 timeout=300 delay=5 msg='wazuh-dashboard not ready'" &
+          wait
+
+      - name: Diagnose service startup (on wait_for failure)
+        if: failure()
+        run: |
+          echo "=== Diagnosing Wazuh service status ==="
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory"
+            PATTERN="aio"
+          else
+            INVENTORY="${{ env.ALLOCATOR_PATH }}/inventory_all"
+            PATTERN="all"
+          fi
+          ansible $PATTERN -i $INVENTORY -b -m shell -a "
+            echo '--- systemctl status ---'
+            systemctl is-active wazuh-indexer  || true
+            systemctl is-active wazuh-manager  || true
+            systemctl is-active wazuh-dashboard || true
+            echo '--- free memory ---'
+            free -h
+            echo '--- disk usage ---'
+            df -h /
+            echo '--- wazuh-indexer journal (last 30 lines) ---'
+            journalctl -u wazuh-indexer -n 30 --no-pager || true
+          " || true
+
+      - name: Create YAML inventory for AIO tests
+        if: always() && matrix.deployment_type == 'aio'
+        run: |
+          DEFAULT_KEY_PATH="${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}"
+          DEFAULT_SSH_ARGS='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'
+
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory --list \
+            | jq --arg key "$DEFAULT_KEY_PATH" --arg ssh_args "$DEFAULT_SSH_ARGS" '
+              {
+                "all": {
+                  "hosts": (
+                    ._meta.hostvars
+                    | with_entries(
+                        .value = (
+                          {
+                            ansible_connection: (.value.ansible_connection // "ssh"),
+                            ansible_host: .value.ansible_host,
+                            ansible_port: (.value.ansible_port // 22),
+                            ansible_ssh_common_args: (.value.ansible_ssh_common_args // $ssh_args),
+                            ansible_ssh_private_key_file: (.value.ansible_ssh_private_key_file // $key),
+                            ansible_user: (.value.ansible_user // .value.ansible_ssh_user)
+                          }
+                          + (if .value.ansible_password then {ansible_password: .value.ansible_password} else {} end)
+                        )
+                      )
+                  )
+                }
+              }' > ${{ env.ALLOCATOR_PATH }}/inventory.yml
+
+      - name: Create YAML inventories for distributed tests
+        if: always() && matrix.deployment_type == 'distributed'
+        run: |
+          DEFAULT_KEY_PATH="${{ steps.ssh_key.outputs.PRIVATE_KEY_FILE }}"
+          DEFAULT_SSH_ARGS='-o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes'
+
+          ansible-inventory -i ${{ env.ALLOCATOR_PATH }}/inventory_all --list \
+            | jq --arg key "$DEFAULT_KEY_PATH" --arg ssh_args "$DEFAULT_SSH_ARGS" '
+              {
+                "all": {
+                  "hosts": (
+                    ._meta.hostvars
+                    | with_entries(
+                        .value = (
+                          {
+                            ansible_connection: (.value.ansible_connection // "ssh"),
+                            ansible_host: .value.ansible_host,
+                            ansible_port: (.value.ansible_port // 22),
+                            ansible_ssh_common_args: (.value.ansible_ssh_common_args // $ssh_args),
+                            ansible_ssh_private_key_file: (.value.ansible_ssh_private_key_file // $key),
+                            ansible_user: (.value.ansible_user // .value.ansible_ssh_user)
+                          }
+                          + (if .value.ansible_password then {ansible_password: .value.ansible_password} else {} end)
+                        )
+                      )
+                  )
+                }
+              }' > ${{ env.ALLOCATOR_PATH }}/inventory_all.yml
+
+      - name: Run AIO integration tests
+        id: run_tests_aio
+        if: always() && matrix.deployment_type == 'aio'
+        continue-on-error: true
+        run: |
+          test_runner \
+            --test-type installer \
+            --deployment-type ansible \
+            --inventory ${{ env.ALLOCATOR_PATH }}/inventory.yml \
+            --version "${{ needs.prepare.outputs.wazuh_version }}" \
+            --log-level INFO \
+            --output github \
+            --output-file "test-results-ansible-aio-${{ matrix.system }}.github"
+
+      - name: Run distributed indexer tests
+        id: run_tests_indexer
+        if: always() && matrix.deployment_type == 'distributed'
+        continue-on-error: true
+        run: |
+          for host in wi1 wi2 wi3; do
+            echo "=== Testing indexer on: $host ==="
+            test_runner \
+              --test-type installer \
+              --deployment-type ansible \
+              --inventory ${{ env.ALLOCATOR_PATH }}/inventory_all.yml \
+              --host $host \
+              --component-type indexer \
+              --version "${{ needs.prepare.outputs.wazuh_version }}" \
+              --log-level INFO \
+              --output github \
+              --output-file "test-results-ansible-distributed-indexer-${host}-${{ matrix.system }}.github"
+          done
+
+      - name: Run distributed manager tests
+        id: run_tests_manager
+        if: always() && matrix.deployment_type == 'distributed'
+        continue-on-error: true
+        run: |
+          test_runner \
+            --test-type installer \
+            --deployment-type ansible \
+            --inventory ${{ env.ALLOCATOR_PATH }}/inventory_all.yml \
+            --host manager \
+            --component-type manager \
+            --version "${{ needs.prepare.outputs.wazuh_version }}" \
+            --log-level INFO \
+            --output github \
+            --output-file "test-results-ansible-distributed-manager-${{ matrix.system }}.github"
+
+      - name: Run distributed dashboard tests
+        id: run_tests_dashboard
+        if: always() && matrix.deployment_type == 'distributed'
+        continue-on-error: true
+        run: |
+          test_runner \
+            --test-type installer \
+            --deployment-type ansible \
+            --inventory ${{ env.ALLOCATOR_PATH }}/inventory_all.yml \
+            --host dashboard \
+            --component-type dashboard \
+            --version "${{ needs.prepare.outputs.wazuh_version }}" \
+            --log-level INFO \
+            --output github \
+            --output-file "test-results-ansible-distributed-dashboard-${{ matrix.system }}.github"
+
+      # -----------------------------------------------------------------------
+      # Reporting
+      # -----------------------------------------------------------------------
+      - name: Show test outcomes
+        if: always()
+        run: |
+          echo "=== Test outcomes ==="
+          echo "AIO tests:       ${{ steps.run_tests_aio.outcome }}"
+          echo "Indexer tests:   ${{ steps.run_tests_indexer.outcome }}"
+          echo "Manager tests:   ${{ steps.run_tests_manager.outcome }}"
+          echo "Dashboard tests: ${{ steps.run_tests_dashboard.outcome }}"
+          echo ""
+          echo "=== Result files ==="
+          for f in test-results-ansible-*.github; do
+            if [ -f "$f" ]; then
+              echo "--- $f ---"
+              cat "$f"
+              echo ""
+            fi
+          done
+
+      - name: Fail job if any integration test step failed
+        if: always()
+        run: |
+          outcomes="${{ steps.run_tests_aio.outcome }} ${{ steps.run_tests_indexer.outcome }} ${{ steps.run_tests_manager.outcome }} ${{ steps.run_tests_dashboard.outcome }}"
+          if echo "$outcomes" | grep -qw failure; then
+            echo "One or more integration test steps failed: $outcomes" >&2
+            exit 1
+          fi
+
+      - name: Create step summary
+        if: always()
+        run: |
+          DEPLOYMENT="${{ matrix.deployment_type }}"
+          SYSTEM="${{ matrix.system }}"
+          {
+            echo "## Ansible Integration Test Results — ${DEPLOYMENT} / ${SYSTEM}"
+            echo ""
+            for f in test-results-ansible-*.github; do
+              if [ -f "$f" ]; then
+                echo "### ${f%.github}"
+                echo ""
+                cat "$f"
+                echo ""
+              fi
+            done
+            if ! ls test-results-ansible-*.github 1>/dev/null 2>&1; then
+              echo "No test result files found."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post PR comment with results
+        if: always() && github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        env:
+          DEPLOYMENT: ${{ matrix.deployment_type }}
+          SYSTEM: ${{ matrix.system }}
+          AIO_OUTCOME: ${{ steps.run_tests_aio.outcome }}
+          INDEXER_OUTCOME: ${{ steps.run_tests_indexer.outcome }}
+          MANAGER_OUTCOME: ${{ steps.run_tests_manager.outcome }}
+          DASHBOARD_OUTCOME: ${{ steps.run_tests_dashboard.outcome }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const deployment = process.env.DEPLOYMENT;
+            const system = process.env.SYSTEM;
+            const marker = `<!-- ansible-integration-check-${deployment}-${system} -->`;
+
+            const outcomes = [
+              process.env.AIO_OUTCOME,
+              process.env.INDEXER_OUTCOME,
+              process.env.MANAGER_OUTCOME,
+              process.env.DASHBOARD_OUTCOME,
+            ].filter(o => o && o !== 'skipped');
+            const allPassed = outcomes.length > 0 && outcomes.every(o => o === 'success');
+
+            let body = `${marker}\n## Ansible Integration Tests — \`${deployment}\` / \`${system}\`\n\n`;
+            body += allPassed
+              ? '✅ **All tests passed!**\n\n'
+              : '❌ **Some tests failed or did not run**\n\n';
+
+            const files = fs.readdirSync('.').filter(f =>
+              f.startsWith('test-results-ansible-') && f.endsWith('.github')
+            ).sort();
+            if (files.length > 0) {
+              body += '### Results\n\n';
+              for (const f of files) {
+                try {
+                  body += `**${f.replace('.github', '')}**\n\n` + fs.readFileSync(f, 'utf8') + '\n\n';
+                } catch (e) {
+                  console.log(`Could not read ${f}:`, e.message);
+                }
+              }
+            }
+            body += `- **Workflow:** [View Details](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.user.type === 'Bot' && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-ansible-${{ matrix.deployment_type }}-${{ matrix.system }}-${{ github.run_id }}
+          path: test-results-ansible-*.github
+          retention-days: 7
+          if-no-files-found: warn
+
+      # -----------------------------------------------------------------------
+      # Collect logs on failure
+      # -----------------------------------------------------------------------
+      - name: Collect Wazuh central component logs
+        if: failure()
+        run: |
+          mkdir -p ${{ github.workspace }}/wazuh-logs/central
+          if [ "${{ matrix.deployment_type }}" = "aio" ]; then
+            SINGLE_NODE="true"
+            INVENTORY_ARG="-i ${{ env.ALLOCATOR_PATH }}/inventory"
+          else
+            SINGLE_NODE="false"
+            INVENTORY_ARG="-i ${{ env.ALLOCATOR_PATH }}/inventory_all"
+          fi
+          ansible-playbook wazuh-ansible/.github/playbooks/gather_central_logs.yml -b \
+            --extra-vars "local_log_file_path=${{ github.workspace }}/wazuh-logs/central single_node=${SINGLE_NODE}" \
+            $INVENTORY_ARG || true
+
+      - name: Set permissions for Wazuh logs
+        if: failure()
+        run: |
+          sudo chown -R $USER:$USER ${{ github.workspace }}/wazuh-logs || true
+          sudo chmod -R u+rw ${{ github.workspace }}/wazuh-logs || true
+
+      - name: Upload Wazuh logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wazuh-logs-${{ matrix.deployment_type }}-${{ matrix.system }}-${{ github.run_id }}
+          path: ${{ github.workspace }}/wazuh-logs
+          retention-days: 7
+          if-no-files-found: warn
+
+      # -----------------------------------------------------------------------
+      # Cleanup: deallocate all EC2 instances (always runs)
+      # -----------------------------------------------------------------------
+      - name: Delete AIO instance
+        if: always() && matrix.deployment_type == 'aio'
+        run: |
+          TRACK_FILE="${{ env.ALLOCATOR_PATH }}/track.yml"
+          if [ -f "$TRACK_FILE" ]; then
+            instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
+            if [ ! -d "$instance_dir" ]; then
+              mkdir -p "$instance_dir"
+              date > "$instance_dir/date.txt"
+            fi
+            python3 wazuh-automation/deployability/modules/allocation/main.py \
+              --action delete --track-output "$TRACK_FILE"
+          fi
+
+      - name: Delete distributed instances
+        if: always() && matrix.deployment_type == 'distributed'
+        run: |
+          instance_names=($INSTANCE_NAMES)
+          for instance_name in "${instance_names[@]}"; do
+            TRACK_FILE="${{ env.ALLOCATOR_PATH }}/track_${instance_name}.yml"
+            if [ ! -f "$TRACK_FILE" ]; then
+              echo "Track file $TRACK_FILE not found, skipping." >&2
+              continue
+            fi
+            instance_dir=$(grep '^instance_dir' "$TRACK_FILE" | awk '{print $2}')
+            if [ ! -d "$instance_dir" ]; then
+              mkdir -p "$instance_dir"
+              date > "$instance_dir/date.txt"
+            fi
+            (
+              python3 wazuh-automation/deployability/modules/allocation/main.py \
+                --action delete --track-output "$TRACK_FILE"
+            ) &
+          done
+          wait
+
+      - name: Delete SSH key pair
+        if: always()
+        run: |
+          KEY_NAME="${{ steps.ssh_key.outputs.KEY_NAME }}"
+          if [[ -z "$KEY_NAME" ]]; then
+            echo "KEY_NAME is empty, cannot delete key pair." >&2
+            exit 0
+          fi
+          if ! DESCRIBE_OUTPUT=$(aws ec2 describe-key-pairs --key-names "$KEY_NAME" --region us-east-1 2>&1); then
+            if grep -q "InvalidKeyPair.NotFound" <<< "$DESCRIBE_OUTPUT"; then
+              echo "Key pair $KEY_NAME was already removed. Skipping."
+              exit 0
+            fi
+            echo "$DESCRIBE_OUTPUT" >&2
+            exit 1
+          fi
+          aws ec2 delete-key-pair --key-name "$KEY_NAME" --region us-east-1
+          echo "Deleted key pair: $KEY_NAME"
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Update the GitHub check run (issue_comment trigger only)
+  # ---------------------------------------------------------------------------
+  update_check:
+    needs: [get_pr_info, prepare, ansible_test]
+    if: always() && github.event_name == 'issue_comment' && needs.get_pr_info.result == 'success'
     runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
-      - run: echo "Workflow registered. Use workflow_dispatch selecting the feature branch."
+      - name: Update check run
+        uses: actions/github-script@v7
+        env:
+          ANSIBLE_RESULT: ${{ needs.ansible_test.result }}
+          CHECK_NAME: ${{ needs.get_pr_info.outputs.check_name }}
+          CHECK_RUN_ID: ${{ needs.get_pr_info.outputs.check_run_id }}
+        with:
+          script: |
+            const result = process.env.ANSIBLE_RESULT;
+            const conclusionMap = {
+              success:   { conclusion: 'success',   icon: '✅', summary: 'All Ansible integration tests passed.' },
+              failure:   { conclusion: 'failure',   icon: '❌', summary: 'One or more Ansible integration tests failed.' },
+              cancelled: { conclusion: 'cancelled', icon: '⏹️', summary: 'Workflow was cancelled.' },
+            };
+            const { conclusion, icon, summary } = conclusionMap[result] ?? conclusionMap.failure;
+            const label = conclusion.charAt(0).toUpperCase() + conclusion.slice(1);
+            await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: parseInt(process.env.CHECK_RUN_ID),
+              status: 'completed',
+              conclusion,
+              completed_at: new Date().toISOString(),
+              output: {
+                title: `${icon} ${process.env.CHECK_NAME} — ${label}`,
+                summary,
+                text: `[View workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+              }
+            });
