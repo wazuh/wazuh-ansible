@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Migrate the GHA runner to CodeBuild ([#2154](https://github.com/wazuh/wazuh-ansible/pull/2154))
 - Delete PR option into test workflow ([#2108](https://github.com/wazuh/wazuh-ansible/pull/2108))
 
 ### Fixed
