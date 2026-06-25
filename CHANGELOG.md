@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add integration test module docs ([#2166](https://github.com/wazuh/wazuh-ansible/pull/2166))
 - Implement the wazuh-ansible integration testing module ([#1920](https://github.com/wazuh/wazuh-ansible/issues/1920))
 - Add new tags on PR tests ([#2095](https://github.com/wazuh/wazuh-ansible/issues/2095))
 - Add roles and variables documentation ([#2088](https://github.com/wazuh/wazuh-ansible/issues/2088))
