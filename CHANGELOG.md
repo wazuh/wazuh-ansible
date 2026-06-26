@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [4.14.7]
+
+### Added
+
+- None
+
+### Changed
+
+- Change file and workflow names for PR Revamp tasks 4.x ([#2143](https://github.com/wazuh/wazuh-ansible/pull/2143))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.14.6]
 
 ### Added
