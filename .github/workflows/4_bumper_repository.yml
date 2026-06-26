@@ -25,8 +25,8 @@ on:
 
 jobs:
   bump:
-    name: Repository bumper
-    runs-on: ubuntu-22.04
+    name: Repository bumper 4.x
+    runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       contents: write
       pull-requests: write
