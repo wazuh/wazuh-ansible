@@ -1,4 +1,4 @@
-name: (5.x) Repository bumper
+name: (1.x) Repository bumper
 run-name: Bump ${{ github.ref_name }} (${{ inputs.id }})
 
 on:
@@ -39,7 +39,7 @@ on:
 
 jobs:
   bump:
-    name: Repository bumper 5.x
+    name: Repository bumper 1.x
     runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       contents: write
