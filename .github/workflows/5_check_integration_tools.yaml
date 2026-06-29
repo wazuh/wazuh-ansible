@@ -3,7 +3,7 @@ run-name: >-
   ${{ github.event_name == 'workflow_dispatch'
     && format('Ansible Integration Test - Manual {0} on {1}', inputs.deployment_type, inputs.pr_head_ref)
     || format('Ansible Integration Test - #{0} {1}', github.event.issue.number, github.event.issue.title) }}
-name: (5.x) PR Check - Ansible Integration Tests
+name: (1.x) PR Check - Ansible Integration Tests
 
 on:
   issue_comment:
@@ -17,7 +17,7 @@ on:
       automation_reference:
         description: 'Branch of wazuh-automation to use'
         required: false
-        default: '5.0.0'
+        default: 'v1.2.3-alpha8'
         type: string
       deployment_type:
         description: 'Deployment type to test'
