@@ -64,7 +64,7 @@ flowchart TD
 | Input | Required | Default | Description |
 |---|---|---|---|
 | `pr_head_ref` | Yes | — | Branch of `wazuh-ansible` to test |
-| `automation_reference` | No | `1.2.3` | Branch of `wazuh-automation` to use |
+| `automation_reference` | No | `5.0.0` | Branch of `wazuh-automation` to use |
 | `deployment_type` | Yes | — | `aio`, `distributed`, or `both` |
 | `os_list` | No | `["amazon-2023-amd64","ubuntu-26-arm64","ubuntu-24-amd64","redhat-10-arm64"]` | JSON array of target OS identifiers |
 | `environment` | No | `development` | `development`, `prerelease`, or `production` — controls package URL source |
