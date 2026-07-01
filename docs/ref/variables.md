@@ -17,19 +17,19 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `wazuh_full_version`  
-**Description:** The full Wazuh version string (e.g. `5.0.0`) extracted from `wazuh_version_data`.  
+**Description:** The full Wazuh version string (e.g. `6.0.0`) extracted from `wazuh_version_data`.  
 **Default value:** `{{ wazuh_version_data.version }}`
 
 ---
 
 **Variable:** `wazuh_major_minor_version`  
-**Description:** The major and minor version components only (e.g. `5.0`), derived from `wazuh_full_version`.  
+**Description:** The major and minor version components only (e.g. `6.0`), derived from `wazuh_full_version`.  
 **Default value:** `{{ wazuh_version_data.version.split('.')[0:2] | join('.') }}`
 
 ---
 
 **Variable:** `wazuh_major_version`  
-**Description:** The major version string in `X.x` format (e.g. `5.x`), used in package repository URL paths.  
+**Description:** The major version string in `X.x` format (e.g. `6.x`), used in package repository URL paths.  
 **Default value:** `{{ wazuh_version_data.version.split('.')[0] }}.x`
 
 ---
