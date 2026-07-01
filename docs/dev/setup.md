@@ -19,7 +19,7 @@ Refer to the [Requirements](../ref/getting-started/requirements.md) section in t
 - Clone the [wazuh-ansible](https://github.com/wazuh/wazuh-ansible) repository and navigate to its directory.
 
   ```bash
-    git clone --branch v6.0.0 https://github.com/wazuh/wazuh-ansible.git
+    git clone --branch v5.0.0 https://github.com/wazuh/wazuh-ansible.git
   ```
 
 - Install Ansible collections: use the `ansible-galaxy` command to install the required Ansible collections specified in the `requirements.yml` file.
