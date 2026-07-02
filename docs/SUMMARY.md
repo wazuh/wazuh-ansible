@@ -25,3 +25,9 @@
   - [wazuh-agent](ref/roles/wazuh-agent.md)
 - [Variables references](ref/variables.md)
 - [Glossary](ref/glossary.md)
+
+---
+
+# Integration Tests
+
+- [Ansible Integration Tests](ref/integration_test/ansible_integration_tests.md)
