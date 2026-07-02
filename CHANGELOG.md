@@ -59,6 +59,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Bumper script issue when the tag is set to false ([#2159](https://github.com/wazuh/wazuh-ansible/issues/2159))
 - Ansible deployment fails on needrestart task when no services require restart ([#2045](https://github.com/wazuh/wazuh-ansible/issues/2045))
 - No idempotency for the `opensearch.yml` configurations ([#2056](https://github.com/wazuh/wazuh-ansible/issues/2056))
 
