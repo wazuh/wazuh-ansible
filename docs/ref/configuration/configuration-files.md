@@ -104,4 +104,4 @@ The playbook `wazuh-agent.yml` includes:
 - **Package URLs Role**: Manages package sources for agent installation.
 
 **Important:**
-Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Manager IP>` with the actual IP address of your Wazuh Manager node.
+Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Manager IP>` with the actual IP address of your Wazuh Manager node, and `<Your Wazuh Manager Registration Password>` with the actual registration password.
