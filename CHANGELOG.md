@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Updated Wazuh agent deployment to support Wazuh manager password. ([#2187](https://github.com/wazuh/wazuh-ansible/pull/2187))
 - Migrate the GHA runner to CodeBuild ([#2153](https://github.com/wazuh/wazuh-ansible/issues/2153))
 - Change file and workflow names for PR Revamp tasks ([#2142](https://github.com/wazuh/wazuh-ansible/issues/2142))
 - Forbid run test in draft PRs ([#2093](https://github.com/wazuh/wazuh-ansible/issues/2093))
