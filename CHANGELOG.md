@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [4.14.6]
+
+### Added
+
+- None
+
+### Changed
+
+- Migrate the GHA runner to CodeBuild ([#2154](https://github.com/wazuh/wazuh-ansible/pull/2154))
+- Delete PR option into test workflow ([#2108](https://github.com/wazuh/wazuh-ansible/pull/2108))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
 ## [4.14.5]
 
 ### Added
@@ -9,6 +28,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- The versions of the actions used in the workflows are updated. ([#1998](https://github.com/wazuh/wazuh-ansible/pull/1998))
 - Migrate injected ansible_*facts to ansible_facts.* ([#1964](https://github.com/wazuh/wazuh-ansible/pull/1964))
 
 ### Fixed
@@ -210,6 +230,79 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Add Yum lock timeout to Ansible task ([#1511](https://github.com/wazuh/wazuh-ansible/pull/1511))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.5]
+
+### Added
+
+- None
+
+### Changed
+
+- Delete PR option into test workflow ([#2109](https://github.com/wazuh/wazuh-ansible/pull/2109))
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.4]
+
+### Added
+
+- None
+
+### Changed
+
+- Bucket migration for packages-dev.wazuh.com ([#1713](https://github.com/wazuh/wazuh-ansible/pull/1713))
+- Bucket migrate from packages-dev.wazuh.com to xdrsiem-packages-dev ([#1718](https://github.com/wazuh/wazuh-ansible/pull/1718))- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.3]
+
+### Added
+
+- None
+
+### Changed
+
+- None
+
+### Fixed
+
+- None
+
+### Deleted
+
+- None
+
+## [4.10.2]
+
+### Added
+
+- None
+
+### Changed
+
+- None
 
 ### Fixed
 
