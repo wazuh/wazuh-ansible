@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Fix bumper workflow failure when bump produces no changes ([#2200](https://github.com/wazuh/wazuh-ansible/pull/2200))
 
 ### Deleted
 
