@@ -17,13 +17,13 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `wazuh_full_version`  
-**Description:** The full Wazuh version string (e.g. `5.0.1`) extracted from `wazuh_version_data`.  
+**Description:** The full Wazuh version string (e.g. `5.1.0`) extracted from `wazuh_version_data`.  
 **Default value:** `{{ wazuh_version_data.version }}`
 
 ---
 
 **Variable:** `wazuh_major_minor_version`  
-**Description:** The major and minor version components only (e.g. `5.0`), derived from `wazuh_full_version`.  
+**Description:** The major and minor version components only (e.g. `5.1`), derived from `wazuh_full_version`.  
 **Default value:** `{{ wazuh_version_data.version.split('.')[0:2] | join('.') }}`
 
 ---
