@@ -1,6 +1,3 @@
-# Change Log
-All notable changes to this project will be documented in this file.
-
 ## [v5.0.0]
 
 ### Added
@@ -17,6 +14,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Set Wazuh Indexer JVM heap size to one quarter of the host total memory for AIO deployments. ([#2189](https://github.com/wazuh/wazuh-ansible/issues/2189))
+- Add new WF for changelog check ([#2205](https://github.com/wazuh/wazuh-ansible/pull/2205))
 - Updated Wazuh agent deployment to support Wazuh manager password. ([#2187](https://github.com/wazuh/wazuh-ansible/pull/2187))
 - Migrate the GHA runner to CodeBuild ([#2153](https://github.com/wazuh/wazuh-ansible/issues/2153))
 - Change file and workflow names for PR Revamp tasks ([#2142](https://github.com/wazuh/wazuh-ansible/issues/2142))
@@ -61,6 +59,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Fix bumper workflow failure when bump produces no changes ([#2195](https://github.com/wazuh/wazuh-ansible/pull/2195))
 - Bumper script issue when the tag is set to false ([#2159](https://github.com/wazuh/wazuh-ansible/issues/2159))
 - Ansible deployment fails on needrestart task when no services require restart ([#2045](https://github.com/wazuh/wazuh-ansible/issues/2045))
 - No idempotency for the `opensearch.yml` configurations ([#2056](https://github.com/wazuh/wazuh-ansible/issues/2056))
