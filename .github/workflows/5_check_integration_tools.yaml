@@ -200,21 +200,21 @@ jobs:
             if [ -z "$OS_LIST" ] || [ "$OS_LIST" = "null" ]; then
               OS_LIST='["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]'
             fi
-            echo 'os_list=${OS_LIST}' >> $GITHUB_OUTPUT
+            echo "os_list=${OS_LIST}" >> $GITHUB_OUTPUT
 
             ENVIRONMENT="${{ inputs.environment }}"
             if [ -z "$ENVIRONMENT" ] || [ "$ENVIRONMENT" = "null" ]; then
               ENVIRONMENT="development"
             fi
-            echo 'environment=${ENVIRONMENT}' >> $GITHUB_OUTPUT
+            echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
 
             COMMIT_LIST='${{ inputs.commit_list }}'
             if [ -z "$COMMIT_LIST" ] || [ "$COMMIT_LIST" = "null" ]; then
               COMMIT_LIST='["latest", "latest", "latest", "latest", "latest"]'
             fi
-            echo 'commit_list=${COMMIT_LIST}' >> $GITHUB_OUTPUT
+            echo "commit_list=${COMMIT_LIST}" >> $GITHUB_OUTPUT
 
-            echo 'issue_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}' >> $GITHUB_OUTPUT
+            echo "issue_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
           else
             echo 'pr_head_ref=${PR_HEAD_REF}' >> $GITHUB_OUTPUT
             echo 'deployment_matrix=${PR_DEPLOYMENT_MATRIX}' >> $GITHUB_OUTPUT
@@ -242,8 +242,8 @@ jobs:
         run: |
           VERSION=$(python3 -c "import json; d=json.load(open('wazuh-ansible/VERSION.json')); print(d['version'])")
           STAGE=$(python3 -c "import json; d=json.load(open('wazuh-ansible/VERSION.json')); print(d.get('stage',''))")
-          echo 'wazuh_version=${VERSION}' >> $GITHUB_OUTPUT
-          echo 'wazuh_stage=${STAGE}'     >> $GITHUB_OUTPUT
+          echo "wazuh_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "wazuh_stage=${STAGE}"     >> $GITHUB_OUTPUT
           echo "Version: ${VERSION}  Stage: ${STAGE:-<release>}"
 
       - name: Show test plan
