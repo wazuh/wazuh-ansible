@@ -161,7 +161,7 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k username
+          echo 'wazuh-admin' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k username
         executable: /bin/bash
       register: keystore_username_result
       changed_when: keystore_username_result.rc == 0
@@ -170,7 +170,7 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          echo 'admin' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k password
+          echo 'wazuh-admin' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k password
         executable: /bin/bash
       register: keystore_password_result
       changed_when: keystore_password_result.rc == 0
