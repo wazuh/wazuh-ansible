@@ -13,9 +13,9 @@
 
 ### Changed
 
-- Changed admin user by wazuh-admin for Wazuh Ansible deployment. ([#2212](https://github.com/wazuh/wazuh-ansible/pull/2212))
+- Update deployment for Wazuh Indexer 5.0.0 RBAC. ([#2203](https://github.com/wazuh/wazuh-ansible/issues/2203))
 - Add new WF for changelog check ([#2205](https://github.com/wazuh/wazuh-ansible/pull/2205))
-- Updated Wazuh agent deployment to support Wazuh manager password. ([#2187](https://github.com/wazuh/wazuh-ansible/pull/2187))
+- Set authd password in agents installation. ([#2186](https://github.com/wazuh/wazuh-ansible/issues/2186))
 - Migrate the GHA runner to CodeBuild ([#2153](https://github.com/wazuh/wazuh-ansible/issues/2153))
 - Change file and workflow names for PR Revamp tasks ([#2142](https://github.com/wazuh/wazuh-ansible/issues/2142))
 - Forbid run test in draft PRs ([#2093](https://github.com/wazuh/wazuh-ansible/issues/2093))
