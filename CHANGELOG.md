@@ -13,6 +13,7 @@
 
 ### Changed
 
+- Set Wazuh Indexer JVM heap size to one quarter of the host total memory for AIO deployments. ([#2189](https://github.com/wazuh/wazuh-ansible/issues/2189))
 - Add new WF for changelog check ([#2205](https://github.com/wazuh/wazuh-ansible/pull/2205))
 - Updated Wazuh agent deployment to support Wazuh manager password. ([#2187](https://github.com/wazuh/wazuh-ansible/pull/2187))
 - Migrate the GHA runner to CodeBuild ([#2153](https://github.com/wazuh/wazuh-ansible/issues/2153))

@@ -125,6 +125,12 @@ instances:
 
 ---
 
+**Variable:** `wazuh_indexer_heap_size`  
+**Description:** JVM heap size for the Wazuh Indexer, specified as a string with a size unit (e.g. `2g`, `512m`). When empty (the default), the heap size is automatically set to one quarter of the host's total RAM for AIO deployments (`single_node: true`). Has no effect in distributed deployments unless explicitly set.  
+**Default value:** `""` (auto-calculated for AIO)
+
+---
+
 ## wazuh-manager
 
 These variables are defined in `roles/wazuh-manager/defaults/main.yml`.
