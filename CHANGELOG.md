@@ -13,6 +13,7 @@
 
 ### Changed
 
+- Change upload and download methods. ([#2213](https://github.com/wazuh/wazuh-ansible/issues/2213))
 - Update deployment for Wazuh Indexer 5.0.0 RBAC. ([#2203](https://github.com/wazuh/wazuh-ansible/issues/2203))
 - Set Wazuh Indexer JVM heap size to one quarter of the host total memory for AIO deployments. ([#2189](https://github.com/wazuh/wazuh-ansible/issues/2189))
 - Add new WF for changelog check ([#2205](https://github.com/wazuh/wazuh-ansible/pull/2205))
