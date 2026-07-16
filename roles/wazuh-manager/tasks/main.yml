@@ -175,6 +175,31 @@
       register: keystore_password_result
       changed_when: keystore_password_result.rc == 0
 
+    - name: Manager-config | Configure cluster authentication key
+      when: not single_node
+      run_once: true
+      delegate_to: localhost
+      become: false
+      block:
+        - name: Cluster-key | Generate shared cluster authentication key
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              openssl rand -hex 16 > "{{ local_configs_path }}/wazuh-cluster-key"
+              chmod 600 "{{ local_configs_path }}/wazuh-cluster-key"
+            executable: /bin/bash
+          args:
+            creates: "{{ local_configs_path }}/wazuh-cluster-key"
+
+        - name: Cluster-key | Read shared cluster authentication key
+          ansible.builtin.slurp:
+            path: "{{ local_configs_path }}/wazuh-cluster-key"
+          register: wazuh_cluster_key_raw
+
+        - name: Cluster-key | Set cluster authentication key fact
+          ansible.builtin.set_fact:
+            wazuh_cluster_key: "{{ wazuh_cluster_key_raw.content | b64decode | trim }}"
+
     - name: Manager-config | Edit the wazuh-manager.conf file
       block:
         - name: Manager-config | Replace indexer hosts in wazuh-manager.conf
@@ -199,6 +224,13 @@
             path: /var/wazuh-manager/etc/wazuh-manager.conf
             regexp: '(<node_type>)[^<]+(</node_type>)'
             replace: '\1{% if node_type == "master" or single_node %}master{% else %}worker{% endif %}\2'
+
+        - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (cluster key)
+          ansible.builtin.replace:
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            regexp: '(<node_type>[^<]+</node_type>\s*)<key>[^<]*(</key>)'
+            replace: '\g<1><key>{{ wazuh_cluster_key }}\g<2>'
+          when: not single_node
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (bind address)
           ansible.builtin.replace:
