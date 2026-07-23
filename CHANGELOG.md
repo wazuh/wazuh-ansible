@@ -61,6 +61,7 @@
 
 ### Fixed
 
+- RedHat-based agent install task does not set WAZUH_REGISTRATION_PASSWORD, breaking auto-enrollment ([#2218](https://github.com/wazuh/wazuh-ansible/issues/2218))
 - Wazuh-manager master and worker nodes keys do not match. ([#2206](https://github.com/wazuh/wazuh-ansible/issues/2206))
 - Fix bumper workflow failure when bump produces no changes ([#2195](https://github.com/wazuh/wazuh-ansible/pull/2195))
 - Bumper script issue when the tag is set to false ([#2159](https://github.com/wazuh/wazuh-ansible/issues/2159))
