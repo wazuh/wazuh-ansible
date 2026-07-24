@@ -310,3 +310,20 @@
         line: 'discovery.type: single-node'
         insertafter: '^node\.name:'
       when: single_node
+
+- name: JVM Config | Configure heap size for AIO deployment
+  when: single_node | bool
+  vars:
+    wazuh_indexer_heap_size_computed: "{{ wazuh_indexer_heap_size if wazuh_indexer_heap_size | length > 0 else ((ansible_memtotal_mb // 4) | string) + 'm' }}"
+  block:
+    - name: JVM Config | Set -Xms heap size
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-indexer/jvm.options
+        regexp: '^-Xms'
+        line: "-Xms{{ wazuh_indexer_heap_size_computed }}"
+
+    - name: JVM Config | Set -Xmx heap size
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-indexer/jvm.options
+        regexp: '^-Xmx'
+        line: "-Xmx{{ wazuh_indexer_heap_size_computed }}"

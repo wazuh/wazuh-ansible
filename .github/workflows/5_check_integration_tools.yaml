@@ -182,6 +182,9 @@ jobs:
     steps:
       - name: Resolve context
         id: ctx
+        env:
+          PR_HEAD_REF: ${{ needs.get_pr_info.outputs.pr_head_ref }}
+          PR_DEPLOYMENT_MATRIX: ${{ needs.get_pr_info.outputs.deployment_matrix }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "pr_head_ref=${{ inputs.pr_head_ref }}" >> $GITHUB_OUTPUT
@@ -213,8 +216,8 @@ jobs:
 
             echo "issue_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
           else
-            echo "pr_head_ref=${{ needs.get_pr_info.outputs.pr_head_ref }}" >> $GITHUB_OUTPUT
-            echo "deployment_matrix=${{ needs.get_pr_info.outputs.deployment_matrix }}" >> $GITHUB_OUTPUT
+            echo "pr_head_ref=${PR_HEAD_REF}" >> $GITHUB_OUTPUT
+            echo "deployment_matrix=${PR_DEPLOYMENT_MATRIX}" >> $GITHUB_OUTPUT
             echo 'os_list=["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]' >> $GITHUB_OUTPUT
             echo "environment=development" >> $GITHUB_OUTPUT
             echo 'commit_list=["latest", "latest", "latest", "latest", "latest"]' >> $GITHUB_OUTPUT
@@ -300,6 +303,8 @@ jobs:
       always() &&
       needs.prepare.result == 'success'
     runs-on: codebuild-github-actions-codebuild-runner-devops-amd-${{ github.run_id }}-${{ github.run_attempt }}
+    env:
+      S3_PATH: s3://${{ secrets.CI_DEV_INTERNAL_S3_BUCKET }}/wazuh-ansible/5_check_integration_tools/${{ github.run_id }}
     strategy:
       fail-fast: false
       matrix:
@@ -840,14 +845,12 @@ jobs:
               });
             }
 
-      - name: Upload test results
+      - name: Upload test results to S3
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-ansible-${{ matrix.deployment_type }}-${{ matrix.system }}-${{ github.run_id }}
-          path: test-results-ansible-*.github
-          retention-days: 7
-          if-no-files-found: warn
+        run: |
+          for f in test-results-ansible-*.github; do
+            [ -f "$f" ] && aws s3 cp "$f" "${{ env.S3_PATH }}/$f"
+          done
 
       # -----------------------------------------------------------------------
       # Collect logs on failure
@@ -873,14 +876,15 @@ jobs:
           sudo chown -R $USER:$USER ${{ github.workspace }}/wazuh-logs || true
           sudo chmod -R u+rw ${{ github.workspace }}/wazuh-logs || true
 
-      - name: Upload Wazuh logs
+      - name: Upload Wazuh logs to S3
         if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: wazuh-logs-${{ matrix.deployment_type }}-${{ matrix.system }}-${{ github.run_id }}
-          path: ${{ github.workspace }}/wazuh-logs
-          retention-days: 7
-          if-no-files-found: warn
+        run: |
+          LOGS_DIR="${{ github.workspace }}/wazuh-logs"
+          if [ -d "$LOGS_DIR" ] && [ "$(ls -A "$LOGS_DIR")" ]; then
+            aws s3 cp "$LOGS_DIR" "${{ env.S3_PATH }}/wazuh-logs-${{ matrix.deployment_type }}-${{ matrix.system }}/" --recursive
+          else
+            echo "No Wazuh logs found to upload." >&2
+          fi
 
       # -----------------------------------------------------------------------
       # Cleanup: deallocate all EC2 instances (always runs)
