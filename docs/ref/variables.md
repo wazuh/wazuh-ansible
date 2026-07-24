@@ -17,13 +17,13 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `wazuh_full_version`  
-**Description:** The full Wazuh version string (e.g. `5.0.1`) extracted from `wazuh_version_data`.  
+**Description:** The full Wazuh version string (e.g. `5.1.0`) extracted from `wazuh_version_data`.  
 **Default value:** `{{ wazuh_version_data.version }}`
 
 ---
 
 **Variable:** `wazuh_major_minor_version`  
-**Description:** The major and minor version components only (e.g. `5.0`), derived from `wazuh_full_version`.  
+**Description:** The major and minor version components only (e.g. `5.1`), derived from `wazuh_full_version`.  
 **Default value:** `{{ wazuh_version_data.version.split('.')[0:2] | join('.') }}`
 
 ---
@@ -122,6 +122,12 @@ instances:
 **Variable:** `wazuh_indexer_package_name`  
 **Description:** Base filename (without architecture suffix or extension) of the Wazuh Indexer package to download and install.  
 **Default value:** `wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}`
+
+---
+
+**Variable:** `wazuh_indexer_heap_size`  
+**Description:** JVM heap size for the Wazuh Indexer, specified as a string with a size unit (e.g. `2g`, `512m`). When empty (the default), the heap size is automatically set to one quarter of the host's total RAM for AIO deployments (`single_node: true`). Has no effect in distributed deployments unless explicitly set.  
+**Default value:** `""` (auto-calculated for AIO)
 
 ---
 

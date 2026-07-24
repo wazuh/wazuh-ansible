@@ -54,8 +54,8 @@
 - name: Wait for Wazuh indexer API
   ansible.builtin.uri:
     url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cat/health/"
-    user: "admin" # Default Indexer user is always "admin"
-    password: "admin"
+    user: "wazuh-admin" # Default Indexer user is always "wazuh-admin"
+    password: "wazuh-admin"
     validate_certs: false
     status_code: 200,401
     return_content: true
