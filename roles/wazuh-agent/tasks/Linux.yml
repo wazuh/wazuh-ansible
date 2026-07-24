@@ -23,6 +23,7 @@
     disable_gpg_check: true
   environment:
     WAZUH_MANAGER: "{{ wazuh_manager_address }}"
+    WAZUH_REGISTRATION_PASSWORD: "{{ wazuh_registration_password }}"
   when:
     - ansible_facts.os_family == "RedHat"
 
@@ -32,6 +33,7 @@
     state: present
   environment:
     WAZUH_MANAGER: "{{ wazuh_manager_address }}"
+    WAZUH_REGISTRATION_PASSWORD: "{{ wazuh_registration_password }}"
   when:
     - ansible_facts.os_family == "Debian"
 

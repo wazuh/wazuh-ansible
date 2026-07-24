@@ -5,6 +5,7 @@
   strategy: free
   vars:
     wazuh_manager_address: "<Your Wazuh Manager IP>"
+    wazuh_registration_password: "<Your Wazuh Manager Registration Password>"
   roles:
     - role: package-urls
   tasks:
