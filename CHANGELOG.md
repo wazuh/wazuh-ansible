@@ -73,4 +73,6 @@
 | [#2045](https://github.com/wazuh/wazuh-ansible/issues/2045) | Ansible deployment fails on needrestart task when no services require restart |
 | [#2056](https://github.com/wazuh/wazuh-ansible/issues/2056) | No idempotency for the `opensearch.yml` configurations |
 
-## Prior versions
+## Prior version
+
+- []()
