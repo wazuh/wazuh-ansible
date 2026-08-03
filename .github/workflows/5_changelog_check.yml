@@ -32,7 +32,8 @@ jobs:
             FORMAT="✅"
 
             ENTRY_REGEX='^- .+ \(\[#[0-9]+\]\(https://github\.com/[^)]+/(issues|pull)/[0-9]+\)\)$'
-            INVALID=$(echo "$ADDED" | grep -E '^- ' | grep -vx -- '- None' | grep -vE "$ENTRY_REGEX" || true)
+            PRIOR_VERSION_REGEX='^- \[v?[0-9]+\.[0-9]+\.[0-9]+\]\(https://github\.com/[^)]+/blob/[^)]+/CHANGELOG\.md\)$|^- \[\]\(\)$'
+            INVALID=$(echo "$ADDED" | grep -E '^- ' | grep -vx -- '- None' | grep -vE "$ENTRY_REGEX" | grep -vE "$PRIOR_VERSION_REGEX" || true)
             if [ -n "$INVALID" ]; then
               FORMAT="❌"
               echo "::error::Invalid CHANGELOG.md entries. Expected format: '- Description ([#123](https://github.com/<org>/<repo>/issues/123))'. Offending lines:"
