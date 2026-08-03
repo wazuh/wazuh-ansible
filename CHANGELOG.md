@@ -67,13 +67,14 @@
 
 | Issue | Comment |
 | - | - |
+| [#3657](https://github.com/wazuh/wazuh-automation/issues/3657) | Fix changelog check to accept Prior versions entries |
 | [#2218](https://github.com/wazuh/wazuh-ansible/issues/2218) | RedHat-based agent install task does not set WAZUH_REGISTRATION_PASSWORD, breaking auto-enrollment. |
 | [#2206](https://github.com/wazuh/wazuh-ansible/issues/2206) | Wazuh-manager master and worker nodes keys do not match. |
 | [#2195](https://github.com/wazuh/wazuh-ansible/pull/2195) | Fix bumper workflow failure when bump produces no changes |
 | [#2159](https://github.com/wazuh/wazuh-ansible/issues/2159) | Bumper script issue when the tag is set to false |
 | [#2045](https://github.com/wazuh/wazuh-ansible/issues/2045) | Ansible deployment fails on needrestart task when no services require restart |
 | [#2056](https://github.com/wazuh/wazuh-ansible/issues/2056) | No idempotency for the `opensearch.yml` configurations |
-| [#3657](https://github.com/wazuh/wazuh-automation/issues/3657) | Fix changelog check to accept Prior versions entries |
+
 
 ## Prior version
 
