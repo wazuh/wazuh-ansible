@@ -17,6 +17,7 @@
 
 | Issue | Comment |
 | - | - |
+| This is not a valid entry format | Missing issue link entirely |
 | [#2213](https://github.com/wazuh/wazuh-ansible/issues/2213) | Change upload and download methods. |
 | [#2203](https://github.com/wazuh/wazuh-ansible/issues/2203) | Update deployment for Wazuh Indexer 5.0.0 RBAC. |
 | [#2189](https://github.com/wazuh/wazuh-ansible/issues/2189) | Set Wazuh Indexer JVM heap size to one quarter of the host total memory for AIO deployments. |
