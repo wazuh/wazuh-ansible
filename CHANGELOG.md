@@ -17,6 +17,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#9998](https://github.com/wazuh/wazuh-ansible/issues/9998) | Test entry for changelog check validation (changed section) |
 | [#2213](https://github.com/wazuh/wazuh-ansible/issues/2213) | Change upload and download methods. |
 | [#2203](https://github.com/wazuh/wazuh-ansible/issues/2203) | Update deployment for Wazuh Indexer 5.0.0 RBAC. |
 | [#2189](https://github.com/wazuh/wazuh-ansible/issues/2189) | Set Wazuh Indexer JVM heap size to one quarter of the host total memory for AIO deployments. |
@@ -78,4 +79,4 @@
 
 ## Prior version
 
-- []()
+- [v4.98.0](https://github.com/wazuh/wazuh-ansible/blob/v4.98.0/CHANGELOG.md)
