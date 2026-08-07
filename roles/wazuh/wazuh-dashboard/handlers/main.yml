@@ -1,3 +1,0 @@
----
-- name: restart wazuh-dashboard
-  service: name=wazuh-dashboard state=restarted
