@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- None
+- Change Codebuild runners to Github runners ([#2247](https://github.com/wazuh/wazuh-ansible/pull/2247))
 
 ### Fixed
 
