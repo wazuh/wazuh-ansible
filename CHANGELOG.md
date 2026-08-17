@@ -17,6 +17,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2256](https://github.com/wazuh/wazuh-ansible/pull/2256) | Adapt Allocator install and invocation to the new installable Python package |
 | [#2248](https://github.com/wazuh/wazuh-ansible/issues/2248) | Change Codebuild runners to Github runners. |
 | [#2213](https://github.com/wazuh/wazuh-ansible/issues/2213) | Change upload and download methods. |
 | [#2203](https://github.com/wazuh/wazuh-ansible/issues/2203) | Update deployment for Wazuh Indexer 5.0.0 RBAC. |
