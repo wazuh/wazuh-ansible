@@ -345,7 +345,7 @@ jobs:
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
-          pip install -r wazuh-automation/deployability/deps/requirements.txt
+          pip install ./wazuh-automation/deployability/modules/allocation
           pip install ansible-core==2.16
           ansible-galaxy collection install -r wazuh-ansible/requirements.yml
 
@@ -367,7 +367,7 @@ jobs:
       - name: Allocate AIO EC2 instance
         if: matrix.deployment_type == 'aio'
         run: |
-          python3 wazuh-automation/deployability/modules/allocation/main.py \
+          wazuh-allocator \
             --action create \
             --provider aws \
             --size medium \
@@ -412,7 +412,7 @@ jobs:
           for i in ${!instance_names[@]}; do
             instance_name=${instance_names[$i]}
             (
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
+              wazuh-allocator \
                 --action create \
                 --provider aws \
                 --size medium \
@@ -899,7 +899,7 @@ jobs:
               mkdir -p "$instance_dir"
               date > "$instance_dir/date.txt"
             fi
-            python3 wazuh-automation/deployability/modules/allocation/main.py \
+            wazuh-allocator \
               --action delete --track-output "$TRACK_FILE"
           fi
 
@@ -919,7 +919,7 @@ jobs:
               date > "$instance_dir/date.txt"
             fi
             (
-              python3 wazuh-automation/deployability/modules/allocation/main.py \
+              wazuh-allocator \
                 --action delete --track-output "$TRACK_FILE"
             ) &
           done
