@@ -68,6 +68,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2255](https://github.com/wazuh/wazuh-ansible/issues/2255) | Adapt certificate deployment to the unified manager certificate layout (root:wazuh-manager 0640, dir 1770) |
 | [#2218](https://github.com/wazuh/wazuh-ansible/issues/2218) | RedHat-based agent install task does not set WAZUH_REGISTRATION_PASSWORD, breaking auto-enrollment. |
 | [#2206](https://github.com/wazuh/wazuh-ansible/issues/2206) | Wazuh-manager master and worker nodes keys do not match. |
 | [#2195](https://github.com/wazuh/wazuh-ansible/pull/2195) | Fix bumper workflow failure when bump produces no changes |
