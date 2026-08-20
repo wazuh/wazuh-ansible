@@ -4,6 +4,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#9999](https://github.com/wazuh/wazuh-ansible/issues/9999) | Test entry for changelog check validation (added section) |
 | [#2173](https://github.com/wazuh/wazuh-ansible/pull/2173) | Added bump-issue-link support for Revert Stage Bump. |
 | [#2166](https://github.com/wazuh/wazuh-ansible/pull/2166) | Add integration test module docs |
 | [#1920](https://github.com/wazuh/wazuh-ansible/issues/1920) | Implement the wazuh-ansible integration testing module |
