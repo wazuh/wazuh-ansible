@@ -108,28 +108,16 @@
         group: wazuh-manager
         mode: '0640'
 
-    - name: Copy the manager's indexer certificates from local to the Wazuh Manager instance
+    - name: Copy the manager's indexer certificate/key to the Wazuh Manager instance
       ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: "{{ full_cert_path | dirname }}/{{ item }}"
-        owner: root
-        group: wazuh-manager
-        mode: '0640'
-      with_items:
-        - "{{ manager_node_name }}-key.pem"
-        - "{{ manager_node_name }}.pem"
-
-    - name: Copy certificates to match default names
-      ansible.builtin.copy:
-        src: "{{ item.src }}"
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
         dest: "{{ item.dest }}"
-        remote_src: true
         owner: root
         group: wazuh-manager
         mode: '0640'
       with_items:
-        - { src: "{{ full_cert_path | dirname }}/{{ manager_node_name }}.pem", dest: "{{ full_cert_path }}" }
-        - { src: "{{ full_key_path | dirname }}/{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
+        - { src: "{{ manager_node_name }}.pem", dest: "{{ full_cert_path }}" }
+        - { src: "{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
       when: item.src != item.dest
 
     - name: Keystore | Set Indexer username
