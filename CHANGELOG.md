@@ -63,6 +63,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2239](https://github.com/wazuh/wazuh-ansible/issues/2239) | Remove unnecessary `debhelper` install-time dependency from the `wazuh-dashboard` role. |
 
 ### Fixed
 
