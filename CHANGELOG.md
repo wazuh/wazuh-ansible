@@ -69,6 +69,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2246](https://github.com/wazuh/wazuh-ansible/issues/2246) | Report skipped bumps in the repository bumper workflow |
 | [#2233](https://github.com/wazuh/wazuh-ansible/issues/2233) | Fix changelog check to accept Prior versions entries |
 | [#2218](https://github.com/wazuh/wazuh-ansible/issues/2218) | RedHat-based agent install task does not set WAZUH_REGISTRATION_PASSWORD, breaking auto-enrollment. |
 | [#2206](https://github.com/wazuh/wazuh-ansible/issues/2206) | Wazuh-manager master and worker nodes keys do not match. |
