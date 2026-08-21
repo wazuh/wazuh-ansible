@@ -1,4 +1,4 @@
-name: (9.x) Repository bumper
+name: (5.x) Repository bumper
 run-name: Bump ${{ github.ref_name }} (${{ inputs.id }})
 
 on:
@@ -15,7 +15,7 @@ on:
         required: false
         type: string
       tag:
-        description: 'Change branch references to tag-like references (e.g. v9.9.9-alpha7)'
+        description: 'Change branch references to tag-like references (e.g. v5.0.0-alpha7)'
         default: false
         required: false
         type: boolean
@@ -44,7 +44,7 @@ on:
 
 jobs:
   bump:
-    name: Repository bumper 9.x
+    name: Repository bumper 5.x
     runs-on: ubuntu-24.04
     permissions:
       contents: write
