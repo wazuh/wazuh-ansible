@@ -85,12 +85,39 @@
         daemon_reload: true
       become: true
 
-    - name: Set the manager's indexer client certificate/key paths
+    - name: Detect the manager's indexer client certificate/key paths from wazuh-manager.conf
       block:
+        - name: Read wazuh-manager.conf
+          ansible.builtin.slurp:
+            path: /var/wazuh-manager/etc/wazuh-manager.conf
+          register: wazuh_manager_conf_raw
+          changed_when: false
+
+        - name: Extract the indexer SSL certificate/key paths
+          ansible.builtin.set_fact:
+            expected_cert_path: "{{ (indexer_certificates | first | default('') | trim) }}"
+            expected_key_path: "{{ (indexer_keys | first | default('') | trim) }}"
+          vars:
+            conf_text: "{{ wazuh_manager_conf_raw.content | b64decode | regex_replace('(?s)<!--.*?-->', '') }}"
+            indexer_ssl_block: "{{ conf_text | regex_findall('(?s)<indexer[^>]*>.*?<ssl>(.*?)</ssl>.*?</indexer>') | first | default('') }}"
+            indexer_certificates: "{{ indexer_ssl_block | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
+            indexer_keys: "{{ indexer_ssl_block | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
+
+        - name: Validate expected certificate and key filenames
+          ansible.builtin.assert:
+            that:
+              - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
+              - ( expected_cert_path is match('^/?.+\\.pem$') )
+              - ( expected_key_path is match('^/?.+\\.pem$') )
+            fail_msg: >-
+              Could not find the indexer SSL certificate/key paths inside the <indexer><ssl>
+              block of /var/wazuh-manager/etc/wazuh-manager.conf.
+          changed_when: false
+
         - name: Set cert and key full paths
           ansible.builtin.set_fact:
-            full_cert_path: "{{ wazuh_manager_install_path }}etc/certs/indexer-connector.pem"
-            full_key_path: "{{ wazuh_manager_install_path }}etc/certs/indexer-connector-key.pem"
+            full_cert_path: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}"
+            full_key_path: "{{ wazuh_manager_install_path }}{{ expected_key_path }}"
 
         - name: Create expected cert/key directory (if does not exist)
           ansible.builtin.file:
