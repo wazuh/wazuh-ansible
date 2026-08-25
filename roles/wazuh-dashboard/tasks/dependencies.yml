@@ -55,7 +55,6 @@
     - name: Debian-based | Install Dashboard dependencies
       ansible.builtin.apt:
         name:
-          - 'debhelper'
           - 'tar'
           - 'curl'
           - 'libcap2-bin'
