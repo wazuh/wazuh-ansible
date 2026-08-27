@@ -3,3 +3,8 @@
 wazuh_agent_package_download_path: "/tmp/wazuh-agent"
 wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
 wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+
+# Optional, RC1+. Full connection URL for the manager (host[:port][/path]),
+# maps to the WAZUH_MANAGER_ENDPOINT install-time variable. Empty keeps this
+# role on the legacy wazuh_manager_address/WAZUH_MANAGER path.
+wazuh_manager_endpoint: ""
