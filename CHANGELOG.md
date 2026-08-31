@@ -82,4 +82,4 @@
 
 ## Prior version
 
-- []()
+- [v4.99.0](https://github.com/wazuh/wazuh-ansible/blob/v4.99.0/CHANGELOG.md)
