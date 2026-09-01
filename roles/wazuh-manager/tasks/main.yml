@@ -85,7 +85,7 @@
         daemon_reload: true
       become: true
 
-    - name: Detect expected indexer SSL certificate names from wazuh-manager.conf
+    - name: Detect the manager's indexer client certificate/key paths from wazuh-manager.conf
       block:
         - name: Read wazuh-manager.conf
           ansible.builtin.slurp:
@@ -93,25 +93,15 @@
           register: wazuh_manager_conf_raw
           changed_when: false
 
-        - name: Extract expected certificate/key
+        - name: Extract the indexer SSL certificate/key paths
           ansible.builtin.set_fact:
-            expected_cert_path: "{{ (certificate_paths | first | default('') | trim) }}"
-            expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
+            expected_cert_path: "{{ (indexer_certificates | first | default('') | trim) }}"
+            expected_key_path: "{{ (indexer_keys | first | default('') | trim) }}"
           vars:
-            conf_text: "{{ wazuh_manager_conf_raw.content | b64decode }}"
-            certificate_paths: "{{ conf_text | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
-            key_paths: "{{ conf_text | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
-
-        - name: Inspect extraction results
-          ansible.builtin.debug:
-            msg:
-              - "Cert Path Found: '{{ expected_cert_path }}'"
-              - "Key Path Found: '{{ expected_key_path }}'"
-
-        - name: Set cert and key full paths
-          ansible.builtin.set_fact:
-            full_cert_path: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}"
-            full_key_path: "{{ wazuh_manager_install_path }}{{ expected_key_path }}"
+            conf_text: "{{ wazuh_manager_conf_raw.content | b64decode | regex_replace('(?s)<!--.*?-->', '') }}"
+            indexer_ssl_block: "{{ conf_text | regex_findall('(?s)<indexer[^>]*>.*?<ssl>(.*?)</ssl>.*?</indexer>') | first | default('') }}"
+            indexer_certificates: "{{ indexer_ssl_block | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
+            indexer_keys: "{{ indexer_ssl_block | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
 
         - name: Validate expected certificate and key filenames
           ansible.builtin.assert:
@@ -120,41 +110,41 @@
               - ( expected_cert_path is match('^/?.+\\.pem$') )
               - ( expected_key_path is match('^/?.+\\.pem$') )
             fail_msg: >-
-              Invalid indexer SSL certificate/key filenames detected from
-              /var/wazuh-manager/etc/wazuh-manager.conf.
+              Could not find the indexer SSL certificate/key paths inside the <indexer><ssl>
+              block of /var/wazuh-manager/etc/wazuh-manager.conf.
           changed_when: false
+
+        - name: Set cert and key full paths
+          ansible.builtin.set_fact:
+            full_cert_path: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}"
+            full_key_path: "{{ wazuh_manager_install_path }}{{ expected_key_path }}"
 
         - name: Create expected cert/key directory (if does not exist)
           ansible.builtin.file:
             path: "{{ full_cert_path | dirname }}"
             state: directory
-            owner: wazuh-manager
+            owner: root
             group: wazuh-manager
-            mode: "0700"
+            mode: "1770"
 
-    - name: Copy the certificates from local to the Wazuh Manager instance
+    - name: Copy root-ca certificate from local to the Wazuh Manager instance
       ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-        dest: "{{ full_cert_path | dirname }}/{{ item }}"
-        owner: wazuh-manager
+        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+        dest: "{{ full_cert_path | dirname }}/root-ca.pem"
+        owner: root
         group: wazuh-manager
-        mode: '0400'
-      with_items:
-        - "root-ca.pem"
-        - "{{ manager_node_name }}-key.pem"
-        - "{{ manager_node_name }}.pem"
+        mode: '0640'
 
-    - name: Copy certificates to match default names
+    - name: Copy the manager's indexer certificate/key to the Wazuh Manager instance
       ansible.builtin.copy:
-        src: "{{ item.src }}"
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
         dest: "{{ item.dest }}"
-        remote_src: true
-        owner: wazuh-manager
+        owner: root
         group: wazuh-manager
-        mode: '0400'
+        mode: '0640'
       with_items:
-        - { src: "{{ full_cert_path | dirname }}/{{ manager_node_name }}.pem", dest: "{{ full_cert_path }}" }
-        - { src: "{{ full_key_path | dirname }}/{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
+        - { src: "{{ manager_node_name }}.pem", dest: "{{ full_cert_path }}" }
+        - { src: "{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
       when: item.src != item.dest
 
     - name: Keystore | Set Indexer username
