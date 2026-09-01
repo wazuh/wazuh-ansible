@@ -81,6 +81,6 @@
 | [#2056](https://github.com/wazuh/wazuh-ansible/issues/2056) | No idempotency for the `opensearch.yml` configurations |
 
 
-## Prior version
+## Prior versions
 
 - []()
