@@ -6,6 +6,14 @@
     state: directory
     mode: '0755'
 
+- name: Linux | Build install-time environment for the Wazuh agent
+  ansible.builtin.set_fact:
+    wazuh_agent_install_env: >-
+      {{
+        {'WAZUH_MANAGER': wazuh_manager_address, 'WAZUH_REGISTRATION_PASSWORD': wazuh_registration_password}
+        | combine({'WAZUH_MANAGER_ENDPOINT': wazuh_manager_endpoint} if (wazuh_manager_endpoint | default('') | length > 0) else {})
+      }}
+
 - name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
   ansible.builtin.include_tasks:
     file: "RedHat.yml"
@@ -21,9 +29,7 @@
     name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.rpm"
     state: present
     disable_gpg_check: true
-  environment:
-    WAZUH_MANAGER: "{{ wazuh_manager_address }}"
-    WAZUH_REGISTRATION_PASSWORD: "{{ wazuh_registration_password }}"
+  environment: "{{ wazuh_agent_install_env }}"
   when:
     - ansible_facts.os_family == "RedHat"
 
@@ -31,9 +37,7 @@
   ansible.builtin.apt:
     deb: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
     state: present
-  environment:
-    WAZUH_MANAGER: "{{ wazuh_manager_address }}"
-    WAZUH_REGISTRATION_PASSWORD: "{{ wazuh_registration_password }}"
+  environment: "{{ wazuh_agent_install_env }}"
   when:
     - ansible_facts.os_family == "Debian"
 
