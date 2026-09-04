@@ -245,3 +245,21 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 **Variable:** `wazuh_agent_package_name`  
 **Description:** Base filename (without architecture suffix or extension) of the Wazuh Agent package to download and install.  
 **Default value:** `wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}`
+
+---
+
+**Variable:** `wazuh_manager_address`  
+**Description:** Hostname or IP of the Wazuh manager the agent will connect and enroll to. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`), maps to the `WAZUH_MANAGER` install-time variable.  
+**Default value:** `<Your Wazuh Manager IP>` (must be overridden)
+
+---
+
+**Variable:** `wazuh_registration_password`  
+**Description:** Password used for agent auto-enrollment. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`), maps to the `WAZUH_REGISTRATION_PASSWORD` install-time variable.  
+**Default value:** `<Your Wazuh Manager Registration Password>` (must be overridden)
+
+---
+
+**Variable:** `wazuh_manager_endpoint`  
+**Description:** Optional. Full connection URL for the manager (`host[:port][/path]`), maps to the `WAZUH_MANAGER_ENDPOINT` install-time variable. Added ahead of [wazuh/wazuh#38624](https://github.com/wazuh/wazuh/issues/38624), which will replace `WAZUH_MANAGER`/`WAZUH_MANAGER_PORT` with this single variable at RC1. Empty keeps the role on the legacy `wazuh_manager_address`/`WAZUH_MANAGER` path.  
+**Default value:** `""`
