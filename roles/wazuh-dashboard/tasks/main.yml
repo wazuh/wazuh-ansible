@@ -72,8 +72,32 @@
         expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
       vars:
         conf_text: "{{ wazuh_dashboard_conf_raw.content | b64decode }}"
-        certificate_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.certificate\\s*:\\s*\"?(/\\S+\\.pem)\"?(?:\\s+#.*)?$') }}"
-        key_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.key\\s*:\\s*\"?(/\\S+\\.pem)\"?(?:\\s+#.*)?$') }}"
+        flat_cert_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.certificate\\s*:\\s*[\"\\']?(/\\S+?\\.pem)[\"\\']?(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
+        flat_key_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.key\\s*:\\s*[\"\\']?(/\\S+?\\.pem)[\"\\']?(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
+        nested_cert_paths: "{{ conf_text | regex_findall('(?ms)^server:.*?^\\s+ssl:.*?^\\s+certificate\\s*:\\s*[\"\\']?(/\\S+?\\.pem)[\"\\']?\\s*$') }}" # noqa: yaml[line-length]
+        nested_key_paths: "{{ conf_text | regex_findall('(?ms)^server:.*?^\\s+ssl:.*?^\\s+key\\s*:\\s*[\"\\']?(/\\S+?\\.pem)[\"\\']?\\s*$') }}" # noqa: yaml[line-length]
+        certificate_paths: "{{ flat_cert_paths + nested_cert_paths }}"
+        key_paths: "{{ flat_key_paths + nested_key_paths }}"
+
+    - name: Detect if server.ssl lines are missing or unparseable
+      ansible.builtin.set_fact:
+        dashboard_ssl_lines_missing: "{{ (expected_cert_path | length == 0) or (expected_key_path | length == 0) }}"
+
+    - name: Fall back to the packaged default cert/key paths when unparseable
+      ansible.builtin.set_fact:
+        expected_cert_path: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}.pem"
+        expected_key_path: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}-key.pem"
+      when: dashboard_ssl_lines_missing
+
+    - name: Ensure server.ssl.certificate/key are present in opensearch_dashboards.yml
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+        regexp: "^#?\\s*server\\.ssl\\.{{ item.key }}\\s*:.*$"
+        line: "server.ssl.{{ item.key }}: '{{ item.value }}'"
+      loop:
+        - { key: "certificate", value: "{{ expected_cert_path }}" }
+        - { key: "key", value: "{{ expected_key_path }}" }
+      when: dashboard_ssl_lines_missing
 
     - name: Validate expected certificate and key filenames
       ansible.builtin.assert:
@@ -83,6 +107,9 @@
         fail_msg: >-
           Invalid dashboard SSL certificate/key filenames detected from
           /etc/wazuh-dashboard/opensearch_dashboards.yml.
+          expected_cert_path='{{ expected_cert_path }}' expected_key_path='{{ expected_key_path }}'.
+          Lines containing 'ssl' in the parsed file:
+          {{ (wazuh_dashboard_conf_raw.content | b64decode).splitlines() | select('search', 'ssl') | list }}
       changed_when: false
 
     - name: Create expected cert/key directory (if does not exist)
