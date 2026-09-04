@@ -27,6 +27,9 @@
     content: |
       WAZUH_MANAGER="{{ wazuh_manager_address }}"
       WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
+      {% if wazuh_manager_endpoint | default('') | length > 0 %}
+      WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"
+      {% endif %}
     dest: /tmp/wazuh_envs
     mode: '0644'
 
