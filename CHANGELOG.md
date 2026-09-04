@@ -70,6 +70,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2277](https://github.com/wazuh/wazuh-ansible/issues/2277) | Fix wazuh-dashboard role failing to detect SSL certificate/key paths when opensearch_dashboards.yml uses single-quoted values |
 | [#2255](https://github.com/wazuh/wazuh-ansible/issues/2255) | Adapt certificate deployment to the unified manager certificate layout (root:wazuh-manager 0640, dir 1770) |
 | [#2246](https://github.com/wazuh/wazuh-ansible/issues/2246) | Report skipped bumps in the repository bumper workflow |
 | [#2233](https://github.com/wazuh/wazuh-ansible/issues/2233) | Fix changelog check to accept Prior versions entries |
