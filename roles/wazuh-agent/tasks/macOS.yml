@@ -8,7 +8,7 @@
 
 - name: MacOS | Set the remote path for the registration CA certificate
   ansible.builtin.set_fact:
-    wazuh_registration_ca_remote_path: "{{ wazuh_agent_package_download_path }}/registration-ca.pem"
+    wazuh_registration_ca_remote_path: "/etc/wazuh-registration-ca.pem"
   when: wazuh_registration_ca | default('') | length > 0
 
 - name: MacOS | Copy registration CA certificate to the target node
