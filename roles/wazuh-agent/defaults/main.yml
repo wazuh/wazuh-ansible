@@ -8,3 +8,11 @@ wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package
 # maps to the WAZUH_MANAGER_ENDPOINT install-time variable. Empty keeps this
 # role on the legacy wazuh_manager_address/WAZUH_MANAGER path.
 wazuh_manager_endpoint: ""
+
+# Optional. Local path (Ansible control node) to a CA certificate file used to
+# verify the manager's TLS certificate during agent enrollment/registration.
+# The role copies it to the target node and passes it as the
+# WAZUH_REGISTRATION_CA install-time variable. Required when the manager
+# presents a self-signed or private CA, per verification_mode now being
+# enforced by default (wazuh/wazuh#38786). Empty skips CA provisioning.
+wazuh_registration_ca: ""

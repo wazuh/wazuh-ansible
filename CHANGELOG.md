@@ -4,6 +4,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2278](https://github.com/wazuh/wazuh-ansible/issues/2278) | Pass the manager CA to the agent install (verification_mode now enforced by default) |
 | [#2267](https://github.com/wazuh/wazuh-ansible/issues/2267) | Add optional wazuh_manager_endpoint support to wazuh-agent role |
 | [#2173](https://github.com/wazuh/wazuh-ansible/pull/2173) | Added bump-issue-link support for Revert Stage Bump. |
 | [#2166](https://github.com/wazuh/wazuh-ansible/pull/2166) | Add integration test module docs |

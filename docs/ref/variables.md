@@ -263,3 +263,9 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 **Variable:** `wazuh_manager_endpoint`  
 **Description:** Optional. Full connection URL for the manager (`host[:port][/path]`), maps to the `WAZUH_MANAGER_ENDPOINT` install-time variable. Added ahead of [wazuh/wazuh#38624](https://github.com/wazuh/wazuh/issues/38624), which will replace `WAZUH_MANAGER`/`WAZUH_MANAGER_PORT` with this single variable at RC1. Empty keeps the role on the legacy `wazuh_manager_address`/`WAZUH_MANAGER` path.  
 **Default value:** `""`
+
+---
+
+**Variable:** `wazuh_registration_ca`  
+**Description:** Optional. Local path (Ansible control node) to a CA certificate file used to verify the manager's TLS certificate during agent enrollment. The role copies it to the target node and passes it as the `WAZUH_REGISTRATION_CA` install-time variable. Required when the manager presents a self-signed or private CA — with `verification_mode` now enforced by default (see [wazuh/wazuh#38786](https://github.com/wazuh/wazuh/pull/38786)), an agent installed without this variable against such a manager fails closed instead of connecting insecurely.  
+**Default value:** `""`

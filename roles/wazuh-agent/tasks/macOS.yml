@@ -6,6 +6,18 @@
     state: directory
     mode: '0755'
 
+- name: MacOS | Set the remote path for the registration CA certificate
+  ansible.builtin.set_fact:
+    wazuh_registration_ca_remote_path: "{{ wazuh_agent_package_download_path }}/registration-ca.pem"
+  when: wazuh_registration_ca | default('') | length > 0
+
+- name: MacOS | Copy registration CA certificate to the target node
+  ansible.builtin.copy:
+    src: "{{ wazuh_registration_ca }}"
+    dest: "{{ wazuh_registration_ca_remote_path }}"
+    mode: '0644'
+  when: wazuh_registration_ca | default('') | length > 0
+
 - name: MacOS (Intel) | Download Wazuh agent package
   ansible.builtin.get_url:
     url: "{{ wazuh_agent_macos_intel64 }}"
@@ -29,6 +41,9 @@
       WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
       {% if wazuh_manager_endpoint | default('') | length > 0 %}
       WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"
+      {% endif %}
+      {% if wazuh_registration_ca | default('') | length > 0 %}
+      WAZUH_REGISTRATION_CA="{{ wazuh_registration_ca_remote_path }}"
       {% endif %}
     dest: /tmp/wazuh_envs
     mode: '0644'

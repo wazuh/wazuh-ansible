@@ -6,12 +6,25 @@
     state: directory
     mode: '0755'
 
+- name: Linux | Set the remote path for the registration CA certificate
+  ansible.builtin.set_fact:
+    wazuh_registration_ca_remote_path: "{{ wazuh_agent_package_download_path }}/registration-ca.pem"
+  when: wazuh_registration_ca | default('') | length > 0
+
+- name: Linux | Copy registration CA certificate to the target node
+  ansible.builtin.copy:
+    src: "{{ wazuh_registration_ca }}"
+    dest: "{{ wazuh_registration_ca_remote_path }}"
+    mode: '0644'
+  when: wazuh_registration_ca | default('') | length > 0
+
 - name: Linux | Build install-time environment for the Wazuh agent
   ansible.builtin.set_fact:
     wazuh_agent_install_env: >-
       {{
         {'WAZUH_MANAGER': wazuh_manager_address, 'WAZUH_REGISTRATION_PASSWORD': wazuh_registration_password}
         | combine({'WAZUH_MANAGER_ENDPOINT': wazuh_manager_endpoint} if (wazuh_manager_endpoint | default('') | length > 0) else {})
+        | combine({'WAZUH_REGISTRATION_CA': wazuh_registration_ca_remote_path} if (wazuh_registration_ca | default('') | length > 0) else {})
       }}
 
 - name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems

@@ -5,6 +5,17 @@
     path: "{{ wazuh_agent_win_package_download_path }}"
     state: directory
 
+- name: Windows | Set the remote path for the registration CA certificate
+  ansible.builtin.set_fact:
+    wazuh_registration_ca_remote_path: "{{ wazuh_agent_win_package_download_path }}\\registration-ca.pem"
+  when: wazuh_registration_ca | default('') | length > 0
+
+- name: Windows | Copy registration CA certificate to the target node
+  ansible.windows.win_copy:
+    src: "{{ wazuh_registration_ca }}"
+    dest: "{{ wazuh_registration_ca_remote_path }}"
+  when: wazuh_registration_ca | default('') | length > 0
+
 - name: Windows | Download Wazuh agent installer
   ansible.windows.win_get_url:
     url: "{{ wazuh_agent_windows }}"
@@ -16,6 +27,7 @@
       /q WAZUH_MANAGER="{{ wazuh_manager_address }}"
       WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
       {% if wazuh_manager_endpoint | default('') | length > 0 %}WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"{% endif %}
+      {% if wazuh_registration_ca | default('') | length > 0 %}WAZUH_REGISTRATION_CA="{{ wazuh_registration_ca_remote_path }}"{% endif %}
 
 - name: Windows | Install Wazuh agent
   ansible.windows.win_package:
