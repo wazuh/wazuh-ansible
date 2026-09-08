@@ -4,6 +4,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2279](https://github.com/wazuh/wazuh-ansible/issues/2279) | Add documentation for the default password change procedure in AIO and Distributed deployments |
 | [#2267](https://github.com/wazuh/wazuh-ansible/issues/2267) | Add optional wazuh_manager_endpoint support to wazuh-agent role |
 | [#2173](https://github.com/wazuh/wazuh-ansible/pull/2173) | Added bump-issue-link support for Revert Stage Bump. |
 | [#2166](https://github.com/wazuh/wazuh-ansible/pull/2166) | Add integration test module docs |
