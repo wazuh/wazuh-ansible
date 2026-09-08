@@ -4,15 +4,58 @@ wazuh_agent_package_download_path: "/tmp/wazuh-agent"
 wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
 wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
 
+# Agent installation directory per platform. Used to resolve the CA drop-in
+# location and ossec.conf below, so overriding a non-default install prefix in
+# one place is enough. The Windows MSI is 32-bit, so on a 64-bit host it lands
+# under the x86 Program Files.
+wazuh_agent_install_path: "/var/ossec"
+wazuh_agent_macos_install_path: "/Library/Ossec"
+wazuh_agent_win_install_path: >-
+  {{ ansible_facts.env['ProgramFiles(x86)'] | default('C:\Program Files (x86)', true) }}\ossec-agent
+
 # Optional, RC1+. Full connection URL for the manager (host[:port][/path]),
 # maps to the WAZUH_MANAGER_ENDPOINT install-time variable. Empty keeps this
 # role on the legacy wazuh_manager_address/WAZUH_MANAGER path.
 wazuh_manager_endpoint: ""
 
-# Optional. Local path (Ansible control node) to a CA certificate file used to
-# verify the manager's TLS certificate during agent enrollment/registration.
-# The role copies it to the target node and passes it as the
-# WAZUH_REGISTRATION_CA install-time variable. Required when the manager
-# presents a self-signed or private CA, per verification_mode now being
-# enforced by default (wazuh/wazuh#38786). Empty skips CA provisioning.
+# Optional. Absolute path on the Ansible control node to the CA certificate
+# that signed the manager's TLS certificate (a certificate, never a bundle
+# carrying a private key: the file is copied world-readable so the agent
+# daemons can read it). The role copies it to the target node *before* the
+# package install and passes the remote path as the WAZUH_REGISTRATION_CA
+# install-time variable, which the installer pins into
+# <agent><ssl><certificate_authorities>. That tag governs all agent-to-manager
+# HTTPS traffic, not just enrollment, and is read on every agent start, so the
+# copied file must stay on the node for the life of the install.
+#
+# Required when the manager presents a self-signed or private CA: since
+# wazuh/wazuh#38786 the agent enforces certificate verification, so an agent
+# installed without this variable against such a manager fails closed. Empty
+# skips CA provisioning entirely.
 wazuh_registration_ca: ""
+
+# Optional. Agent TLS verification posture, mapped to the SSL_VERIFICATION
+# install-time variable and written to <agent><ssl><verification_mode>. One of:
+#   full        - verify against the CA *and* check the manager's hostname
+#   certificate - verify against the CA only (no hostname check)
+#   system      - trust the OS store; cannot be combined with a CA
+#   none        - no verification (lab/CI against a self-signed manager)
+# Empty leaves the tag unset, which resolves to 'certificate' when
+# wazuh_registration_ca is set and 'system' when it is not.
+wazuh_ssl_verification: ""
+
+# Where the role places wazuh_registration_ca on the target node. This is the
+# drop-in location the agent itself documents (pkg_installer.sh on Linux/macOS,
+# do_upgrade.ps1 on Windows), so the same file serves both the install-time pin
+# and the CA a later WPK upgrade looks for, and it is removed when the agent is
+# uninstalled.
+wazuh_registration_ca_remote_path: "{{ wazuh_agent_install_path }}/etc/certs/root-ca.pem"
+wazuh_registration_ca_macos_remote_path: "{{ wazuh_agent_macos_install_path }}/etc/certs/root-ca.pem"
+wazuh_registration_ca_win_remote_path: "{{ wazuh_agent_win_install_path }}\\certs\\root-ca.pem"
+
+# Assert after the install that the CA really was pinned into ossec.conf. The
+# installer only logs its own failures to pin it and still exits 0, and a
+# package install skipped on an already-installed agent never runs the
+# installer at all, so without this check both outcomes are a green play and an
+# agent that can never enroll. Only runs when wazuh_registration_ca is set.
+wazuh_agent_verify_registration_ca: true

@@ -267,5 +267,29 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 ---
 
 **Variable:** `wazuh_registration_ca`  
-**Description:** Optional. Local path (Ansible control node) to a CA certificate file used to verify the manager's TLS certificate during agent enrollment. The role copies it to the target node and passes it as the `WAZUH_REGISTRATION_CA` install-time variable. Required when the manager presents a self-signed or private CA — with `verification_mode` now enforced by default (see [wazuh/wazuh#38786](https://github.com/wazuh/wazuh/pull/38786)), an agent installed without this variable against such a manager fails closed instead of connecting insecurely.  
+**Description:** Optional. **Absolute** path on the Ansible control node to the CA certificate that signed the manager's TLS certificate. Must be a CA certificate, not a bundle carrying a private key: the file is copied to the target world-readable so the agent daemons can read it. The role copies it to the target node *before* installing the package and passes the remote path as the `WAZUH_REGISTRATION_CA` install-time variable; the installer pins that path into `<agent><ssl><certificate_authorities>`, which governs **all** agent↔manager HTTPS traffic, not just enrollment, and also flips the effective `verification_mode` to `certificate` (see `wazuh_ssl_verification` below — `certificate` validates the certificate chain but does **not** check the manager's hostname). Note that `<enrollment><server_ca_path>`, which the installer also writes, is parsed but ignored by the 5.x agent. Required when the manager presents a self-signed or private CA — with `verification_mode` now enforced by default (see [wazuh/wazuh#38786](https://github.com/wazuh/wazuh/pull/38786)), an agent installed without this variable against such a manager fails closed instead of connecting insecurely. The copied file is a permanent runtime dependency: `wazuh-agentd` reads it on **every** start and refuses to start when it is missing, so it must stay on the node for the life of the install. A relative path is resolved against the role's own `files/` directory by `ansible.builtin.copy`, so the role asserts up front that the value is an absolute path to a regular file on the control node.  
 **Default value:** `""`
+
+---
+
+**Variable:** `wazuh_ssl_verification`  
+**Description:** Optional. Agent TLS verification posture, mapped to the `SSL_VERIFICATION` install-time variable ([wazuh/wazuh#38786](https://github.com/wazuh/wazuh/pull/38786)) and written to `<agent><ssl><verification_mode>`. One of `full` (verify against the CA **and** check the manager's hostname), `certificate` (verify against the CA only), `system` (trust the OS store) or `none` (no verification, for lab/CI against a self-signed manager with no CA to hand). Empty leaves the tag unset, which resolves to `certificate` when `wazuh_registration_ca` is set and `system` when it is not. Set `full` on a manager whose certificate carries proper SANs. `system` cannot be combined with `wazuh_registration_ca` — the agent refuses to start with both configured — and the role asserts this rather than letting the installer silently drop the CA.  
+**Default value:** `""`
+
+---
+
+**Variable:** `wazuh_registration_ca_remote_path` / `wazuh_registration_ca_macos_remote_path` / `wazuh_registration_ca_win_remote_path`  
+**Description:** Where the role places `wazuh_registration_ca` on the target node, per platform. These are the CA drop-in locations the agent itself documents (`pkg_installer.sh` on Linux/macOS, `do_upgrade.ps1` on Windows), so one file serves both the install-time pin and the CA a later WPK upgrade looks for, and it is removed when the agent is uninstalled. Derived from `wazuh_agent_install_path`, `wazuh_agent_macos_install_path` and `wazuh_agent_win_install_path` respectively, so overriding a non-default install prefix is enough.  
+**Default value:** `/var/ossec/etc/certs/root-ca.pem`, `/Library/Ossec/etc/certs/root-ca.pem`, `<ProgramFiles(x86)>\ossec-agent\certs\root-ca.pem`
+
+---
+
+**Variable:** `wazuh_agent_verify_registration_ca`  
+**Description:** Whether to assert, after the install, that the CA really was pinned into `ossec.conf`. Only runs when `wazuh_registration_ca` is set. The check exists because both relevant failure modes are otherwise completely silent: the installer logs its own failures to pin the CA to `ossec.log` and still exits `0`, and a package install skipped on an already-installed agent never runs the installer at all — in both cases the package manager, the service start and the whole play report success while the agent has no CA configured and can never enroll. Set to `false` to skip the check.  
+**Default value:** `true`
+
+---
+
+**Variable:** `wazuh_agent_install_path` / `wazuh_agent_macos_install_path` / `wazuh_agent_win_install_path`  
+**Description:** Agent installation directory per platform. Used to resolve the CA drop-in locations above and the `ossec.conf` the post-install check reads.  
+**Default value:** `/var/ossec`, `/Library/Ossec`, `{{ ansible_facts.env['ProgramFiles(x86)'] }}\ossec-agent`

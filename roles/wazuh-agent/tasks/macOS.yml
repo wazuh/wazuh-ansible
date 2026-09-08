@@ -6,15 +6,25 @@
     state: directory
     mode: '0755'
 
-- name: MacOS | Set the remote path for the registration CA certificate
-  ansible.builtin.set_fact:
-    wazuh_registration_ca_remote_path: "/etc/wazuh-registration-ca.pem"
+# Copied before the install for the same reason as on Linux: the installer only
+# logs an unreadable WAZUH_REGISTRATION_CA and exits 0. Also placed at the CA
+# drop-in path the agent's own upgrade path looks for, so it keeps working for
+# later WPK upgrades. Do not move below the install block.
+- name: MacOS | Create the certificate directory for the manager CA
+  ansible.builtin.file:
+    path: "{{ wazuh_registration_ca_macos_remote_path | dirname }}"
+    state: directory
+    owner: root
+    group: wheel
+    mode: '0755'
   when: wazuh_registration_ca | default('') | length > 0
 
-- name: MacOS | Copy registration CA certificate to the target node
+- name: MacOS | Copy the manager CA certificate to the target node
   ansible.builtin.copy:
     src: "{{ wazuh_registration_ca }}"
-    dest: "{{ wazuh_registration_ca_remote_path }}"
+    dest: "{{ wazuh_registration_ca_macos_remote_path }}"
+    owner: root
+    group: wheel
     mode: '0644'
   when: wazuh_registration_ca | default('') | length > 0
 
@@ -34,20 +44,6 @@
   when:
     - ansible_facts.architecture == "arm64"
 
-- name: MacOS | Create Wazuh environment variables file
-  ansible.builtin.copy:
-    content: |
-      WAZUH_MANAGER="{{ wazuh_manager_address }}"
-      WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
-      {% if wazuh_manager_endpoint | default('') | length > 0 %}
-      WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"
-      {% endif %}
-      {% if wazuh_registration_ca | default('') | length > 0 %}
-      WAZUH_REGISTRATION_CA="{{ wazuh_registration_ca_remote_path }}"
-      {% endif %}
-    dest: /tmp/wazuh_envs
-    mode: '0644'
-
 - name: MacOS | Check installed packages
   ansible.builtin.command: "pkgutil --pkgs"
   register: installed_packages
@@ -61,6 +57,29 @@
 - name: MacOS | Install and load Wazuh agent
   when: not wazuh_agent_already_installed
   block:
+    # Written only on the install path, since the installer is the only thing
+    # that reads it, and mode 0600 because it carries the registration
+    # password. Removed again in `always` below: the installer deletes it
+    # itself on success, so this covers the failure paths.
+    - name: MacOS | Create Wazuh environment variables file
+      ansible.builtin.copy:
+        content: |
+          WAZUH_MANAGER="{{ wazuh_manager_address }}"
+          WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
+          {% if wazuh_manager_endpoint | default('') | length > 0 %}
+          WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"
+          {% endif %}
+          {% if wazuh_registration_ca | default('') | length > 0 %}
+          WAZUH_REGISTRATION_CA="{{ wazuh_registration_ca_macos_remote_path }}"
+          {% endif %}
+          {% if wazuh_ssl_verification | default('') | length > 0 %}
+          SSL_VERIFICATION="{{ wazuh_ssl_verification }}"
+          {% endif %}
+        dest: /tmp/wazuh_envs
+        owner: root
+        group: wheel
+        mode: '0600'
+
     - name: MacOS | Install Wazuh agent using installer
       ansible.builtin.command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
       register: install_pkg
@@ -90,8 +109,32 @@
       ansible.builtin.command: /bin/sleep 5
       changed_when: false
 
+  always:
+    - name: MacOS | Remove the Wazuh environment variables file
+      ansible.builtin.file:
+        path: /tmp/wazuh_envs
+        state: absent
+
 - name: MacOS | Verify Wazuh agent service is running
   ansible.builtin.command: "launchctl print system/com.wazuh.agent"
   register: wazuh_agent_service_status
   failed_when: "'state = running' not in wazuh_agent_service_status.stdout"
   changed_when: false
+
+- name: MacOS | Verify the manager CA was pinned into the agent configuration
+  when:
+    - wazuh_registration_ca | default('') | length > 0
+    - wazuh_agent_verify_registration_ca | bool
+  block:
+    - name: MacOS | Read the agent configuration file
+      ansible.builtin.slurp:
+        src: "{{ wazuh_agent_macos_install_path }}/etc/ossec.conf"
+      register: wazuh_agent_ossec_conf_raw
+
+    - name: MacOS | Assert the manager CA is configured
+      ansible.builtin.include_tasks:
+        file: "verify_registration_ca.yml"
+      vars:
+        wazuh_agent_ossec_conf_path: "{{ wazuh_agent_macos_install_path }}/etc/ossec.conf"
+        wazuh_agent_ossec_log_path: "{{ wazuh_agent_macos_install_path }}/logs/ossec.log"
+        wazuh_agent_ca_expected_path: "{{ wazuh_registration_ca_macos_remote_path }}"
