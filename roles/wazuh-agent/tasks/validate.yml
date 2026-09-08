@@ -1,0 +1,46 @@
+---
+
+- name: Validate | Check the manager CA and TLS verification variables
+  when: (wazuh_registration_ca | default('') | length > 0) or (wazuh_ssl_verification | default('') | length > 0)
+  block:
+    - name: Validate | Assert wazuh_ssl_verification is a mode the agent accepts
+      ansible.builtin.assert:
+        that:
+          - wazuh_ssl_verification | default('') in ['', 'full', 'certificate', 'system', 'none']
+        fail_msg: >-
+          wazuh_ssl_verification must be exactly one of 'full', 'certificate', 'system' or 'none'
+          (got '{{ wazuh_ssl_verification }}'). The installer discards any other value and leaves
+          <verification_mode> unset instead of failing, so this is checked here.
+
+    - name: Validate | Assert a manager CA is not combined with 'system' verification
+      ansible.builtin.assert:
+        that:
+          - not ((wazuh_registration_ca | default('') | length > 0) and (wazuh_ssl_verification | default('') == 'system'))
+        fail_msg: >-
+          wazuh_ssl_verification is 'system' and wazuh_registration_ca is set. 'system' trusts the
+          OS trust store, not a configured CA, and the agent refuses to start with both set, so the
+          installer silently drops the CA. Either unset wazuh_registration_ca and import the CA into
+          the target's OS trust store, or use 'certificate' or 'full'.
+
+    - name: Validate | Stat the manager CA on the Ansible control node
+      ansible.builtin.stat:
+        path: "{{ wazuh_registration_ca }}"
+      delegate_to: localhost
+      become: false
+      register: wazuh_registration_ca_local
+      changed_when: false
+      when: wazuh_registration_ca | default('') | length > 0
+
+    - name: Validate | Assert the manager CA is a regular file on the control node
+      ansible.builtin.assert:
+        that:
+          - wazuh_registration_ca is match('/')
+          - wazuh_registration_ca_local.stat.exists
+          - wazuh_registration_ca_local.stat.isreg
+        fail_msg: >-
+          wazuh_registration_ca ('{{ wazuh_registration_ca }}') must be an absolute path to a CA
+          certificate file on the Ansible control node. A relative path is resolved against the
+          role's own files/ directory by ansible.builtin.copy, and a directory is copied
+          recursively, either of which leaves the agent with a <certificate_authorities> path the
+          installer cannot read.
+      when: wazuh_registration_ca | default('') | length > 0
