@@ -75,7 +75,7 @@ All components (Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard) live on the s
 
 ```bash
   ssh <aio-node>
-  sudo bash wazuh-passwords-tool-5.0.0.sh -a -au wazuh -ap <current-wazuh-api-password>
+  sudo bash wazuh-passwords-tool.sh -a -au wazuh -ap <current-wazuh-api-password>
 ```
 
 - `-a` (`--change-all`) rotates every reserved Wazuh Indexer user with a random password.
@@ -90,7 +90,7 @@ In a distributed deployment, the Wazuh Indexer, Wazuh Manager, and Wazuh Dashboa
 
    ```bash
      ssh <indexer-node-1>
-     sudo bash wazuh-passwords-tool-5.0.0.sh -a
+     sudo bash wazuh-passwords-tool.sh -a
    ```
 
    Save every printed password, in particular the ones for `admin` and `kibanaserver`.
@@ -114,7 +114,7 @@ In a distributed deployment, the Wazuh Indexer, Wazuh Manager, and Wazuh Dashboa
 4. To also rotate the Wazuh server API users (`wazuh`, `wazuh-wui`), run the tool a second time on any node where the Wazuh Manager service is reachable, providing the current API admin credentials. `-a` is required together with `-au`/`-ap` — the tool rejects `-au`/`-ap` on their own — but on a node with no Wazuh Indexer installed it only rotates the API users:
 
    ```bash
-     sudo bash wazuh-passwords-tool-5.0.0.sh -a -au wazuh -ap <current-wazuh-api-password>
+     sudo bash wazuh-passwords-tool.sh -a -au wazuh -ap <current-wazuh-api-password>
    ```
 
 > This is a manual, one-time post-deployment step. It is not run automatically by the `wazuh-aio.yml` or `wazuh-distributed.yml` playbooks.
