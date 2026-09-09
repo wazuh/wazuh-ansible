@@ -5,6 +5,7 @@
 | Issue | Comment |
 | - | - |
 | [#2279](https://github.com/wazuh/wazuh-ansible/issues/2279) | Add documentation for the default password change procedure in AIO and Distributed deployments |
+| [#2278](https://github.com/wazuh/wazuh-ansible/issues/2278) | Provision the manager CA and TLS verification mode for the agent install, and verify the CA was applied |
 | [#2267](https://github.com/wazuh/wazuh-ansible/issues/2267) | Add optional wazuh_manager_endpoint support to wazuh-agent role |
 | [#2173](https://github.com/wazuh/wazuh-ansible/pull/2173) | Added bump-issue-link support for Revert Stage Bump. |
 | [#2166](https://github.com/wazuh/wazuh-ansible/pull/2166) | Add integration test module docs |
@@ -71,6 +72,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2277](https://github.com/wazuh/wazuh-ansible/issues/2277) | Fix wazuh-dashboard role failing to detect SSL certificate/key paths when opensearch_dashboards.yml uses single-quoted values |
 | [#2255](https://github.com/wazuh/wazuh-ansible/issues/2255) | Adapt certificate deployment to the unified manager certificate layout (root:wazuh-manager 0640, dir 1770) |
 | [#2246](https://github.com/wazuh/wazuh-ansible/issues/2246) | Report skipped bumps in the repository bumper workflow |
 | [#2233](https://github.com/wazuh/wazuh-ansible/issues/2233) | Fix changelog check to accept Prior versions entries |
