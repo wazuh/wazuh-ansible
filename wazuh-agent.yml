@@ -6,6 +6,19 @@
   vars:
     wazuh_manager_address: "<Your Wazuh Manager IP>"
     wazuh_registration_password: "<Your Wazuh Manager Registration Password>"
+    # Absolute path on this control node to the CA that signed the manager's TLS
+    # certificate. Required whenever the manager uses a self-signed or private
+    # CA: the agent enforces certificate verification, so without it enrollment
+    # fails closed. The role copies it to the agent's own certs directory before
+    # installing the package, and asserts afterwards that the agent picked it up.
+    # Leave empty only for a manager whose certificate the target's OS trust
+    # store already verifies.
+    wazuh_registration_ca: ""
+    # Verification posture: full (CA + hostname), certificate (CA only), system
+    # (OS trust store, cannot be combined with wazuh_registration_ca) or none.
+    # Empty resolves to certificate when wazuh_registration_ca is set -- which
+    # does not check the manager's hostname -- and to system when it is not.
+    wazuh_ssl_verification: ""
   roles:
     - role: package-urls
   tasks:
