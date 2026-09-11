@@ -8,6 +8,10 @@
   ansible.builtin.include_vars:
     file: ../../vars/{{ urls_file }}
 
+- name: Validating the manager CA and TLS verification variables
+  ansible.builtin.include_tasks:
+    file: "validate.yml"
+
 - name: Linux | Importing tasks for Linux systems
   ansible.builtin.include_tasks:
     file: "Linux.yml"

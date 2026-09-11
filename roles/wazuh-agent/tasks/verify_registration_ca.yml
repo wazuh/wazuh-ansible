@@ -1,0 +1,33 @@
+---
+
+# Shared assert for all three platforms. The caller reads ossec.conf into
+# wazuh_agent_ossec_conf_raw and passes the paths it expects, because the module
+# that reads the file differs per platform.
+
+- name: Verify CA | Assert the manager CA was pinned into the agent configuration
+  ansible.builtin.assert:
+    that:
+      - wazuh_agent_ca_expected_path in configured_ca_paths
+    fail_msg: >-
+      The Wazuh agent installed, but <certificate_authorities> in
+      {{ wazuh_agent_ossec_conf_path }} is not set to {{ wazuh_agent_ca_expected_path }}
+      ({{ ('found ' ~ (configured_ca_paths | join(', '))) if (configured_ca_paths | length > 0) else 'the tag is absent' }}).
+      The agent therefore falls back to verification_mode 'system', which does not trust a private
+      CA, and will never enroll -- while the package install, the service start and this play all
+      still report success, which is why this is asserted. Two known causes:
+      (1) the agent was already installed, so the package manager skipped the install and the
+      installer script that writes the tag never ran. This role only wires the CA on a fresh
+      install: on an existing agent, either remove the agent and re-run this role, or add
+      <certificate_authorities>{{ wazuh_agent_ca_expected_path }}</certificate_authorities> inside
+      <agent><ssl> in ossec.conf by hand and restart the agent.
+      (2) the installer ran but discarded the CA. It logs the reason and exits 0 -- check
+      {{ wazuh_agent_ossec_log_path }} for the WAZUH_REGISTRATION_CA line (verification_mode
+      already explicitly 'system', the CA path unreadable at install time, or an existing <ssl>
+      block it could not edit).
+      Set wazuh_agent_verify_registration_ca to false to skip this check.
+    success_msg: >-
+      <certificate_authorities> is set to {{ wazuh_agent_ca_expected_path }} in
+      {{ wazuh_agent_ossec_conf_path }}.
+  vars:
+    ossec_conf_text: "{{ wazuh_agent_ossec_conf_raw.content | b64decode }}"
+    configured_ca_paths: "{{ ossec_conf_text | regex_findall('<certificate_authorities>\\s*(.*?)\\s*</certificate_authorities>') }}"
