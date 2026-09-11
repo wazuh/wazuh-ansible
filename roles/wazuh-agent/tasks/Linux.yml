@@ -1,0 +1,104 @@
+---
+
+- name: Linux | Create directory for wazuh-agent package
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: directory
+    mode: '0755'
+
+# The CA must be on disk *before* the package install: the agent's installer
+# script (register_configure_agent.sh) rejects a missing or unreadable
+# WAZUH_REGISTRATION_CA path, only logs it and still exits 0, so a CA copied
+# after the install would silently never be pinned into ossec.conf. Do not move
+# these two tasks below the install tasks.
+- name: Linux | Create the certificate directory for the manager CA
+  ansible.builtin.file:
+    path: "{{ wazuh_registration_ca_remote_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: wazuh_registration_ca | default('') | length > 0
+
+- name: Linux | Copy the manager CA certificate to the target node
+  ansible.builtin.copy:
+    src: "{{ wazuh_registration_ca }}"
+    dest: "{{ wazuh_registration_ca_remote_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: wazuh_registration_ca | default('') | length > 0
+
+- name: Linux | Build install-time environment for the Wazuh agent
+  ansible.builtin.set_fact:
+    wazuh_agent_install_env: >-
+      {{
+        {'WAZUH_MANAGER': wazuh_manager_address, 'WAZUH_REGISTRATION_PASSWORD': wazuh_registration_password}
+        | combine({'WAZUH_MANAGER_ENDPOINT': wazuh_manager_endpoint} if (wazuh_manager_endpoint | default('') | length > 0) else {})
+        | combine({'WAZUH_REGISTRATION_CA': wazuh_registration_ca_remote_path} if (wazuh_registration_ca | default('') | length > 0) else {})
+        | combine({'SSL_VERIFICATION': wazuh_ssl_verification} if (wazuh_ssl_verification | default('') | length > 0) else {})
+      }}
+
+- name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
+  ansible.builtin.include_tasks:
+    file: "RedHat.yml"
+  when: ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Importing tasks for Debian-based systems
+  ansible.builtin.include_tasks:
+    file: "Debian.yml"
+  when: ansible_facts.os_family == "Debian"
+
+- name: Linux CentOS/RedHat | Install wazuh-agent
+  ansible.builtin.dnf:
+    name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: true
+  environment: "{{ wazuh_agent_install_env }}"
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Install wazuh-agent
+  ansible.builtin.apt:
+    deb: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  environment: "{{ wazuh_agent_install_env }}"
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Linux | Verify the manager CA was pinned into the agent configuration
+  when:
+    - wazuh_registration_ca | default('') | length > 0
+    - wazuh_agent_verify_registration_ca | bool
+  block:
+    - name: Linux | Read the agent configuration file
+      ansible.builtin.slurp:
+        src: "{{ wazuh_agent_install_path }}/etc/ossec.conf"
+      register: wazuh_agent_ossec_conf_raw
+
+    - name: Linux | Assert the manager CA is configured
+      ansible.builtin.include_tasks:
+        file: "verify_registration_ca.yml"
+      vars:
+        wazuh_agent_ossec_conf_path: "{{ wazuh_agent_install_path }}/etc/ossec.conf"
+        wazuh_agent_ossec_log_path: "{{ wazuh_agent_install_path }}/logs/ossec.log"
+        wazuh_agent_ca_expected_path: "{{ wazuh_registration_ca_remote_path }}"
+
+- name: Linux | Start and enable Wazuh Agent service
+  block:
+    - name: Linux | Reload systemd configuration
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Linux | Start and enable Wazuh Agent service
+      ansible.builtin.service:
+        name: wazuh-agent
+        enabled: true
+        state: restarted
+
+- name: Linux | Remove leftover wazuh-agent installation directory
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: absent
+    force: true

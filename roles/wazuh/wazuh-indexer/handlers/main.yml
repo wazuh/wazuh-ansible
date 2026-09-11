@@ -1,5 +1,0 @@
----
-- name: restart wazuh-indexer
-  service:
-    name: wazuh-indexer
-    state: restarted
