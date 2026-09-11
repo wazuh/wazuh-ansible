@@ -5,23 +5,62 @@
     path: "{{ wazuh_agent_win_package_download_path }}"
     state: directory
 
+# Copied before the install for the same reason as on Linux: InstallerScripts.vbs
+# checks the WAZUH_REGISTRATION_CA path with FileExists(), and on a miss only
+# writes a line to the install log. Placed under the agent's install directory,
+# which is both the drop-in path do_upgrade.ps1 looks for and a location the
+# uninstaller removes. Do not move below the install task.
+- name: Windows | Create the certificate directory for the manager CA
+  ansible.windows.win_file:
+    path: "{{ wazuh_registration_ca_win_remote_path | win_dirname }}"
+    state: directory
+  when: wazuh_registration_ca | default('') | length > 0
+
+- name: Windows | Copy the manager CA certificate to the target node
+  ansible.windows.win_copy:
+    src: "{{ wazuh_registration_ca }}"
+    dest: "{{ wazuh_registration_ca_win_remote_path }}"
+  when: wazuh_registration_ca | default('') | length > 0
+
 - name: Windows | Download Wazuh agent installer
   ansible.windows.win_get_url:
     url: "{{ wazuh_agent_windows }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
 
+# Each optional property emits its own leading space inside the {%- if -%}, so an
+# unset variable adds nothing at all rather than leaving a stray separator behind.
 - name: Windows | Build install-time arguments for the Wazuh agent
   ansible.builtin.set_fact:
     wazuh_agent_install_args: >-
       /q WAZUH_MANAGER="{{ wazuh_manager_address }}"
       WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
-      {% if wazuh_manager_endpoint | default('') | length > 0 %}WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"{% endif %}
+      {%- if wazuh_manager_endpoint | default('') | length > 0 %} WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"{% endif %}
+      {%- if wazuh_registration_ca | default('') | length > 0 %} WAZUH_REGISTRATION_CA="{{ wazuh_registration_ca_win_remote_path }}"{% endif %}
+      {%- if wazuh_ssl_verification | default('') | length > 0 %} SSL_VERIFICATION="{{ wazuh_ssl_verification }}"{% endif %}
 
 - name: Windows | Install Wazuh agent
   ansible.windows.win_package:
     path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
     arguments: "{{ wazuh_agent_install_args }}"
     state: present
+
+- name: Windows | Verify the manager CA was pinned into the agent configuration
+  when:
+    - wazuh_registration_ca | default('') | length > 0
+    - wazuh_agent_verify_registration_ca | bool
+  block:
+    - name: Windows | Read the agent configuration file
+      ansible.windows.slurp:
+        src: "{{ wazuh_agent_win_install_path }}\\ossec.conf"
+      register: wazuh_agent_ossec_conf_raw
+
+    - name: Windows | Assert the manager CA is configured
+      ansible.builtin.include_tasks:
+        file: "verify_registration_ca.yml"
+      vars:
+        wazuh_agent_ossec_conf_path: "{{ wazuh_agent_win_install_path }}\\ossec.conf"
+        wazuh_agent_ossec_log_path: "{{ wazuh_agent_win_install_path }}\\ossec.log"
+        wazuh_agent_ca_expected_path: "{{ wazuh_registration_ca_win_remote_path }}"
 
 - name: Windows | Stop Wazuh agent service (if already running)
   ansible.windows.win_service:
