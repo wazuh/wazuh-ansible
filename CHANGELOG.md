@@ -5,6 +5,7 @@
 | Issue | Comment |
 | - | - |
 | [#2289](https://github.com/wazuh/wazuh-ansible/issues/2289) | Deploy the agent listener certificate (remoted.pem/remoted-key.pem) in the wazuh-manager role |
+| [#2279](https://github.com/wazuh/wazuh-ansible/issues/2279) | Add documentation for the default password change procedure in AIO and Distributed deployments |
 | [#2278](https://github.com/wazuh/wazuh-ansible/issues/2278) | Provision the manager CA and TLS verification mode for the agent install, and verify the CA was applied |
 | [#2267](https://github.com/wazuh/wazuh-ansible/issues/2267) | Add optional wazuh_manager_endpoint support to wazuh-agent role |
 | [#2173](https://github.com/wazuh/wazuh-ansible/pull/2173) | Added bump-issue-link support for Revert Stage Bump. |
