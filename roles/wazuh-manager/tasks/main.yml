@@ -147,6 +147,17 @@
         - { src: "{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
       when: item.src != item.dest
 
+    - name: Copy the agent listener certificate to the Wazuh Manager instance
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: wazuh-manager
+        group: wazuh-manager
+        mode: '0640'
+      with_items:
+        - { src: "{{ manager_node_name }}-remoted.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted.pem" }
+        - { src: "{{ manager_node_name }}-remoted-key.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted-key.pem" }
+
     - name: Keystore | Set Indexer username
       ansible.builtin.shell:
         cmd: |
