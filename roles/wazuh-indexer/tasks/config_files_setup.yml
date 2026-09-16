@@ -304,6 +304,14 @@
               {% endif %}
               {% endfor %}
 
+    - name: OpenSearch Config | Set custom node.roles if defined in vars
+      ansible.builtin.lineinfile:
+        path: /etc/wazuh-indexer/opensearch.yml
+        regexp: '^node\.roles:'
+        line: 'node.roles: {{ instances[inventory_hostname].opensearch_roles | to_json }}'
+        insertafter: '^node\.name:'
+      when: instances[inventory_hostname].opensearch_roles is defined
+
     - name: Add single-node discovery type if needed
       ansible.builtin.lineinfile:
         path: /etc/wazuh-indexer/opensearch.yml
