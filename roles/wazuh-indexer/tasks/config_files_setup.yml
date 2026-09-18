@@ -167,8 +167,6 @@
 - name: Cert-gen | Set node name variable
   ansible.builtin.set_fact:
     node_name: "{{ (single_node | bool) | ternary(instances['aio_node'].name, instances[inventory_hostname].name) }}"
-  when:
-    - generate_certs
 
 - name: Detect expected indexer SSL certificate names from opensearch.yml
   when:
