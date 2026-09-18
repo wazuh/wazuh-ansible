@@ -95,7 +95,14 @@
               {% for key, value in instances.items() %}
               {% if value.role is defined and value.role == 'manager' %}
                   - name: {{ value.name }}
+              {% if wazuh_manager_ips | length > 0 %}
+                    ip:
+              {% for manager_ip in [value.ip] + wazuh_manager_ips %}
+                      - "{{ manager_ip }}"
+              {% endfor %}
+              {% else %}
                     ip: {{ value.ip }}
+              {% endif %}
               {% if value.node_type is defined and value.node_type == 'master' %}
                     node_type: master
               {% elif value.node_type is defined and value.node_type == 'worker' %}
@@ -136,8 +143,16 @@
         - name: Cert-gen | Add manager node section (single node mode)
           ansible.builtin.replace:
             path: "{{ local_configs_path }}/config.yml"
-            regexp: '<wazuh-manager-ip>'
-            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+            regexp: '^\s*ip:\s*"?<wazuh-manager-ip>"?\s*$'
+            replace: |-
+              {% if wazuh_manager_ips | length > 0 %}
+                    ip:
+              {% for manager_ip in [hostvars[inventory_hostname].private_ip] + wazuh_manager_ips %}
+                      - "{{ manager_ip }}"
+              {% endfor %}
+              {% else %}
+                    ip: "{{ hostvars[inventory_hostname].private_ip }}"
+              {% endif %}
 
         - name: Cert-gen | Add dashboard node section (single node mode)
           ansible.builtin.replace:
@@ -159,8 +174,10 @@
         removes: "{{ local_configs_path }}/config.yml.tmp"
 
     - name: Cert-gen | Generate certificates
+      vars:
+        agent_san_args: "{{ agent_san | map('regex_replace', '^(.*)$', '--agent-san \\1') | join(' ') }}"
       ansible.builtin.command: >-
-        bash {{ local_configs_path }}/wazuh-certs-tool.sh -A
+        bash {{ local_configs_path }}/wazuh-certs-tool.sh -A {{ agent_san_args }}
       args:
         creates: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
 
