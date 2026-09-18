@@ -113,6 +113,18 @@ instances:
 
 ---
 
+**Variable:** `wazuh_manager_ips`  
+**Description:** Optional list of additional IPv4/IPv6 addresses (public IP, EIP, load balancer VIP, NAT) to add to the manager node's `ip` field in the `config.yml` used to generate certificates. When set, `ip` is rendered as a YAML list containing the node's own private IP plus every address in this list, for every manager node — in both single-node and multi-node deployments. When empty (the default), `ip` stays a single scalar value, identical to the previous behavior.  
+**Default value:** `[]`
+
+---
+
+**Variable:** `agent_san`  
+**Description:** Optional list of free-standing IP/DNS values (e.g. a load balancer or VIP shared by a manager cluster, not owned by any single node) passed as a repeated `--agent-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's agent listener certificate (`remoted.pem`).  
+**Default value:** `[]`
+
+---
+
 **Variable:** `wazuh_indexer_package_download_path`  
 **Description:** Path on the target node where the Wazuh Indexer package file will be downloaded before installation.  
 **Default value:** `/tmp/wazuh-indexer`
