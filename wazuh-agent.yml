@@ -4,15 +4,24 @@
   hosts: agents
   strategy: free
   vars:
+    # Windows and macOS only -- see wazuh_enrollment_token below for Linux.
     wazuh_manager_address: "<Your Wazuh Manager IP>"
     wazuh_registration_password: "<Your Wazuh Manager Registration Password>"
+    # Linux only. Enrollment token for 5.x agents (WAZUH_ENROLLMENT_TOKEN
+    # install-time variable), replacing wazuh_manager_address/
+    # wazuh_registration_password on Linux -- see wazuh/wazuh#39063. The
+    # manager address and CA pin travel inside the token itself, fetched over
+    # /cacerts on the agent's first start, so wazuh_registration_ca below has
+    # no effect on Linux. Windows and macOS still use the two variables above
+    # until their own migration lands.
+    wazuh_enrollment_token: "<Your Wazuh Agent Enrollment Token>"
     # Absolute path on this control node to the CA that signed the manager's TLS
-    # certificate. Required whenever the manager uses a self-signed or private
-    # CA: the agent enforces certificate verification, so without it enrollment
-    # fails closed. The role copies it to the agent's own certs directory before
-    # installing the package, and asserts afterwards that the agent picked it up.
-    # Leave empty only for a manager whose certificate the target's OS trust
-    # store already verifies.
+    # certificate. Windows/macOS only. Required whenever the manager uses a
+    # self-signed or private CA: the agent enforces certificate verification,
+    # so without it enrollment fails closed. The role copies it to the agent's
+    # own certs directory before installing the package, and asserts
+    # afterwards that the agent picked it up. Leave empty only for a manager
+    # whose certificate the target's OS trust store already verifies.
     wazuh_registration_ca: ""
     # Verification posture: full (CA + hostname), certificate (CA only), system
     # (OS trust store, cannot be combined with wazuh_registration_ca) or none.

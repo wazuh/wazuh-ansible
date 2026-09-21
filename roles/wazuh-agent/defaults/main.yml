@@ -45,11 +45,12 @@ wazuh_registration_ca: ""
 wazuh_ssl_verification: ""
 
 # Where the role places wazuh_registration_ca on the target node. This is the
-# drop-in location the agent itself documents (pkg_installer.sh on Linux/macOS,
+# drop-in location the agent itself documents (pkg_installer.sh on macOS,
 # do_upgrade.ps1 on Windows), so the same file serves both the install-time pin
 # and the CA a later WPK upgrade looks for, and it is removed when the agent is
-# uninstalled.
-wazuh_registration_ca_remote_path: "{{ wazuh_agent_install_path }}/etc/certs/root-ca.pem"
+# uninstalled. Linux has no entry here: since wazuh/wazuh#39063 it enrolls with
+# wazuh_enrollment_token instead, which carries the CA pin, so no CA file is
+# pre-staged.
 wazuh_registration_ca_macos_remote_path: "{{ wazuh_agent_macos_install_path }}/etc/certs/root-ca.pem"
 wazuh_registration_ca_win_remote_path: "{{ wazuh_agent_win_install_path }}\\certs\\root-ca.pem"
 

@@ -261,25 +261,31 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 ---
 
 **Variable:** `wazuh_manager_address`  
-**Description:** Hostname or IP of the Wazuh manager the agent will connect and enroll to. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`), maps to the `WAZUH_MANAGER` install-time variable.  
+**Description:** Windows and macOS only (see `wazuh_enrollment_token` below for Linux). Hostname or IP of the Wazuh manager the agent will connect and enroll to. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`), maps to the `WAZUH_MANAGER` install-time variable.  
 **Default value:** `<Your Wazuh Manager IP>` (must be overridden)
 
 ---
 
 **Variable:** `wazuh_registration_password`  
-**Description:** Password used for agent auto-enrollment. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`), maps to the `WAZUH_REGISTRATION_PASSWORD` install-time variable.  
+**Description:** Windows and macOS only. Password used for agent auto-enrollment. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`), maps to the `WAZUH_REGISTRATION_PASSWORD` install-time variable.  
 **Default value:** `<Your Wazuh Manager Registration Password>` (must be overridden)
 
 ---
 
+**Variable:** `wazuh_enrollment_token`  
+**Description:** Linux only. Enrollment token for 5.x agents, maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable. Replaces `wazuh_manager_address`/`wazuh_registration_password`/`wazuh_registration_ca` on Linux (see [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063)) — the manager address and the CA pin both travel inside the token, fetched over `/cacerts` on the agent's first start. Windows and macOS still use the classic variables above; this change does not cover them. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`); this role does not mint tokens, the operator must provide one (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`).  
+**Default value:** `<Your Wazuh Agent Enrollment Token>` (must be overridden)
+
+---
+
 **Variable:** `wazuh_manager_endpoint`  
-**Description:** Optional. Full connection URL for the manager (`host[:port][/path]`), maps to the `WAZUH_MANAGER_ENDPOINT` install-time variable. Added ahead of [wazuh/wazuh#38624](https://github.com/wazuh/wazuh/issues/38624), which will replace `WAZUH_MANAGER`/`WAZUH_MANAGER_PORT` with this single variable at RC1. Empty keeps the role on the legacy `wazuh_manager_address`/`WAZUH_MANAGER` path.  
+**Description:** Windows and macOS only. Optional. Full connection URL for the manager (`host[:port][/path]`), maps to the `WAZUH_MANAGER_ENDPOINT` install-time variable. Added ahead of [wazuh/wazuh#38624](https://github.com/wazuh/wazuh/issues/38624), which will replace `WAZUH_MANAGER`/`WAZUH_MANAGER_PORT` with this single variable at RC1. Empty keeps the role on the legacy `wazuh_manager_address`/`WAZUH_MANAGER` path.  
 **Default value:** `""`
 
 ---
 
 **Variable:** `wazuh_registration_ca`  
-**Description:** Optional. **Absolute** path on the Ansible control node to the CA certificate that signed the manager's TLS certificate. Must be a CA certificate, not a bundle carrying a private key: the file is copied to the target world-readable so the agent daemons can read it. The role copies it to the target node *before* installing the package and passes the remote path as the `WAZUH_REGISTRATION_CA` install-time variable; the installer pins that path into `<agent><ssl><certificate_authorities>`, which governs **all** agent↔manager HTTPS traffic, not just enrollment, and also flips the effective `verification_mode` to `certificate` (see `wazuh_ssl_verification` below — `certificate` validates the certificate chain but does **not** check the manager's hostname). Note that `<enrollment><server_ca_path>`, which the installer also writes, is parsed but ignored by the 5.x agent. Required when the manager presents a self-signed or private CA — with `verification_mode` now enforced by default (see [wazuh/wazuh#38786](https://github.com/wazuh/wazuh/pull/38786)), an agent installed without this variable against such a manager fails closed instead of connecting insecurely. The copied file is a permanent runtime dependency: `wazuh-agentd` reads it on **every** start and refuses to start when it is missing, so it must stay on the node for the life of the install. A relative path is resolved against the role's own `files/` directory by `ansible.builtin.copy`, so the role asserts up front that the value is an absolute path to a regular file on the control node.  
+**Description:** Windows and macOS only — has no effect on Linux (see `wazuh_enrollment_token` above). Optional. **Absolute** path on the Ansible control node to the CA certificate that signed the manager's TLS certificate. Must be a CA certificate, not a bundle carrying a private key: the file is copied to the target world-readable so the agent daemons can read it. The role copies it to the target node *before* installing the package and passes the remote path as the `WAZUH_REGISTRATION_CA` install-time variable; the installer pins that path into `<agent><ssl><certificate_authorities>`, which governs **all** agent↔manager HTTPS traffic, not just enrollment, and also flips the effective `verification_mode` to `certificate` (see `wazuh_ssl_verification` below — `certificate` validates the certificate chain but does **not** check the manager's hostname). Note that `<enrollment><server_ca_path>`, which the installer also writes, is parsed but ignored by the 5.x agent. Required when the manager presents a self-signed or private CA — with `verification_mode` now enforced by default (see [wazuh/wazuh#38786](https://github.com/wazuh/wazuh/pull/38786)), an agent installed without this variable against such a manager fails closed instead of connecting insecurely. The copied file is a permanent runtime dependency: `wazuh-agentd` reads it on **every** start and refuses to start when it is missing, so it must stay on the node for the life of the install. A relative path is resolved against the role's own `files/` directory by `ansible.builtin.copy`, so the role asserts up front that the value is an absolute path to a regular file on the control node.  
 **Default value:** `""`
 
 ---
@@ -290,14 +296,14 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 
 ---
 
-**Variable:** `wazuh_registration_ca_remote_path` / `wazuh_registration_ca_macos_remote_path` / `wazuh_registration_ca_win_remote_path`  
-**Description:** Where the role places `wazuh_registration_ca` on the target node, per platform. These are the CA drop-in locations the agent itself documents (`pkg_installer.sh` on Linux/macOS, `do_upgrade.ps1` on Windows), so one file serves both the install-time pin and the CA a later WPK upgrade looks for, and it is removed when the agent is uninstalled. Derived from `wazuh_agent_install_path`, `wazuh_agent_macos_install_path` and `wazuh_agent_win_install_path` respectively, so overriding a non-default install prefix is enough.  
-**Default value:** `/var/ossec/etc/certs/root-ca.pem`, `/Library/Ossec/etc/certs/root-ca.pem`, `<ProgramFiles(x86)>\ossec-agent\certs\root-ca.pem`
+**Variable:** `wazuh_registration_ca_macos_remote_path` / `wazuh_registration_ca_win_remote_path`  
+**Description:** Windows and macOS only. Where the role places `wazuh_registration_ca` on the target node, per platform. These are the CA drop-in locations the agent itself documents (`pkg_installer.sh` on macOS, `do_upgrade.ps1` on Windows), so one file serves both the install-time pin and the CA a later WPK upgrade looks for, and it is removed when the agent is uninstalled. Derived from `wazuh_agent_macos_install_path` and `wazuh_agent_win_install_path` respectively, so overriding a non-default install prefix is enough. Linux has no equivalent variable — see `wazuh_enrollment_token` above.  
+**Default value:** `/Library/Ossec/etc/certs/root-ca.pem`, `<ProgramFiles(x86)>\ossec-agent\certs\root-ca.pem`
 
 ---
 
 **Variable:** `wazuh_agent_verify_registration_ca`  
-**Description:** Whether to assert, after the install, that the CA really was pinned into `ossec.conf`. Only runs when `wazuh_registration_ca` is set. The check exists because both relevant failure modes are otherwise completely silent: the installer logs its own failures to pin the CA to `ossec.log` and still exits `0`, and a package install skipped on an already-installed agent never runs the installer at all — in both cases the package manager, the service start and the whole play report success while the agent has no CA configured and can never enroll. Set to `false` to skip the check.  
+**Description:** Windows and macOS only. Whether to assert, after the install, that the CA really was pinned into `ossec.conf`. Only runs when `wazuh_registration_ca` is set. The check exists because both relevant failure modes are otherwise completely silent: the installer logs its own failures to pin the CA to `ossec.log` and still exits `0`, and a package install skipped on an already-installed agent never runs the installer at all — in both cases the package manager, the service start and the whole play report success while the agent has no CA configured and can never enroll. Set to `false` to skip the check.  
 **Default value:** `true`
 
 ---
