@@ -267,7 +267,7 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 ---
 
 **Variable:** `wazuh_ssl_verification`  
-**Description:** Optional. Agent TLS verification posture, mapped to the `WAZUH_SSL_VERIFICATION` install-time variable and written to `<agent><ssl><verification_mode>`. One of `full` (verify against the CA **and** check the manager's hostname), `certificate` (verify against the CA only), `system` (trust the OS store) or `none` (no verification, for lab/CI). Empty leaves the tag unset.  
+**Description:** Optional. Agent TLS verification posture, mapped to the `WAZUH_SSL_VERIFICATION` install-time variable and written to `<agent><ssl><verification_mode>`. One of `full` (verify against the CA **and** check the manager's hostname), `certificate` (verify against the CA only), `system` (trust the OS store) or `none` (no verification, for lab/CI). Empty leaves the tag unset. **Do not set `full` or `certificate` on a fresh install with `wazuh_enrollment_token`**: `wazuh-agentd` validates `<certificate_authorities>` before it will start, but that file is only written by the enrollment-token bootstrap, which runs on the very first start the validation just refused — a real deadlock, verified against a live 5.0.0 agent, that leaves the agent needing to be reinstalled. Leaving this empty does not disable verification: the agent bootstraps its trust anchor and verifies against it from then on, confirmed including a restart after enrollment. Only set `full`/`certificate` once the agent already has a trust anchor on disk (see [wazuh-agent role docs](../roles/wazuh-agent.md#do-not-set-full-or-certificate-on-a-fresh-token-install)).  
 **Default value:** `""`
 
 ---

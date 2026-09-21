@@ -36,6 +36,12 @@ This replaces the classic `WAZUH_MANAGER`/`WAZUH_REGISTRATION_PASSWORD`/`WAZUH_M
 
 `wazuh_ssl_verification` maps to the `WAZUH_SSL_VERIFICATION` install-time variable and sets `<agent><ssl><verification_mode>` explicitly: `full` (CA and hostname), `certificate` (CA only), `system` (OS trust store) or `none` (lab/CI). Left empty, the tag is unset.
 
+### Do not set `full` or `certificate` on a fresh token install
+
+An explicit `full` or `certificate` deadlocks a fresh agent installed with `wazuh_enrollment_token`: `wazuh-agentd` refuses to start (error `4118`, `<certificate_authorities>` missing) because it validates that tag **before** daemonizing, but the CA it expects is only written by the enrollment-token bootstrap, which runs **on** the first daemon start the validation just refused. Verified against a real 5.0.0 agent — the daemon never recovers on its own once installed this way; it has to be removed and reinstalled with `wazuh_ssl_verification` empty.
+
+Leaving `wazuh_ssl_verification` empty (the default) does not disable verification: `<ssl>` is left out of `ossec.conf` entirely, the bootstrap runs normally, and the agent verifies against the bootstrapped CA from then on — confirmed against a real agent, including a restart after enrollment. `full`/`certificate` are safe to set only once an agent already has a trust anchor on disk (for example, when re-running this role against an agent enrolled earlier without one).
+
 ## Usage
 
 This role is used exclusively in the `wazuh-agent.yml` playbook and is applied to all hosts defined under the `[agents]` group in the inventory file.
