@@ -4,29 +4,15 @@
   hosts: agents
   strategy: free
   vars:
-    # Windows and macOS only -- see wazuh_enrollment_token below for Linux.
-    wazuh_manager_address: "<Your Wazuh Manager IP>"
-    wazuh_registration_password: "<Your Wazuh Manager Registration Password>"
-    # Linux only. Enrollment token for 5.x agents (WAZUH_ENROLLMENT_TOKEN
-    # install-time variable), replacing wazuh_manager_address/
-    # wazuh_registration_password on Linux -- see wazuh/wazuh#39063. The
-    # manager address and CA pin travel inside the token itself, fetched over
-    # /cacerts on the agent's first start, so wazuh_registration_ca below has
-    # no effect on Linux. Windows and macOS still use the two variables above
-    # until their own migration lands.
+    # Enrollment token for 5.x agents (WAZUH_ENROLLMENT_TOKEN install-time
+    # variable), for Linux, Windows and macOS -- see wazuh/wazuh#39063. The
+    # manager address and the CA pin both travel inside the token itself,
+    # fetched over /cacerts on the agent's first start. This role does not
+    # mint tokens; the operator must provide one (for example via
+    # `wazuh-manager-authd --create-enrollment-token --address <address>`).
     wazuh_enrollment_token: "<Your Wazuh Agent Enrollment Token>"
-    # Absolute path on this control node to the CA that signed the manager's TLS
-    # certificate. Windows/macOS only. Required whenever the manager uses a
-    # self-signed or private CA: the agent enforces certificate verification,
-    # so without it enrollment fails closed. The role copies it to the agent's
-    # own certs directory before installing the package, and asserts
-    # afterwards that the agent picked it up. Leave empty only for a manager
-    # whose certificate the target's OS trust store already verifies.
-    wazuh_registration_ca: ""
     # Verification posture: full (CA + hostname), certificate (CA only), system
-    # (OS trust store, cannot be combined with wazuh_registration_ca) or none.
-    # Empty resolves to certificate when wazuh_registration_ca is set -- which
-    # does not check the manager's hostname -- and to system when it is not.
+    # (OS trust store) or none. Empty leaves it unset.
     wazuh_ssl_verification: ""
   roles:
     - role: package-urls
