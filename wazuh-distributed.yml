@@ -32,11 +32,13 @@
         ip: "{{ hostvars.manager.private_ip }}"
         role: manager
         node_type: master
+        # extra_ips: ["<manager-public-ip>"]  # optional, unique to this node
       worker:
         name: manager-2
         ip: "{{ hostvars.worker.private_ip }}"
         role: manager
         node_type: worker
+        # extra_ips: ["<worker-public-ip>"]   # optional, unique to this node
       dashboard:
         name: dashboard
         ip: "{{ hostvars.dashboard.private_ip }}"

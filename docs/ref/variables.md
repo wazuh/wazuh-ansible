@@ -101,7 +101,7 @@ These variables are defined in `roles/wazuh-indexer/defaults/main.yml`.
 ---
 
 **Variable:** `instances`  
-**Description:** A mapping that defines the indexer node instances involved in the deployment. Each entry specifies the node `name`, its `ip` address, and its `role` (e.g. `aio`, `indexer`). This is used when generating certificates and configuring cluster membership.  
+**Description:** A mapping that defines the indexer node instances involved in the deployment. Each entry specifies the node `name`, its `ip` address, and its `role` (e.g. `aio`, `indexer`). Manager entries also accept an optional `extra_ips` list — additional IPv4/IPv6 addresses (public IP, EIP, NAT) unique to that node, added to its `ip` field in the `config.yml` used to generate certificates. This is used when generating certificates and configuring cluster membership. These variables are resolved on the host where the certificate-generation block runs (`run_once`, the first host of the indexer play — e.g. `wi1` in `wazuh-distributed.yml`); setting `instances` or `extra_ips` as a host var of a `manager` node has no effect.  
 **Default value:**  
 ```yaml
 instances:
@@ -110,6 +110,18 @@ instances:
     ip: "{{ hostvars[inventory_hostname].private_ip }}"
     role: aio
 ```
+
+---
+
+**Variable:** `wazuh_manager_ips`  
+**Description:** Optional list of additional IPv4/IPv6 addresses (public IP, EIP, NAT) to add to the manager node's `ip` field in the `config.yml` used to generate certificates. **Single-node deployments only** — `wazuh-certs-tool.sh` rejects manager nodes that share an `ip` value, so the role fails fast if this is set with more than one manager node in `instances`. For a multi-node cluster, set `extra_ips` on the corresponding entry of `instances` instead, to give each manager node its own distinct address. When empty (the default), `ip` stays a single scalar value, identical to the previous behavior.  
+**Default value:** `[]`
+
+---
+
+**Variable:** `agent_san`  
+**Description:** Optional list of free-standing IP/DNS values (e.g. a load balancer or VIP shared by a manager cluster, not owned by any single node) passed as a repeated `--agent-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's agent listener certificate (`remoted.pem`). Requires a `wazuh-certs-tool.sh` build that includes `wazuh-installation-assistant#1028` (merged 2026-09-17) — an older build does not recognize `--agent-san` and misparses it as the `-A` root-ca path argument instead.  
+**Default value:** `[]`
 
 ---
 

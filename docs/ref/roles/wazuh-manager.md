@@ -29,6 +29,8 @@ Since [wazuh/wazuh#39014](https://github.com/wazuh/wazuh/pull/39014), the Wazuh 
 
 The certificate's Subject Alternative Name (SAN) comes from the `ip`/`name` fields of the corresponding node under `manager:` in the `config.yml` used to generate certificates with `wazuh-certs-tool`. That value **must** be the address agents will use to reach this manager (port 1517/1515) — not just an internal or management IP — or agents will reject the certificate at connection time.
 
+The SAN can cover more than the node's own private IP. In a single-node deployment, the `wazuh-indexer` role's `wazuh_manager_ips` variable adds extra addresses (public IP, EIP, NAT) to the manager's `ip` field. In a multi-node cluster, each manager node gets its own extra addresses through the `extra_ips` list on its entry in `instances` instead — `wazuh_manager_ips` is rejected there, since `wazuh-certs-tool` does not allow manager nodes to share an `ip` value. `agent_san` adds free-standing addresses (e.g. a load balancer shared by a cluster) that are not tied to any single node, in both deployment modes. All three are consumed when `config.yml` is generated and passed to `wazuh-certs-tool.sh -A`, before this role deploys the resulting `remoted.pem`. See [Variables](../variables.md#wazuh-indexer).
+
 Re-running the deployment playbook with the default `generate_certs: true` regenerates the CA and every certificate from scratch, this pair included — the same behavior already applied to `root-ca.pem` and the indexer certificate. Set `generate_certs: false` if a re-run must leave existing certificates untouched.
 
 ## Usage
