@@ -73,6 +73,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2316](https://github.com/wazuh/wazuh-ansible/issues/2316) | Fix "Wait for Wazuh indexer API" task using the removed default user (wazuh-admin) in the wazuh-indexer role |
 | [#2303](https://github.com/wazuh/wazuh-ansible/issues/2303) | Fix node_name undefined in the wazuh-indexer role when generate_certs is false |
 | [#2277](https://github.com/wazuh/wazuh-ansible/issues/2277) | Fix wazuh-dashboard role failing to detect SSL certificate/key paths when opensearch_dashboards.yml uses single-quoted values |
 | [#2255](https://github.com/wazuh/wazuh-ansible/issues/2255) | Adapt certificate deployment to the unified manager certificate layout (root:wazuh-manager 0640, dir 1770) |
