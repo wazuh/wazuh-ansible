@@ -51,10 +51,21 @@
 # (error 4118) -- reports success here with no recovery policy configured on the
 # service (verified: it stays Stopped indefinitely, does not retry on its own).
 # Only win_service_info queries the real, live state.
-- name: Windows | Query the real state of the Wazuh agent service
+#
+# Retried rather than checked once: a successful token enrollment makes the agent
+# reload and restart itself right after (shared configuration changes), which is
+# normal and briefly reports a non-running state -- verified to clear in a few
+# seconds. 6 tries * 5s is generous slack for that restart while staying far short
+# of the failure case, which stays Stopped for as long as it was observed (5+
+# minutes), so it cannot be mistaken for the same transient.
+- name: Windows | Query the real state of the Wazuh agent service, tolerating the post-enrollment restart
   ansible.windows.win_service_info:
     name: "Wazuh"
   register: wazuh_agent_service_info
+  until: wazuh_agent_service_info.services | length > 0 and wazuh_agent_service_info.services[0].state == 'running'
+  retries: 6
+  delay: 5
+  failed_when: false
 
 - name: Windows | Assert the Wazuh agent service stayed running
   ansible.builtin.assert:
