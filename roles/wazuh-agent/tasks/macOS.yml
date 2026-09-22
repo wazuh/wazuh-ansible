@@ -99,3 +99,37 @@
   register: wazuh_agent_service_status
   failed_when: "'state = running' not in wazuh_agent_service_status.stdout"
   changed_when: false
+
+# The check above only confirms launchd's own supervisor process (Wazuh-launcher)
+# stayed up -- that process wraps wazuh-agentd but does not monitor or relaunch it,
+# so it reports "running" even when the wazuh-agentd it spawned exits right after
+# start (e.g. the same 4118 deadlock documented for Linux/Windows, or a refused
+# enrollment token) and never restarts on its own. Verified: distinct from launchd's
+# own state, and from win_service's problem on Windows (a state that is not queried
+# live at all) -- here launchd's state is real, it is just the wrong process.
+#
+# Retried, not checked once, for the same reason as on Windows: a successful
+# enrollment makes the agent reload and restart itself right after (shared
+# configuration changes), which is normal and briefly leaves no wazuh-agentd
+# process for a few seconds. 6 tries * 5s is generous slack for that restart while
+# staying far short of the failure case, which does not recover on its own.
+- name: MacOS | Wait for the wazuh-agentd process itself, tolerating the post-enrollment restart
+  ansible.builtin.command: pgrep -x wazuh-agentd
+  register: wazuh_agentd_pgrep
+  until: wazuh_agentd_pgrep.rc == 0
+  retries: 6
+  delay: 5
+  changed_when: false
+  failed_when: false
+
+- name: MacOS | Assert the wazuh-agentd process is actually running
+  ansible.builtin.assert:
+    that:
+      - wazuh_agentd_pgrep.rc == 0
+    fail_msg: >-
+      The wazuh-agentd process is not running, even though the launchd wrapper
+      (com.wazuh.agent / Wazuh-launcher) stayed up. Check
+      {{ wazuh_agent_macos_install_path }}/logs/ossec.log for the reason -- for example
+      error 4118 if wazuh_ssl_verification is 'full'/'certificate' on a fresh token
+      install, or ERR_BAD_TOKEN for an invalid or missing enrollment token (see
+      docs/ref/roles/wazuh-agent.md).
