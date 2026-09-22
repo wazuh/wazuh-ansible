@@ -42,6 +42,32 @@
     name: "Wazuh"
     state: started
 
+# win_service's own `state: started` above does not detect this failure mode:
+# Start-Service is called without -Wait and win_service echoes the requested state
+# back as `running` regardless of what happens next, rather than querying it. A
+# service that exits right after accepting the start request -- e.g.
+# wazuh_ssl_verification 'full'/'certificate' on a fresh token install, where
+# wazuh-agentd exits before the enrollment bootstrap can write the CA it demands
+# (error 4118) -- reports success here with no recovery policy configured on the
+# service (verified: it stays Stopped indefinitely, does not retry on its own).
+# Only win_service_info queries the real, live state.
+- name: Windows | Query the real state of the Wazuh agent service
+  ansible.windows.win_service_info:
+    name: "Wazuh"
+  register: wazuh_agent_service_info
+
+- name: Windows | Assert the Wazuh agent service stayed running
+  ansible.builtin.assert:
+    that:
+      - wazuh_agent_service_info.services | length > 0
+      - wazuh_agent_service_info.services[0].state == 'running'
+    fail_msg: >-
+      The Wazuh agent service did not stay running after start. This is most often
+      wazuh-agentd exiting immediately after a failed startup validation -- check
+      {{ wazuh_agent_win_install_path }}\ossec.log for the reason (e.g. error 4118 if
+      wazuh_ssl_verification is 'full'/'certificate' on a fresh token install; see
+      docs/ref/roles/wazuh-agent.md).
+
 - name: Windows | Delete Wazuh agent download directory
   ansible.windows.win_file:
     path: "{{ wazuh_agent_win_package_download_path }}"
