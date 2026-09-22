@@ -62,7 +62,7 @@
   ansible.windows.win_service_info:
     name: "Wazuh"
   register: wazuh_agent_service_info
-  until: wazuh_agent_service_info.services | length > 0 and wazuh_agent_service_info.services[0].state == 'running'
+  until: wazuh_agent_service_info.services | length > 0 and wazuh_agent_service_info.services[0].state == 'started'
   retries: 6
   delay: 5
   failed_when: false
@@ -71,7 +71,7 @@
   ansible.builtin.assert:
     that:
       - wazuh_agent_service_info.services | length > 0
-      - wazuh_agent_service_info.services[0].state == 'running'
+      - wazuh_agent_service_info.services[0].state == 'started'
     fail_msg: >-
       The Wazuh agent service did not stay running after start. This is most often
       wazuh-agentd exiting immediately after a failed startup validation -- check
