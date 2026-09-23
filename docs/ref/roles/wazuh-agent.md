@@ -40,7 +40,13 @@ This replaces the classic `WAZUH_MANAGER`/`WAZUH_REGISTRATION_PASSWORD`/`WAZUH_M
 
 An explicit `full` or `certificate` deadlocks a fresh agent installed with `wazuh_enrollment_token`: `wazuh-agentd` refuses to start (error `4118`, `<certificate_authorities>` missing) because it validates that tag **before** daemonizing, but the CA it expects is only written by the enrollment-token bootstrap, which runs **on** the first daemon start the validation just refused. Verified against a real 5.0.0 agent — the daemon never recovers on its own once installed this way; it has to be removed and reinstalled with `wazuh_ssl_verification` empty.
 
-Leaving `wazuh_ssl_verification` empty (the default) does not disable verification: `<ssl>` is left out of `ossec.conf` entirely, the bootstrap runs normally, and the agent verifies against the bootstrapped CA from then on — confirmed against a real agent, including a restart after enrollment. `full`/`certificate` are safe to set only once an agent already has a trust anchor on disk (for example, when re-running this role against an agent enrolled earlier without one).
+Leaving `wazuh_ssl_verification` empty (the default) does not disable verification: `<ssl>` is left out of `ossec.conf` entirely, the bootstrap runs normally, and the agent verifies against the bootstrapped CA from then on — confirmed against a real agent, including a restart after enrollment.
+
+### Existing agents are not reconfigured
+
+**The role only wires the token on a fresh install.** The installers apply `WAZUH_ENROLLMENT_TOKEN`/`WAZUH_SSL_VERIFICATION` on a fresh install only — Debian's `postinst`, the RPM `%post`, the macOS `postinstall.sh` and the Windows MSI all gate that step on "this is not an upgrade of an already-installed agent". On top of that, `apt`, `dnf` and `win_package` skip a package that is already installed, and `macOS.yml` is guarded on `pkgutil`. So re-running this role against an agent that is already installed passes `wazuh_enrollment_token`/`wazuh_ssl_verification` to nothing, and still reports success.
+
+This matters more with a token than it did with the old password: an agent whose first run failed — an expired, revoked or otherwise refused token, or one left as the `wazuh-agent.yml` placeholder before `validate.yml` started catching that case — stays installed but never enrolled. Fixing the token in the inventory and re-running the role does **not** recover it; the package is already present, so the install task (and the token with it) is skipped. The only fix is to remove the agent and run this role again, or, to change `wazuh_ssl_verification` on an agent that already enrolled successfully, edit `<verification_mode>` in `ossec.conf` by hand and restart the agent.
 
 ## Usage
 
