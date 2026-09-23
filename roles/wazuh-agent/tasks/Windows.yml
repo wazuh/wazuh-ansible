@@ -20,17 +20,25 @@
 # WAZUH_SSL_VERIFICATION. Each optional property emits its own leading space
 # inside the {%- if -%}, so an unset variable adds nothing at all rather than
 # leaving a stray separator behind.
+#
+# no_log on this and the install task below: both carry the enrollment token in the
+# clear (this one as a fact, the next one in its own module-invocation trace via
+# `arguments`) -- without it, -v prints the token (unlimited uses, 30-day default
+# lifetime) straight into the play output. Upstream already hides it the same way in
+# the MSI's own log (wazuh-installer.wxs, Hidden="yes").
 - name: Windows | Build install-time arguments for the Wazuh agent
   ansible.builtin.set_fact:
     wazuh_agent_install_args: >-
       /q WAZUH_ENROLLMENT_TOKEN="{{ wazuh_enrollment_token }}"
       {%- if wazuh_ssl_verification | default('') | length > 0 %} WAZUH_SSL_VERIFICATION="{{ wazuh_ssl_verification }}"{% endif %}
+  no_log: true
 
 - name: Windows | Install Wazuh agent
   ansible.windows.win_package:
     path: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
     arguments: "{{ wazuh_agent_install_args }}"
     state: present
+  no_log: true
 
 - name: Windows | Stop Wazuh agent service (if already running)
   ansible.windows.win_service:

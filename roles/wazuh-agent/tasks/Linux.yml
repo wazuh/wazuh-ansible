@@ -13,6 +13,8 @@
 # WAZUH_REGISTRATION_PASSWORD or WAZUH_REGISTRATION_CA apply on Linux anymore.
 # SSL_VERIFICATION is dead too (register_configure_agent.sh REMOVED_VARS),
 # renamed WAZUH_SSL_VERIFICATION -- the old name is read but silently ignored.
+# no_log: this fact carries the enrollment token in the clear -- without it, -v prints the
+# token (unlimited uses, 30-day default lifetime) straight into the play output.
 - name: Linux | Build install-time environment for the Wazuh agent
   ansible.builtin.set_fact:
     wazuh_agent_install_env: >-
@@ -20,6 +22,7 @@
         {'WAZUH_ENROLLMENT_TOKEN': wazuh_enrollment_token}
         | combine({'WAZUH_SSL_VERIFICATION': wazuh_ssl_verification} if (wazuh_ssl_verification | default('') | length > 0) else {})
       }}
+  no_log: true
 
 - name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
   ansible.builtin.include_tasks:

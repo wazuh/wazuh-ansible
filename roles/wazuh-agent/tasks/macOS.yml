@@ -47,6 +47,9 @@
     # WAZUH_MANAGER_ENDPOINT or WAZUH_REGISTRATION_CA apply anymore
     # (warn-and-ignore on install); SSL_VERIFICATION is renamed
     # WAZUH_SSL_VERIFICATION, same rename as on Linux and Windows.
+    # no_log: the rendered content carries the enrollment token in the clear --
+    # without it, -v prints the token (unlimited uses, 30-day default lifetime)
+    # straight into the play output.
     - name: MacOS | Create Wazuh environment variables file
       ansible.builtin.copy:
         content: |
@@ -58,6 +61,7 @@
         owner: root
         group: wheel
         mode: '0600'
+      no_log: true
 
     - name: MacOS | Install Wazuh agent using installer
       ansible.builtin.command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
