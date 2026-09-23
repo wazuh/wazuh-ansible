@@ -164,7 +164,7 @@ The private key is saved locally and used for all SSH connections in this matrix
 **AIO — 1 instance:**
 
 ```bash
-python3 wazuh-automation/deployability/modules/allocation/main.py \
+wazuh-allocator \
   --action create \
   --provider aws \
   --size medium \
