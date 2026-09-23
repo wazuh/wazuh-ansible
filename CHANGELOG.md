@@ -22,7 +22,7 @@
 
 | Issue | Comment |
 | - | - |
-| [#2307](https://github.com/wazuh/wazuh-ansible/issues/2307) | Adopt WAZUH_ENROLLMENT_TOKEN in the wazuh-agent role for Linux, replacing WAZUH_MANAGER/WAZUH_REGISTRATION_PASSWORD/WAZUH_REGISTRATION_CA |
+| [#2307](https://github.com/wazuh/wazuh-ansible/issues/2307) | Adopt WAZUH_ENROLLMENT_TOKEN in the wazuh-agent role for Linux, Windows and macOS, replacing WAZUH_MANAGER/WAZUH_REGISTRATION_PASSWORD/WAZUH_REGISTRATION_CA |
 | [#2248](https://github.com/wazuh/wazuh-ansible/issues/2248) | Change Codebuild runners to Github runners. |
 | [#2213](https://github.com/wazuh/wazuh-ansible/issues/2213) | Change upload and download methods. |
 | [#2203](https://github.com/wazuh/wazuh-ansible/issues/2203) | Update deployment for Wazuh Indexer 5.0.0 RBAC. |

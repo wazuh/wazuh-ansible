@@ -261,7 +261,7 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 ---
 
 **Variable:** `wazuh_enrollment_token`  
-**Description:** Enrollment token for 5.x agents — Linux, Windows and macOS alike — maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable (see [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063)). The manager address and the CA pin both travel inside the token, fetched over `/cacerts` on the agent's first start, so no separate manager-address or CA variable exists in this role. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`); this role does not mint tokens, the operator must provide one (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`).  
+**Description:** Enrollment token for 5.x agents — Linux, Windows and macOS alike — maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable (see [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063)). The manager address always travels inside the token; the CA either travels with it too (a token minted with `--embed-ca`) or is fetched separately over `/cacerts` on the agent's first start and verified against the token's pin. Either way, no separate manager-address or CA variable exists in this role. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`); this role does not mint tokens, the operator must provide one (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`).  
 **Default value:** `<Your Wazuh Agent Enrollment Token>` (must be overridden)
 
 ---

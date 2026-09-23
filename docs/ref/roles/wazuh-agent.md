@@ -28,7 +28,7 @@ On **macOS**, the role downloads and installs the `.pkg` package for either ARM6
 
 ## Enrollment (token-based)
 
-Since [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063), a 5.x agent — on Linux, Windows and macOS alike — enrolls with a single `wazuh_enrollment_token`, mapped to the `WAZUH_ENROLLMENT_TOKEN` install-time variable (an MSI property on Windows, passed via a temporary env file on macOS). The manager address and the CA pin both travel inside the token itself: the agent fetches the manager's CA over `/cacerts` on its first start and verifies it against the token's pin, so no CA file is pre-staged and no separate CA-provisioning step exists in this role.
+Since [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063), a 5.x agent — on Linux, Windows and macOS alike — enrolls with a single `wazuh_enrollment_token`, mapped to the `WAZUH_ENROLLMENT_TOKEN` install-time variable (an MSI property on Windows, passed via a temporary env file on macOS). The manager address always travels inside the token itself. The CA does too, one of two ways: by default the agent fetches it over `/cacerts` on its first start and verifies it against the token's pin; a token minted with `--embed-ca` carries the CA directly and the agent skips that fetch. Either way, no CA file is pre-staged and no separate CA-provisioning step exists in this role.
 
 This replaces the classic `WAZUH_MANAGER`/`WAZUH_REGISTRATION_PASSWORD`/`WAZUH_MANAGER_ENDPOINT`/`WAZUH_REGISTRATION_CA` contract entirely — the installer on every platform now warns and ignores those variables rather than acting on them.
 

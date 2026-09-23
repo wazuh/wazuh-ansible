@@ -11,8 +11,10 @@
 # over /cacerts and verified against the token's pin on the agent's first
 # start. No CA file is pre-staged, and none of WAZUH_MANAGER,
 # WAZUH_REGISTRATION_PASSWORD or WAZUH_REGISTRATION_CA apply on Linux anymore.
-# SSL_VERIFICATION is dead too (register_configure_agent.sh REMOVED_VARS),
-# renamed WAZUH_SSL_VERIFICATION -- the old name is read but silently ignored.
+# SSL_VERIFICATION is dead too, renamed WAZUH_SSL_VERIFICATION
+# (register_configure_agent.sh:95) -- the old name is checked on its own and
+# does get logged to ossec.log and stderr, but the install still exits 0
+# either way, which is what makes it invisible in practice.
 # no_log: this fact carries the enrollment token in the clear -- without it, -v prints the
 # token (unlimited uses, 30-day default lifetime) straight into the play output.
 - name: Linux | Build install-time environment for the Wazuh agent
