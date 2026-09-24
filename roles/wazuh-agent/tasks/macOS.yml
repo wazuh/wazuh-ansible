@@ -6,28 +6,6 @@
     state: directory
     mode: '0755'
 
-# Copied before the install for the same reason as on Linux: the installer only
-# logs an unreadable WAZUH_REGISTRATION_CA and exits 0. Also placed at the CA
-# drop-in path the agent's own upgrade path looks for, so it keeps working for
-# later WPK upgrades. Do not move below the install block.
-- name: MacOS | Create the certificate directory for the manager CA
-  ansible.builtin.file:
-    path: "{{ wazuh_registration_ca_macos_remote_path | dirname }}"
-    state: directory
-    owner: root
-    group: wheel
-    mode: '0755'
-  when: wazuh_registration_ca | default('') | length > 0
-
-- name: MacOS | Copy the manager CA certificate to the target node
-  ansible.builtin.copy:
-    src: "{{ wazuh_registration_ca }}"
-    dest: "{{ wazuh_registration_ca_macos_remote_path }}"
-    owner: root
-    group: wheel
-    mode: '0644'
-  when: wazuh_registration_ca | default('') | length > 0
-
 - name: MacOS (Intel) | Download Wazuh agent package
   ansible.builtin.get_url:
     url: "{{ wazuh_agent_macos_intel64 }}"
@@ -58,27 +36,32 @@
   when: not wazuh_agent_already_installed
   block:
     # Written only on the install path, since the installer is the only thing
-    # that reads it, and mode 0600 because it carries the registration
-    # password. Removed again in `always` below: the installer deletes it
-    # itself on success, so this covers the failure paths.
+    # that reads it, and mode 0600 because it carries the enrollment token.
+    # Removed again in `always` below: the installer deletes it itself on
+    # success (register_configure_agent.sh, WAZUH_MACOS_AGENT_DEPLOYMENT_VARS),
+    # so this covers the failure paths. Since wazuh/wazuh#39063, a 5.x agent
+    # enrolls with a single enrollment token: the manager address and the CA
+    # pin travel inside the token itself, fetched over /cacerts and verified
+    # against the token's pin on the agent's first start. No CA file is
+    # pre-staged, and none of WAZUH_MANAGER, WAZUH_REGISTRATION_PASSWORD,
+    # WAZUH_MANAGER_ENDPOINT or WAZUH_REGISTRATION_CA apply anymore
+    # (warn-and-ignore on install); SSL_VERIFICATION is renamed
+    # WAZUH_SSL_VERIFICATION, same rename as on Linux and Windows.
+    # no_log: the rendered content carries the enrollment token in the clear --
+    # without it, -v prints the token (unlimited uses, 30-day default lifetime)
+    # straight into the play output.
     - name: MacOS | Create Wazuh environment variables file
       ansible.builtin.copy:
         content: |
-          WAZUH_MANAGER="{{ wazuh_manager_address }}"
-          WAZUH_REGISTRATION_PASSWORD="{{ wazuh_registration_password }}"
-          {% if wazuh_manager_endpoint | default('') | length > 0 %}
-          WAZUH_MANAGER_ENDPOINT="{{ wazuh_manager_endpoint }}"
-          {% endif %}
-          {% if wazuh_registration_ca | default('') | length > 0 %}
-          WAZUH_REGISTRATION_CA="{{ wazuh_registration_ca_macos_remote_path }}"
-          {% endif %}
+          WAZUH_ENROLLMENT_TOKEN="{{ wazuh_enrollment_token }}"
           {% if wazuh_ssl_verification | default('') | length > 0 %}
-          SSL_VERIFICATION="{{ wazuh_ssl_verification }}"
+          WAZUH_SSL_VERIFICATION="{{ wazuh_ssl_verification }}"
           {% endif %}
         dest: /tmp/wazuh_envs
         owner: root
         group: wheel
         mode: '0600'
+      no_log: true
 
     - name: MacOS | Install Wazuh agent using installer
       ansible.builtin.command: "installer -pkg {{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg -target /"
@@ -121,20 +104,36 @@
   failed_when: "'state = running' not in wazuh_agent_service_status.stdout"
   changed_when: false
 
-- name: MacOS | Verify the manager CA was pinned into the agent configuration
-  when:
-    - wazuh_registration_ca | default('') | length > 0
-    - wazuh_agent_verify_registration_ca | bool
-  block:
-    - name: MacOS | Read the agent configuration file
-      ansible.builtin.slurp:
-        src: "{{ wazuh_agent_macos_install_path }}/etc/ossec.conf"
-      register: wazuh_agent_ossec_conf_raw
+# The check above only confirms launchd's own supervisor process (Wazuh-launcher)
+# stayed up -- that process wraps wazuh-agentd but does not monitor or relaunch it,
+# so it reports "running" even when the wazuh-agentd it spawned exits right after
+# start (e.g. the same 4118 deadlock documented for Linux/Windows, or a refused
+# enrollment token) and never restarts on its own. Verified: distinct from launchd's
+# own state, and from win_service's problem on Windows (a state that is not queried
+# live at all) -- here launchd's state is real, it is just the wrong process.
+#
+# Retried, not checked once, for the same reason as on Windows: a successful
+# enrollment makes the agent reload and restart itself right after (shared
+# configuration changes), which is normal and briefly leaves no wazuh-agentd
+# process for a few seconds. 6 tries * 5s is generous slack for that restart while
+# staying far short of the failure case, which does not recover on its own.
+- name: MacOS | Wait for the wazuh-agentd process itself, tolerating the post-enrollment restart
+  ansible.builtin.command: pgrep -x wazuh-agentd
+  register: wazuh_agentd_pgrep
+  until: wazuh_agentd_pgrep.rc == 0
+  retries: 6
+  delay: 5
+  changed_when: false
+  failed_when: false
 
-    - name: MacOS | Assert the manager CA is configured
-      ansible.builtin.include_tasks:
-        file: "verify_registration_ca.yml"
-      vars:
-        wazuh_agent_ossec_conf_path: "{{ wazuh_agent_macos_install_path }}/etc/ossec.conf"
-        wazuh_agent_ossec_log_path: "{{ wazuh_agent_macos_install_path }}/logs/ossec.log"
-        wazuh_agent_ca_expected_path: "{{ wazuh_registration_ca_macos_remote_path }}"
+- name: MacOS | Assert the wazuh-agentd process is actually running
+  ansible.builtin.assert:
+    that:
+      - wazuh_agentd_pgrep.rc == 0
+    fail_msg: >-
+      The wazuh-agentd process is not running, even though the launchd wrapper
+      (com.wazuh.agent / Wazuh-launcher) stayed up. Check
+      {{ wazuh_agent_macos_install_path }}/logs/ossec.log for the reason -- for example
+      error 4118 if wazuh_ssl_verification is 'full'/'certificate' on a fresh token
+      install, or ERR_BAD_TOKEN for an invalid or missing enrollment token (see
+      docs/ref/roles/wazuh-agent.md).
