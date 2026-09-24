@@ -1,0 +1,24 @@
+---
+
+wazuh_agent_package_download_path: "/tmp/wazuh-agent"
+wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
+wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
+
+# Agent installation directory per platform. Not read by any task in this
+# role as of wazuh/wazuh#39063 (enrollment moved to a single token, so no task
+# needs the install path to place a CA file or read ossec.conf back), kept as
+# documented per-platform metadata. The Windows MSI is 32-bit, so on a 64-bit
+# host it lands under the x86 Program Files.
+wazuh_agent_install_path: "/var/ossec"
+wazuh_agent_macos_install_path: "/Library/Ossec"
+wazuh_agent_win_install_path: >-
+  {{ ansible_facts.env['ProgramFiles(x86)'] | default('C:\Program Files (x86)', true) }}\ossec-agent
+
+# Optional. Agent TLS verification posture, mapped to the WAZUH_SSL_VERIFICATION
+# install-time variable and written to <agent><ssl><verification_mode>. One of:
+#   full        - verify against the CA *and* check the manager's hostname
+#   certificate - verify against the CA only (no hostname check)
+#   system      - trust the OS store
+#   none        - no verification (lab/CI against a self-signed manager)
+# Empty leaves the tag unset.
+wazuh_ssl_verification: ""

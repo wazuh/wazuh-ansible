@@ -1,0 +1,27 @@
+---
+
+# The installer never fails the package install on a missing or refused token (it logs and
+# exits 0), and a later run with the right token does nothing once the package is already
+# present (apt/dnf/win_package skip it, macOS is guarded on pkgutil) -- so a placeholder or
+# empty token here would otherwise only surface as a failed service start, on an agent that
+# then needs a full uninstall/reinstall to recover. Caught here, before anything installs.
+- name: Validate | Assert wazuh_enrollment_token is set
+  ansible.builtin.assert:
+    that:
+      - wazuh_enrollment_token | default('') | length > 0
+      - not (wazuh_enrollment_token is match('<.*>$'))
+    fail_msg: >-
+      wazuh_enrollment_token is empty or still holds the placeholder from wazuh-agent.yml. The
+      installer does not fail on a missing or refused token: the package installs, the agent is
+      left without a manager, and a later run with the right token is skipped because the
+      package is already present.
+
+- name: Validate | Assert wazuh_ssl_verification is a mode the agent accepts
+  ansible.builtin.assert:
+    that:
+      - wazuh_ssl_verification | default('') in ['', 'full', 'certificate', 'system', 'none']
+    fail_msg: >-
+      wazuh_ssl_verification must be exactly one of 'full', 'certificate', 'system' or 'none'
+      (got '{{ wazuh_ssl_verification }}'). The installer discards any other value and leaves
+      <verification_mode> unset instead of failing, so this is checked here.
+  when: wazuh_ssl_verification | default('') | length > 0

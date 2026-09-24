@@ -1,0 +1,73 @@
+---
+
+- name: Linux | Create directory for wazuh-agent package
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: directory
+    mode: '0755'
+
+# Since wazuh/wazuh#39063, a 5.x agent enrolls with a single enrollment token:
+# the manager address and the CA pin travel inside the token itself, fetched
+# over /cacerts and verified against the token's pin on the agent's first
+# start. No CA file is pre-staged, and none of WAZUH_MANAGER,
+# WAZUH_REGISTRATION_PASSWORD or WAZUH_REGISTRATION_CA apply on Linux anymore.
+# SSL_VERIFICATION is dead too, renamed WAZUH_SSL_VERIFICATION
+# (register_configure_agent.sh:95) -- the old name is checked on its own and
+# does get logged to ossec.log and stderr, but the install still exits 0
+# either way, which is what makes it invisible in practice.
+# no_log: this fact carries the enrollment token in the clear -- without it, -v prints the
+# token (unlimited uses, 30-day default lifetime) straight into the play output.
+- name: Linux | Build install-time environment for the Wazuh agent
+  ansible.builtin.set_fact:
+    wazuh_agent_install_env: >-
+      {{
+        {'WAZUH_ENROLLMENT_TOKEN': wazuh_enrollment_token}
+        | combine({'WAZUH_SSL_VERIFICATION': wazuh_ssl_verification} if (wazuh_ssl_verification | default('') | length > 0) else {})
+      }}
+  no_log: true
+
+- name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
+  ansible.builtin.include_tasks:
+    file: "RedHat.yml"
+  when: ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Importing tasks for Debian-based systems
+  ansible.builtin.include_tasks:
+    file: "Debian.yml"
+  when: ansible_facts.os_family == "Debian"
+
+- name: Linux CentOS/RedHat | Install wazuh-agent
+  ansible.builtin.dnf:
+    name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.rpm"
+    state: present
+    disable_gpg_check: true
+  environment: "{{ wazuh_agent_install_env }}"
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Linux Debian | Install wazuh-agent
+  ansible.builtin.apt:
+    deb: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.deb"
+    state: present
+  environment: "{{ wazuh_agent_install_env }}"
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Linux | Start and enable Wazuh Agent service
+  block:
+    - name: Linux | Reload systemd configuration
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Linux | Start and enable Wazuh Agent service
+      ansible.builtin.service:
+        name: wazuh-agent
+        enabled: true
+        state: restarted
+
+- name: Linux | Remove leftover wazuh-agent installation directory
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: absent
+    force: true

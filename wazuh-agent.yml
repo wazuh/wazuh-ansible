@@ -1,0 +1,32 @@
+---
+
+- name: Deploy Wazuh agent(s)
+  hosts: agents
+  strategy: free
+  vars:
+    # Enrollment token for 5.x agents (WAZUH_ENROLLMENT_TOKEN install-time
+    # variable), for Linux, Windows and macOS -- see wazuh/wazuh#39063. The
+    # manager address and the CA pin both travel inside the token itself,
+    # fetched over /cacerts on the agent's first start. This role does not
+    # mint tokens; the operator must provide one (for example via
+    # `wazuh-manager-authd --create-enrollment-token --address <address>`).
+    wazuh_enrollment_token: "<Your Wazuh Agent Enrollment Token>"
+    # Verification posture: full (CA + hostname), certificate (CA only), system
+    # (OS trust store) or none. Empty leaves it unset.
+    wazuh_ssl_verification: ""
+  roles:
+    - role: package-urls
+  tasks:
+    - name: Include wazuh-agent role for Linux/MacOS hosts
+      when: ansible_facts.system == "Linux" or ansible_facts.system == "Darwin"
+      become: true
+      become_user: root
+      block:
+        - name: Include Wazuh agent role for Linux
+          ansible.builtin.include_role:
+            name: wazuh-agent
+
+    - name: Include wazuh-agent role for Windows hosts
+      when: ansible_facts.os_family == "Windows"
+      ansible.builtin.include_role:
+        name: wazuh-agent
