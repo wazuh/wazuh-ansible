@@ -1,4 +1,4 @@
-## [v5.0.1]
+## [v5.1.0]
 
 ### Added
 
@@ -34,4 +34,5 @@
 
 ## Prior versions
 
+- [v5.0.1](https://github.com/wazuh/wazuh-ansible/blob/v5.0.1/CHANGELOG.md)
 - [v5.0.0](https://github.com/wazuh/wazuh-ansible/blob/v5.0.0/CHANGELOG.md)
