@@ -1,0 +1,39 @@
+---
+
+# Passwords generated for this deployment are kept on the control node, one file per key. They live
+# outside local_configs_path: the wazuh-indexer role deletes that directory on every run with
+# generate_certs, and a regenerated password would no longer match the one a component already seeded.
+wazuh_credentials_path: "{{ playbook_dir }}/deployment-credentials"
+
+# Optional supplied passwords (e.g. from Ansible Vault), keyed by credentials.env name. Only honoured
+# the first time a deployment is created: a component that already resolved its credentials keeps
+# them (wazuh/wazuh-indexer#1928 FR 34). Use wazuh-passwords-tool.sh to rotate.
+wazuh_credentials_overrides: {}
+
+# Delete /etc/wazuh/credentials.env from every host once all components are running. No package
+# deletes it (wazuh/wazuh-indexer#1928 FR 40).
+# TODO(#2306): default pending a decision from management on whether the file is removed after the
+# deployment. Until then it is kept, root:root 0600 inside /etc/wazuh 0700.
+wazuh_credentials_cleanup: false
+
+wazuh_credentials_keys:
+  - WAZUH_INDEXER_ADMIN_PASSWORD
+  - WAZUH_INDEXER_KIBANASERVER_PASSWORD
+  - WAZUH_INDEXER_MANAGER_PASSWORD
+  - WAZUH_MANAGER_API_PASSWORD
+  - WAZUH_MANAGER_WUI_PASSWORD
+
+# Keys each component reads, owned or consumed (wazuh/wazuh-indexer#1928 FR 13). Each host only
+# receives the keys of the components it runs.
+wazuh_credentials_component_keys:
+  indexer:
+    - WAZUH_INDEXER_ADMIN_PASSWORD
+    - WAZUH_INDEXER_KIBANASERVER_PASSWORD
+    - WAZUH_INDEXER_MANAGER_PASSWORD
+  manager:
+    - WAZUH_MANAGER_API_PASSWORD
+    - WAZUH_MANAGER_WUI_PASSWORD
+    - WAZUH_INDEXER_MANAGER_PASSWORD
+  dashboard:
+    - WAZUH_INDEXER_KIBANASERVER_PASSWORD
+    - WAZUH_MANAGER_WUI_PASSWORD

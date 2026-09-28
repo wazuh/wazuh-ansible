@@ -1,0 +1,26 @@
+---
+
+- name: Credentials | Ensure /etc/wazuh exists
+  ansible.builtin.file:
+    path: /etc/wazuh
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+# A block of our own, outside the packages' managed block, which only they may write
+# (wazuh/wazuh-indexer#1928 FR 10). The packages parse the file, and the last assignment of a key wins.
+- name: Credentials | Provide the component credentials in /etc/wazuh/credentials.env for {{ wazuh_credentials_component }}
+  ansible.builtin.blockinfile:
+    path: /etc/wazuh/credentials.env
+    create: true
+    owner: root
+    group: root
+    mode: "0600"
+    insertbefore: BOF
+    marker: "# {mark} wazuh-ansible {{ wazuh_credentials_component }}"
+    block: |
+      {% for key in wazuh_credentials_component_keys[wazuh_credentials_component] %}
+      {{ key }}={{ wazuh_credentials[key] }}
+      {% endfor %}
+  no_log: true

@@ -1,0 +1,7 @@
+---
+
+- name: Credentials | Remove /etc/wazuh/credentials.env once every component is running
+  ansible.builtin.file:
+    path: /etc/wazuh/credentials.env
+    state: absent
+  when: wazuh_credentials_cleanup | bool

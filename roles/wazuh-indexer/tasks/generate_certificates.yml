@@ -1,0 +1,244 @@
+---
+
+- name: Cert-gen | Check if certificates already exists
+  ansible.builtin.stat:
+    path: "{{ local_configs_path }}"
+  register: certificates_folder
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - generate_certs
+
+- name: Cert-gen | Remove existing certificates
+  ansible.builtin.file:
+    path: "{{ local_configs_path }}"
+    state: absent
+    force: true
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - generate_certs
+    - certificates_folder.stat.exists
+
+- name: Cert-gen | Check if configuration is defined correctly
+  ansible.builtin.fail:
+    msg: "Single-node cluster is defined incorrectly. Please set single_node to true and define only one node."
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - single_node
+    - ( instances | length ) > 1
+
+- name: Cert-gen | Generate certificates for Wazuh cluster locally
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when: generate_certs
+  block:
+    - name: Cert-gen | Create local temporary directory for certificates generation (all certs)
+      ansible.builtin.file:
+        path: "{{ local_configs_path }}"
+        mode: "0755"
+        state: directory
+
+    - name: Cert-gen | Download certificates generation tool
+      ansible.builtin.get_url:
+        url: "{{ wazuh_certs_tool }}"
+        dest: "{{ local_configs_path }}/wazuh-certs-tool.sh"
+        mode: '0644'
+
+    - name: Cert-gen | Download base config.yml file
+      ansible.builtin.get_url:
+        url: "{{ wazuh_config_yml }}"
+        dest: "{{ local_configs_path }}/config.yml"
+        mode: '0644'
+
+    - name: Cert-gen | Remove comments from config.yml file
+      ansible.builtin.replace:
+        path: "{{ local_configs_path }}/config.yml"
+        regexp: '^\s*#.*$'
+        replace: ''
+
+    - name: Cert-gen | Set up config.yml file for multi-node cluster
+      when: not single_node
+      block:
+        - name: Cert-gen | Fail if wazuh_manager_ips is set for a multi-node cluster
+          ansible.builtin.fail:
+            msg: >-
+              wazuh_manager_ips applies only to single-node deployments: wazuh-certs-tool.sh
+              rejects manager nodes that share an ip value, so applying the same list to
+              every manager node in a cluster aborts certificate generation. Set extra_ips
+              on the corresponding entry of 'instances' instead for a per-node address, or
+              use agent_san for an address shared by the whole cluster (e.g. a load
+              balancer).
+          when: wazuh_manager_ips | length > 0
+
+        - name: Cert-gen | Remove existing nodes sections (cluster mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*(- name:|ip:).*$'
+            replace: ''
+
+        - name: Cert-gen | Add indexer nodes section (cluster mode)
+          ansible.builtin.blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            marker: "# Indexer nodes"
+            state: present
+            insertafter: "indexer:"
+            block: |
+              {% for key, value in instances.items() %}
+              {% if value.role is defined and value.role == 'indexer' %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Add manager nodes section (cluster mode)
+          ansible.builtin.blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            marker: "# Manager nodes"
+            state: present
+            insertafter: "manager:"
+            block: |
+              {% for key, value in instances.items() %}
+              {% if value.role is defined and value.role == 'manager' %}
+              {% set node_ips = [value.ip] + (value.extra_ips | default([])) %}
+                  - name: {{ value.name }}
+              {% if node_ips | length > 1 %}
+                    ip:
+              {% for manager_ip in node_ips %}
+                      - "{{ manager_ip }}"
+              {% endfor %}
+              {% else %}
+                    ip: {{ value.ip }}
+              {% endif %}
+              {% if value.node_type is defined and value.node_type == 'master' %}
+                    node_type: master
+              {% elif value.node_type is defined and value.node_type == 'worker' %}
+                    node_type: worker
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Add dashboard nodes section (cluster mode)
+          ansible.builtin.blockinfile:
+            path: "{{ local_configs_path }}/config.yml"
+            marker: "# Dashboard nodes"
+            state: present
+            insertafter: "dashboard:"
+            block: |
+              {% for key, value in instances.items() %}
+              {% if value.role is defined and value.role == 'dashboard' %}
+                  - name: {{ value.name }}
+                    ip: {{ value.ip }}
+              {% endif %}
+              {% endfor %}
+
+        - name: Cert-gen | Remove comments from config.yml file
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*#.*$'
+            replace: ''
+
+    - name: Cert-gen | Set up config.yml file for single-node cluster
+      when: single_node
+      block:
+        - name: Cert-gen | Add indexer node section (single node mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<indexer-node-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+        - name: Cert-gen | Add manager node section (single node mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '^\s*ip:\s*"?<wazuh-manager-ip>"?\s*$'
+            replace: |-
+              {% if wazuh_manager_ips | length > 0 %}
+                    ip:
+              {% for manager_ip in [hostvars[inventory_hostname].private_ip] + wazuh_manager_ips %}
+                      - "{{ manager_ip }}"
+              {% endfor %}
+              {% else %}
+                    ip: "{{ hostvars[inventory_hostname].private_ip }}"
+              {% endif %}
+
+        - name: Cert-gen | Add dashboard node section (single node mode)
+          ansible.builtin.replace:
+            path: "{{ local_configs_path }}/config.yml"
+            regexp: '<dashboard-node-ip>'
+            replace: "{{ hostvars[inventory_hostname].private_ip }}"
+
+    - name: Cert-gen | Remove empty lines from config.yml file
+      ansible.builtin.shell:
+        cmd: |
+          grep '[^[:blank:]]' "{{ local_configs_path }}/config.yml" > "{{ local_configs_path }}/config.yml.tmp"
+      args:
+        creates: "{{ local_configs_path }}/config.yml.tmp"
+
+    - name: Cert-gen | Replace original config.yml file with the cleaned one
+      ansible.builtin.command:
+        cmd: mv {{ local_configs_path }}/config.yml.tmp {{ local_configs_path }}/config.yml
+      args:
+        removes: "{{ local_configs_path }}/config.yml.tmp"
+
+    - name: Cert-gen | Generate certificates
+      vars:
+        agent_san_args: "{{ agent_san | map('regex_replace', '^(.*)$', '--agent-san \\1') | join(' ') }}"
+      ansible.builtin.command: >-
+        bash {{ local_configs_path }}/wazuh-certs-tool.sh -A {{ agent_san_args }}
+      args:
+        creates: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+
+- name: Cert-gen | Set node name variable
+  ansible.builtin.set_fact:
+    node_name: "{{ (single_node | bool) | ternary(instances['aio_node'].name, instances[inventory_hostname].name) }}"
+
+# Staged before the package is installed: certificates are resolved only by its postinst, and a
+# host holding only the anchor and a pair takes case C -- it uses them, mints no CA and writes
+# plugins.security.nodes_dn and authcz.admin_dn from them (wazuh/wazuh-indexer#1928 FR 22-23).
+# root-ca.key never leaves the control node.
+- name: Cert-gen | Stage the indexer certificates before installing the package
+  when: generate_certs
+  block:
+    - name: Cert-gen | Ensure the CA directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh/ca
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Cert-gen | Provide the CA anchor, never its key
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+        dest: /etc/wazuh/ca/root-ca.pem
+        owner: root
+        group: root
+        mode: "0644"
+
+    # No owner: the wazuh-indexer user does not exist before the package, whose postinst chowns
+    # /etc/wazuh-indexer; on a rerun the existing owner is kept.
+    - name: Cert-gen | Ensure the indexer certificates directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh-indexer/certs
+        state: directory
+        mode: "0700"
+
+    # root-ca.pem is staged too, not only left to the package: its postinst copies the anchor into
+    # certs/ once, at install, and never again, so on a rerun that issued a new pair the trust store
+    # would otherwise keep the previous CA and every TLS handshake would fail.
+    - name: Cert-gen | Stage the node and admin certificate pairs under the names the package expects
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+        dest: "/etc/wazuh-indexer/certs/{{ item.dest }}"
+        mode: "{{ item.mode | default('0400') }}"
+      loop:
+        - { src: "{{ node_name }}.pem", dest: indexer.pem }
+        - { src: "{{ node_name }}-key.pem", dest: indexer-key.pem }
+        - { src: admin.pem, dest: admin.pem }
+        - { src: admin-key.pem, dest: admin-key.pem }
+        - { src: root-ca.pem, dest: root-ca.pem, mode: "0444" }

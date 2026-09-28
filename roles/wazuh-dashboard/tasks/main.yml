@@ -12,6 +12,40 @@
   ansible.builtin.import_tasks: dependencies.yml
   become: true
 
+- name: Credentials | Generate or load the deployment passwords
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+
+- name: Credentials | Provide the dashboard credentials before installing the package
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: deploy.yml
+  vars:
+    wazuh_credentials_component: dashboard
+
+# Anchor only, never its key: with no CA directory the package mints a bootstrap CA, private key
+# included, and issues its own pair. With the anchor alone it issues nothing, and the pair copied
+# below once it is installed is used as it is. On a distributed dashboard host nothing else leaves
+# the anchor there.
+- name: Credentials | Provide the deployment CA anchor before installing the package
+  become: true
+  block:
+    - name: Credentials | Ensure the CA directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh/ca
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Credentials | Provide the CA anchor, never its key
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+        dest: /etc/wazuh/ca/root-ca.pem
+        owner: root
+        group: root
+        mode: "0644"
+
 - name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
   ansible.builtin.dnf:
     name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"

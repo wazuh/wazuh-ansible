@@ -10,3 +10,8 @@
     - role: wazuh-dashboard
   vars:
     single_node: true
+  post_tasks:
+    - name: Remove the credentials handoff file once every component is running
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: cleanup.yml

@@ -12,6 +12,21 @@
   ansible.builtin.import_tasks: dependencies.yml
   become: true
 
+- name: Credentials | Generate or load the deployment passwords
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+
+- name: Credentials | Provide the indexer credentials before installing the package
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: deploy.yml
+  vars:
+    wazuh_credentials_component: indexer
+
+- name: Importing generate_certificates.yml
+  ansible.builtin.import_tasks: generate_certificates.yml
+  become: true
+
 - name: Linux CentOS/RedHat | Install wazuh-indexer using yum
   ansible.builtin.dnf:
     name: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.rpm"
@@ -42,6 +57,10 @@
     enabled: true
     state: restarted
 
+# The package never loads the security configuration into the cluster: it cannot know whether other
+# nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
+# the bcrypt digests of the supplied passwords into internal_users.yml, so one upload from one node
+# is what makes them live, on a single node and on a cluster alike.
 - name: Initialize Wazuh Indexer cluster
   ansible.builtin.shell: |
     /usr/share/wazuh-indexer/bin/indexer-security-init.sh
@@ -52,20 +71,36 @@
   changed_when: false
 
 - name: Wait for Wazuh indexer API
-  ansible.builtin.uri:
-    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cat/health/"
-    user: "admin" # Default Indexer user is always "admin"
-    password: "admin"
-    validate_certs: false
-    status_code: 200,401
-    return_content: true
-    timeout: 4
-  register: _result
-  until:
-    - _result is defined
-    - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
-  retries: 24
-  delay: 5
+  block:
+    - name: Wait for Wazuh indexer API
+      ansible.builtin.uri:
+        url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cat/health/"
+        user: "admin"
+        password: "{{ wazuh_credentials.WAZUH_INDEXER_ADMIN_PASSWORD }}"
+        validate_certs: false
+        status_code: 200,401
+        return_content: true
+        timeout: 4
+      register: _result
+      until:
+        - _result is defined
+        - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
+      retries: 24
+      delay: 5
+      no_log: true
+
+  # no_log hides why the wait gave up; report only the last HTTP status, never the credentials or
+  # the response body.
+  rescue:
+    - name: Wait for Wazuh indexer API | Report the last HTTP status
+      ansible.builtin.fail:
+        msg: >-
+          The Wazuh indexer API did not report a healthy cluster after 24 attempts. Last HTTP status:
+          {{ _result.status | default('none') }}.
+          {{ 'The admin password was rejected: check that indexer-security-init.sh loaded the security
+          configuration and that WAZUH_INDEXER_ADMIN_PASSWORD was in /etc/wazuh/credentials.env before
+          the package was installed.' if (_result.status | default(0)) == 401
+          else 'Check the service with journalctl -u wazuh-indexer.' }}
 
 - name: Reload systemd configuration
   ansible.builtin.systemd:
