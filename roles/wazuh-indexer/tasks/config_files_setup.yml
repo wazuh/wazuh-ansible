@@ -73,17 +73,43 @@
 
     - name: OpenSearch Config | Add SSL configuration
       block:
+        # The DN is read from each node's certificate rather than rebuilt from its name: wazuh-certs-tool
+        # has used both subject orders (wazuh/wazuh-installation-assistant#1048), and the security plugin
+        # rejects a node whose DN is not listed exactly as its certificate presents it. RFC 2253 is the
+        # form the indexer package itself writes.
+        - name: OpenSearch Config | Read the DN of every indexer node certificate
+          ansible.builtin.command:
+            cmd: >-
+              openssl x509 -in "{{ local_configs_path }}/wazuh-certificates/{{ item.value.name }}.pem"
+              -noout -subject -nameopt RFC2253
+          loop: "{{ instances | dict2items | selectattr('value.role', 'defined') | selectattr('value.role', 'in', ['indexer', 'aio']) | list }}"
+          loop_control:
+            label: "{{ item.value.name }}"
+          register: wazuh_indexer_node_subjects
+          run_once: true
+          delegate_to: localhost
+          become: false
+          changed_when: false
+          when: generate_certs
+
         - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
             regexp: '(?m)^(plugins\.security\.nodes_dn:\n)(?:[ \t]*#?-.*\n)*'
             replace: |
               plugins.security.nodes_dn:
-              {% for (key, value) in instances.items() %}
-              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
-              - "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
-              {% endif %}
+              {% for dn in wazuh_indexer_nodes_dn %}
+              - "{{ dn }}"
               {% endfor %}
+          vars:
+            wazuh_indexer_nodes_dn: >-
+              {{ wazuh_indexer_node_subjects.results | map(attribute='stdout')
+                 | map('regex_replace', '^subject= *', '') | list
+                 if generate_certs else
+                 instances | dict2items | selectattr('value.role', 'defined')
+                 | selectattr('value.role', 'in', ['indexer', 'aio'])
+                 | map(attribute='value.name')
+                 | map('regex_replace', '^(.*)$', 'CN=\1,OU=Wazuh,O=Wazuh,L=California,C=US') | list }}
 
     - name: Add single-node discovery type if needed
       ansible.builtin.lineinfile:
