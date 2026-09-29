@@ -23,10 +23,9 @@
   vars:
     wazuh_credentials_component: dashboard
 
-# Anchor only, never its key: with no CA directory the package mints a bootstrap CA, private key
-# included, and issues its own pair. With the anchor alone it issues nothing, and the pair copied
-# below once it is installed is used as it is. On a distributed dashboard host nothing else leaves
-# the anchor there.
+# The anchor, never its key, and the node's pair are staged before the package is installed, as
+# wazuh-install.sh does it: the package then finds them (case C), uses them and issues nothing. With
+# no CA directory it would mint a bootstrap CA, private key included, and issue its own pair.
 - name: Credentials | Provide the deployment CA anchor before installing the package
   become: true
   block:
@@ -45,6 +44,38 @@
         owner: root
         group: root
         mode: "0644"
+
+- name: Credentials | Check whether the dashboard package is already installed
+  ansible.builtin.stat:
+    path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+  register: wazuh_dashboard_installed_conf
+
+# The wazuh-dashboard user does not exist yet, so the pair is staged root-owned, under the names the
+# package expects. The DEB package hands /etc/wazuh-dashboard to its user, the RPM package does not:
+# the copies after the installation give the pair to wazuh-dashboard. Skipped once the package is
+# installed, so a rerun does not reset those owners.
+- name: Credentials | Stage the dashboard certificate pair before installing the package
+  when: not wazuh_dashboard_installed_conf.stat.exists
+  become: true
+  block:
+    - name: Credentials | Ensure the dashboard certificates directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh-dashboard/certs
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Credentials | Stage the dashboard pair
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+        dest: "/etc/wazuh-dashboard/certs/{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "0400"
+      loop:
+        - { src: "{{ dashboard_node_name }}.pem", dest: dashboard.pem }
+        - { src: "{{ dashboard_node_name }}-key.pem", dest: dashboard-key.pem }
 
 - name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
   ansible.builtin.dnf:
@@ -157,7 +188,7 @@
         state: directory
         owner: wazuh-dashboard
         group: wazuh-dashboard
-        mode: "0700"
+        mode: "0500"
 
 - name: Copy the certificates from local to the Wazuh dashboard instance
   ansible.builtin.copy:

@@ -36,9 +36,8 @@
       vars:
         wazuh_credentials_component: manager
 
-    # Anchor only, never its key: the package then mints no bootstrap CA and issues nothing, and the
-    # pairs copied below once it is installed are used as they are. Certificates are resolved only at
-    # install time, and the manager's service user must exist before a pair can be staged.
+    # The anchor, never its key, and the node's pairs are staged before the package is installed, as
+    # wazuh-install.sh does it: the package then finds them (case C), uses them and issues nothing.
     - name: Credentials | Ensure the CA directory exists
       ansible.builtin.file:
         path: /etc/wazuh/ca
@@ -54,6 +53,39 @@
         owner: root
         group: root
         mode: "0644"
+
+    - name: Credentials | Check whether the manager package is already installed
+      ansible.builtin.stat:
+        path: "{{ wazuh_manager_install_path }}etc/wazuh-manager.conf"
+      register: wazuh_manager_installed_conf
+
+    # The wazuh-manager user does not exist yet, so the pairs are staged root-owned; the package's
+    # postinst hands remoted* to wazuh-manager and indexer-connector* to root:wazuh-manager before it
+    # resolves certificates. Skipped once the package is installed: staging again would reset those
+    # owners, and the copies after the installation keep the pairs up to date.
+    - name: Credentials | Stage the manager certificate pairs before installing the package
+      when: not wazuh_manager_installed_conf.stat.exists
+      block:
+        - name: Credentials | Ensure the manager certificates directory exists
+          ansible.builtin.file:
+            path: "{{ wazuh_manager_install_path }}etc/certs"
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Credentials | Stage the indexer connector and agent listener pairs
+          ansible.builtin.copy:
+            src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+            dest: "{{ wazuh_manager_install_path }}etc/certs/{{ item.dest }}"
+            owner: root
+            group: root
+            mode: "0640"
+          loop:
+            - { src: "{{ manager_node_name }}.pem", dest: indexer-connector.pem }
+            - { src: "{{ manager_node_name }}-key.pem", dest: indexer-connector-key.pem }
+            - { src: "{{ manager_node_name }}-remoted.pem", dest: remoted.pem }
+            - { src: "{{ manager_node_name }}-remoted-key.pem", dest: remoted-key.pem }
 
     - name: Ensure wazuh-manager package download directory exists
       ansible.builtin.file:
