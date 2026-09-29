@@ -236,12 +236,20 @@
         mode: "0644"
 
     # No owner: the wazuh-indexer user does not exist before the package, whose postinst chowns
-    # /etc/wazuh-indexer; on a rerun the existing owner is kept.
+    # /etc/wazuh-indexer; on a rerun the existing owner is kept. Explicit modes, the ones the package
+    # ships: dpkg keeps the mode of a directory that already exists, and one created under a
+    # restrictive umask would leave the indexer unable to read its certificates.
+    - name: Cert-gen | Ensure the indexer configuration directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh-indexer
+        state: directory
+        mode: "0750"
+
     - name: Cert-gen | Ensure the indexer certificates directory exists
       ansible.builtin.file:
         path: /etc/wazuh-indexer/certs
         state: directory
-        mode: "0700"
+        mode: "0500"
 
     # root-ca.pem is staged too, not only left to the package: its postinst copies the anchor into
     # certs/ once, at install, and never again, so on a rerun that issued a new pair the trust store

@@ -66,13 +66,19 @@
     - name: Credentials | Stage the manager certificate pairs before installing the package
       when: not wazuh_manager_installed_conf.stat.exists
       block:
+        # Each level is created with an explicit mode, as wazuh-install.sh does with umask 022: dpkg
+        # keeps the mode of a directory that already exists, and the host's umask may be restrictive.
         - name: Credentials | Ensure the manager certificates directory exists
           ansible.builtin.file:
-            path: "{{ wazuh_manager_install_path }}etc/certs"
+            path: "{{ item }}"
             state: directory
             owner: root
             group: root
             mode: "0755"
+          loop:
+            - "{{ wazuh_manager_install_path }}"
+            - "{{ wazuh_manager_install_path }}etc"
+            - "{{ wazuh_manager_install_path }}etc/certs"
 
         - name: Credentials | Stage the indexer connector and agent listener pairs
           ansible.builtin.copy:

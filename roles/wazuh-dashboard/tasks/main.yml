@@ -51,20 +51,25 @@
   register: wazuh_dashboard_installed_conf
 
 # The wazuh-dashboard user does not exist yet, so the pair is staged root-owned, under the names the
-# package expects. The DEB package hands /etc/wazuh-dashboard to its user, the RPM package does not:
-# the copies after the installation give the pair to wazuh-dashboard. Skipped once the package is
-# installed, so a rerun does not reset those owners.
+# package expects. The package keeps a pre-placed pair root-owned and the service then fails with
+# EACCES on dashboard-key.pem: the copies after the installation give it to wazuh-dashboard, as
+# wazuh-install.sh does. Skipped once the package is installed, so a rerun does not reset those owners.
 - name: Credentials | Stage the dashboard certificate pair before installing the package
   when: not wazuh_dashboard_installed_conf.stat.exists
   become: true
   block:
+    # Explicit mode on each level, as wazuh-install.sh does with umask 022: dpkg keeps the mode of a
+    # directory that already exists, and the host's umask may be restrictive.
     - name: Credentials | Ensure the dashboard certificates directory exists
       ansible.builtin.file:
-        path: /etc/wazuh-dashboard/certs
+        path: "{{ item }}"
         state: directory
         owner: root
         group: root
         mode: "0755"
+      loop:
+        - /etc/wazuh-dashboard
+        - /etc/wazuh-dashboard/certs
 
     - name: Credentials | Stage the dashboard pair
       ansible.builtin.copy:
