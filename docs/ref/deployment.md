@@ -105,7 +105,7 @@ Once the deployment is running, `/etc/wazuh/credentials.env` on the hosts is no 
 
 Running the same playbook again, from the same directory, keeps the passwords, the root CA, and the certificates. The packages do not create their credentials again.
 
-A host that already holds the root CA or the passwords of another deployment is refused before anything is written. This happens, for example, when the playbook runs from another directory, or after `deployment-credentials/` was removed. To deploy again from scratch, remove `/etc/wazuh` from the hosts, and `deployment-credentials/`, `deployment-config-files/` and `/etc/wazuh/ca` from the control node.
+A host that already holds the root CA or the passwords of another deployment is refused before anything is written. This happens, for example, when the playbook runs from another directory, or after `deployment-credentials/` was removed. To deploy again from scratch, use new hosts, or first uninstall the Wazuh packages from the hosts and remove `/etc/wazuh` (uninstalling a package does not remove it). On the control node, remove `deployment-credentials/`, `deployment-config-files/`, and `/etc/wazuh/ca`. The playbooks provide the credentials and certificates of a component only before its package is installed.
 
 ## Post-Deployment Steps
 
@@ -121,6 +121,8 @@ The deployment playbooks do not rotate passwords. To change them, use the `wazuh
 
 - Run it on a Wazuh Indexer node for `admin`, `kibanaserver`, and `wazuh-manager`, and on the Wazuh Manager master node for `wazuh` and `wazuh-wui`.
 - In a distributed deployment, update the keystores of the other nodes as its documentation lists: the Wazuh Manager keystore for `wazuh-manager`, and the Wazuh Dashboard keystore for `kibanaserver` and `wazuh-wui`.
+
+> **Note:** Change one user at a time, and check that the tool finishes without errors before updating the other nodes. If it stops partway, the Wazuh Manager or Wazuh Dashboard keystore on that host may already hold a password that the Wazuh Indexer did not receive, and `/etc/wazuh-indexer/backup` may be left behind. See the documentation of the tool before running it again.
 
 The tool saves each new value in `/etc/wazuh/credentials.env` of the host where it runs, as `KEY="value"`. Copy it to the file of that key in `deployment-credentials/` on the control node, so that the next run of the playbooks, and its health checks, use it. For example, for the `admin` password changed on the `wi1` node:
 
