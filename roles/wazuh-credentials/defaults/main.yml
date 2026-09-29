@@ -1,8 +1,7 @@
 ---
 
-# Passwords generated for this deployment are kept on the control node, one file per key. They live
-# outside local_configs_path: the wazuh-indexer role deletes that directory on every run with
-# generate_certs, and a regenerated password would no longer match the one a component already seeded.
+# Passwords generated for this deployment are kept on the control node, one file per key, and reused
+# on every run: a regenerated password would no longer match the one a component already seeded.
 wazuh_credentials_path: "{{ playbook_dir }}/deployment-credentials"
 
 # Optional supplied passwords (e.g. from Ansible Vault), keyed by credentials.env name. Only honoured

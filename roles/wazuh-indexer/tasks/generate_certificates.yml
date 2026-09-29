@@ -1,26 +1,17 @@
 ---
 
-- name: Cert-gen | Check if certificates already exists
+# The deployment CA is created once and kept: every component has already been handed it, so issuing a
+# new one on a rerun would leave the hosts not yet reached (or agents enrolled earlier) trusting a CA
+# that no longer signs the others. Delete local_configs_path only to start a new deployment.
+- name: Cert-gen | Check if the deployment CA already exists
   ansible.builtin.stat:
-    path: "{{ local_configs_path }}"
-  register: certificates_folder
+    path: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+  register: wazuh_deployment_ca
   run_once: true
   delegate_to: localhost
   become: false
   when:
     - generate_certs
-
-- name: Cert-gen | Remove existing certificates
-  ansible.builtin.file:
-    path: "{{ local_configs_path }}"
-    state: absent
-    force: true
-  run_once: true
-  delegate_to: localhost
-  become: false
-  when:
-    - generate_certs
-    - certificates_folder.stat.exists
 
 - name: Cert-gen | Check if configuration is defined correctly
   ansible.builtin.fail:
@@ -36,7 +27,9 @@
   run_once: true
   delegate_to: localhost
   become: false
-  when: generate_certs
+  when:
+    - generate_certs
+    - not wazuh_deployment_ca.stat.exists
   block:
     - name: Cert-gen | Create local temporary directory for certificates generation (all certs)
       ansible.builtin.file:
