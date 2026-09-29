@@ -178,6 +178,9 @@
       args:
         removes: "{{ local_configs_path }}/config.yml.tmp"
 
+    # wazuh-certs-tool.sh runs as root: the shared credentials library only creates and reads the
+    # root CA as root (wazuh/wazuh-installation-assistant#1048). The CA and its key stay in
+    # wazuh_certs_ca_dir on the control node; the key never leaves that directory.
     - name: Cert-gen | Generate certificates
       vars:
         agent_san_args: "{{ agent_san | map('regex_replace', '^(.*)$', '--agent-san \\1') | join(' ') }}"
@@ -185,6 +188,25 @@
         bash {{ local_configs_path }}/wazuh-certs-tool.sh -A {{ agent_san_args }}
       args:
         creates: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+      environment:
+        WAZUH_CA_DIR: "{{ wazuh_certs_ca_dir }}"
+      become: true
+
+    - name: Cert-gen | Read the owner of the local configuration directory
+      ansible.builtin.stat:
+        path: "{{ local_configs_path }}"
+      register: wazuh_local_configs_dir
+
+    # The tool leaves the certificates to root, and the tasks that hand them to the hosts read them
+    # as the user running the playbook.
+    - name: Cert-gen | Give the generated certificates back to the user running the playbook
+      ansible.builtin.file:
+        path: "{{ local_configs_path }}/wazuh-certificates"
+        state: directory
+        recurse: true
+        owner: "{{ wazuh_local_configs_dir.stat.uid }}"
+        group: "{{ wazuh_local_configs_dir.stat.gid }}"
+      become: true
 
 - name: Cert-gen | Set node name variable
   ansible.builtin.set_fact:
