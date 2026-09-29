@@ -100,12 +100,6 @@ These variables are defined in `roles/wazuh-credentials/defaults/main.yml`. The 
 
 ---
 
-**Variable:** `wazuh_credentials_cleanup`  
-**Description:** When `true`, the playbooks delete `/etc/wazuh/credentials.env` from every host once all the components are running. The packages only read the file at installation.  
-**Default value:** `false`
-
----
-
 ## wazuh-indexer
 
 These variables are defined in `roles/wazuh-indexer/defaults/main.yml`.

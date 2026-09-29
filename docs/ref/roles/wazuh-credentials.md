@@ -4,7 +4,7 @@
 
 The `wazuh-credentials` role provides the passwords of a Wazuh deployment to the Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard packages, which read them when they are installed.
 
-It generates the five passwords of the deployment once, on the control node, and keeps them in `deployment-credentials/`, next to the playbook, one file per key. Every later run reuses them. On each host, it writes only the keys that the host's component reads to `/etc/wazuh/credentials.env`, before the component's package is installed.
+It generates the five passwords of the deployment once, on the control node, and keeps them in `deployment-credentials/`, next to the playbook, one file per key. Every later run reuses them. On each host, it writes only the keys that the host's component reads to `/etc/wazuh/credentials.env`, before the component's package is installed. Once the package is installed, the file is not written again: the package only reads it at installation.
 
 The `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard` roles include it; it is not listed in the playbooks.
 
@@ -15,9 +15,8 @@ The `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard` roles include it; it
 | Validate supplied passwords | Checks the values in `wazuh_credentials_overrides` against the password policy of the packages: 12 to 64 characters from `A-Z a-z 0-9 . , _ + : @ % ^ = ~ -`, with at least one upper case letter, one lower case letter, one digit, and one symbol. Runs once, on the control node. |
 | Generate passwords | Writes each missing key to `deployment-credentials/` (`0600`), from `wazuh_credentials_overrides` or as a random value that follows the same policy. An existing file is never overwritten. |
 | Load passwords | Reads the five keys for the rest of the play. |
-| Refuse another deployment | Before anything is written on a host, fails if its `/etc/wazuh/ca/root-ca.pem` is not the root CA of this deployment, or if its `/etc/wazuh/credentials.env` holds another value for one of the component's keys. The message names only the keys. |
-| Provide the component credentials | Writes the component's keys to `/etc/wazuh/credentials.env` (`root:root`, `0600`, in `/etc/wazuh` `0700`), in a block of its own outside the one the packages manage. |
-| Remove the credentials file | Deletes `/etc/wazuh/credentials.env` once every component is running. Only when `wazuh_credentials_cleanup` is `true`. |
+| Refuse another deployment | Before anything is written on a host, fails if its `/etc/wazuh/ca/root-ca.pem` is not the root CA of this deployment. Before the component's package is installed, it also fails if the host's `/etc/wazuh/credentials.env` holds another value for one of the component's keys. The message names only the keys. |
+| Provide the component credentials | Only before the component's package is installed: writes the component's keys to `/etc/wazuh/credentials.env` (`root:root`, `0600`, in `/etc/wazuh` `0700`), in a block of its own outside the one the packages manage. |
 
 No task prints a password.
 
@@ -35,7 +34,7 @@ A supplied password is only used the first time a deployment is created: a compo
 
 ## Usage
 
-The role runs from the `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard` roles, before each package is installed. The `wazuh-aio.yml` and `wazuh-distributed.yml` playbooks call its cleanup task at the end.
+The role runs from the `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard` roles, before each package is installed. It does not remove `/etc/wazuh/credentials.env`; see [What to keep](../deployment.md#what-to-keep).
 
 Keep `deployment-credentials/`: it is the only record of the passwords of the deployment. It is in `.gitignore`.
 

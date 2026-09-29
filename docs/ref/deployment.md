@@ -78,7 +78,7 @@ The playbooks generate one password per account for the whole deployment, the fi
 | `WAZUH_MANAGER_WUI_PASSWORD` | `wazuh-wui` (Wazuh server API) | Wazuh Manager, Wazuh Dashboard |
 
 - On the control node, they are kept in `deployment-credentials/`, next to the playbook, one file per key. Every later run reuses them.
-- On each host, only the keys its component reads are written to `/etc/wazuh/credentials.env` (`root:root`, `0600`). The package reads them when it is installed.
+- On each host, only the keys its component reads are written to `/etc/wazuh/credentials.env` (`root:root`, `0600`), before the package is installed. The package reads them when it is installed, and the playbooks do not write the file again once the package is in place.
 - To supply your own values instead, for example from Ansible Vault, set `wazuh_credentials_overrides`. They must follow the password policy of the packages. See [Variables](variables.md#wazuh-credentials).
 
 No task prints a password.
@@ -94,6 +94,12 @@ The playbooks create one root CA for the whole deployment, and one certificate p
 ### What to keep
 
 `deployment-credentials/`, `deployment-config-files/` and, on the control node, `/etc/wazuh/ca` belong to the deployment. Back them up and do not commit them: `deployment-credentials/` and `deployment-config-files/` are in `.gitignore`.
+
+Once the deployment is running, `/etc/wazuh/credentials.env` on the hosts is no longer needed: the passwords are in `deployment-credentials/`. Remove it from every host:
+
+```bash
+  ansible -i inventory.ini all -b -m ansible.builtin.file -a "path=/etc/wazuh/credentials.env state=absent"
+```
 
 ### Running a playbook again
 
@@ -111,6 +117,16 @@ After deployment, access the Wazuh Dashboard by navigating to `https://<WAZUH_DA
 
 ### Change the passwords
 
-The deployment playbooks do not rotate passwords. To change them, use the `wazuh-passwords-tool.sh` script of the [Wazuh installation assistant](https://github.com/wazuh/wazuh-installation-assistant), following its documentation. In a distributed deployment it changes the users of the components on the host where it runs; its documentation lists the keystores to update on the other nodes.
+The deployment playbooks do not rotate passwords. To change them, use the `wazuh-passwords-tool.sh` script of the [Wazuh installation assistant](https://github.com/wazuh/wazuh-installation-assistant), following its documentation:
 
-The tool writes the new value only to `/etc/wazuh/credentials.env` of the host where it runs. `deployment-credentials/` on the control node, and `credentials.env` on the other hosts, keep the previous values. Running the deployment playbooks again after a password change is not supported yet.
+- Run it on a Wazuh Indexer node for `admin`, `kibanaserver`, and `wazuh-manager`, and on the Wazuh Manager master node for `wazuh` and `wazuh-wui`.
+- In a distributed deployment, update the keystores of the other nodes as its documentation lists: the Wazuh Manager keystore for `wazuh-manager`, and the Wazuh Dashboard keystore for `kibanaserver` and `wazuh-wui`.
+
+The tool saves each new value in `/etc/wazuh/credentials.env` of the host where it runs, as `KEY="value"`. Copy it to the file of that key in `deployment-credentials/` on the control node, so that the next run of the playbooks, and its health checks, use it. For example, for the `admin` password changed on the `wi1` node:
+
+```bash
+  (umask 077; ssh <wi1> "sudo sed -n 's/^WAZUH_INDEXER_ADMIN_PASSWORD=\"\(.*\)\"$/\1/p' /etc/wazuh/credentials.env | tail -1" \
+    > deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD)
+```
+
+The playbooks do not write `credentials.env` on a host whose component is already installed, so the other hosts keep their files as they are. Remove `/etc/wazuh/credentials.env` from the hosts afterwards, as described in [What to keep](#what-to-keep).
