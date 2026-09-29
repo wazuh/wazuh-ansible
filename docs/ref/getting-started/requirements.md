@@ -14,6 +14,8 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 - **Additional Tools**:
   - Git: Required for cloning the wazuh-ansible repository.
   - SSH: Necessary for connecting to remote servers.
+  - OpenSSL: Used to read the certificates of the deployment.
+- **Privileges**: `sudo` for the user running the playbooks. The deployment playbooks run `wazuh-certs-tool.sh` as root on the control node, to create and keep the root CA of the deployment in `/etc/wazuh/ca`. Add `-K` (`--ask-become-pass`) to `ansible-playbook` if `sudo` asks for a password.
 - **Ansible Collections**: Ensure all required Ansible collections listed in the `requirements.yml` file are installed. Use the `ansible-galaxy` command to do so.
 
   ```bash

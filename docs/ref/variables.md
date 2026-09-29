@@ -65,7 +65,7 @@ These variables are defined in `roles/package-urls/defaults/main.yml` and contro
 ---
 
 **Variable:** `source`  
-**Description:** Determines which package source to use when downloading the artifact URL definitions file. Accepted values are `production` (public release packages) and `prerelease` (staging packages for pre-release versions).  
+**Description:** Determines which package source to use when downloading the artifact URL definitions file. Accepted values are `production` (public release packages) and `prerelease` (staging packages for pre-release versions). With any other value (for example `custom`), nothing is downloaded and the roles use the `roles/vars/artifact_urls.yaml` file already in place.  
 **Default value:** `production`
 
 ---
@@ -82,6 +82,30 @@ These variables are defined in `roles/package-urls/defaults/main.yml` and contro
 
 ---
 
+## wazuh-credentials
+
+These variables are defined in `roles/wazuh-credentials/defaults/main.yml`. The role is included by the `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard` roles. See [wazuh-credentials](roles/wazuh-credentials.md).
+
+---
+
+**Variable:** `wazuh_credentials_path`  
+**Description:** Directory on the control node where the passwords of the deployment are kept, one file per key (`0600`). They are generated the first time a playbook runs and reused on every later run. Keep this directory: it is the only record of the passwords.  
+**Default value:** `{{ playbook_dir }}/deployment-credentials`
+
+---
+
+**Variable:** `wazuh_credentials_overrides`  
+**Description:** Optional passwords to use instead of generated ones, keyed by name (`WAZUH_INDEXER_ADMIN_PASSWORD`, `WAZUH_INDEXER_KIBANASERVER_PASSWORD`, `WAZUH_INDEXER_MANAGER_PASSWORD`, `WAZUH_MANAGER_API_PASSWORD`, `WAZUH_MANAGER_WUI_PASSWORD`), for example from Ansible Vault. Each value must be 12 to 64 characters from `A-Z a-z 0-9 . , _ + : @ % ^ = ~ -`, with at least one upper case letter, one lower case letter, one digit, and one symbol. Only used the first time a deployment is created.  
+**Default value:** `{}`
+
+---
+
+**Variable:** `wazuh_credentials_cleanup`  
+**Description:** When `true`, the playbooks delete `/etc/wazuh/credentials.env` from every host once all the components are running. The packages only read the file at installation.  
+**Default value:** `false`
+
+---
+
 ## wazuh-indexer
 
 These variables are defined in `roles/wazuh-indexer/defaults/main.yml`.
@@ -95,7 +119,7 @@ These variables are defined in `roles/wazuh-indexer/defaults/main.yml`.
 ---
 
 **Variable:** `generate_certs`  
-**Description:** When set to `true`, the role triggers certificate generation for the indexer node using the Wazuh certificates tool. Set to `false` if certificates are already in place.  
+**Description:** When set to `true`, the role generates the certificates of the deployment with the Wazuh certificates tool, on the control node, the first time it runs; later runs reuse them. Set to `false` if certificates are already in place.  
 **Default value:** `true`
 
 ---
@@ -138,8 +162,14 @@ instances:
 ---
 
 **Variable:** `wazuh_indexer_heap_size`  
-**Description:** JVM heap size for the Wazuh Indexer, specified as a string with a size unit (e.g. `2g`, `512m`). When empty (the default), the heap size is automatically set to one quarter of the host's total RAM for AIO deployments (`single_node: true`). Has no effect in distributed deployments unless explicitly set.  
-**Default value:** `""` (auto-calculated for AIO)
+**Description:** JVM heap size for the Wazuh Indexer, specified as a string with a size unit (e.g. `2g`, `512m`). When empty (the default), the heap size is set to one quarter of the host's total RAM in AIO deployments (`single_node: true`), where the other components share the host, and to half of it on a dedicated indexer node.  
+**Default value:** `""` (auto-calculated)
+
+---
+
+**Variable:** `wazuh_certs_ca_dir`  
+**Description:** Directory on the control node where `wazuh-certs-tool.sh` keeps the root CA of the deployment and its private key (`root-ca.pem`, `root-ca.key`). The tool creates it the first time and reuses it on every later run; the key never leaves it. Every directory of the path must be owned by root and not writable by other users, so it cannot be under the playbook directory. Set a different directory for each deployment managed from the same control node.  
+**Default value:** `/etc/wazuh/ca`
 
 ---
 
