@@ -12,7 +12,6 @@
       - wget
       - curl
       - apt-transport-https
-      - software-properties-common
       - gnupg
     state: present
 
