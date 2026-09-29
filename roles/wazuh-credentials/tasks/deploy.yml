@@ -2,7 +2,14 @@
 
 # A host that already holds the CA or the passwords of another deployment is refused before anything is
 # written, as wazuh-install.sh does it: its components resolved their credentials once and keep them, so
-# handing it this deployment's would leave the two disagreeing.
+# handing it this deployment's would leave the two disagreeing. The passwords are only compared, and
+# written, before the component's package is installed: the package reads them only then, and after a
+# password change the hosts that did not run the passwords tool keep the previous values.
+- name: Credentials | Check whether the package is already installed for {{ wazuh_credentials_component }}
+  ansible.builtin.stat:
+    path: "{{ wazuh_credentials_component_installed_file[wazuh_credentials_component] }}"
+  register: wazuh_credentials_component_installed
+
 - name: Credentials | Look for the CA of this deployment on the control node
   ansible.builtin.stat:
     path: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
@@ -30,56 +37,59 @@
     quiet: true
   when: wazuh_credentials_host_ca.content is defined
 
-- name: Credentials | Read the credentials already on the host
-  ansible.builtin.slurp:
-    path: /etc/wazuh/credentials.env
-  register: wazuh_credentials_host_env
-  failed_when: false
-  no_log: true
+- name: Credentials | Provide the credentials before the package is installed for {{ wazuh_credentials_component }}
+  when: not wazuh_credentials_component_installed.stat.exists
+  block:
+    - name: Credentials | Read the credentials already on the host
+      ansible.builtin.slurp:
+        path: /etc/wazuh/credentials.env
+      register: wazuh_credentials_host_env
+      failed_when: false
+      no_log: true
 
-# Only the key names leave this task: the last assignment of a key wins, as when the packages read the file.
-# ansible-lint renders dict() over its own placeholder values, which are not key/value pairs.
-- name: Credentials | Compare the credentials on the host with the ones of this deployment
-  ansible.builtin.set_fact:  # noqa: jinja[invalid]
-    wazuh_credentials_host_mismatch: "{{ host_kv | difference(deployment_kv) | map('regex_replace', '=.*$', '') | list }}"
-  vars:
-    component_keys: "{{ wazuh_credentials_component_keys[wazuh_credentials_component] }}"
-    host_pairs: "{{ (wazuh_credentials_host_env.content | default('') | b64decode) | regex_findall('(?m)^(WAZUH_[A-Z_]+)=\"?([^\"\\n]*)\"?\\s*$') }}"
-    host_kv: "{{ (dict(host_pairs) | dict2items | selectattr('key', 'in', component_keys) | items2dict).items() | map('join', '=') | list }}"
-    deployment_kv: "{{ component_keys | zip(component_keys | map('extract', wazuh_credentials)) | map('join', '=') | list }}"
-  no_log: true
+    # Only the key names leave this task: the last assignment of a key wins, as when the packages read the file.
+    # ansible-lint renders dict() over its own placeholder values, which are not key/value pairs.
+    - name: Credentials | Compare the credentials on the host with the ones of this deployment
+      ansible.builtin.set_fact:  # noqa: jinja[invalid]
+        wazuh_credentials_host_mismatch: "{{ host_kv | difference(deployment_kv) | map('regex_replace', '=.*$', '') | list }}"
+      vars:
+        component_keys: "{{ wazuh_credentials_component_keys[wazuh_credentials_component] }}"
+        host_pairs: "{{ (wazuh_credentials_host_env.content | default('') | b64decode) | regex_findall('(?m)^(WAZUH_[A-Z_]+)=\"?([^\"\\n]*)\"?\\s*$') }}"
+        host_kv: "{{ (dict(host_pairs) | dict2items | selectattr('key', 'in', component_keys) | items2dict).items() | map('join', '=') | list }}"
+        deployment_kv: "{{ component_keys | zip(component_keys | map('extract', wazuh_credentials)) | map('join', '=') | list }}"
+      no_log: true
 
-- name: Credentials | Refuse a host that holds the passwords of another deployment
-  ansible.builtin.assert:
-    that: wazuh_credentials_host_mismatch | length == 0
-    fail_msg: >-
-      /etc/wazuh/credentials.env on {{ inventory_hostname }} holds other values for
-      {{ wazuh_credentials_host_mismatch | join(', ') }} than this deployment
-      ({{ wazuh_credentials_path }}). Remove /etc/wazuh from the host, or run the playbook from the
-      directory of the deployment that installed it.
-    quiet: true
+    - name: Credentials | Refuse a host that holds the passwords of another deployment
+      ansible.builtin.assert:
+        that: wazuh_credentials_host_mismatch | length == 0
+        fail_msg: >-
+          /etc/wazuh/credentials.env on {{ inventory_hostname }} holds other values for
+          {{ wazuh_credentials_host_mismatch | join(', ') }} than this deployment
+          ({{ wazuh_credentials_path }}). Remove /etc/wazuh from the host, or run the playbook from the
+          directory of the deployment that installed it.
+        quiet: true
 
-- name: Credentials | Ensure /etc/wazuh exists
-  ansible.builtin.file:
-    path: /etc/wazuh
-    state: directory
-    owner: root
-    group: root
-    mode: "0700"
+    - name: Credentials | Ensure /etc/wazuh exists
+      ansible.builtin.file:
+        path: /etc/wazuh
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
 
-# A block of our own, outside the packages' managed block, which only they may write
-# (wazuh/wazuh-indexer#1928 FR 10). The packages parse the file, and the last assignment of a key wins.
-- name: Credentials | Provide the component credentials in /etc/wazuh/credentials.env for {{ wazuh_credentials_component }}
-  ansible.builtin.blockinfile:
-    path: /etc/wazuh/credentials.env
-    create: true
-    owner: root
-    group: root
-    mode: "0600"
-    insertbefore: BOF
-    marker: "# {mark} wazuh-ansible {{ wazuh_credentials_component }}"
-    block: |
-      {% for key in wazuh_credentials_component_keys[wazuh_credentials_component] %}
-      {{ key }}={{ wazuh_credentials[key] }}
-      {% endfor %}
-  no_log: true
+    # A block of our own, outside the packages' managed block, which only they may write
+    # (wazuh/wazuh-indexer#1928 FR 10). The packages parse the file, and the last assignment of a key wins.
+    - name: Credentials | Provide the component credentials in /etc/wazuh/credentials.env for {{ wazuh_credentials_component }}
+      ansible.builtin.blockinfile:
+        path: /etc/wazuh/credentials.env
+        create: true
+        owner: root
+        group: root
+        mode: "0600"
+        insertbefore: BOF
+        marker: "# {mark} wazuh-ansible {{ wazuh_credentials_component }}"
+        block: |
+          {% for key in wazuh_credentials_component_keys[wazuh_credentials_component] %}
+          {{ key }}={{ wazuh_credentials[key] }}
+          {% endfor %}
+      no_log: true
