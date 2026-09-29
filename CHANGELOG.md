@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Remove force_time from the agent registration request ([#2328](https://github.com/wazuh/wazuh-ansible/pull/2328))
 
 ### Deleted
 
