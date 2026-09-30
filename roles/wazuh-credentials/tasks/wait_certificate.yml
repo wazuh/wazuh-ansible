@@ -1,0 +1,28 @@
+---
+
+# The certificates are issued on the control node. When a host's clock is behind it, a certificate is not
+# valid yet on the host when its service first starts, and the service refuses it
+# (CertificateNotYetValidException). Wait for it, or stop if the clocks are too far apart.
+- name: Certificates | Seconds until the certificate is valid on this host for {{ wazuh_certificate_path }}
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      not_before=$(openssl x509 -in "{{ wazuh_certificate_path }}" -noout -startdate | cut -d= -f2)
+      echo $(( $(date -d "$not_before" +%s) - $(date +%s) ))
+    executable: /bin/bash
+  register: wazuh_certificate_wait
+  changed_when: false
+
+- name: Certificates | Refuse a host whose clock is far behind the control node
+  ansible.builtin.assert:
+    that: (wazuh_certificate_wait.stdout | int) <= (wazuh_certificate_max_wait | int)
+    fail_msg: >-
+      {{ wazuh_certificate_path }} on {{ inventory_hostname }} becomes valid in {{ wazuh_certificate_wait.stdout }}
+      seconds: the clock of this host is behind the control node, where the certificates are issued.
+      Synchronize the clocks (for example with NTP) and run the playbook again.
+    quiet: true
+
+- name: Certificates | Wait until the certificate is valid on this host for {{ wazuh_certificate_path }}
+  ansible.builtin.wait_for:
+    timeout: "{{ (wazuh_certificate_wait.stdout | int) + 1 }}"
+  when: (wazuh_certificate_wait.stdout | int) > 0

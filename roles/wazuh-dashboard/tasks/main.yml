@@ -12,6 +12,76 @@
   ansible.builtin.import_tasks: dependencies.yml
   become: true
 
+- name: Credentials | Generate or load the deployment passwords
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+
+- name: Credentials | Provide the dashboard credentials before installing the package
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: deploy.yml
+  vars:
+    wazuh_credentials_component: dashboard
+
+# The anchor, never its key, and the node's pair are staged before the package is installed, as
+# wazuh-install.sh does it: the package then finds them (case C), uses them and issues nothing. With
+# no CA directory it would mint a bootstrap CA, private key included, and issue its own pair.
+- name: Credentials | Provide the deployment CA anchor before installing the package
+  become: true
+  block:
+    - name: Credentials | Ensure the CA directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh/ca
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Credentials | Provide the CA anchor, never its key
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+        dest: /etc/wazuh/ca/root-ca.pem
+        owner: root
+        group: root
+        mode: "0644"
+
+- name: Credentials | Check whether the dashboard package is already installed
+  ansible.builtin.stat:
+    path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+  register: wazuh_dashboard_installed_conf
+
+# The wazuh-dashboard user does not exist yet, so the pair is staged root-owned, under the names the
+# package expects. The package keeps a pre-placed pair root-owned and the service then fails with
+# EACCES on dashboard-key.pem: the copies after the installation give it to wazuh-dashboard, as
+# wazuh-install.sh does. Skipped once the package is installed, so a rerun does not reset those owners.
+- name: Credentials | Stage the dashboard certificate pair before installing the package
+  when: not wazuh_dashboard_installed_conf.stat.exists
+  become: true
+  block:
+    # Explicit mode on each level, as wazuh-install.sh does with umask 022: dpkg keeps the mode of a
+    # directory that already exists, and the host's umask may be restrictive.
+    - name: Credentials | Ensure the dashboard certificates directory exists
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      loop:
+        - /etc/wazuh-dashboard
+        - /etc/wazuh-dashboard/certs
+
+    - name: Credentials | Stage the dashboard pair
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+        dest: "/etc/wazuh-dashboard/certs/{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "0400"
+      loop:
+        - { src: "{{ dashboard_node_name }}.pem", dest: dashboard.pem }
+        - { src: "{{ dashboard_node_name }}-key.pem", dest: dashboard-key.pem }
+
 - name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
   ansible.builtin.dnf:
     name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
@@ -123,7 +193,7 @@
         state: directory
         owner: wazuh-dashboard
         group: wazuh-dashboard
-        mode: "0700"
+        mode: "0500"
 
 - name: Copy the certificates from local to the Wazuh dashboard instance
   ansible.builtin.copy:
@@ -154,6 +224,13 @@
   ansible.builtin.systemd:
     daemon_reload: true
   become: true
+
+- name: Certificates | Wait until the certificate is valid on this host
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: wait_certificate.yml
+  vars:
+    wazuh_certificate_path: "{{ expected_cert_path }}"
 
 - name: Ensure Wazuh dashboard started
   ansible.builtin.service:
