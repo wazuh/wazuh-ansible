@@ -9,7 +9,7 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 
 **Control Node Requirements**:
 
-- **Ansible**: Recomend to install ansible-core version 2.16 or newer.
+- **Ansible**: Install ansible-core 2.16 or newer.
 - **Python**: Use Python version 3.10 or newer.
 - **Additional Tools**:
   - Git: Required for cloning the wazuh-ansible repository.
