@@ -65,6 +65,10 @@ For installing Wazuh Agents on one or more hosts, use the `wazuh-agent.yml` play
 
 The Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard packages create their credentials and certificates when they are installed, from what they find on the host. The deployment playbooks prepare them on the control node and hand each host what its component needs **before** its package is installed, so no component uses a default password.
 
+> **Before you start:**
+> - The user running the playbooks needs `sudo` on the control node: the certificates are generated there as root.
+> - The passwords are kept in plain text on the control node, in `deployment-credentials/` (files `0600` in a `0700` directory). Protect that directory, or supply the passwords from Ansible Vault with `wazuh_credentials_overrides`.
+
 ### Passwords
 
 The playbooks generate one password per account for the whole deployment, the first time they run:
@@ -87,13 +91,14 @@ No task prints a password.
 
 The playbooks create one root CA for the whole deployment, and one certificate pair for each node, with `wazuh-certs-tool.sh` on the control node.
 
-- The root CA and its private key stay in `/etc/wazuh/ca` **of the control node** (`wazuh_certs_ca_dir`). The private key never leaves that directory.
+- The root CA and its private key stay **on the control node**, in a directory of this deployment: `/var/lib/wazuh-ansible/<id>/ca`, where `<id>` comes from the playbook directory (`wazuh_certs_ca_dir`). The playbooks print it on every run. The private key never leaves that directory.
+- Two deployments run from different playbook directories get different root CAs. A new deployment is refused if its CA directory already holds a root CA.
 - The node certificates are kept in `deployment-config-files/wazuh-certificates/`, next to the playbook.
 - Each host receives the root CA certificate and its own pair before its package is installed. The package uses them and creates nothing.
 
 ### What to keep
 
-`deployment-credentials/`, `deployment-config-files/` and, on the control node, `/etc/wazuh/ca` belong to the deployment. Back them up and do not commit them: `deployment-credentials/` and `deployment-config-files/` are in `.gitignore`.
+`deployment-credentials/`, `deployment-config-files/` and, on the control node, the directory in `wazuh_certs_ca_dir` belong to the deployment. Back them up and do not commit them: `deployment-credentials/` and `deployment-config-files/` are in `.gitignore`.
 
 Once the deployment is running, `/etc/wazuh/credentials.env` on the hosts is no longer needed: the passwords are in `deployment-credentials/`. Remove it from every host:
 
@@ -105,7 +110,9 @@ Once the deployment is running, `/etc/wazuh/credentials.env` on the hosts is no 
 
 Running the same playbook again, from the same directory, keeps the passwords, the root CA, and the certificates. The packages do not create their credentials again.
 
-A host that already holds the root CA or the passwords of another deployment is refused before anything is written. This happens, for example, when the playbook runs from another directory, or after `deployment-credentials/` was removed. To deploy again from scratch, use new hosts, or first uninstall the Wazuh packages from the hosts and remove `/etc/wazuh` (uninstalling a package does not remove it). On the control node, remove `deployment-credentials/`, `deployment-config-files/`, and `/etc/wazuh/ca`. The playbooks provide the credentials and certificates of a component only before its package is installed.
+A host that already holds the root CA or the passwords of another deployment is refused before anything is written. This happens, for example, when the playbook runs from another directory, or after `deployment-credentials/` was removed. To deploy again from scratch, use new hosts, or first uninstall the Wazuh packages from the hosts and remove `/etc/wazuh` (uninstalling a package does not remove it). On the control node, remove `deployment-credentials/`, `deployment-config-files/`, and the directory in `wazuh_certs_ca_dir`. The playbooks provide the credentials and certificates of a component only before its package is installed.
+
+To issue new certificates from the same root CA, for example to add a node to `instances`, remove `deployment-config-files/wazuh-certificates/` and run the playbook again. Keep the directory in `wazuh_certs_ca_dir`.
 
 ## Post-Deployment Steps
 

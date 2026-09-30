@@ -113,7 +113,7 @@ These variables are defined in `roles/wazuh-indexer/defaults/main.yml`.
 ---
 
 **Variable:** `generate_certs`  
-**Description:** When set to `true`, the role generates the certificates of the deployment with the Wazuh certificates tool, on the control node, the first time it runs; later runs reuse them. Set to `false` if certificates are already in place.  
+**Description:** When set to `true`, the role generates the certificates of the deployment with the Wazuh certificates tool, on the control node, the first time it runs; later runs reuse them. Set to `false` to supply your own: place them in `local_configs_path/wazuh-certificates/` with the names the certificates tool uses (`root-ca.pem`, `admin.pem` and `admin-key.pem`, `<name>.pem` and `<name>-key.pem` for each node of `instances`, and `<name>-remoted.pem` and `<name>-remoted-key.pem` for each manager node); the roles stage them the same way.  
 **Default value:** `true`
 
 ---
@@ -162,8 +162,8 @@ instances:
 ---
 
 **Variable:** `wazuh_certs_ca_dir`  
-**Description:** Directory on the control node where `wazuh-certs-tool.sh` keeps the root CA of the deployment and its private key (`root-ca.pem`, `root-ca.key`). The tool creates it the first time and reuses it on every later run; the key never leaves it. Every directory of the path must be owned by root and not writable by other users, so it cannot be under the playbook directory. Set a different directory for each deployment managed from the same control node.  
-**Default value:** `/etc/wazuh/ca`
+**Description:** Directory on the control node where `wazuh-certs-tool.sh` keeps the root CA of the deployment and its private key (`root-ca.pem`, `root-ca.key`). The tool creates it the first time and reuses it on every later run; the key never leaves it. Every directory of the path must be owned by root and not writable by other users, so it cannot be under the playbook directory. The default is one directory per playbook directory, so deployments run from different directories never share a root CA; the playbooks print it on every run. A new deployment is refused if the directory already holds a root CA.  
+**Default value:** `/var/lib/wazuh-ansible/<first 12 characters of the SHA-256 of local_configs_path>/ca`
 
 ---
 

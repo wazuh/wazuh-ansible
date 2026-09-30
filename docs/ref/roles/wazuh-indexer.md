@@ -14,7 +14,7 @@ The role can operate in single-node or multi-node cluster configurations, contro
 |------|-------------|
 | Import variables | Loads shared variables from `vars/main.yml` and `vars/artifact_urls.yaml`. |
 | Provide credentials | Runs the [`wazuh-credentials`](wazuh-credentials.md) role for the indexer keys. |
-| Generate certificates | Once, on the control node, only if the deployment has no root CA yet: builds `config.yml` from `instances` and runs `wazuh-certs-tool.sh -A` as root. The root CA and its key stay in `wazuh_certs_ca_dir` on the control node; the certificates are written to `deployment-config-files/wazuh-certificates/` and handed back to the user running the playbook. |
+| Generate certificates | Once, on the control node, only if `deployment-config-files/wazuh-certificates/` has no root CA yet, and after checking that `wazuh_certs_ca_dir` holds no root CA of another deployment: builds `config.yml` from `instances` and runs `wazuh-certs-tool.sh -A` as root. The root CA and its key stay in `wazuh_certs_ca_dir` on the control node; the certificates are written to `deployment-config-files/wazuh-certificates/` and handed back to the user running the playbook. |
 | Stage certificates | Before the package is installed: the root CA certificate (never its key) in `/etc/wazuh/ca`, and the node and admin pairs in `/etc/wazuh-indexer/certs`, with explicit directory modes (`0750`, `0500`). The package then uses them and creates no certificate. |
 | Install dependencies | Installs required system packages via the `dependencies.yml` task file. |
 | Install package (RHEL) | Downloads and installs the `.rpm` package using `dnf`. |
