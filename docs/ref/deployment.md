@@ -96,6 +96,8 @@ The playbooks create one root CA for the whole deployment, and one certificate p
 - The node certificates are kept in `deployment-config-files/wazuh-certificates/`, next to the playbook.
 - Each host receives the root CA certificate and its own pair before its package is installed. The package uses them and creates nothing.
 
+The playbooks issue the certificates instead of leaving it to the packages because a package installed on a host with no certificates creates its own root CA, with its private key on that host, and issues its own pair from it. In a deployment with more than one host, every host would end up with a different root CA, the components would not trust each other, and a CA private key would be left on every host. Issuing the certificates once on the control node gives the whole deployment one root CA, whose private key never leaves the control node.
+
 ### What to keep
 
 `deployment-credentials/`, `deployment-config-files/` and, on the control node, the directory in `wazuh_certs_ca_dir` belong to the deployment. Back them up and do not commit them: `deployment-credentials/` and `deployment-config-files/` are in `.gitignore`.
