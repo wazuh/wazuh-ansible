@@ -16,6 +16,12 @@
   ansible.builtin.include_role:
     name: wazuh-credentials
 
+# Certificates first, on the control node: the host checks below compare against the CA of this
+# deployment, which a regeneration may just have issued the certificates from.
+- name: Importing generate_certificates.yml
+  ansible.builtin.import_tasks: generate_certificates.yml
+  become: true
+
 - name: Credentials | Provide the indexer credentials before installing the package
   ansible.builtin.include_role:
     name: wazuh-credentials
@@ -23,8 +29,8 @@
   vars:
     wazuh_credentials_component: indexer
 
-- name: Importing generate_certificates.yml
-  ansible.builtin.import_tasks: generate_certificates.yml
+- name: Importing stage_certificates.yml
+  ansible.builtin.import_tasks: stage_certificates.yml
   become: true
 
 - name: Linux CentOS/RedHat | Install wazuh-indexer using yum

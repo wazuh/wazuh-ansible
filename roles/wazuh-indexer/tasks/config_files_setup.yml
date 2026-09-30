@@ -1,7 +1,6 @@
 ---
 
 - name: Cert-gen | Check that the package reads the staged certificate pair
-  when: generate_certs
   block:
     - name: Cert-gen | Read opensearch.yml
       ansible.builtin.slurp:
@@ -90,7 +89,6 @@
           delegate_to: localhost
           become: false
           changed_when: false
-          when: generate_certs
 
         - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
           ansible.builtin.replace:
@@ -104,12 +102,7 @@
           vars:
             wazuh_indexer_nodes_dn: >-
               {{ wazuh_indexer_node_subjects.results | map(attribute='stdout')
-                 | map('regex_replace', '^subject= *', '') | list
-                 if generate_certs else
-                 instances | dict2items | selectattr('value.role', 'defined')
-                 | selectattr('value.role', 'in', ['indexer', 'aio'])
-                 | map(attribute='value.name')
-                 | map('regex_replace', '^(.*)$', 'CN=\1,OU=Wazuh,O=Wazuh,L=California,C=US') | list }}
+                 | map('regex_replace', '^subject= *', '') | list }}
 
     - name: Add single-node discovery type if needed
       ansible.builtin.lineinfile:

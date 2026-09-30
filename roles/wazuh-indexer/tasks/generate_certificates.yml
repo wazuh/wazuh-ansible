@@ -2,7 +2,8 @@
 
 # The deployment CA is created once and kept: every component has already been handed it, so issuing a
 # new one on a rerun would leave the hosts not yet reached (or agents enrolled earlier) trusting a CA
-# that no longer signs the others. Delete local_configs_path only to start a new deployment.
+# that no longer signs the others. Removing local_configs_path/wazuh-certificates/ issues new
+# certificates from the same CA, for example to add a node.
 - name: Cert-gen | Check if the deployment CA already exists
   ansible.builtin.stat:
     path: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
@@ -12,6 +13,40 @@
   become: false
   when:
     - generate_certs
+
+# wazuh-certs-tool.sh reuses a CA it finds in wazuh_certs_ca_dir. Whatever is there must be the CA of
+# this deployment: a CA another deployment left would sign this one, and the two would trust each other.
+- name: Cert-gen | Check the CA directory of this deployment
+  run_once: true
+  delegate_to: localhost
+  when:
+    - generate_certs
+  block:
+    - name: Cert-gen | Show the CA directory of this deployment
+      ansible.builtin.debug:
+        msg: "Root CA of this deployment, with its private key: {{ wazuh_certs_ca_dir }} on the control node. Back it up."
+
+    - name: Cert-gen | Read the CA in the CA directory
+      ansible.builtin.slurp:
+        path: "{{ wazuh_certs_ca_dir }}/root-ca.pem"
+      register: wazuh_ca_dir_anchor
+      failed_when: false
+      become: true
+
+    - name: Cert-gen | Refuse a CA directory that holds the CA of another deployment
+      ansible.builtin.assert:
+        that:
+          - not (wazuh_credentials_new_deployment | default(false) | bool)
+          - >-
+            not wazuh_deployment_ca.stat.exists
+            or (wazuh_ca_dir_anchor.content | b64decode | trim)
+            == (lookup('ansible.builtin.file', local_configs_path ~ '/wazuh-certificates/root-ca.pem') | trim)
+        fail_msg: >-
+          {{ wazuh_certs_ca_dir }} on the control node already holds a root CA that is not the CA of this
+          deployment ({{ local_configs_path }}). Set wazuh_certs_ca_dir to a directory of its own for this
+          deployment, or remove {{ wazuh_certs_ca_dir }} if that CA is no longer used.
+        quiet: true
+      when: wazuh_ca_dir_anchor.content is defined
 
 - name: Cert-gen | Check if configuration is defined correctly
   ansible.builtin.fail:
@@ -42,12 +77,20 @@
         url: "{{ wazuh_certs_tool }}"
         dest: "{{ local_configs_path }}/wazuh-certs-tool.sh"
         mode: '0644'
+        force: true
 
     - name: Cert-gen | Download base config.yml file
       ansible.builtin.get_url:
         url: "{{ wazuh_config_yml }}"
         dest: "{{ local_configs_path }}/config.yml"
         mode: '0644'
+        force: true
+
+    # A run that stopped halfway may have left it, and the steps below would then keep the stale file.
+    - name: Cert-gen | Remove a leftover config.yml.tmp
+      ansible.builtin.file:
+        path: "{{ local_configs_path }}/config.yml.tmp"
+        state: absent
 
     - name: Cert-gen | Remove comments from config.yml file
       ansible.builtin.replace:
@@ -197,71 +240,13 @@
         path: "{{ local_configs_path }}"
       register: wazuh_local_configs_dir
 
-    # The tool leaves the certificates to root, and the tasks that hand them to the hosts read them
-    # as the user running the playbook.
-    - name: Cert-gen | Give the generated certificates back to the user running the playbook
+    # The tool leaves the certificates and config.yml to root, and the tasks that hand them to the hosts,
+    # or build config.yml again, run as the user running the playbook.
+    - name: Cert-gen | Give the generated files back to the user running the playbook
       ansible.builtin.file:
-        path: "{{ local_configs_path }}/wazuh-certificates"
+        path: "{{ local_configs_path }}"
         state: directory
         recurse: true
         owner: "{{ wazuh_local_configs_dir.stat.uid }}"
         group: "{{ wazuh_local_configs_dir.stat.gid }}"
       become: true
-
-- name: Cert-gen | Set node name variable
-  ansible.builtin.set_fact:
-    node_name: "{{ (single_node | bool) | ternary(instances['aio_node'].name, instances[inventory_hostname].name) }}"
-
-# Staged before the package is installed: certificates are resolved only by its postinst, and a
-# host holding only the anchor and a pair takes case C -- it uses them, mints no CA and writes
-# plugins.security.nodes_dn and authcz.admin_dn from them (wazuh/wazuh-indexer#1928 FR 22-23).
-# root-ca.key never leaves the control node.
-- name: Cert-gen | Stage the indexer certificates before installing the package
-  when: generate_certs
-  block:
-    - name: Cert-gen | Ensure the CA directory exists
-      ansible.builtin.file:
-        path: /etc/wazuh/ca
-        state: directory
-        owner: root
-        group: root
-        mode: "0700"
-
-    - name: Cert-gen | Provide the CA anchor, never its key
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
-        dest: /etc/wazuh/ca/root-ca.pem
-        owner: root
-        group: root
-        mode: "0644"
-
-    # No owner: the wazuh-indexer user does not exist before the package, whose postinst chowns
-    # /etc/wazuh-indexer; on a rerun the existing owner is kept. Explicit modes, the ones the package
-    # ships: dpkg keeps the mode of a directory that already exists, and one created under a
-    # restrictive umask would leave the indexer unable to read its certificates.
-    - name: Cert-gen | Ensure the indexer configuration directory exists
-      ansible.builtin.file:
-        path: /etc/wazuh-indexer
-        state: directory
-        mode: "0750"
-
-    - name: Cert-gen | Ensure the indexer certificates directory exists
-      ansible.builtin.file:
-        path: /etc/wazuh-indexer/certs
-        state: directory
-        mode: "0500"
-
-    # root-ca.pem is staged too, not only left to the package: its postinst copies the anchor into
-    # certs/ once, at install, and never again, so on a rerun that issued a new pair the trust store
-    # would otherwise keep the previous CA and every TLS handshake would fail.
-    - name: Cert-gen | Stage the node and admin certificate pairs under the names the package expects
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
-        dest: "/etc/wazuh-indexer/certs/{{ item.dest }}"
-        mode: "{{ item.mode | default('0400') }}"
-      loop:
-        - { src: "{{ node_name }}.pem", dest: indexer.pem }
-        - { src: "{{ node_name }}-key.pem", dest: indexer-key.pem }
-        - { src: admin.pem, dest: admin.pem }
-        - { src: admin-key.pem, dest: admin-key.pem }
-        - { src: root-ca.pem, dest: root-ca.pem, mode: "0444" }

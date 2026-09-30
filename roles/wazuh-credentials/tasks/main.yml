@@ -26,6 +26,18 @@
           letter, one digit and one of those symbols (shared wazuh-credentials.sh policy).
         quiet: true
 
+    # No credentials directory yet means this run creates the deployment: the certificate generation
+    # uses it to refuse reusing a CA that another deployment left in wazuh_certs_ca_dir.
+    - name: Credentials | Check whether the deployment already has its passwords
+      ansible.builtin.stat:
+        path: "{{ wazuh_credentials_path }}"
+      register: wazuh_credentials_path_before
+
+    - name: Credentials | Record whether this run creates the deployment
+      ansible.builtin.set_fact:
+        wazuh_credentials_new_deployment: "{{ not wazuh_credentials_path_before.stat.exists }}"
+      when: wazuh_credentials_new_deployment is not defined
+
     - name: Credentials | Ensure the local credentials directory exists
       ansible.builtin.file:
         path: "{{ wazuh_credentials_path }}"

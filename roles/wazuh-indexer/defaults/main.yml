@@ -13,8 +13,10 @@ agent_san: []
 
 # Where wazuh-certs-tool.sh keeps the deployment CA and its key on the control node. The tool requires
 # every directory of the path to be owned by root and not writable by others
-# (wazuh/wazuh-installation-assistant#1048), so it cannot live under the playbook directory.
-wazuh_certs_ca_dir: /etc/wazuh/ca
+# (wazuh/wazuh-installation-assistant#1048), so it cannot live under the playbook directory. One directory
+# per deployment, derived from local_configs_path: the tool reuses a CA it finds, and two deployments
+# from the same control node must not share one.
+wazuh_certs_ca_dir: "/var/lib/wazuh-ansible/{{ (local_configs_path | hash('sha256'))[:12] }}/ca"
 
 wazuh_indexer_package_download_path: "/tmp/wazuh-indexer"
 wazuh_indexer_package_name: "wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
