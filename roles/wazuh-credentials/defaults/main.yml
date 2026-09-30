@@ -16,6 +16,10 @@ wazuh_credentials_component_installed_file:
   manager: /var/wazuh-manager/etc/wazuh-manager.conf
   dashboard: /etc/wazuh-dashboard/opensearch_dashboards.yml
 
+# How many seconds a host may wait for a certificate issued on the control node to become valid on it,
+# when its clock is behind the control node's. Beyond that the run stops and asks to synchronize the clocks.
+wazuh_certificate_max_wait: 300
+
 wazuh_credentials_keys:
   - WAZUH_INDEXER_ADMIN_PASSWORD
   - WAZUH_INDEXER_KIBANASERVER_PASSWORD

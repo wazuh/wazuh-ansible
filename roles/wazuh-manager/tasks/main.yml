@@ -301,6 +301,13 @@
         daemon_reload: true
       become: true
 
+    - name: Certificates | Wait until the certificate is valid on this host
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: wait_certificate.yml
+      vars:
+        wazuh_certificate_path: "{{ full_cert_path }}"
+
     - name: Ensure Wazuh Manager service is started
       ansible.builtin.service:
         name: "wazuh-manager"
