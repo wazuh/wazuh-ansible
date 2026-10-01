@@ -9,6 +9,7 @@ The available roles are executed in the order defined by each playbook. For more
 ## Available Roles
 
 - [`package-urls`](package-urls.md): Resolves and downloads the package URL definitions file used by all other roles to locate Wazuh packages.
+- [`wazuh-credentials`](wazuh-credentials.md): Generates the passwords of the deployment on the control node and provides each host the keys its component reads, before the package is installed. Included by the `wazuh-indexer`, `wazuh-manager`, and `wazuh-dashboard` roles.
 - [`wazuh-indexer`](wazuh-indexer.md): Installs and configures the Wazuh Indexer component, including certificate management and cluster initialization.
 - [`wazuh-manager`](wazuh-manager.md): Installs and configures the Wazuh Manager, including certificate deployment and service startup.
 - [`wazuh-dashboard`](wazuh-dashboard.md): Installs and configures the Wazuh Dashboard, including OpenSearch Dashboards settings and SSL certificate setup.
