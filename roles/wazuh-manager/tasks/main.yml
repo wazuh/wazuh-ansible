@@ -25,6 +25,74 @@
             msg: "The directory {{ local_configs_path }} (local_configs_path) does not exist."
           when: not local_configs_path_stat.stat.exists
 
+    - name: Credentials | Generate or load the deployment passwords
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+
+    - name: Credentials | Provide the manager credentials before installing the package
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: deploy.yml
+      vars:
+        wazuh_credentials_component: manager
+
+    # The anchor, never its key, and the node's pairs are staged before the package is installed, as
+    # wazuh-install.sh does it: the package then finds them (case C), uses them and issues nothing.
+    - name: Credentials | Ensure the CA directory exists
+      ansible.builtin.file:
+        path: /etc/wazuh/ca
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Credentials | Provide the CA anchor, never its key
+      ansible.builtin.copy:
+        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
+        dest: /etc/wazuh/ca/root-ca.pem
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Credentials | Check whether the manager package is already installed
+      ansible.builtin.stat:
+        path: "{{ wazuh_manager_install_path }}etc/wazuh-manager.conf"
+      register: wazuh_manager_installed_conf
+
+    # The wazuh-manager user does not exist yet, so the pairs are staged root-owned; the package's
+    # postinst hands remoted* to wazuh-manager and indexer-connector* to root:wazuh-manager before it
+    # resolves certificates. Skipped once the package is installed: staging again would reset those
+    # owners, and the copies after the installation keep the pairs up to date.
+    - name: Credentials | Stage the manager certificate pairs before installing the package
+      when: not wazuh_manager_installed_conf.stat.exists
+      block:
+        # Each level is created with an explicit mode, as wazuh-install.sh does with umask 022: dpkg
+        # keeps the mode of a directory that already exists, and the host's umask may be restrictive.
+        - name: Credentials | Ensure the manager certificates directory exists
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+          loop:
+            - "{{ wazuh_manager_install_path }}"
+            - "{{ wazuh_manager_install_path }}etc"
+            - "{{ wazuh_manager_install_path }}etc/certs"
+
+        - name: Credentials | Stage the indexer connector and agent listener pairs
+          ansible.builtin.copy:
+            src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
+            dest: "{{ wazuh_manager_install_path }}etc/certs/{{ item.dest }}"
+            owner: root
+            group: root
+            mode: "0640"
+          loop:
+            - { src: "{{ manager_node_name }}.pem", dest: indexer-connector.pem }
+            - { src: "{{ manager_node_name }}-key.pem", dest: indexer-connector-key.pem }
+            - { src: "{{ manager_node_name }}-remoted.pem", dest: remoted.pem }
+            - { src: "{{ manager_node_name }}-remoted-key.pem", dest: remoted-key.pem }
+
     - name: Ensure wazuh-manager package download directory exists
       ansible.builtin.file:
         path: "{{ wazuh_manager_package_download_path }}"
@@ -158,24 +226,6 @@
         - { src: "{{ manager_node_name }}-remoted.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted.pem" }
         - { src: "{{ manager_node_name }}-remoted-key.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted-key.pem" }
 
-    - name: Keystore | Set Indexer username
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          echo 'wazuh-manager' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k username
-        executable: /bin/bash
-      register: keystore_username_result
-      changed_when: keystore_username_result.rc == 0
-
-    - name: Keystore | Set Indexer password
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          echo 'wazuh-manager' | /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k password
-        executable: /bin/bash
-      register: keystore_password_result
-      changed_when: keystore_password_result.rc == 0
-
     - name: Manager-config | Configure cluster authentication key
       when: not single_node
       run_once: true
@@ -251,6 +301,13 @@
         daemon_reload: true
       become: true
 
+    - name: Certificates | Wait until the certificate is valid on this host
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: wait_certificate.yml
+      vars:
+        wazuh_certificate_path: "{{ full_cert_path }}"
+
     - name: Ensure Wazuh Manager service is started
       ansible.builtin.service:
         name: "wazuh-manager"
@@ -265,7 +322,7 @@
             url: "https://{{ private_ip }}:55000/security/user/authenticate"
             method: POST
             user: "wazuh"
-            password: "wazuh"
+            password: "{{ wazuh_credentials.WAZUH_MANAGER_API_PASSWORD }}"
             force_basic_auth: true
             validate_certs: false
             return_content: true
@@ -273,6 +330,7 @@
           until: wazuh_api_auth.status == 200
           retries: 12
           delay: 5
+          no_log: true
 
         - name: Wazuh Manager | Perform API healthcheck (master)
           ansible.builtin.uri:
@@ -288,6 +346,19 @@
             - manager_node_name in wazuh_api_healthcheck.content
           retries: 12
           delay: 5
+          no_log: true # carries the API token in its Authorization header
+
+      # no_log hides why the health check gave up; report only the last HTTP status.
+      rescue:
+        - name: Wazuh Manager | Report the last HTTP status (master)
+          ansible.builtin.fail:
+            msg: >-
+              The Server API health check failed. Last HTTP status:
+              {{ wazuh_api_healthcheck.status | default(wazuh_api_auth.status | default('none')) }}.
+              {{ 'The wazuh password was rejected: check that WAZUH_MANAGER_API_PASSWORD was in
+              /etc/wazuh/credentials.env before the package was installed.'
+              if (wazuh_api_auth.status | default(0)) == 401
+              else 'Check the service with journalctl -u wazuh-manager.' }}
 
     - name: Wazuh Manager | Health check (worker)
       when: node_type == "worker" and not single_node
