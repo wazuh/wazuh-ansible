@@ -19,6 +19,7 @@
 - [Deployment](ref/deployment.md)
 - [Roles](ref/roles/roles.md)
   - [package-urls](ref/roles/package-urls.md)
+  - [wazuh-credentials](ref/roles/wazuh-credentials.md)
   - [wazuh-indexer](ref/roles/wazuh-indexer.md)
   - [wazuh-manager](ref/roles/wazuh-manager.md)
   - [wazuh-dashboard](ref/roles/wazuh-dashboard.md)

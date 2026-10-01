@@ -4,7 +4,7 @@
 
 The `wazuh-manager` role installs and configures the Wazuh Manager on the target node.
 
-The role supports both RHEL-based and Debian-based Linux distributions. It handles downloading the appropriate package for the target architecture, installing it, deploying configuration files and SSL certificates from `deployment-config-files/`, and ensuring the service is running and enabled.
+The role supports both RHEL-based and Debian-based Linux distributions. It handles providing the node's credentials, staging its certificates from `deployment-config-files/` before the package is installed, downloading and installing the package for the target architecture, deploying the configuration, and ensuring the service is running and enabled.
 
 The role supports both single-node and multi-node deployments. In a distributed setup, nodes can be designated as either `master` or `worker` using the `node_type` variable.
 
@@ -14,14 +14,16 @@ The role supports both single-node and multi-node deployments. In a distributed 
 |------|-------------|
 | Import variables | Loads shared variables from `vars/main.yml` and `vars/artifact_urls.yaml`. |
 | Validate config path | Verifies that the `local_configs_path` directory exists on the control node before proceeding. |
+| Provide credentials | Runs the [`wazuh-credentials`](wazuh-credentials.md) role for the manager keys. |
+| Stage certificates | Before the package is installed: the root CA certificate (never its key) in `/etc/wazuh/ca`, and the indexer connector (`indexer-connector.pem`) and agent listener (`remoted.pem`) pairs in `etc/certs`, root-owned. The package gives them their owners and uses them. Skipped when the package is already installed. |
 | Create download directory | Ensures the package download directory exists on the target node. |
 | Download package (RHEL) | Downloads the `.rpm` package for `x86_64` or `aarch64` architectures. |
 | Install package (RHEL) | Installs the downloaded `.rpm` package using `dnf`. |
 | Download package (Debian) | Downloads the `.deb` package for `amd64` or `arm64` architectures. |
 | Install package (Debian) | Installs the downloaded `.deb` package using `apt`. |
 | Deploy configuration files | Copies `ossec.conf` and other configuration files from the control node to the target. |
-| Deploy SSL certificates | Copies the required certificates for manager–indexer communication and the manager's agent listener certificate (`remoted.pem`/`remoted-key.pem`), served on ports 1517/1515 for agents to pin. |
-| Start service | Enables and starts the `wazuh-manager` service. |
+| Deploy SSL certificates | After the installation, keeps the certificates for manager–indexer communication and the agent listener certificate (`remoted.pem`/`remoted-key.pem`, served on ports 1517/1515 for agents to pin) in place, with their final owners. |
+| Start service | Enables and starts the `wazuh-manager` service, then checks the Wazuh server API as `wazuh` with the password of the deployment (master) or the cluster with `cluster_control -l` (worker). |
 
 ## Agent listener certificate
 
@@ -31,7 +33,7 @@ The certificate's Subject Alternative Name (SAN) comes from the `ip`/`name` fiel
 
 The SAN can cover more than the node's own private IP. In a single-node deployment, the `wazuh-indexer` role's `wazuh_manager_ips` variable adds extra addresses (public IP, EIP, NAT) to the manager's `ip` field. In a multi-node cluster, each manager node gets its own extra addresses through the `extra_ips` list on its entry in `instances` instead — `wazuh_manager_ips` is rejected there, since `wazuh-certs-tool` does not allow manager nodes to share an `ip` value. `agent_san` adds free-standing addresses (e.g. a load balancer shared by a cluster) that are not tied to any single node, in both deployment modes. All three are consumed when `config.yml` is generated and passed to `wazuh-certs-tool.sh -A`, before this role deploys the resulting `remoted.pem`. See [Variables](../variables.md#wazuh-indexer).
 
-Re-running the deployment playbook with the default `generate_certs: true` regenerates the CA and every certificate from scratch, this pair included — the same behavior already applied to `root-ca.pem` and the indexer certificate. Set `generate_certs: false` if a re-run must leave existing certificates untouched.
+Re-running the deployment playbook keeps the root CA and every certificate, this pair included, so agents enrolled earlier keep trusting the manager. See [Certificates](wazuh-indexer.md#certificates).
 
 ## Usage
 
@@ -40,4 +42,5 @@ This role is used in the `wazuh-aio.yml` and `wazuh-distributed.yml` playbooks. 
 ## Related
 
 - [Variables](../variables.md#wazuh-manager)
+- [wazuh-credentials](wazuh-credentials.md)
 - [Deployment](../deployment.md)

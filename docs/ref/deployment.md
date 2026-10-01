@@ -14,6 +14,8 @@ Additionally, ensure you clone the `wazuh-ansible` repository and install the ne
   ansible-galaxy install -r requirements.yml
 ```
 
+The deployment playbooks generate the certificates on the control node with `wazuh-certs-tool.sh`, which must run as root. The user running `ansible-playbook` therefore needs `sudo` on the control node: add `-K` (`--ask-become-pass`) to the commands below if `sudo` asks for a password. See [Credentials and certificates](#credentials-and-certificates).
+
 ## Deployment Types
 
 Wazuh can be deployed in two primary ways, each tailored to different needs and scales:
@@ -59,62 +61,83 @@ For installing Wazuh Agents on one or more hosts, use the `wazuh-agent.yml` play
   ansible-playbook -i inventory.ini wazuh-agent.yml
 ```
 
-## Post-Deployment Steps
+## Credentials and certificates
 
-After deployment, access the Wazuh Dashboard by navigating to `https://<WAZUH_DASHBOARD_IP_ADDRESS>` in your web browser. Use the [default credentials](https://documentation.wazuh.com/current/installation-guide/wazuh-dashboard/step-by-step.html#starting-the-wazuh-dashboard-service) to log in.
+The Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard packages create their credentials and certificates when they are installed, from what they find on the host. The deployment playbooks prepare them on the control node and hand each host what its component needs **before** its package is installed, so no component uses a default password.
 
-### Change the default passwords
+> **Before you start:**
+> - The user running the playbooks needs `sudo` on the control node: the certificates are generated there as root.
+> - The passwords are kept in plain text on the control node, in `deployment-credentials/` (files `0600` in a `0700` directory). Protect that directory, or supply the passwords from Ansible Vault with `wazuh_credentials_overrides`.
 
-The installation assistant sets default passwords for several Wazuh Indexer internal users (some equal to the username) and for the Wazuh server API users (`wazuh`, `wazuh-wui`). Change them right after deployment, using the `wazuh-passwords-tool.sh` script provided by the [Wazuh installation assistant](https://github.com/wazuh/wazuh-installation-assistant).
+### Passwords
 
-> **Save every password printed by the tool.** They cannot be recovered afterwards. Use the new `admin` password to log in to the dashboard.
+The playbooks generate one password per account for the whole deployment, the first time they run:
 
-#### AIO deployment
+| Key | Account | Hosts that receive it |
+|-----|---------|-----------------------|
+| `WAZUH_INDEXER_ADMIN_PASSWORD` | `admin` (Wazuh Indexer; Wazuh Dashboard login) | Wazuh Indexer |
+| `WAZUH_INDEXER_KIBANASERVER_PASSWORD` | `kibanaserver` (Wazuh Indexer) | Wazuh Indexer, Wazuh Dashboard |
+| `WAZUH_INDEXER_MANAGER_PASSWORD` | `wazuh-manager` (Wazuh Indexer) | Wazuh Indexer, Wazuh Manager |
+| `WAZUH_MANAGER_API_PASSWORD` | `wazuh` (Wazuh server API) | Wazuh Manager |
+| `WAZUH_MANAGER_WUI_PASSWORD` | `wazuh-wui` (Wazuh server API) | Wazuh Manager, Wazuh Dashboard |
 
-All components (Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard) live on the same node, so a single run of the passwords tool on that node rotates and propagates every password automatically:
+- On the control node, they are kept in `deployment-credentials/`, next to the playbook, one file per key. Every later run reuses them.
+- On each host, only the keys its component reads are written to `/etc/wazuh/credentials.env` (`root:root`, `0600`), before the package is installed. The package reads them when it is installed, and the playbooks do not write the file again once the package is in place.
+- To supply your own values instead, for example from Ansible Vault, set `wazuh_credentials_overrides`. They must follow the password policy of the packages. See [Variables](variables.md#wazuh-credentials).
+
+No task prints a password.
+
+### Certificates
+
+The playbooks create one root CA for the whole deployment, and one certificate pair for each node, with `wazuh-certs-tool.sh` on the control node.
+
+- The root CA and its private key stay **on the control node**, in a directory of this deployment: `/var/lib/wazuh-ansible/<id>/ca`, where `<id>` comes from the playbook directory (`wazuh_certs_ca_dir`). The playbooks print it on every run. The private key never leaves that directory.
+- Two deployments run from different playbook directories get different root CAs. A new deployment is refused if its CA directory already holds a root CA.
+- The node certificates are kept in `deployment-config-files/wazuh-certificates/`, next to the playbook.
+- Each host receives the root CA certificate and its own pair before its package is installed. The package uses them and creates nothing.
+
+The playbooks issue the certificates instead of leaving it to the packages because a package installed on a host with no certificates creates its own root CA, with its private key on that host, and issues its own pair from it. In a deployment with more than one host, every host would end up with a different root CA, the components would not trust each other, and a CA private key would be left on every host. Issuing the certificates once on the control node gives the whole deployment one root CA, whose private key never leaves the control node.
+
+### What to keep
+
+`deployment-credentials/`, `deployment-config-files/` and, on the control node, the directory in `wazuh_certs_ca_dir` belong to the deployment. Back them up and do not commit them: `deployment-credentials/` and `deployment-config-files/` are in `.gitignore`.
+
+Once the deployment is running, `/etc/wazuh/credentials.env` on the hosts is no longer needed: the passwords are in `deployment-credentials/`. Remove it from every host:
 
 ```bash
-  ssh <aio-node>
-  sudo bash wazuh-passwords-tool.sh -a -au wazuh -ap <current-wazuh-api-password>
+  ansible -i inventory.ini all -b -m ansible.builtin.file -a "path=/etc/wazuh/credentials.env state=absent"
 ```
 
-- `-a` (`--change-all`) rotates every reserved Wazuh Indexer user with a random password.
-- `-au`/`-ap` additionally rotates the Wazuh server API users `wazuh` and `wazuh-wui` in the same run.
-- The tool updates the Wazuh Manager and Wazuh Dashboard keystores and restarts the affected services automatically — no manual step is needed on an AIO node.
+### Running a playbook again
 
-#### Distributed deployment
+Running the same playbook again, from the same directory, keeps the passwords, the root CA, and the certificates. The packages do not create their credentials again.
 
-In a distributed deployment, the Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard nodes are separate hosts, so a single `--change-all` run cannot push the new passwords to the Manager/Dashboard keystores automatically — that update only happens for services installed locally on the node running the tool. Complete these steps instead:
+A host that already holds the root CA or the passwords of another deployment is refused before anything is written. This happens, for example, when the playbook runs from another directory, or after `deployment-credentials/` was removed. To deploy again from scratch, use new hosts, or first uninstall the Wazuh packages from the hosts and remove `/etc/wazuh` (uninstalling a package does not remove it). On the control node, remove `deployment-credentials/`, `deployment-config-files/`, and the directory in `wazuh_certs_ca_dir`. The playbooks provide the credentials and certificates of a component only before its package is installed.
 
-1. Run the tool on **one** Wazuh Indexer node to rotate every Wazuh Indexer user:
+To issue new certificates from the same root CA, for example to add a node to `instances`, remove `deployment-config-files/wazuh-certificates/` and run the playbook again. Keep the directory in `wazuh_certs_ca_dir`.
 
-   ```bash
-     ssh <indexer-node-1>
-     sudo bash wazuh-passwords-tool.sh -a
-   ```
+## Post-Deployment Steps
 
-   Save every printed password, in particular the ones for `admin` and `kibanaserver`.
+After deployment, access the Wazuh Dashboard by navigating to `https://<WAZUH_DASHBOARD_IP_ADDRESS>` in your web browser. Log in as `admin`, with the password in `deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD` on the control node:
 
-2. On **each** Wazuh Manager node, update the indexer connection password in the keystore with the new value generated for the `wazuh-manager` user, then restart the service:
+```bash
+  cat deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD
+```
 
-   ```bash
-     ssh <manager-node>
-     sudo /var/wazuh-manager/bin/wazuh-manager-keystore -f indexer -k password -v '<new-wazuh-manager-password>'
-     sudo systemctl restart wazuh-manager
-   ```
+### Change the passwords
 
-3. On the Wazuh Dashboard node, update the `opensearch.password` keystore entry with the new `kibanaserver` password, then restart the service:
+The deployment playbooks do not rotate passwords. To change them, use the `wazuh-passwords-tool.sh` script of the [Wazuh installation assistant](https://github.com/wazuh/wazuh-installation-assistant), following its documentation:
 
-   ```bash
-     ssh <dashboard-node>
-     echo '<new-kibanaserver-password>' | sudo /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
-     sudo systemctl restart wazuh-dashboard
-   ```
+- Run it on a Wazuh Indexer node for `admin`, `kibanaserver`, and `wazuh-manager`, and on the Wazuh Manager master node for `wazuh` and `wazuh-wui`.
+- In a distributed deployment, update the keystores of the other nodes as its documentation lists: the Wazuh Manager keystore for `wazuh-manager`, and the Wazuh Dashboard keystore for `kibanaserver` and `wazuh-wui`.
 
-4. To also rotate the Wazuh server API users (`wazuh`, `wazuh-wui`), run the tool a second time on any node where the Wazuh Manager service is reachable, providing the current API admin credentials. `-a` is required together with `-au`/`-ap` — the tool rejects `-au`/`-ap` on their own — but on a node with no Wazuh Indexer installed it only rotates the API users:
+> **Note:** Change one user at a time, and check that the tool finishes without errors before updating the other nodes. If it stops partway, the Wazuh Manager or Wazuh Dashboard keystore on that host may already hold a password that the Wazuh Indexer did not receive, and `/etc/wazuh-indexer/backup` may be left behind. See the documentation of the tool before running it again.
 
-   ```bash
-     sudo bash wazuh-passwords-tool.sh -a -au wazuh -ap <current-wazuh-api-password>
-   ```
+The tool saves each new value in `/etc/wazuh/credentials.env` of the host where it runs, as `KEY="value"`. Copy it to the file of that key in `deployment-credentials/` on the control node, so that the next run of the playbooks, and its health checks, use it. For example, for the `admin` password changed on the `wi1` node:
 
-> This is a manual, one-time post-deployment step. It is not run automatically by the `wazuh-aio.yml` or `wazuh-distributed.yml` playbooks.
+```bash
+  (umask 077; ssh <wi1> "sudo sed -n 's/^WAZUH_INDEXER_ADMIN_PASSWORD=\"\(.*\)\"$/\1/p' /etc/wazuh/credentials.env | tail -1" \
+    > deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD)
+```
+
+The playbooks do not write `credentials.env` on a host whose component is already installed, so the other hosts keep their files as they are. Remove `/etc/wazuh/credentials.env` from the hosts afterwards, as described in [What to keep](#what-to-keep).
