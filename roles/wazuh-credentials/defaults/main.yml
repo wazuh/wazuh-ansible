@@ -1,0 +1,43 @@
+---
+
+# Passwords generated for this deployment are kept on the control node, one file per key, and reused
+# on every run: a regenerated password would no longer match the one a component already seeded.
+wazuh_credentials_path: "{{ playbook_dir }}/deployment-credentials"
+
+# Optional supplied passwords (e.g. from Ansible Vault), keyed by credentials.env name. Only honoured
+# the first time a deployment is created: a component that already resolved its credentials keeps
+# them (wazuh/wazuh-indexer#1928 FR 34). Use wazuh-passwords-tool.sh to rotate.
+wazuh_credentials_overrides: {}
+
+# A file each package installs, to tell whether a component is already installed on the host. The
+# packages read credentials.env only at installation, so the file is written only before it.
+wazuh_credentials_component_installed_file:
+  indexer: /etc/wazuh-indexer/opensearch.yml
+  manager: /var/wazuh-manager/etc/wazuh-manager.conf
+  dashboard: /etc/wazuh-dashboard/opensearch_dashboards.yml
+
+# How many seconds a host may wait for a certificate issued on the control node to become valid on it,
+# when its clock is behind the control node's. Beyond that the run stops and asks to synchronize the clocks.
+wazuh_certificate_max_wait: 300
+
+wazuh_credentials_keys:
+  - WAZUH_INDEXER_ADMIN_PASSWORD
+  - WAZUH_INDEXER_KIBANASERVER_PASSWORD
+  - WAZUH_INDEXER_MANAGER_PASSWORD
+  - WAZUH_MANAGER_API_PASSWORD
+  - WAZUH_MANAGER_WUI_PASSWORD
+
+# Keys each component reads, owned or consumed (wazuh/wazuh-indexer#1928 FR 13). Each host only
+# receives the keys of the components it runs.
+wazuh_credentials_component_keys:
+  indexer:
+    - WAZUH_INDEXER_ADMIN_PASSWORD
+    - WAZUH_INDEXER_KIBANASERVER_PASSWORD
+    - WAZUH_INDEXER_MANAGER_PASSWORD
+  manager:
+    - WAZUH_MANAGER_API_PASSWORD
+    - WAZUH_MANAGER_WUI_PASSWORD
+    - WAZUH_INDEXER_MANAGER_PASSWORD
+  dashboard:
+    - WAZUH_INDEXER_KIBANASERVER_PASSWORD
+    - WAZUH_MANAGER_WUI_PASSWORD

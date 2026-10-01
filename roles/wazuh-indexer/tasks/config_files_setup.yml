@@ -1,270 +1,23 @@
 ---
 
-- name: Cert-gen | Check if certificates already exists
-  ansible.builtin.stat:
-    path: "{{ local_configs_path }}"
-  register: certificates_folder
-  run_once: true
-  delegate_to: localhost
-  become: false
-  when:
-    - generate_certs
-
-- name: Cert-gen | Remove existing certificates
-  ansible.builtin.file:
-    path: "{{ local_configs_path }}"
-    state: absent
-    force: true
-  run_once: true
-  delegate_to: localhost
-  become: false
-  when:
-    - generate_certs
-    - certificates_folder.stat.exists
-
-- name: Cert-gen | Check if configuration is defined correctly
-  ansible.builtin.fail:
-    msg: "Single-node cluster is defined incorrectly. Please set single_node to true and define only one node."
-  run_once: true
-  delegate_to: localhost
-  become: false
-  when:
-    - single_node
-    - ( instances | length ) > 1
-
-- name: Cert-gen | Generate certificates for Wazuh cluster locally
-  run_once: true
-  delegate_to: localhost
-  become: false
-  when: generate_certs
+- name: Cert-gen | Check that the package reads the staged certificate pair
   block:
-    - name: Cert-gen | Create local temporary directory for certificates generation (all certs)
-      ansible.builtin.file:
-        path: "{{ local_configs_path }}"
-        mode: "0755"
-        state: directory
-
-    - name: Cert-gen | Download certificates generation tool
-      ansible.builtin.get_url:
-        url: "{{ wazuh_certs_tool }}"
-        dest: "{{ local_configs_path }}/wazuh-certs-tool.sh"
-        mode: '0644'
-
-    - name: Cert-gen | Download base config.yml file
-      ansible.builtin.get_url:
-        url: "{{ wazuh_config_yml }}"
-        dest: "{{ local_configs_path }}/config.yml"
-        mode: '0644'
-
-    - name: Cert-gen | Remove comments from config.yml file
-      ansible.builtin.replace:
-        path: "{{ local_configs_path }}/config.yml"
-        regexp: '^\s*#.*$'
-        replace: ''
-
-    - name: Cert-gen | Set up config.yml file for multi-node cluster
-      when: not single_node
-      block:
-        - name: Cert-gen | Fail if wazuh_manager_ips is set for a multi-node cluster
-          ansible.builtin.fail:
-            msg: >-
-              wazuh_manager_ips applies only to single-node deployments: wazuh-certs-tool.sh
-              rejects manager nodes that share an ip value, so applying the same list to
-              every manager node in a cluster aborts certificate generation. Set extra_ips
-              on the corresponding entry of 'instances' instead for a per-node address, or
-              use agent_san for an address shared by the whole cluster (e.g. a load
-              balancer).
-          when: wazuh_manager_ips | length > 0
-
-        - name: Cert-gen | Remove existing nodes sections (cluster mode)
-          ansible.builtin.replace:
-            path: "{{ local_configs_path }}/config.yml"
-            regexp: '^\s*(- name:|ip:).*$'
-            replace: ''
-
-        - name: Cert-gen | Add indexer nodes section (cluster mode)
-          ansible.builtin.blockinfile:
-            path: "{{ local_configs_path }}/config.yml"
-            marker: "# Indexer nodes"
-            state: present
-            insertafter: "indexer:"
-            block: |
-              {% for key, value in instances.items() %}
-              {% if value.role is defined and value.role == 'indexer' %}
-                  - name: {{ value.name }}
-                    ip: {{ value.ip }}
-              {% endif %}
-              {% endfor %}
-
-        - name: Cert-gen | Add manager nodes section (cluster mode)
-          ansible.builtin.blockinfile:
-            path: "{{ local_configs_path }}/config.yml"
-            marker: "# Manager nodes"
-            state: present
-            insertafter: "manager:"
-            block: |
-              {% for key, value in instances.items() %}
-              {% if value.role is defined and value.role == 'manager' %}
-              {% set node_ips = [value.ip] + (value.extra_ips | default([])) %}
-                  - name: {{ value.name }}
-              {% if node_ips | length > 1 %}
-                    ip:
-              {% for manager_ip in node_ips %}
-                      - "{{ manager_ip }}"
-              {% endfor %}
-              {% else %}
-                    ip: {{ value.ip }}
-              {% endif %}
-              {% if value.node_type is defined and value.node_type == 'master' %}
-                    node_type: master
-              {% elif value.node_type is defined and value.node_type == 'worker' %}
-                    node_type: worker
-              {% endif %}
-              {% endif %}
-              {% endfor %}
-
-        - name: Cert-gen | Add dashboard nodes section (cluster mode)
-          ansible.builtin.blockinfile:
-            path: "{{ local_configs_path }}/config.yml"
-            marker: "# Dashboard nodes"
-            state: present
-            insertafter: "dashboard:"
-            block: |
-              {% for key, value in instances.items() %}
-              {% if value.role is defined and value.role == 'dashboard' %}
-                  - name: {{ value.name }}
-                    ip: {{ value.ip }}
-              {% endif %}
-              {% endfor %}
-
-        - name: Cert-gen | Remove comments from config.yml file
-          ansible.builtin.replace:
-            path: "{{ local_configs_path }}/config.yml"
-            regexp: '^\s*#.*$'
-            replace: ''
-
-    - name: Cert-gen | Set up config.yml file for single-node cluster
-      when: single_node
-      block:
-        - name: Cert-gen | Add indexer node section (single node mode)
-          ansible.builtin.replace:
-            path: "{{ local_configs_path }}/config.yml"
-            regexp: '<indexer-node-ip>'
-            replace: "{{ hostvars[inventory_hostname].private_ip }}"
-
-        - name: Cert-gen | Add manager node section (single node mode)
-          ansible.builtin.replace:
-            path: "{{ local_configs_path }}/config.yml"
-            regexp: '^\s*ip:\s*"?<wazuh-manager-ip>"?\s*$'
-            replace: |-
-              {% if wazuh_manager_ips | length > 0 %}
-                    ip:
-              {% for manager_ip in [hostvars[inventory_hostname].private_ip] + wazuh_manager_ips %}
-                      - "{{ manager_ip }}"
-              {% endfor %}
-              {% else %}
-                    ip: "{{ hostvars[inventory_hostname].private_ip }}"
-              {% endif %}
-
-        - name: Cert-gen | Add dashboard node section (single node mode)
-          ansible.builtin.replace:
-            path: "{{ local_configs_path }}/config.yml"
-            regexp: '<dashboard-node-ip>'
-            replace: "{{ hostvars[inventory_hostname].private_ip }}"
-
-    - name: Cert-gen | Remove empty lines from config.yml file
-      ansible.builtin.shell:
-        cmd: |
-          grep '[^[:blank:]]' "{{ local_configs_path }}/config.yml" > "{{ local_configs_path }}/config.yml.tmp"
-      args:
-        creates: "{{ local_configs_path }}/config.yml.tmp"
-
-    - name: Cert-gen | Replace original config.yml file with the cleaned one
-      ansible.builtin.command:
-        cmd: mv {{ local_configs_path }}/config.yml.tmp {{ local_configs_path }}/config.yml
-      args:
-        removes: "{{ local_configs_path }}/config.yml.tmp"
-
-    - name: Cert-gen | Generate certificates
-      vars:
-        agent_san_args: "{{ agent_san | map('regex_replace', '^(.*)$', '--agent-san \\1') | join(' ') }}"
-      ansible.builtin.command: >-
-        bash {{ local_configs_path }}/wazuh-certs-tool.sh -A {{ agent_san_args }}
-      args:
-        creates: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
-
-- name: Cert-gen | Set node name variable
-  ansible.builtin.set_fact:
-    node_name: "{{ (single_node | bool) | ternary(instances['aio_node'].name, instances[inventory_hostname].name) }}"
-
-- name: Detect expected indexer SSL certificate names from opensearch.yml
-  when:
-    - generate_certs
-  block:
-    - name: Read opensearch.yml
+    - name: Cert-gen | Read opensearch.yml
       ansible.builtin.slurp:
         path: /etc/wazuh-indexer/opensearch.yml
       register: wazuh_indexer_conf_raw
-      changed_when: false
 
-    - name: Extract expected certificate/key
-      ansible.builtin.set_fact:
-        expected_cert_path: "{{ (certificate_paths | first | default('') | trim) }}"
-        expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
-      vars:
-        conf_text: "{{ wazuh_indexer_conf_raw.content | b64decode }}"
-        certificate_paths: "{{ conf_text | regex_findall('(?m)^\\s*plugins\\.security\\.ssl\\.transport\\.pemcert_filepath\\s*:\\s*(/\\S+\\.pem)(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
-        key_paths: "{{ conf_text | regex_findall('(?m)^\\s*plugins\\.security\\.ssl\\.transport\\.pemkey_filepath\\s*:\\s*(/\\S+\\.pem)(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
-
-    - name: Validate expected certificate and key paths
+    - name: Cert-gen | Assert the transport and HTTP certificates are the staged ones
       ansible.builtin.assert:
         that:
-          - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
-          - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+          - conf_text is search('(?m)^plugins\.security\.ssl\.transport\.pemcert_filepath:\s*/etc/wazuh-indexer/certs/indexer\.pem\s*$')
+          - conf_text is search('(?m)^plugins\.security\.ssl\.http\.pemcert_filepath:\s*/etc/wazuh-indexer/certs/indexer\.pem\s*$')
         fail_msg: >-
-          Invalid indexer SSL certificate/key paths detected from
-          /etc/wazuh-indexer/opensearch.yml.
-      changed_when: false
-
-    - name: Create expected cert/key directory (if does not exist)
-      ansible.builtin.file:
-        path: "{{ expected_cert_path | dirname }}"
-        state: directory
-        owner: wazuh-indexer
-        group: wazuh-indexer
-        mode: "0700"
-
-- name: Cert-gen | Copy certificates to each Wazuh indexer node
-  ansible.builtin.copy:
-    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-    dest: "{{ expected_cert_path | dirname }}/{{ item }}"
-    owner: wazuh-indexer
-    group: wazuh-indexer
-    mode: "0400"
-  with_items:
-    - root-ca.pem
-    - root-ca.key
-    - "{{ node_name }}-key.pem"
-    - "{{ node_name }}.pem"
-    - admin-key.pem
-    - admin.pem
-  when:
-    - generate_certs
-
-- name: Cert-gen | Copy and rename indexer key and certificate files to match default names
-  ansible.builtin.copy:
-    src: "{{ expected_cert_path | dirname }}/{{ item.src }}"
-    dest: "{{ item.dest }}"
-    remote_src: true
-    owner: wazuh-indexer
-    group: wazuh-indexer
-    mode: "0400"
-  with_items:
-    - { src: "{{ node_name }}.pem", dest: "{{ expected_cert_path }}" }
-    - { src: "{{ node_name }}-key.pem", dest: "{{ expected_key_path }}" }
-  when:
-    - generate_certs
-    - (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
+          /etc/wazuh-indexer/opensearch.yml does not point at /etc/wazuh-indexer/certs/indexer.pem,
+          the pair staged before installation.
+        quiet: true
+      vars:
+        conf_text: "{{ wazuh_indexer_conf_raw.content | b64decode }}"
 
 - name: OpenSearch Config | Configure Wazuh indexer
   block:
@@ -319,17 +72,37 @@
 
     - name: OpenSearch Config | Add SSL configuration
       block:
+        # The DN is read from each node's certificate rather than rebuilt from its name: wazuh-certs-tool
+        # has used both subject orders (wazuh/wazuh-installation-assistant#1048), and the security plugin
+        # rejects a node whose DN is not listed exactly as its certificate presents it. RFC 2253 is the
+        # form the indexer package itself writes.
+        - name: OpenSearch Config | Read the DN of every indexer node certificate
+          ansible.builtin.command:
+            cmd: >-
+              openssl x509 -in "{{ local_configs_path }}/wazuh-certificates/{{ item.value.name }}.pem"
+              -noout -subject -nameopt RFC2253
+          loop: "{{ instances | dict2items | selectattr('value.role', 'defined') | selectattr('value.role', 'in', ['indexer', 'aio']) | list }}"
+          loop_control:
+            label: "{{ item.value.name }}"
+          register: wazuh_indexer_node_subjects
+          run_once: true
+          delegate_to: localhost
+          become: false
+          changed_when: false
+
         - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
           ansible.builtin.replace:
             path: /etc/wazuh-indexer/opensearch.yml
             regexp: '(?m)^(plugins\.security\.nodes_dn:\n)(?:[ \t]*#?-.*\n)*'
             replace: |
               plugins.security.nodes_dn:
-              {% for (key, value) in instances.items() %}
-              {% if (value.role is defined and (value.role == 'indexer' or value.role == 'aio')) %}
-              - "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
-              {% endif %}
+              {% for dn in wazuh_indexer_nodes_dn %}
+              - "{{ dn }}"
               {% endfor %}
+          vars:
+            wazuh_indexer_nodes_dn: >-
+              {{ wazuh_indexer_node_subjects.results | map(attribute='stdout')
+                 | map('regex_replace', '^subject= *', '') | list }}
 
     - name: Add single-node discovery type if needed
       ansible.builtin.lineinfile:
@@ -338,10 +111,13 @@
         insertafter: '^node\.name:'
       when: single_node
 
-- name: JVM Config | Configure heap size for AIO deployment
-  when: single_node | bool
+# The package keeps a 1 GB heap, too small for the dashboard's first start (circuit_breaking_exception).
+# Same sizing as wazuh-install.sh: a quarter of the memory on an all-in-one host, which the manager and
+# the dashboard share, half of it on a dedicated indexer node.
+- name: JVM Config | Configure heap size
   vars:
-    wazuh_indexer_heap_size_computed: "{{ wazuh_indexer_heap_size if wazuh_indexer_heap_size | length > 0 else ((ansible_memtotal_mb // 4) | string) + 'm' }}"
+    wazuh_indexer_heap_divisor: "{{ 4 if single_node | bool else 2 }}"
+    wazuh_indexer_heap_size_computed: "{{ wazuh_indexer_heap_size if wazuh_indexer_heap_size | length > 0 else ((ansible_memtotal_mb // (wazuh_indexer_heap_divisor | int)) | string) + 'm' }}" # noqa: yaml[line-length]
   block:
     - name: JVM Config | Set -Xms heap size
       ansible.builtin.lineinfile:

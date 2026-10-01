@@ -1,0 +1,65 @@
+---
+
+- name: Credentials | Generate the deployment passwords on the control node
+  run_once: true
+  delegate_to: localhost
+  become: false
+  vars:
+    wazuh_password_policy: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.,_+:@%^=~-])[A-Za-z0-9.,_+:@%^=~-]{12,64}$'
+  block:
+    - name: Credentials | Find supplied passwords that break the policy
+      ansible.builtin.set_fact:
+        wazuh_credentials_invalid_keys: >-
+          {{ (wazuh_credentials_overrides | dict2items
+              | rejectattr('value', 'match', wazuh_password_policy)
+              | map(attribute='key') | list)
+             + (wazuh_credentials_overrides.keys() | difference(wazuh_credentials_keys)) }}
+      no_log: true
+
+    - name: Credentials | Fail on invalid supplied passwords (key names only, never values)
+      ansible.builtin.assert:
+        that: wazuh_credentials_invalid_keys | length == 0
+        fail_msg: >-
+          Rejected wazuh_credentials_overrides keys: {{ wazuh_credentials_invalid_keys | join(', ') }}.
+          Each must be one of wazuh_credentials_keys and hold 12-64 characters, only from
+          A-Z a-z 0-9 . , _ + : @ % ^ = ~ -, with at least one uppercase letter, one lowercase
+          letter, one digit and one of those symbols (shared wazuh-credentials.sh policy).
+        quiet: true
+
+    # No credentials directory yet means this run creates the deployment: the certificate generation
+    # uses it to refuse reusing a CA that another deployment left in wazuh_certs_ca_dir.
+    - name: Credentials | Check whether the deployment already has its passwords
+      ansible.builtin.stat:
+        path: "{{ wazuh_credentials_path }}"
+      register: wazuh_credentials_path_before
+
+    - name: Credentials | Record whether this run creates the deployment
+      ansible.builtin.set_fact:
+        wazuh_credentials_new_deployment: "{{ not wazuh_credentials_path_before.stat.exists }}"
+      when: wazuh_credentials_new_deployment is not defined
+
+    - name: Credentials | Ensure the local credentials directory exists
+      ansible.builtin.file:
+        path: "{{ wazuh_credentials_path }}"
+        state: directory
+        mode: "0700"
+
+    - name: Credentials | Store a password for every key that has none yet
+      ansible.builtin.copy:
+        dest: "{{ wazuh_credentials_path }}/{{ item }}"
+        content: >-
+          {{ wazuh_credentials_overrides[item]
+             | default(lookup('community.general.random_string', length=32,
+                              min_lower=1, min_upper=1, min_numeric=1, min_special=1,
+                              override_special='.,_+:@%^=~-')) }}
+        mode: "0600"
+        force: false
+      loop: "{{ wazuh_credentials_keys }}"
+      no_log: true
+
+- name: Credentials | Load the deployment passwords
+  ansible.builtin.set_fact:
+    wazuh_credentials: "{{ dict(wazuh_credentials_keys | zip(query('ansible.builtin.file', *wazuh_credentials_files))) }}"
+  vars:
+    wazuh_credentials_files: "{{ wazuh_credentials_keys | map('regex_replace', '^', wazuh_credentials_path ~ '/') | list }}"
+  no_log: true

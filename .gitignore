@@ -1,5 +1,6 @@
 roles/vars/artifact_urls.yaml
 deployment-config-files/
+deployment-credentials/
 *.pem
 *.ini
 *.log
