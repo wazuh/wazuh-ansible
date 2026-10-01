@@ -59,7 +59,7 @@ Depending on the deployment method (AIO or distributed) and the scale of your en
 Refer to the official documentation of each Wazuh component for detailed hardware requirements:
 
 - **Wazuh Indexer**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-indexer/index.html)
-- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-manager/index.html)
+- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-server/index.html)
 - **Wazuh Dashboard**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-dashboard/index.html)
 - **Wazuh Agent**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html)
 
