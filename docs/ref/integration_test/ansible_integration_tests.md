@@ -42,7 +42,7 @@ flowchart TD
 
 Draft PRs are explicitly rejected — if the PR is in draft state, `get_pr_info` exits with an error even if the command is recognized.
 
-When triggered by PR comment, `os_list`, `environment`, and `commit_list` default to fixed values (see [Job 2 — prepare](#job-2----prepare-both-triggers)).
+When triggered by PR comment, `os_list`, `environment`, and `commit_list` default to fixed values (see [Job 2 — prepare](#job-2--prepare-both-triggers)).
 
 ### workflow_dispatch flow
 
