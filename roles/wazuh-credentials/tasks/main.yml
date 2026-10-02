@@ -44,6 +44,9 @@
         state: directory
         mode: "0700"
 
+    # Generated without ~ and =: credentials.env holds bare values, and a shell that loads it with
+    # eval or source expands a ~ (bash, sh) or an = (zsh) at the start of a value or after a colon.
+    # The policy still accepts both in a password given in wazuh_credentials_overrides.
     - name: Credentials | Store a password for every key that has none yet
       ansible.builtin.copy:
         dest: "{{ wazuh_credentials_path }}/{{ item }}"
@@ -51,7 +54,7 @@
           {{ wazuh_credentials_overrides[item]
              | default(lookup('community.general.random_string', length=32,
                               min_lower=1, min_upper=1, min_numeric=1, min_special=1,
-                              override_special='.,_+:@%^=~-')) }}
+                              override_special='.,_+:@%^-')) }}
         mode: "0600"
         force: false
       loop: "{{ wazuh_credentials_keys }}"
