@@ -133,10 +133,10 @@ The deployment playbooks do not rotate passwords. To change them, use the `wazuh
 
 > **Note:** Change one user at a time, and check that the tool finishes without errors before updating the other nodes. If it stops partway, the Wazuh Manager or Wazuh Dashboard keystore on that host may already hold a password that the Wazuh Indexer did not receive, and `/etc/wazuh-indexer/backup` may be left behind. See the documentation of the tool before running it again.
 
-The tool saves each new value in `/etc/wazuh/credentials.env` of the host where it runs, as `KEY="value"`. Copy it to the file of that key in `deployment-credentials/` on the control node, so that the next run of the playbooks, and its health checks, use it. For example, for the `admin` password changed on the `wi1` node:
+The tool saves each new value in `/etc/wazuh/credentials.env` of the host where it runs, as `KEY=value`, or `KEY="value"` if an older version of the tool wrote it; the command below reads both. Copy it to the file of that key in `deployment-credentials/` on the control node, so that the next run of the playbooks, and its health checks, use it. For example, for the `admin` password changed on the `wi1` node:
 
 ```bash
-  (umask 077; ssh <wi1> "sudo sed -n 's/^WAZUH_INDEXER_ADMIN_PASSWORD=\"\(.*\)\"$/\1/p' /etc/wazuh/credentials.env | tail -1" \
+  (umask 077; ssh <wi1> "sudo grep '^WAZUH_INDEXER_ADMIN_PASSWORD=' /etc/wazuh/credentials.env | tail -1 | cut -d= -f2- | tr -d '\"'" \
     > deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD)
 ```
 
