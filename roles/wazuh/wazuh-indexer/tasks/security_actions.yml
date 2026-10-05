@@ -31,6 +31,7 @@
     - "{{ indexer_node_name }}.pem"
     - admin-key.pem
     - admin.pem
+  when: generate_certs | bool
 
 - name: Restart Wazuh indexer with security configuration
   systemd:

@@ -29,3 +29,5 @@ indexer_admin_password: changeme
 dashboard_user: kibanaserver
 dashboard_password: changeme
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+# Set to false if the certificates are already deployed on the host
+generate_certs: true
