@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Remove force_time from the agent registration request ([#2328](https://github.com/wazuh/wazuh-ansible/pull/2328))
 - Remove software-properties-common from the wazuh-indexer dependencies ([#2327](https://github.com/wazuh/wazuh-ansible/pull/2327))
 - Skip the certificates copy when generate_certs is false ([#2329](https://github.com/wazuh/wazuh-ansible/pull/2329))
 
