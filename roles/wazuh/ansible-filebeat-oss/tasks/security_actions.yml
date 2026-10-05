@@ -19,6 +19,7 @@
       - "{{ filebeat_node_name }}-key.pem"
       - "{{ filebeat_node_name }}.pem"
       - "root-ca.pem"
+    when: generate_certs | bool
 
   tags:
   - security

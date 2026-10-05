@@ -20,3 +20,5 @@ filebeat_ssl_dir: /etc/pki/filebeat
 
 # Local path to store the generated certificates (Opensearch security plugin)
 local_certs_path: "{{ playbook_dir }}/indexer/certificates"
+# Set to false if the certificates are already deployed on the host
+generate_certs: true

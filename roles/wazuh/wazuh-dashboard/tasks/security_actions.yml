@@ -19,5 +19,6 @@
       - "root-ca.pem"
       - "{{ dashboard_node_name }}-key.pem"
       - "{{ dashboard_node_name }}.pem"
+    when: generate_certs | bool
   tags:
   - security
