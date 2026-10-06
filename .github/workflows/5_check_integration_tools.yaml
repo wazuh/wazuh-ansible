@@ -2,12 +2,12 @@
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch'
     && format('Ansible Integration Test - Manual {0} on {1}', inputs.deployment_type, inputs.pr_head_ref)
-    || format('Ansible Integration Test - #{0} {1}', github.event.issue.number, github.event.issue.title) }}
+    || format('Ansible Integration Test - #{0} {1}', github.event.pull_request.number, github.event.pull_request.title) }}
 name: (5.x) PR Check - Ansible Integration Tests
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    types: [labeled]
   workflow_dispatch:
     inputs:
       pr_head_ref:
@@ -52,7 +52,6 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
-  checks: write
 
 env:
   AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'main' }}
@@ -61,104 +60,59 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Job 1: Parse PR info and determine which deployment(s) to test
+  # Job 1: Parse the PR label and determine which deployment(s) to test
   #
-  # Available commands:
-  #   /test-ansible-aio         — test AIO deployment
-  #   /test-ansible-distributed — test distributed deployment
-  #   /test-ansible             — test both
+  # Runs when one of these labels is added to a non-draft PR opened from a
+  # branch of this repository:
+  #   test/ansible              — test AIO and distributed deployments
+  #   test/ansible-aio          — test AIO deployment
+  #   test/ansible-distributed  — test distributed deployment
   # ---------------------------------------------------------------------------
   get_pr_info:
     if: |
-      github.event_name == 'issue_comment' &&
-      github.event.issue.pull_request &&
-      github.event.issue.state == 'open' &&
-      (github.event.comment.author_association == 'MEMBER' ||
-       github.event.comment.author_association == 'OWNER' ||
-       github.event.comment.author_association == 'COLLABORATOR') &&
-      (contains(github.event.comment.body, '/test-ansible-aio') ||
-       contains(github.event.comment.body, '/test-ansible-distributed') ||
-       contains(github.event.comment.body, '/test-ansible'))
+      github.event_name == 'pull_request' &&
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(fromJSON('["test/ansible","test/ansible-aio","test/ansible-distributed"]'), github.event.label.name)
     runs-on: ubuntu-24.04
     outputs:
       pr_number: ${{ steps.pr_data.outputs.pr_number }}
       pr_head_ref: ${{ steps.pr_data.outputs.pr_head_ref }}
       pr_head_sha: ${{ steps.pr_data.outputs.pr_head_sha }}
-      check_run_id: ${{ steps.create_check.outputs.result }}
-      deployment_matrix: ${{ steps.parse_command.outputs.deployment_matrix }}
-      check_name: ${{ steps.parse_command.outputs.check_name }}
+      deployment_matrix: ${{ steps.parse_label.outputs.deployment_matrix }}
 
     steps:
-      - name: React to comment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.reactions.createForIssueComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              content: 'rocket'
-            });
-
       - name: Extract PR data
         id: pr_data
         env:
-          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          PR_NUMBER="${{ github.event.issue.number }}"
-          PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${PR_NUMBER})
-          IS_DRAFT=$(echo "$PR_DATA" | jq -r '.draft')
-          if [ "$IS_DRAFT" = "true" ]; then
-            echo "PR #${PR_NUMBER} is in draft state — skipping tests." >&2
-            exit 1
-          fi
-          PR_HEAD_REF=$(echo "$PR_DATA" | jq -r '.head.ref')
-          PR_HEAD_SHA=$(echo "$PR_DATA" | jq -r '.head.sha')
           echo "pr_number=${PR_NUMBER}"     >> $GITHUB_OUTPUT
           echo "pr_head_ref=${PR_HEAD_REF}" >> $GITHUB_OUTPUT
           echo "pr_head_sha=${PR_HEAD_SHA}" >> $GITHUB_OUTPUT
 
-      - name: Parse command and set deployment metadata
-        id: parse_command
+      - name: Parse label and set test metadata
+        id: parse_label
         env:
-          COMMENT_BODY: ${{ github.event.comment.body }}
+          LABEL_NAME: ${{ github.event.label.name }}
         run: |
-          if echo "$COMMENT_BODY" | grep -q '/test-ansible-aio'; then
-            echo 'deployment_matrix=["aio"]'                          >> $GITHUB_OUTPUT
-            echo 'check_name=Ansible Integration Check (AIO)'         >> $GITHUB_OUTPUT
-          elif echo "$COMMENT_BODY" | grep -q '/test-ansible-distributed'; then
-            echo 'deployment_matrix=["distributed"]'                  >> $GITHUB_OUTPUT
-            echo 'check_name=Ansible Integration Check (Distributed)' >> $GITHUB_OUTPUT
-          elif echo "$COMMENT_BODY" | grep -q '/test-ansible'; then
-            echo 'deployment_matrix=["aio","distributed"]'            >> $GITHUB_OUTPUT
-            echo 'check_name=Ansible Integration Check'               >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create check run
-        id: create_check
-        uses: actions/github-script@v7
-        env:
-          HEAD_SHA: ${{ steps.pr_data.outputs.pr_head_sha }}
-          CHECK_NAME: ${{ steps.parse_command.outputs.check_name }}
-          COMMENT_BODY: ${{ github.event.comment.body }}
-        with:
-          script: |
-            const { data: check } = await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: process.env.CHECK_NAME,
-              head_sha: process.env.HEAD_SHA,
-              status: 'in_progress',
-              started_at: new Date().toISOString(),
-              details_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              output: {
-                title: `Running ${process.env.CHECK_NAME}...`,
-                summary: `Triggered by comment: \`${process.env.COMMENT_BODY}\``,
-                text: 'Allocating EC2 instances and running Ansible integration tests'
-              }
-            });
-            console.log('Check run created:', check.id);
-            return check.id;
+          case "$LABEL_NAME" in
+            test/ansible)
+              echo 'deployment_matrix=["aio","distributed"]' >> $GITHUB_OUTPUT
+              ;;
+            test/ansible-aio)
+              echo 'deployment_matrix=["aio"]' >> $GITHUB_OUTPUT
+              ;;
+            test/ansible-distributed)
+              echo 'deployment_matrix=["distributed"]' >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "::error::Unsupported label: ${LABEL_NAME}"
+              exit 1
+              ;;
+          esac
 
   # ---------------------------------------------------------------------------
   # Job 2: Resolve context and display test plan
@@ -221,7 +175,7 @@ jobs:
             echo 'os_list=["amazon-2023-amd64", "ubuntu-22-arm64", "redhat-9-amd64"]' >> $GITHUB_OUTPUT
             echo "environment=development" >> $GITHUB_OUTPUT
             echo 'commit_list=["latest", "latest", "latest", "latest", "latest"]' >> $GITHUB_OUTPUT
-            echo "issue_url=https://github.com/${{ github.repository }}/issues/${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+            echo "issue_url=https://github.com/${{ github.repository }}/issues/${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Checkout wazuh-ansible
@@ -247,6 +201,8 @@ jobs:
           echo "Version: ${VERSION}  Stage: ${STAGE:-<release>}"
 
       - name: Show test plan
+        env:
+          PR_HEAD_REF: ${{ steps.ctx.outputs.pr_head_ref }}
         run: |
           WAZUH_VERSION="${{ steps.version.outputs.wazuh_version }}"
           WAZUH_STAGE="${{ steps.version.outputs.wazuh_stage }}"
@@ -254,7 +210,7 @@ jobs:
           echo "============================================="
           echo "  ANSIBLE INTEGRATION TEST PLAN"
           echo "============================================="
-          echo "Branch:        ${{ steps.ctx.outputs.pr_head_ref }}"
+          echo "Branch:        ${PR_HEAD_REF}"
           echo "Trigger:       ${{ github.event_name }}"
           echo "Deployments:   ${{ steps.ctx.outputs.deployment_matrix }}"
           echo "OS list:       ${{ steps.ctx.outputs.os_list }}"
@@ -268,7 +224,7 @@ jobs:
             echo ""
             echo "| | |"
             echo "|---|---|"
-            echo "| **Branch** | \`${{ steps.ctx.outputs.pr_head_ref }}\` |"
+            echo "| **Branch** | \`${PR_HEAD_REF}\` |"
             echo "| **Trigger** | \`${{ github.event_name }}\` |"
             echo "| **Deployments** | \`${{ steps.ctx.outputs.deployment_matrix }}\` |"
             echo "| **OS list** | \`${{ steps.ctx.outputs.os_list }}\` |"
@@ -778,7 +734,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Post PR comment with results
-        if: always() && github.event_name == 'issue_comment'
+        if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         env:
           DEPLOYMENT: ${{ matrix.deployment_type }}
@@ -943,41 +899,3 @@ jobs:
           fi
           aws ec2 delete-key-pair --key-name "$KEY_NAME" --region us-east-1
           echo "Deleted key pair: $KEY_NAME"
-
-  # ---------------------------------------------------------------------------
-  # Job 4: Update the GitHub check run (issue_comment trigger only)
-  # ---------------------------------------------------------------------------
-  update_check:
-    needs: [get_pr_info, prepare, ansible_test]
-    if: always() && github.event_name == 'issue_comment' && needs.get_pr_info.result == 'success'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Update check run
-        uses: actions/github-script@v7
-        env:
-          ANSIBLE_RESULT: ${{ needs.ansible_test.result }}
-          CHECK_NAME: ${{ needs.get_pr_info.outputs.check_name }}
-          CHECK_RUN_ID: ${{ needs.get_pr_info.outputs.check_run_id }}
-        with:
-          script: |
-            const result = process.env.ANSIBLE_RESULT;
-            const conclusionMap = {
-              success:   { conclusion: 'success',   icon: '✅', summary: 'All Ansible integration tests passed.' },
-              failure:   { conclusion: 'failure',   icon: '❌', summary: 'One or more Ansible integration tests failed.' },
-              cancelled: { conclusion: 'cancelled', icon: '⏹️', summary: 'Workflow was cancelled.' },
-            };
-            const { conclusion, icon, summary } = conclusionMap[result] ?? conclusionMap.failure;
-            const label = conclusion.charAt(0).toUpperCase() + conclusion.slice(1);
-            await github.rest.checks.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              check_run_id: parseInt(process.env.CHECK_RUN_ID),
-              status: 'completed',
-              conclusion,
-              completed_at: new Date().toISOString(),
-              output: {
-                title: `${icon} ${process.env.CHECK_NAME} — ${label}`,
-                summary,
-                text: `[View workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
-              }
-            });
