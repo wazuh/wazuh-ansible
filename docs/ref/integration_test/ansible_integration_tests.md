@@ -10,39 +10,44 @@ This workflow runs `ansible-lint` against the PR branch, then provisions EC2 ins
 
 | Mode | Trigger | Who can trigger |
 |---|---|---|
-| PR comment | `issue_comment` on an open, non-draft PR | OWNER, MEMBER, or COLLABORATOR |
+| PR label | `pull_request` (`labeled`) on a non-draft PR opened from a branch of this repository | Anyone who can add labels (triage access or higher) |
 | Manual | `workflow_dispatch` | Anyone with repo write access |
+
+To run the tests on a pull request, add one of the labels listed in [pull_request (label) flow](#pull_request-label-flow). Each label added starts one run against the PR head at that moment:
+
+- To run the tests again (for example after pushing new commits), remove the label and add it again.
+- Labels added while the PR is a draft are ignored. Mark the PR as ready for review and add the label again.
+- PRs opened from forks do not run: GitHub does not pass secrets or the OIDC token to `pull_request` runs from forks. Push the branch to this repository to test it.
 
 ---
 
 ## Execution Flows
 
-### issue_comment flow
+### pull_request (label) flow
 
 ```mermaid
 flowchart TD
-    A[PR comment posted] --> B{Recognized command\non open non-draft PR?}
+    A[Label added to PR] --> B{Test label on a non-draft\nPR from this repository?}
     B -- No --> Z[Ignored]
-    B -- Yes --> C[get_pr_info\nReact · Extract PR data\nParse command · Create Check Run]
+    B -- Yes --> C[get_pr_info\nExtract PR data · Parse label]
     C --> D[prepare\nansible-lint · Read VERSION.json\nResolve context]
     D --> E{deployment_matrix × os_list}
     E --> F[ansible_test\naio × amazon-2023-amd64]
     E --> G[ansible_test\naio × ubuntu-22-arm64]
     E --> H[ansible_test\ndistributed × ...]
-    F & G & H --> I[update_check]
 ```
 
-**Recognized commands:**
+**Labels:**
 
-| Comment | Deployment matrix |
+| Label | Deployment matrix |
 |---|---|
-| `/test-ansible` | `["aio","distributed"]` |
-| `/test-ansible-aio` | `["aio"]` |
-| `/test-ansible-distributed` | `["distributed"]` |
+| `test/ansible` | `["aio","distributed"]` |
+| `test/ansible-aio` | `["aio"]` |
+| `test/ansible-distributed` | `["distributed"]` |
 
-Draft PRs are explicitly rejected — if the PR is in draft state, `get_pr_info` exits with an error even if the command is recognized.
+Labels added to a draft PR are ignored: `get_pr_info` only runs on non-draft PRs.
 
-When triggered by PR comment, `os_list`, `environment`, and `commit_list` default to fixed values (see [Job 2 — prepare](#job-2--prepare-both-triggers)).
+When triggered by a PR label, `os_list`, `environment`, and `commit_list` default to fixed values (see [Job 2 — prepare](#job-2--prepare-both-triggers)).
 
 ### workflow_dispatch flow
 
@@ -71,12 +76,12 @@ flowchart TD
 | `commit_list` | No | `["latest","latest","latest","latest","latest"]` | Per-component revisions: `[indexer, manager, dashboard, agent, installation-assistant]` |
 | `skip_signature_check` | No | `false` | Install unsigned Wazuh packages, only with `development`. Packages built from a specific commit are not signed, so a `commit_list` with commit revisions needs it; `latest` packages are signed |
 
-### issue_comment parameters
+### pull_request (label) parameters
 
 | Parameter | Source |
 |---|---|
-| `pr_head_ref` | PR head branch from GitHub API |
-| `deployment_matrix` | Parsed from comment command |
+| `pr_head_ref` | PR head branch from the event payload |
+| `deployment_matrix` | Mapped from the label name |
 | `os_list` | Fixed: `["amazon-2023-amd64","ubuntu-22-arm64","redhat-9-amd64"]` |
 | `environment` | Fixed: `development` |
 | `commit_list` | Fixed: `["latest","latest","latest","latest","latest"]` |
@@ -116,20 +121,18 @@ The `environment` input controls how Wazuh packages are sourced during the Ansib
 
 ## Job Details
 
-### Job 1 — `get_pr_info` (issue_comment only)
+### Job 1 — `get_pr_info` (pull_request only)
 
 | Step | What it does |
 |---|---|
-| React to comment | Adds a 🚀 reaction to the triggering PR comment |
-| Extract PR data | Calls GitHub API to get `head_ref` and `head_sha`; exits with error if PR is in draft |
-| Parse command | Maps comment text → `deployment_matrix` JSON and `check_name` string |
-| Create Check Run | Creates a GitHub Check Run in `in_progress` state on the PR head SHA |
+| Extract PR data | Reads the PR number, head branch and head SHA from the event payload |
+| Parse label | Maps the label name → `deployment_matrix` JSON |
 
 ### Job 2 — `prepare` (both triggers)
 
 | Step | What it does |
 |---|---|
-| Resolve context | Reads inputs (workflow_dispatch) or defaults (issue_comment) for `deployment_matrix`, `os_list`, `environment`, `commit_list` |
+| Resolve context | Reads inputs (workflow_dispatch) or defaults (pull_request) for `deployment_matrix`, `os_list`, `environment`, `commit_list` |
 | Checkout `wazuh-ansible` | Full checkout of the target branch |
 | `ansible-lint` | Runs `ansible/ansible-lint@v25` against `wazuh-aio.yml`, `wazuh-distributed.yml`, `wazuh-agent.yml`, and the two gather log playbooks |
 | Read `VERSION.json` | Extracts `version` and `stage` |
@@ -287,7 +290,7 @@ For details on what the `installer` test type with `ansible` deployment validate
 | Output | When | Content |
 |---|---|---|
 | Step summary | Always | All `test-results-ansible-*.github` files grouped by deployment/OS |
-| PR comment | `issue_comment` trigger only | Posts or updates a comment per matrix cell (marker: `<!-- ansible-integration-check-{deployment}-{system} -->`) with ✅/❌ and per-component results |
+| PR comment | `pull_request` trigger only | Posts or updates a comment per matrix cell (marker: `<!-- ansible-integration-check-{deployment}-{system} -->`) with ✅/❌ and per-component results |
 | Artifact: `test-results-ansible-{deployment}-{system}-{run_id}` | Always | All results files for this cell, retained 7 days |
 | Artifact: `wazuh-logs-{deployment}-{system}-{run_id}` | On failure only | Wazuh service logs collected via `gather_central_logs.yml` playbook, retained 7 days |
 
@@ -296,16 +299,6 @@ For details on what the `installer` test type with `ansible` deployment validate
 1. **AIO**: deallocate the single instance via allocator `--action delete`
 2. **Distributed**: deallocate all 6 instances in parallel via allocator `--action delete`
 3. **SSH key pair**: `aws ec2 delete-key-pair --key-name {KEY_NAME}` — always runs regardless of whether allocation succeeded
-
-### Job 4 — `update_check` (issue_comment only)
-
-Updates the GitHub Check Run created in Job 1:
-
-| `ansible_test` result | Check conclusion |
-|---|---|
-| `success` | `success` — ✅ All Ansible integration tests passed |
-| `failure` | `failure` — ❌ One or more tests failed |
-| `cancelled` | `cancelled` |
 
 ---
 
@@ -317,7 +310,7 @@ Updates the GitHub Check Run created in Job 1:
 |---|---|
 | `AWS_IAM_ROLE` | OIDC role for AWS operations (allocator + EC2 key pairs) |
 | `GH_CLONE_TOKEN` | Checkout `wazuh-automation` |
-| `GITHUB_TOKEN` | PR comments and Check Run updates (built-in) |
+| `GITHUB_TOKEN` | PR comments (built-in) |
 
 ### Repository variables
 
@@ -335,7 +328,6 @@ Updates the GitHub Check Run created in Job 1:
 | `contents: read` | Checkout repository |
 | `pull-requests: write` | Post PR comments |
 | `issues: write` | Post comments via issues API |
-| `checks: write` | Create and update GitHub Check Runs |
 
 ---
 

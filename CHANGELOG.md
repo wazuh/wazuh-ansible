@@ -22,6 +22,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2350](https://github.com/wazuh/wazuh-ansible/issues/2350) | Start the Ansible integration tests from PR labels |
 | [#2307](https://github.com/wazuh/wazuh-ansible/issues/2307) | Adopt WAZUH_ENROLLMENT_TOKEN in the wazuh-agent role for Linux, Windows and macOS, replacing WAZUH_MANAGER/WAZUH_REGISTRATION_PASSWORD/WAZUH_REGISTRATION_CA |
 | [#2306](https://github.com/wazuh/wazuh-ansible/issues/2306) | Adapt the roles to install-time credential generation: passwords generated once on the control node and provided to each host before install, certificates staged before install with the root CA kept on the control node, and the certs tool run as root |
 | [#2248](https://github.com/wazuh/wazuh-ansible/issues/2248) | Change Codebuild runners to Github runners. |
