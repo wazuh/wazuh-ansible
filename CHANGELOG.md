@@ -76,6 +76,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#6790](https://github.com/wazuh/internal-devel-requests/issues/6790) | Verify the signature of every downloaded Wazuh package with the Wazuh GPG key before installing it, with `wazuh_skip_package_signature_check` to install unsigned development packages |
 | [#2316](https://github.com/wazuh/wazuh-ansible/issues/2316) | Fix "Wait for Wazuh indexer API" task using the removed default user (wazuh-admin) in the wazuh-indexer role |
 | [#2303](https://github.com/wazuh/wazuh-ansible/issues/2303) | Fix node_name undefined in the wazuh-indexer role when generate_certs is false |
 | [#2277](https://github.com/wazuh/wazuh-ansible/issues/2277) | Fix wazuh-dashboard role failing to detect SSL certificate/key paths when opensearch_dashboards.yml uses single-quoted values |
