@@ -18,8 +18,10 @@ The role supports both single-node and multi-node deployments. In a distributed 
 | Stage certificates | Before the package is installed: the root CA certificate (never its key) in `/etc/wazuh/ca`, and the indexer connector (`indexer-connector.pem`) and agent listener (`remoted.pem`) pairs in `etc/certs`, root-owned. The package gives them their owners and uses them. Skipped when the package is already installed. |
 | Create download directory | Ensures the package download directory exists on the target node. |
 | Download package (RHEL) | Downloads the `.rpm` package for `x86_64` or `aarch64` architectures. |
+| Verify package signature | Checks that the downloaded package is signed with the Wazuh GPG key before it is installed, with `verify_package_signature.yml` from the [package-urls](package-urls.md) role. |
 | Install package (RHEL) | Installs the downloaded `.rpm` package using `dnf`. |
 | Download package (Debian) | Downloads the `.deb` package for `amd64` or `arm64` architectures. |
+| Verify package signature | Checks that the downloaded package is signed with the Wazuh GPG key before it is installed, with `verify_package_signature.yml` from the [package-urls](package-urls.md) role. |
 | Install package (Debian) | Installs the downloaded `.deb` package using `apt`. |
 | Deploy configuration files | Copies `ossec.conf` and other configuration files from the control node to the target. |
 | Deploy SSL certificates | After the installation, keeps the certificates for manager–indexer communication and the agent listener certificate (`remoted.pem`/`remoted-key.pem`, served on ports 1517/1515 for agents to pin) in place, with their final owners. |

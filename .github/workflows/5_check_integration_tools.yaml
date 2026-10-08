@@ -46,6 +46,11 @@ on:
         required: false
         default: '["latest", "latest", "latest", "latest", "latest"]'
         type: string
+      skip_signature_check:
+        description: 'Install unsigned Wazuh packages, such as builds of a specific commit (only with development)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   id-token: write
@@ -453,7 +458,13 @@ jobs:
         run: |
           ENVIRONMENT="${{ needs.prepare.outputs.environment }}"
           if [ "$ENVIRONMENT" = "development" ]; then
-            echo "EXTRA_VARS=--extra-vars source=custom" >> $GITHUB_ENV
+            # Packages built from a specific commit are not signed; only development runs may skip the check.
+            if [ "${{ inputs.skip_signature_check }}" = "true" ]; then
+              echo "::warning::Skipping the signature check of the Wazuh packages (skip_signature_check)."
+              echo "EXTRA_VARS=--extra-vars source=custom --extra-vars wazuh_skip_package_signature_check=true" >> $GITHUB_ENV
+            else
+              echo "EXTRA_VARS=--extra-vars source=custom" >> $GITHUB_ENV
+            fi
           elif [ "$ENVIRONMENT" = "prerelease" ]; then
             echo "EXTRA_VARS=--extra-vars source=prerelease" >> $GITHUB_ENV
           else

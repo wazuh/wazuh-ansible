@@ -61,6 +61,12 @@ For installing Wazuh Agents on one or more hosts, use the `wazuh-agent.yml` play
   ansible-playbook -i inventory.ini wazuh-agent.yml
 ```
 
+## Package signatures
+
+The roles download the Wazuh packages from the URLs in `roles/vars/artifact_urls.yaml` and check, on each host, that every package is signed with the Wazuh GPG key before installing it. The key is downloaded from `wazuh_gpg_key_url` and only trusted if its fingerprint is in `wazuh_gpg_key_fingerprints`. An unsigned or modified package, or a package signed with another key, stops the deployment before it is installed.
+
+Development packages are not signed. To install them, set `wazuh_skip_package_signature_check` to `true`, for example with `--extra-vars wazuh_skip_package_signature_check=true`. A warning is printed for each package installed without the check. See [Variables](variables.md#package-urls).
+
 ## Credentials and certificates
 
 The Wazuh Indexer, Wazuh Manager, and Wazuh Dashboard packages create their credentials and certificates when they are installed, from what they find on the host. The deployment playbooks prepare them on the control node and hand each host what its component needs **before** its package is installed, so no component uses a default password.

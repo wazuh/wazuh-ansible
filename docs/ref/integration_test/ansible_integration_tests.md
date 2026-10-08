@@ -74,6 +74,7 @@ flowchart TD
 | `os_list` | No | `["amazon-2023-amd64","ubuntu-26-arm64","ubuntu-24-amd64","redhat-10-arm64"]` | JSON array of target OS identifiers |
 | `environment` | No | `development` | `development`, `prerelease`, or `production` — controls package URL source |
 | `commit_list` | No | `["latest","latest","latest","latest","latest"]` | Per-component revisions: `[indexer, manager, dashboard, agent, installation-assistant]` |
+| `skip_signature_check` | No | `false` | Install unsigned Wazuh packages, only with `development`. Packages built from a specific commit are not signed, so a `commit_list` with commit revisions needs it; `latest` packages are signed |
 
 ### pull_request (label) parameters
 
@@ -84,6 +85,7 @@ flowchart TD
 | `os_list` | Fixed: `["amazon-2023-amd64","ubuntu-22-arm64","redhat-9-amd64"]` |
 | `environment` | Fixed: `development` |
 | `commit_list` | Fixed: `["latest","latest","latest","latest","latest"]` |
+| `skip_signature_check` | Fixed: `false` |
 | `automation_reference` | Defaults to `main` |
 
 ---
