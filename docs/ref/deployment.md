@@ -79,7 +79,7 @@ The playbooks generate one password per account for the whole deployment, the fi
 | `WAZUH_INDEXER_KIBANASERVER_PASSWORD` | `kibanaserver` (Wazuh Indexer) | Wazuh Indexer, Wazuh Dashboard |
 | `WAZUH_INDEXER_MANAGER_PASSWORD` | `wazuh-manager` (Wazuh Indexer) | Wazuh Indexer, Wazuh Manager |
 | `WAZUH_MANAGER_API_PASSWORD` | `wazuh` (Wazuh server API) | Wazuh Manager |
-| `WAZUH_MANAGER_WUI_PASSWORD` | `wazuh-wui` (Wazuh server API) | Wazuh Manager, Wazuh Dashboard |
+| `WAZUH_MANAGER_WUI_PASSWORD` | `wazuh-internal-client` (Wazuh server API; used by the Wazuh Dashboard, not a login account) | Wazuh Manager, Wazuh Dashboard |
 
 - On the control node, they are kept in `deployment-credentials/`, next to the playbook, one file per key. Every later run reuses them.
 - On each host, only the keys its component reads are written to `/etc/wazuh/credentials.env` (`root:root`, `0600`), before the package is installed. The package reads them when it is installed, and the playbooks do not write the file again once the package is in place.
@@ -128,8 +128,8 @@ After deployment, access the Wazuh Dashboard by navigating to `https://<WAZUH_DA
 
 The deployment playbooks do not rotate passwords. To change them, use the `wazuh-passwords-tool.sh` script of the [Wazuh installation assistant](https://github.com/wazuh/wazuh-installation-assistant), following its documentation:
 
-- Run it on a Wazuh Indexer node for `admin`, `kibanaserver`, and `wazuh-manager`, and on the Wazuh Manager master node for `wazuh` and `wazuh-wui`.
-- In a distributed deployment, update the keystores of the other nodes as its documentation lists: the Wazuh Manager keystore for `wazuh-manager`, and the Wazuh Dashboard keystore for `kibanaserver` and `wazuh-wui`.
+- Run it on a Wazuh Indexer node for `admin`, `kibanaserver`, and `wazuh-manager`, and on the Wazuh Manager master node for `wazuh` and `wazuh-internal-client`.
+- In a distributed deployment, update the keystores of the other nodes as its documentation lists: the Wazuh Manager keystore for `wazuh-manager`, and the Wazuh Dashboard keystore for `kibanaserver` and `wazuh-internal-client`.
 
 > **Note:** Change one user at a time, and check that the tool finishes without errors before updating the other nodes. If it stops partway, the Wazuh Manager or Wazuh Dashboard keystore on that host may already hold a password that the Wazuh Indexer did not receive, and `/etc/wazuh-indexer/backup` may be left behind. See the documentation of the tool before running it again.
 
