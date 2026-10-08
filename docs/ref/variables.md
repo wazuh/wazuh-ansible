@@ -149,6 +149,12 @@ instances:
 
 ---
 
+**Variable:** `api_san`  
+**Description:** Optional list of IP/DNS values passed as a repeated `--api-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's Server API certificate (`apid.pem`), on top of the node's `ip`/`name` in `config.yml` and loopback. Requires a `wazuh-certs-tool.sh` build that issues the Server API certificate and accepts `-ap|--api-san`: an older build issues no `*-apid.pem` pair.  
+**Default value:** `[]`
+
+---
+
 **Variable:** `wazuh_indexer_package_download_path`  
 **Description:** Path on the target node where the Wazuh Indexer package file will be downloaded before installation.  
 **Default value:** `/tmp/wazuh-indexer`
