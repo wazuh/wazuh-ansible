@@ -17,6 +17,7 @@ The role can operate in single-node or multi-node cluster configurations, contro
 | Generate certificates | Once, on the control node, only if `deployment-config-files/wazuh-certificates/` has no root CA yet, and after checking that `wazuh_certs_ca_dir` holds no root CA of another deployment: builds `config.yml` from `instances` and runs `wazuh-certs-tool.sh -A` as root. The root CA and its key stay in `wazuh_certs_ca_dir` on the control node; the certificates are written to `deployment-config-files/wazuh-certificates/` and handed back to the user running the playbook. |
 | Stage certificates | Before the package is installed: the root CA certificate (never its key) in `/etc/wazuh/ca`, and the node and admin pairs in `/etc/wazuh-indexer/certs`, with explicit directory modes (`0750`, `0500`). The package then uses them and creates no certificate. |
 | Install dependencies | Installs required system packages via the `dependencies.yml` task file. |
+| Verify package signature | Checks that the downloaded package is signed with the Wazuh GPG key before it is installed, with `verify_package_signature.yml` from the [package-urls](package-urls.md) role. |
 | Install package (RHEL) | Downloads and installs the `.rpm` package using `dnf`. |
 | Install package (Debian) | Downloads and installs the `.deb` package using `apt`. |
 | Configure node | Applies node-specific settings via `config_files_setup.yml`, including `plugins.security.nodes_dn` with the DN of every indexer node, read from its certificate. |

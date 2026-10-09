@@ -82,11 +82,21 @@
         - { src: "{{ dashboard_node_name }}.pem", dest: dashboard.pem }
         - { src: "{{ dashboard_node_name }}-key.pem", dest: dashboard-key.pem }
 
+- name: Linux | Verify the wazuh-dashboard package signature
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: verify_package_signature.yml
+  vars:
+    wazuh_package_file: >-
+      {{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.{{ wazuh_package_type }}
+    wazuh_package_type: "{{ 'rpm' if ansible_facts.os_family == 'RedHat' else 'deb' }}"
+
 - name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
   ansible.builtin.dnf:
     name: "{{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.rpm"
     state: present
-    disable_gpg_check: true
+    # dnf also checks a local package, against any key rpm trusts: skipped only along with the Wazuh key check.
+    disable_gpg_check: "{{ wazuh_skip_package_signature_check | default(false) | bool }}"
   become: true
   when:
     - ansible_facts.os_family == "RedHat"
