@@ -28,7 +28,7 @@ No task prints a password.
 | `WAZUH_INDEXER_KIBANASERVER_PASSWORD` | `kibanaserver` (Wazuh Indexer) | Wazuh Indexer, Wazuh Dashboard |
 | `WAZUH_INDEXER_MANAGER_PASSWORD` | `wazuh-manager` (Wazuh Indexer) | Wazuh Indexer, Wazuh Manager |
 | `WAZUH_MANAGER_API_PASSWORD` | `wazuh` (Wazuh server API) | Wazuh Manager |
-| `WAZUH_MANAGER_WUI_PASSWORD` | `wazuh-wui` (Wazuh server API) | Wazuh Manager, Wazuh Dashboard |
+| `WAZUH_MANAGER_WUI_PASSWORD` | `wazuh-internal-client` (Wazuh server API; used by the Wazuh Dashboard, not a login account) | Wazuh Manager, Wazuh Dashboard |
 
 A supplied password is only used the first time a deployment is created: a component that already resolved its credentials keeps them.
 
