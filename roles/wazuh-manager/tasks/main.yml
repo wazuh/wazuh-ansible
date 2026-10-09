@@ -60,9 +60,9 @@
       register: wazuh_manager_installed_conf
 
     # The wazuh-manager user does not exist yet, so the pairs are staged root-owned; the package's
-    # postinst hands remoted* to wazuh-manager and indexer-connector* to root:wazuh-manager before it
-    # resolves certificates. Skipped once the package is installed: staging again would reset those
-    # owners, and the copies after the installation keep the pairs up to date.
+    # postinst hands remoted* and apid* to wazuh-manager and indexer-connector* to root:wazuh-manager
+    # before it resolves certificates. Skipped once the package is installed: staging again would
+    # reset those owners, and the copies after the installation keep the pairs up to date.
     - name: Credentials | Stage the manager certificate pairs before installing the package
       when: not wazuh_manager_installed_conf.stat.exists
       block:
@@ -80,7 +80,7 @@
             - "{{ wazuh_manager_install_path }}etc"
             - "{{ wazuh_manager_install_path }}etc/certs"
 
-        - name: Credentials | Stage the indexer connector and agent listener pairs
+        - name: Credentials | Stage the indexer connector, agent listener and Server API pairs
           ansible.builtin.copy:
             src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
             dest: "{{ wazuh_manager_install_path }}etc/certs/{{ item.dest }}"
@@ -92,6 +92,8 @@
             - { src: "{{ manager_node_name }}-key.pem", dest: indexer-connector-key.pem }
             - { src: "{{ manager_node_name }}-remoted.pem", dest: remoted.pem }
             - { src: "{{ manager_node_name }}-remoted-key.pem", dest: remoted-key.pem }
+            - { src: "{{ manager_node_name }}-apid.pem", dest: apid.pem }
+            - { src: "{{ manager_node_name }}-apid-key.pem", dest: apid-key.pem }
 
     - name: Ensure wazuh-manager package download directory exists
       ansible.builtin.file:
@@ -230,7 +232,7 @@
         - { src: "{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
       when: item.src != item.dest
 
-    - name: Copy the agent listener certificate to the Wazuh Manager instance
+    - name: Copy the agent listener and Server API certificates to the Wazuh Manager instance
       ansible.builtin.copy:
         src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
         dest: "{{ item.dest }}"
@@ -240,6 +242,8 @@
       with_items:
         - { src: "{{ manager_node_name }}-remoted.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted.pem" }
         - { src: "{{ manager_node_name }}-remoted-key.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted-key.pem" }
+        - { src: "{{ manager_node_name }}-apid.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/apid.pem" }
+        - { src: "{{ manager_node_name }}-apid-key.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/apid-key.pem" }
 
     - name: Manager-config | Configure cluster authentication key
       when: not single_node

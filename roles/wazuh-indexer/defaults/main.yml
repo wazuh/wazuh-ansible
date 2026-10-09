@@ -10,6 +10,7 @@ instances:
 
 wazuh_manager_ips: []
 agent_san: []
+api_san: []
 
 # Where wazuh-certs-tool.sh keeps the deployment CA and its key on the control node. The tool requires
 # every directory of the path to be owned by root and not writable by others
