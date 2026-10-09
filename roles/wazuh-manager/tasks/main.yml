@@ -120,11 +120,19 @@
           when:
             - ansible_facts.architecture == "aarch64"
 
+        - name: RedHat/CentOS/Fedora | Verify the wazuh-manager package signature
+          ansible.builtin.include_role:
+            name: package-urls
+            tasks_from: verify_package_signature.yml
+          vars:
+            wazuh_package_file: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
+
         - name: RedHat/CentOS/Fedora | Install wazuh-manager package
           ansible.builtin.dnf:
             name: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.rpm"
             state: present
-            disable_gpg_check: true
+            # dnf also checks a local package, against any key rpm trusts: skipped only along with the Wazuh key check.
+            disable_gpg_check: "{{ wazuh_skip_package_signature_check | default(false) | bool }}"
 
     - name: Debian-based systems | Download wazuh-manager package
       when: ansible_facts.os_family == 'Debian'
@@ -144,6 +152,13 @@
             mode: '0644'
           when:
             - ansible_facts.architecture == "aarch64"
+
+        - name: Debian-based | Verify the wazuh-manager package signature
+          ansible.builtin.include_role:
+            name: package-urls
+            tasks_from: verify_package_signature.yml
+          vars:
+            wazuh_package_file: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.deb"
 
         - name: Debian-based | Install wazuh-manager package
           ansible.builtin.apt:

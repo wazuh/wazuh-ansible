@@ -60,7 +60,7 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 
 ## package-urls
 
-These variables are defined in `roles/package-urls/defaults/main.yml` and control where the artifact URL definitions file is fetched from.
+These variables are defined in `roles/package-urls/defaults/main.yml` and control where the artifact URL definitions file is fetched from, and how the signature of the downloaded packages is checked.
 
 ---
 
@@ -79,6 +79,24 @@ These variables are defined in `roles/package-urls/defaults/main.yml` and contro
 **Variable:** `package_urls_file_uri_prerelease`  
 **Description:** URI path (relative to the staging package host) used to download the artifact URL definitions file when `source` is set to `prerelease`.  
 **Default value:** `packages-staging.xdrsiem.wazuh.info/pre-release/{{ wazuh_major_version }}/artifact-urls/artifact_urls_{{ wazuh_full_version }}-{{ wazuh_stage }}.yaml`
+
+---
+
+**Variable:** `wazuh_gpg_key_url`  
+**Description:** URL of the Wazuh GPG key, downloaded on each host to check the signature of every Wazuh package before it is installed. On hosts without access to `packages.wazuh.com`, point it to a mirror or to a copy of the key on the host (`file:///path/to/GPG-KEY-WAZUH`). The key is only trusted if the file holds a single key whose fingerprint is in `wazuh_gpg_key_fingerprints`.  
+**Default value:** `https://packages.wazuh.com/key/GPG-KEY-WAZUH`
+
+---
+
+**Variable:** `wazuh_gpg_key_fingerprints`  
+**Description:** Fingerprints of the Wazuh GPG key accepted when checking the package signatures. A key whose expiry date is extended keeps its fingerprint.  
+**Default value:** `["0DCFCA5547B19D2A6099506096B3EE5F29111145"]`
+
+---
+
+**Variable:** `wazuh_skip_package_signature_check`  
+**Description:** When set to `true`, the packages are installed without checking their signature, and a warning is printed for each one. Use it only with unsigned development packages: released Wazuh packages are signed, and an unsigned or modified package otherwise stops the deployment before it is installed.  
+**Default value:** `false`
 
 ---
 

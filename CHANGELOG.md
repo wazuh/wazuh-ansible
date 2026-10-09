@@ -23,6 +23,7 @@
 | Issue | Comment |
 | - | - |
 | [#2354](https://github.com/wazuh/wazuh-ansible/issues/2354) | Deploy the Server API certificate (apid.pem/apid-key.pem) issued by wazuh-certs-tool in the wazuh-manager role, and add api_san |
+| [#2348](https://github.com/wazuh/wazuh-ansible/issues/2348) | Rename the wazuh-wui Server API user to wazuh-internal-client in the documentation |
 | [#2350](https://github.com/wazuh/wazuh-ansible/issues/2350) | Start the Ansible integration tests from PR labels |
 | [#2307](https://github.com/wazuh/wazuh-ansible/issues/2307) | Adopt WAZUH_ENROLLMENT_TOKEN in the wazuh-agent role for Linux, Windows and macOS, replacing WAZUH_MANAGER/WAZUH_REGISTRATION_PASSWORD/WAZUH_REGISTRATION_CA |
 | [#2306](https://github.com/wazuh/wazuh-ansible/issues/2306) | Adapt the roles to install-time credential generation: passwords generated once on the control node and provided to each host before install, certificates staged before install with the root CA kept on the control node, and the certs tool run as root |
@@ -78,6 +79,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#6790](https://github.com/wazuh/internal-devel-requests/issues/6790) | Verify the signature of every downloaded Wazuh package with the Wazuh GPG key before installing it, with `wazuh_skip_package_signature_check` to install unsigned development packages |
 | [#2316](https://github.com/wazuh/wazuh-ansible/issues/2316) | Fix "Wait for Wazuh indexer API" task using the removed default user (wazuh-admin) in the wazuh-indexer role |
 | [#2303](https://github.com/wazuh/wazuh-ansible/issues/2303) | Fix node_name undefined in the wazuh-indexer role when generate_certs is false |
 | [#2277](https://github.com/wazuh/wazuh-ansible/issues/2277) | Fix wazuh-dashboard role failing to detect SSL certificate/key paths when opensearch_dashboards.yml uses single-quoted values |

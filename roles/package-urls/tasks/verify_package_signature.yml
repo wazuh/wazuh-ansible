@@ -1,0 +1,54 @@
+---
+
+# Checks that the package at wazuh_package_file is signed with the Wazuh key, on the target host,
+# before the calling role installs it. Neither dnf nor apt is enough for a local file: dnf accepts
+# a package signed with any key in the RPM database, and apt ignores the signature of a .deb.
+- name: Signature | Warn that the signature check is skipped for {{ wazuh_package_file | basename }}
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: wazuh_skip_package_signature_check is set, {{ wazuh_package_file }} is installed
+      without checking its signature. Use it only with development packages, which are not signed.
+  when: wazuh_skip_package_signature_check | bool
+
+- name: Signature | Check the signature of {{ wazuh_package_file | basename }}
+  when: not (wazuh_skip_package_signature_check | bool)
+  become: true
+  block:
+    - name: Signature | Create a temporary directory for the Wazuh GPG key
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: wazuh-gpg
+      register: wazuh_gpg_key_dir
+
+    - name: Signature | Download the Wazuh GPG key
+      ansible.builtin.get_url:
+        url: "{{ wazuh_gpg_key_url }}"
+        dest: "{{ wazuh_gpg_key_dir.path }}/GPG-KEY-WAZUH"
+        mode: '0644'
+
+    - name: "Signature | Check that the package is signed with the Wazuh key: {{ wazuh_package_file | basename }}"
+      ansible.builtin.script:
+        cmd: >-
+          verify_package_signature.py {{ wazuh_gpg_key_dir.path }}/GPG-KEY-WAZUH
+          {{ wazuh_gpg_key_fingerprints | join(',') }} {{ wazuh_package_file }}
+        executable: "{{ ansible_facts.python.executable }}"
+      register: wazuh_package_signature
+      changed_when: false
+      failed_when: false
+
+    - name: "Signature | Fail if the package is not signed with the Wazuh key: {{ wazuh_package_file | basename }}"
+      ansible.builtin.fail:
+        msg: >-
+          {{ [wazuh_package_signature.stderr | default(''), wazuh_package_signature.stdout | default(''),
+              wazuh_package_signature.msg | default('')] | map('trim') | select | list
+              | first | default('The signature check failed.') }}
+          Wazuh packages are signed. Set wazuh_skip_package_signature_check to true only for
+          unsigned development packages.
+      when: wazuh_package_signature.rc | default(1) != 0
+
+  always:
+    - name: Signature | Remove the temporary directory of the Wazuh GPG key
+      ansible.builtin.file:
+        path: "{{ wazuh_gpg_key_dir.path }}"
+        state: absent
+      when: wazuh_gpg_key_dir.path is defined

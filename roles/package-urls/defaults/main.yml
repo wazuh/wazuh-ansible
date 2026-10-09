@@ -3,3 +3,13 @@
 source: "production"
 package_urls_file_uri: "packages.wazuh.com/production/{{ wazuh_major_version }}/artifact-urls/artifact_urls_{{ wazuh_full_version }}.yaml"
 package_urls_file_uri_prerelease: "packages-staging.xdrsiem.wazuh.info/pre-release/{{ wazuh_major_version }}/artifact-urls/artifact_urls_{{ wazuh_full_version }}-{{ wazuh_stage }}.yaml" # noqa: yaml[line-length]
+
+# Every downloaded package is checked against the Wazuh GPG key before it is installed. The key
+# is downloaded, never embedded, and only trusted if it holds a single primary key whose
+# fingerprint is in the list below: a key whose expiry date was extended keeps its fingerprint.
+# Air-gapped hosts can point the URL to a mirror or to a file:// path on the host.
+wazuh_gpg_key_url: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+wazuh_gpg_key_fingerprints:
+  - "0DCFCA5547B19D2A6099506096B3EE5F29111145"
+# Development builds are not signed. Set to true only to install them.
+wazuh_skip_package_signature_check: false
