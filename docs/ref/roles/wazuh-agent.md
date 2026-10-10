@@ -12,9 +12,9 @@ The role detects the target operating system at runtime and delegates to the app
 |------|-------------|
 | Import variables | Loads shared variables from `vars/main.yml` and `vars/artifact_urls.yaml`. |
 | Validate variables | Imports `validate.yml`, which checks `wazuh_ssl_verification` before anything is installed. |
-| Linux tasks | Imports `Linux.yml` when the target system is Linux, which in turn imports the appropriate distribution-specific tasks and checks that the downloaded package is signed with the Wazuh GPG key before it is installed (see [package-urls](package-urls.md)). The Windows and macOS packages are not checked. |
-| Windows tasks | Imports `Windows.yml` when the target OS family is Windows. |
-| macOS tasks | Imports `macOS.yml` when the target system is Darwin (macOS). |
+| Linux tasks | Imports `Linux.yml` when the target system is Linux, which in turn imports the appropriate distribution-specific tasks and checks that the downloaded package is signed with the Wazuh GPG key before it is installed (see [package-urls](package-urls.md)). |
+| Windows tasks | Imports `Windows.yml` when the target OS family is Windows, which checks the Authenticode signature of the downloaded `.msi` before it is installed (see [package-urls](package-urls.md)). |
+| macOS tasks | Imports `macOS.yml` when the target system is Darwin (macOS), which checks the Developer ID Installer signature of the downloaded `.pkg` before it is installed (see [package-urls](package-urls.md)). |
 
 ### Platform-specific tasks
 
@@ -22,9 +22,9 @@ On **Linux (RHEL-based)**, the role downloads and installs the `.rpm` package fo
 
 On **Linux (Debian-based)**, the role downloads and installs the `.deb` package for the detected architecture (`amd64` or `arm64`) using `apt`.
 
-On **Windows**, the role downloads and installs the `.msi` package using the Windows package manager.
+On **Windows**, the role downloads the `.msi` package, checks that it has a valid Authenticode signature from Wazuh, and installs it using the Windows package manager.
 
-On **macOS**, the role downloads and installs the `.pkg` package for either ARM64 (Apple Silicon) or Intel64 architectures.
+On **macOS**, the role downloads the `.pkg` package for either ARM64 (Apple Silicon) or Intel64 architectures, checks that it is signed with the Wazuh Developer ID Installer certificate, and installs it.
 
 ## Enrollment (token-based)
 
