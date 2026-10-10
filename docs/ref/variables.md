@@ -83,7 +83,7 @@ These variables are defined in `roles/package-urls/defaults/main.yml` and contro
 ---
 
 **Variable:** `wazuh_gpg_key_url`  
-**Description:** URL of the Wazuh GPG key, downloaded on each host to check the signature of every Wazuh package before it is installed. On hosts without access to `packages.wazuh.com`, point it to a mirror or to a copy of the key on the host (`file:///path/to/GPG-KEY-WAZUH`). The key is only trusted if the file holds a single key whose fingerprint is in `wazuh_gpg_key_fingerprints`.  
+**Description:** URL of the Wazuh GPG key, downloaded on each Linux host to check the signature of every `.rpm` and `.deb` Wazuh package before it is installed. On hosts without access to `packages.wazuh.com`, point it to a mirror or to a copy of the key on the host (`file:///path/to/GPG-KEY-WAZUH`). The key is only trusted if the file holds a single key whose fingerprint is in `wazuh_gpg_key_fingerprints`.  
 **Default value:** `https://packages.wazuh.com/key/GPG-KEY-WAZUH`
 
 ---
@@ -97,6 +97,24 @@ These variables are defined in `roles/package-urls/defaults/main.yml` and contro
 **Variable:** `wazuh_skip_package_signature_check`  
 **Description:** When set to `true`, the packages are installed without checking their signature, and a warning is printed for each one. Use it only with unsigned development packages: released Wazuh packages are signed, and an unsigned or modified package otherwise stops the deployment before it is installed.  
 **Default value:** `false`
+
+---
+
+**Variable:** `wazuh_windows_signer_name`  
+**Description:** CN and O that the signer certificate of the Windows agent `.msi` must have. The package is only installed if `Get-AuthenticodeSignature` reports its signature as `Valid` and both names match exactly. The certificate is not pinned by thumbprint, since it is renewed every few days.  
+**Default value:** `Wazuh, Inc`
+
+---
+
+**Variable:** `wazuh_windows_signer_eku`  
+**Description:** Optional extended key usage OID that the signer certificate of the Windows agent `.msi` must also carry, on top of `wazuh_windows_signer_name`. For example, the per-identity EKU of the Azure Artifact Signing account that signs the Wazuh packages, `1.3.6.1.4.1.311.97.415559463.325010792.534504411.28932238`. Empty, it is not checked. If the EKU changes, for example when the identity is validated again, the packages are refused until this value is updated.  
+**Default value:** `""`
+
+---
+
+**Variable:** `wazuh_macos_signer_team_id`  
+**Description:** Apple team ID of the `Developer ID Installer` certificate that must sign the macOS agent `.pkg`. The team ID is kept when the certificate is renewed.  
+**Default value:** `KLZK8P68R5`
 
 ---
 

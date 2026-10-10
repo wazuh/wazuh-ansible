@@ -1,0 +1,47 @@
+---
+
+# Checks that the PKG at wazuh_package_file is signed with the Wazuh Developer ID Installer
+# certificate, on the target host, before the calling role installs it. installer does not apply
+# Gatekeeper, and spctl is not used: it accepts a signed package whose payload was modified.
+# pkgutil exits non-zero for an unsigned or modified package; the leaf certificate is then matched
+# by its team ID, which is kept when the certificate is renewed.
+- name: Signature | Warn that the signature check is skipped for {{ wazuh_package_file | basename }}
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: wazuh_skip_package_signature_check is set, {{ wazuh_package_file }} is installed
+      without checking its signature. Use it only with development packages, which are not signed.
+  when: wazuh_skip_package_signature_check | bool
+
+- name: Signature | Check the signature of {{ wazuh_package_file | basename }}
+  when: not (wazuh_skip_package_signature_check | bool)
+  block:
+    - name: "Signature | Check the Developer ID signature: {{ wazuh_package_file | basename }}"
+      ansible.builtin.command:
+        argv:
+          - pkgutil
+          - --check-signature
+          - "{{ wazuh_package_file }}"
+      register: wazuh_pkg_signature
+      changed_when: false
+      failed_when: false
+
+    - name: "Signature | Fail if the package is not signed by Wazuh: {{ wazuh_package_file | basename }}"
+      vars:
+        # The Status line, or the last line pkgutil printed on stderr when it cannot read the package.
+        wazuh_pkg_status: >-
+          {{ wazuh_pkg_signature.stdout | default('') | regex_search('Status: .*')
+             | default(wazuh_pkg_signature.stderr_lines | default(['The signature check failed.'], true) | last, true) }}
+        wazuh_pkg_signer: >-
+          {{ wazuh_pkg_signature.stdout | default('') | regex_search('(?m)^\s*1\. (.*)$', '\1')
+             | default([''], true) | first }}
+      ansible.builtin.fail:
+        msg: >-
+          {{ wazuh_package_file }} is not signed with the Wazuh Developer ID Installer certificate
+          (team {{ wazuh_macos_signer_team_id }}). {{ wazuh_pkg_status }}{{ ('. Signer: ' ~ wazuh_pkg_signer) if wazuh_pkg_signer else '' }}.
+          Wazuh packages are signed. Set wazuh_skip_package_signature_check to true only for
+          unsigned development packages.
+      when: >-
+        wazuh_pkg_signature.rc | default(1) != 0
+        or 'Status: signed by a developer certificate issued by Apple for distribution' not in wazuh_pkg_signature.stdout | default('')
+        or wazuh_pkg_signature.stdout | default('') is not
+        search('(?m)^\s*1\. Developer ID Installer: .+ \(' ~ (wazuh_macos_signer_team_id | regex_escape) ~ '\)\s*$')
