@@ -14,6 +14,7 @@ The role supports both RHEL-based and Debian-based Linux distributions. Before i
 | Install dependencies | Installs required system packages via the `dependencies.yml` task file. |
 | Provide credentials | Runs the [`wazuh-credentials`](wazuh-credentials.md) role for the dashboard keys. |
 | Stage certificates | Before the package is installed: the root CA certificate (never its key) in `/etc/wazuh/ca`, and the node's pair in `/etc/wazuh-dashboard/certs` as `dashboard.pem`/`dashboard-key.pem`, root-owned. The package uses them. Skipped when the package is already installed. |
+| Verify package signature | Checks that the downloaded package is signed with the Wazuh GPG key before it is installed, with `verify_package_signature.yml` from the [package-urls](package-urls.md) role. |
 | Install package (RHEL) | Installs the `.rpm` package using `dnf`. |
 | Install package (Debian) | Installs the `.deb` package using `apt`. |
 | Reload systemd | Reloads the systemd daemon after installation. |
