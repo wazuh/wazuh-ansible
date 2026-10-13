@@ -60,7 +60,7 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 
 ## package-urls
 
-These variables are defined in `roles/package-urls/defaults/main.yml` and control where the artifact URL definitions file is fetched from.
+These variables are defined in `roles/package-urls/defaults/main.yml` and control where the artifact URL definitions file is fetched from, and how the signature of the downloaded packages is checked.
 
 ---
 
@@ -79,6 +79,24 @@ These variables are defined in `roles/package-urls/defaults/main.yml` and contro
 **Variable:** `package_urls_file_uri_prerelease`  
 **Description:** URI path (relative to the staging package host) used to download the artifact URL definitions file when `source` is set to `prerelease`.  
 **Default value:** `packages-staging.xdrsiem.wazuh.info/pre-release/{{ wazuh_major_version }}/artifact-urls/artifact_urls_{{ wazuh_full_version }}-{{ wazuh_stage }}.yaml`
+
+---
+
+**Variable:** `wazuh_gpg_key_url`  
+**Description:** URL of the Wazuh GPG key, downloaded on each host to check the signature of every Wazuh package before it is installed. On hosts without access to `packages.wazuh.com`, point it to a mirror or to a copy of the key on the host (`file:///path/to/GPG-KEY-WAZUH`). The key is only trusted if the file holds a single key whose fingerprint is in `wazuh_gpg_key_fingerprints`.  
+**Default value:** `https://packages.wazuh.com/key/GPG-KEY-WAZUH`
+
+---
+
+**Variable:** `wazuh_gpg_key_fingerprints`  
+**Description:** Fingerprints of the Wazuh GPG key accepted when checking the package signatures. A key whose expiry date is extended keeps its fingerprint.  
+**Default value:** `["0DCFCA5547B19D2A6099506096B3EE5F29111145"]`
+
+---
+
+**Variable:** `wazuh_skip_package_signature_check`  
+**Description:** When set to `true`, the packages are installed without checking their signature, and a warning is printed for each one. Use it only with unsigned development packages: released Wazuh packages are signed, and an unsigned or modified package otherwise stops the deployment before it is installed.  
+**Default value:** `false`
 
 ---
 
@@ -145,6 +163,12 @@ instances:
 
 **Variable:** `agent_san`  
 **Description:** Optional list of free-standing IP/DNS values (e.g. a load balancer or VIP shared by a manager cluster, not owned by any single node) passed as a repeated `--agent-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's agent listener certificate (`remoted.pem`). Requires a `wazuh-certs-tool.sh` build that includes `wazuh-installation-assistant#1028` (merged 2026-09-17) — an older build does not recognize `--agent-san` and misparses it as the `-A` root-ca path argument instead.  
+**Default value:** `[]`
+
+---
+
+**Variable:** `api_san`  
+**Description:** Optional list of IP/DNS values passed as a repeated `--api-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's Server API certificate (`apid.pem`), on top of the node's `ip`/`name` in `config.yml` and loopback. Requires a `wazuh-certs-tool.sh` build that issues the Server API certificate and accepts `-ap|--api-san`: an older build issues no `*-apid.pem` pair.  
 **Default value:** `[]`
 
 ---
