@@ -6,4 +6,4 @@ Please, also refer to the [Set up the development environment](../../dev/setup.m
 
 Next, refer to the following section:
 
-- [Requirments](requirements.md): Prerequisites and requirments for deploying Wazuh using Ansible.
+- [Requirements](requirements.md): Prerequisites and requirements for deploying Wazuh using Ansible.

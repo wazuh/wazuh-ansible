@@ -45,6 +45,8 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 - **Python**: Python 3.10 or newer.
 - **Additional Tools**:
   - For Linux: Ensure SSH is configured and accessible for remote connections.
+  - For Debian-based Linux: `gpgv`, installed by default with `apt`, to check the signature of the `.deb` packages.
+- **Network**: Access to `packages.wazuh.com` to download the Wazuh GPG key that the package signatures are checked against, or a copy of the key set in `wazuh_gpg_key_url`.
   - For Windows: Configure and enable the `winrm` service for remote access.
 
 ## Hardware and Network Requirements
@@ -59,7 +61,7 @@ Depending on the deployment method (AIO or distributed) and the scale of your en
 Refer to the official documentation of each Wazuh component for detailed hardware requirements:
 
 - **Wazuh Indexer**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-indexer/index.html)
-- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-manager/index.html)
+- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-server/index.html)
 - **Wazuh Dashboard**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-dashboard/index.html)
 - **Wazuh Agent**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html)
 

@@ -36,11 +36,20 @@
     file: "Debian.yml"
   when: ansible_facts.os_family == "Debian"
 
+- name: Linux | Verify the wazuh-agent package signature
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: verify_package_signature.yml
+  vars:
+    wazuh_package_file: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.{{ wazuh_package_type }}"
+    wazuh_package_type: "{{ 'rpm' if ansible_facts.os_family == 'RedHat' else 'deb' }}"
+
 - name: Linux CentOS/RedHat | Install wazuh-agent
   ansible.builtin.dnf:
     name: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.rpm"
     state: present
-    disable_gpg_check: true
+    # dnf also checks a local package, against any key rpm trusts: skipped only along with the Wazuh key check.
+    disable_gpg_check: "{{ wazuh_skip_package_signature_check | default(false) | bool }}"
   environment: "{{ wazuh_agent_install_env }}"
   when:
     - ansible_facts.os_family == "RedHat"
