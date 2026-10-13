@@ -12,7 +12,7 @@ The role detects the target operating system at runtime and delegates to the app
 |------|-------------|
 | Import variables | Loads shared variables from `vars/main.yml` and `vars/artifact_urls.yaml`. |
 | Validate variables | Imports `validate.yml`, which checks `wazuh_ssl_verification` before anything is installed. |
-| Linux tasks | Imports `Linux.yml` when the target system is Linux, which in turn imports the appropriate distribution-specific tasks. |
+| Linux tasks | Imports `Linux.yml` when the target system is Linux, which in turn imports the appropriate distribution-specific tasks and checks that the downloaded package is signed with the Wazuh GPG key before it is installed (see [package-urls](package-urls.md)). The Windows and macOS packages are not checked. |
 | Windows tasks | Imports `Windows.yml` when the target OS family is Windows. |
 | macOS tasks | Imports `macOS.yml` when the target system is Darwin (macOS). |
 
