@@ -46,7 +46,8 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 - **Additional Tools**:
   - For Linux: Ensure SSH is configured and accessible for remote connections.
   - For Debian-based Linux: `gpgv`, installed by default with `apt`, to check the signature of the `.deb` packages.
-- **Network**: Access to `packages.wazuh.com` to download the Wazuh GPG key that the package signatures are checked against, or a copy of the key set in `wazuh_gpg_key_url`.
+  - For Windows: the `Microsoft Identity Verification Root Certificate Authority 2020` certificate in the Trusted Root Certification Authorities store, to trust the signature of the `.msi` package. Windows installs it with the automatic root certificates update; on hosts where that update is disabled or that are offline, import it by hand (see [KB5022661](https://support.microsoft.com/topic/kb5022661-windows-support-for-the-azure-code-signing-program-4b505a31-fa1e-4ea6-85dd-6630229e8ef4)).
+- **Network**: Access to `packages.wazuh.com` to download the Wazuh GPG key that the Linux package signatures are checked against, or a copy of the key set in `wazuh_gpg_key_url`.
   - For Windows: Configure and enable the `winrm` service for remote access.
 
 ## Hardware and Network Requirements

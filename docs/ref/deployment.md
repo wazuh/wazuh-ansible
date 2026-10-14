@@ -63,7 +63,7 @@ For installing Wazuh Agents on one or more hosts, use the `wazuh-agent.yml` play
 
 ## Package signatures
 
-The roles download the Wazuh packages from the URLs in `roles/vars/artifact_urls.yaml` and check, on each host, that every package is signed with the Wazuh GPG key before installing it. The key is downloaded from `wazuh_gpg_key_url` and only trusted if its fingerprint is in `wazuh_gpg_key_fingerprints`. An unsigned or modified package, or a package signed with another key, stops the deployment before it is installed.
+The roles download the Wazuh packages from the URLs in `roles/vars/artifact_urls.yaml` and check, on each host, that every package is signed with the Wazuh GPG key before installing it. The key is downloaded from `wazuh_gpg_key_url` and only trusted if its fingerprint is in `wazuh_gpg_key_fingerprints`. The Windows and macOS agent packages are checked with their platform signature instead: the `.msi` must have a valid Authenticode signature from `wazuh_windows_signer_name`, and the `.pkg` must be signed with the Developer ID Installer certificate of the team `wazuh_macos_signer_team_id`. An unsigned or modified package, or a package signed with another key or certificate, stops the deployment before it is installed.
 
 Development packages are not signed. To install them, set `wazuh_skip_package_signature_check` to `true`, for example with `--extra-vars wazuh_skip_package_signature_check=true`. A warning is printed for each package installed without the check. See [Variables](variables.md#package-urls).
 

@@ -10,6 +10,13 @@
     url: "{{ wazuh_agent_windows }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
 
+- name: Windows | Verify the Wazuh agent installer signature
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: verify_msi_signature.yml
+  vars:
+    wazuh_package_file: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
+
 # Since wazuh/wazuh#39063, a 5.x agent enrolls with a single enrollment token:
 # the manager address and the CA pin travel inside the token itself, fetched
 # over /cacerts and verified against the token's pin on the agent's first
