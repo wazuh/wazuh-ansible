@@ -16,8 +16,9 @@
   ansible.builtin.include_role:
     name: wazuh-credentials
 
-# The package issues the dashboard certificate from the dashboard CA staged in /etc/wazuh-dashboard/ca/,
-# with these names.
+# The names of the dashboard certificate. All-in-one, the package issues it from the CA it mints;
+# distributed, it is issued on the control node from the CA of the deployment and staged in
+# /etc/wazuh-dashboard/certs/ (the dashboard gets no ca/).
 - name: Credentials | Certificate names of this dashboard node
   ansible.builtin.set_fact:
     wazuh_credentials_cert_sans:
@@ -96,7 +97,7 @@
   vars:
     wazuh_credentials_component: dashboard
 
-# The package issues its own pair and verifies each peer against that peer's CA only.
+# The dashboard verifies each peer against that peer's CA only.
 - name: Dashboard-config | Check that the dashboard verifies each peer against its own CA
   become: true
   block:

@@ -14,7 +14,7 @@
           - conf_text is search('(?m)^plugins\.security\.ssl\.http\.pemcert_filepath:\s*/etc/wazuh-indexer/certs/indexer\.pem\s*$')
         fail_msg: >-
           /etc/wazuh-indexer/opensearch.yml does not point at /etc/wazuh-indexer/certs/indexer.pem,
-          the pair the package issues from the indexer CA.
+          the pair of this node (issued by the package all-in-one, staged by the role distributed).
         quiet: true
       vars:
         conf_text: "{{ wazuh_indexer_conf_raw.content | b64decode }}"
