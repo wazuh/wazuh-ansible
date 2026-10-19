@@ -1,95 +1,178 @@
 ---
 
-# A host that already holds the CA or the passwords of another deployment is refused before anything is
-# written, as wazuh-install.sh does it: its components resolved their credentials once and keep them, so
-# handing it this deployment's would leave the two disagreeing. The passwords are only compared, and
-# written, before the component's package is installed: the package reads them only then, and after a
-# password change the hosts that did not run the passwords tool keep the previous values.
+# Each package reads the values the operator supplies from /etc/<package>/local.env and issues its
+# certificates from the CA in /etc/<package>/ca/ (wazuh/internal-devel-requests#7048). Both are provided
+# only before the package is installed: the package resolves its credentials once and keeps them, so
+# writing them again afterwards would change nothing but the file. All-in-one, the package mints its own
+# CA: only local.env is provided. Distributed, the pairs of the host are issued on the control node and
+# staged with the CA certificate, never its key, so the package issues nothing (the installation
+# assistant's model).
+- name: Credentials | Set the configuration directory of {{ wazuh_credentials_component }}
+  ansible.builtin.set_fact:
+    wazuh_credentials_conf_dir: "{{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}"
+
 - name: Credentials | Check whether the package is already installed for {{ wazuh_credentials_component }}
   ansible.builtin.stat:
     path: "{{ wazuh_credentials_component_installed_file[wazuh_credentials_component] }}"
   register: wazuh_credentials_component_installed
 
-- name: Credentials | Look for the CA of this deployment on the control node
-  ansible.builtin.stat:
-    path: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
-  register: wazuh_credentials_control_ca
-  delegate_to: localhost
-  become: false
-
-- name: Credentials | Read the CA anchor already on the host
+# A host whose component already holds the CA of another deployment is refused before anything is
+# written: its certificates were issued from that CA, and its peers would not trust them.
+- name: Credentials | Read the CA already on the host for {{ wazuh_credentials_component }}
   ansible.builtin.slurp:
-    path: /etc/wazuh/ca/root-ca.pem
+    path: "{{ wazuh_credentials_conf_dir }}/ca/root-ca.pem"
   register: wazuh_credentials_host_ca
   failed_when: false
 
 - name: Credentials | Refuse a host that holds the CA of another deployment
   ansible.builtin.assert:
-    that:
-      - wazuh_credentials_control_ca.stat.exists
-      - >-
-        (wazuh_credentials_host_ca.content | b64decode | trim)
-        == (lookup('ansible.builtin.file', local_configs_path ~ '/wazuh-certificates/root-ca.pem') | trim)
+    that: >-
+      (wazuh_credentials_host_ca.content | b64decode | trim)
+      == (lookup('ansible.builtin.file', wazuh_ca_path ~ '/root-ca.pem') | trim)
     fail_msg: >-
-      /etc/wazuh/ca/root-ca.pem on {{ inventory_hostname }} is not the CA of this deployment
-      ({{ local_configs_path }}/wazuh-certificates/root-ca.pem). Remove /etc/wazuh from the host, or run the
-      playbook from the directory of the deployment that installed it.
+      {{ wazuh_credentials_conf_dir }}/ca/root-ca.pem on {{ inventory_hostname }} is not the CA of this
+      deployment ({{ wazuh_ca_path }}/root-ca.pem).
+      Uninstall the package and remove {{ wazuh_credentials_conf_dir }} from the host, or run the playbook
+      from the directory of the deployment that installed it.
     quiet: true
-  when: wazuh_credentials_host_ca.content is defined
+  when:
+    - not (wazuh_credentials_aio | bool)
+    - wazuh_credentials_host_ca.content is defined
 
-- name: Credentials | Provide the credentials before the package is installed for {{ wazuh_credentials_component }}
+- name: Credentials | Provide the credentials and the CA before the package is installed for {{ wazuh_credentials_component }}
   when: not wazuh_credentials_component_installed.stat.exists
   block:
-    - name: Credentials | Read the credentials already on the host
-      ansible.builtin.slurp:
-        path: /etc/wazuh/credentials.env
-      register: wazuh_credentials_host_env
-      failed_when: false
-      no_log: true
-
-    # Only the key names leave this task: the last assignment of a key wins, as when the packages read the file.
-    # ansible-lint renders dict() over its own placeholder values, which are not key/value pairs.
-    - name: Credentials | Compare the credentials on the host with the ones of this deployment
-      ansible.builtin.set_fact:  # noqa: jinja[invalid]
-        wazuh_credentials_host_mismatch: "{{ host_kv | difference(deployment_kv) | map('regex_replace', '=.*$', '') | list }}"
-      vars:
-        component_keys: "{{ wazuh_credentials_component_keys[wazuh_credentials_component] }}"
-        host_pairs: "{{ (wazuh_credentials_host_env.content | default('') | b64decode) | regex_findall('(?m)^(WAZUH_[A-Z_]+)=\"?([^\"\\n]*)\"?\\s*$') }}"
-        host_kv: "{{ (dict(host_pairs) | dict2items | selectattr('key', 'in', component_keys) | items2dict).items() | map('join', '=') | list }}"
-        deployment_kv: "{{ component_keys | zip(component_keys | map('extract', wazuh_credentials)) | map('join', '=') | list }}"
-      no_log: true
-
-    - name: Credentials | Refuse a host that holds the passwords of another deployment
-      ansible.builtin.assert:
-        that: wazuh_credentials_host_mismatch | length == 0
-        fail_msg: >-
-          /etc/wazuh/credentials.env on {{ inventory_hostname }} holds other values for
-          {{ wazuh_credentials_host_mismatch | join(', ') }} than this deployment
-          ({{ wazuh_credentials_path }}). Remove /etc/wazuh from the host, or run the playbook from the
-          directory of the deployment that installed it.
-        quiet: true
-
-    - name: Credentials | Ensure /etc/wazuh exists
+    # Root's and not writable by others, as the packages require of a directory staged before them; the
+    # package sets its own group and mode on install.
+    - name: Credentials | Ensure the configuration directory exists
       ansible.builtin.file:
-        path: /etc/wazuh
+        path: "{{ wazuh_credentials_conf_dir }}"
         state: directory
         owner: root
         group: root
-        mode: "0700"
+        mode: "0750"
 
-    # A block of our own, outside the packages' managed block, which only they may write
-    # (wazuh/wazuh-indexer#1928 FR 10). The packages parse the file, and the last assignment of a key wins.
-    - name: Credentials | Provide the component credentials in /etc/wazuh/credentials.env for {{ wazuh_credentials_component }}
-      ansible.builtin.blockinfile:
-        path: /etc/wazuh/credentials.env
-        create: true
+    - name: Credentials | Issue and stage the certificates for {{ wazuh_credentials_component }}
+      when: not (wazuh_credentials_aio | bool)
+      vars:
+        wazuh_credentials_issued_dir: "{{ wazuh_ca_path }}/issued/{{ inventory_hostname }}"
+        wazuh_credentials_certs_dir: "{{ wazuh_credentials_conf_dir }}/certs"
+        wazuh_credentials_pairs: >-
+          {{ wazuh_credentials_component_pairs[wazuh_credentials_component] | rejectattr('indexer_client', 'defined') | list
+             + (wazuh_credentials_component_pairs[wazuh_credentials_component] | selectattr('indexer_client', 'defined') | list
+                if wazuh_manager_indexer_client_certificate | bool else []) }}
+      block:
+        - name: Credentials | Ensure the directory of the pairs of this host exists on the control node
+          ansible.builtin.file:
+            path: "{{ wazuh_credentials_issued_dir }}"
+            state: directory
+            mode: "0700"
+          delegate_to: localhost
+          become: false
+
+        # Issued once and kept: a rerun stages the same pairs. Remove issued/<host>/ to issue new ones.
+        - name: Credentials | Issue the pairs of this host from the CA of the deployment
+          ansible.builtin.command:
+            argv: >-
+              {{ ['bash', role_path ~ '/files/wazuh-issue-pair.sh',
+                  '--ca-dir', wazuh_ca_path, '--out', wazuh_credentials_issued_dir ~ '/' ~ item.name,
+                  '--cn', wazuh_credentials_node_name, '--eku', item.eku]
+                 + (['--san', sans | unique | join(',')] if sans | length > 0 else [])
+                 + (['--cn-first'] if item.cn_first else []) + (['--chain'] if item.chain else []) }}
+            creates: "{{ wazuh_credentials_issued_dir }}/{{ item.name }}.pem"
+          vars:
+            sans: >-
+              {{ (wazuh_credentials_cert_sans[item.san] + wazuh_credentials_loopback_sans) if item.san
+                 else wazuh_credentials_node_sans | default([]) }}
+          loop: "{{ wazuh_credentials_pairs }}"
+          loop_control:
+            label: "{{ item.name }}"
+          delegate_to: localhost
+          become: false
+
+        # The CA certificate without its key: the package validates the staged pairs against it and
+        # issues nothing. The dashboard keeps no CA of its own.
+        - name: Credentials | Stage the CA certificate
+          when: wazuh_credentials_component in ['indexer', 'manager']
+          block:
+            - name: Credentials | Ensure the CA directory exists
+              ansible.builtin.file:
+                path: "{{ wazuh_credentials_conf_dir }}/ca"
+                state: directory
+                owner: root
+                group: root
+                mode: "0700"
+
+            - name: Credentials | Stage the CA certificate in ca/
+              ansible.builtin.copy:
+                src: "{{ wazuh_ca_path }}/root-ca.pem"
+                dest: "{{ wazuh_credentials_conf_dir }}/ca/root-ca.pem"
+                owner: root
+                group: root
+                mode: "0640"
+
+        # Root's, before the service group exists; the packages give them their group on install (the
+        # manager, after the install: see peer_trust.yml).
+        - name: Credentials | Ensure the certificates directory exists
+          ansible.builtin.file:
+            path: "{{ wazuh_credentials_certs_dir }}"
+            state: directory
+            owner: root
+            group: root
+            mode: "0750"
+
+        - name: Credentials | Stage the pairs of this host
+          ansible.builtin.copy:
+            src: "{{ wazuh_credentials_issued_dir }}/{{ item }}"
+            dest: "{{ wazuh_credentials_certs_dir }}/{{ item }}"
+            owner: root
+            group: root
+            mode: "0640"
+          loop: >-
+            {{ (pair_names | map('regex_replace', '$', '.pem') | list)
+               + (pair_names | map('regex_replace', '$', '-key.pem') | list) }}
+          vars:
+            pair_names: "{{ wazuh_credentials_pairs | map(attribute='name') | list }}"
+
+        - name: Credentials | Stage the admin pair
+          ansible.builtin.copy:
+            src: "{{ wazuh_ca_path }}/{{ item }}"
+            dest: "{{ wazuh_credentials_certs_dir }}/{{ item }}"
+            owner: root
+            group: root
+            mode: "0640"
+          loop: [admin.pem, admin-key.pem]
+          when: wazuh_credentials_component == 'indexer'
+
+        # The CA of each peer: here, the CA of the deployment. The manager also serves it to agents as its
+        # bundle (certs/root-ca.pem).
+        - name: Credentials | Stage the CA of each peer
+          ansible.builtin.copy:
+            src: "{{ wazuh_ca_path }}/root-ca.pem"
+            dest: "{{ wazuh_credentials_certs_dir }}/{{ item }}"
+            owner: root
+            group: root
+            mode: "0640"
+          loop: >-
+            {{ (wazuh_credentials_component_peers[wazuh_credentials_component] | map('regex_replace', '$', '-ca.pem') | list)
+               + (['root-ca.pem'] if wazuh_credentials_component == 'manager' else []) }}
+
+    # Only the keys this component reads that have a value (all-in-one, the supplied ones and those a peer
+    # on this host already published), and the names its certificates must carry. The password alphabet
+    # has no quote, space or $, and the packages do no shell expansion on the file, so values are written
+    # unquoted.
+    - name: Credentials | Provide the component values in local.env for {{ wazuh_credentials_component }}
+      ansible.builtin.copy:
+        dest: "{{ wazuh_credentials_conf_dir }}/local.env"
         owner: root
         group: root
         mode: "0600"
-        insertbefore: BOF
-        marker: "# {mark} wazuh-ansible {{ wazuh_credentials_component }}"
-        block: |
-          {% for key in wazuh_credentials_component_keys[wazuh_credentials_component] %}
+        content: |
+          # Written by wazuh-ansible before the {{ wazuh_credentials_component }} package was installed.
+          {% for key in wazuh_credentials_component_keys[wazuh_credentials_component] | select('in', wazuh_credentials) %}
           {{ key }}={{ wazuh_credentials[key] }}
+          {% endfor %}
+          {% for key, value in wazuh_credentials_cert_sans.items() %}
+          {{ key }}={{ value | join(',') }}
           {% endfor %}
       no_log: true

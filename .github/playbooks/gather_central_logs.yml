@@ -109,7 +109,7 @@
 
         - name: Wazuh Manager | Fetching configuration
           ansible.builtin.copy:
-            src: /var/wazuh-manager/etc/wazuh-manager.conf
+            src: "{{ wazuh_manager_conf_dir | default('/etc/wazuh-manager') }}/wazuh-manager.conf"
             dest: "{{ remote_logs_path }}/wazuh-manager/{{ logs_prefix }}_wazuh-manager.conf"
             remote_src: true
             mode: '0644'

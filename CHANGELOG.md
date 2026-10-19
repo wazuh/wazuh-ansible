@@ -22,6 +22,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2367](https://github.com/wazuh/wazuh-ansible/issues/2367) | Adapt the roles to the 5.0.0 RC 2 per-package credentials: local.env under /etc/<package> instead of /etc/wazuh, the certificates issued by the packages instead of wazuh-certs-tool, each package's own CA in All-in-One and, in distributed deployments, one CA on the control node with the certificates issued there and staged on each host, as the installation assistant does |
 | [#2354](https://github.com/wazuh/wazuh-ansible/issues/2354) | Deploy the Server API certificate (apid.pem/apid-key.pem) issued by wazuh-certs-tool in the wazuh-manager role, and add api_san |
 | [#2348](https://github.com/wazuh/wazuh-ansible/issues/2348) | Rename the wazuh-wui Server API user to wazuh-internal-client in the documentation |
 | [#2350](https://github.com/wazuh/wazuh-ansible/issues/2350) | Start the Ansible integration tests from PR labels |
