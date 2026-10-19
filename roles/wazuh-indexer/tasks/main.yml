@@ -16,11 +16,28 @@
   ansible.builtin.include_role:
     name: wazuh-credentials
 
-# Certificates first, on the control node: the host checks below compare against the CA of this
-# deployment, which a regeneration may just have issued the certificates from.
-- name: Importing generate_certificates.yml
-  ansible.builtin.import_tasks: generate_certificates.yml
-  become: true
+- name: Cert-gen | Check if configuration is defined correctly
+  ansible.builtin.fail:
+    msg: "Single-node cluster is defined incorrectly. Please set single_node to true and define only one node."
+  run_once: true
+  delegate_to: localhost
+  become: false
+  when:
+    - single_node
+    - ( instances | length ) > 1
+
+- name: Cert-gen | Set node name variable
+  ansible.builtin.set_fact:
+    node_name: "{{ (single_node | bool) | ternary(instances['aio_node'].name, instances[inventory_hostname].name) }}"
+
+# The package issues the node certificate from the indexer CA staged in /etc/wazuh-indexer/ca/, with
+# these names (the loopback names are always added by the package).
+- name: Credentials | Certificate names of this indexer node
+  ansible.builtin.set_fact:
+    wazuh_credentials_cert_sans:
+      WAZUH_INDEXER_CERT_SANS: >-
+        {{ (['DNS:' ~ node_name, 'DNS:' ~ ansible_facts.hostname] | unique)
+           + ['IP:' ~ hostvars[inventory_hostname].private_ip] }}
 
 - name: Credentials | Provide the indexer credentials before installing the package
   ansible.builtin.include_role:
@@ -28,10 +45,7 @@
     tasks_from: deploy.yml
   vars:
     wazuh_credentials_component: indexer
-
-- name: Importing stage_certificates.yml
-  ansible.builtin.import_tasks: stage_certificates.yml
-  become: true
+    wazuh_credentials_node_name: "{{ node_name }}"
 
 - name: Linux | Verify the wazuh-indexer package signature
   ansible.builtin.include_role:
@@ -66,18 +80,12 @@
     daemon_reload: true
   become: true
 
-- name: Certificates | Wait until the certificate is valid on this host
+- name: Ensure Wazuh indexer started
   ansible.builtin.include_role:
     name: wazuh-credentials
-    tasks_from: wait_certificate.yml
+    tasks_from: start_service.yml
   vars:
-    wazuh_certificate_path: /etc/wazuh-indexer/certs/indexer.pem
-
-- name: Ensure Wazuh indexer started
-  ansible.builtin.service:
-    name: wazuh-indexer
-    enabled: true
-    state: restarted
+    wazuh_service_name: wazuh-indexer
 
 # The package never loads the security configuration into the cluster: it cannot know whether other
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
@@ -91,6 +99,13 @@
   become: true
   run_once: true
   changed_when: false
+
+- name: Credentials | Use the passwords the indexer published
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: published.yml
+  vars:
+    wazuh_credentials_component: indexer
 
 - name: Wait for Wazuh indexer API
   block:
@@ -119,9 +134,12 @@
         msg: >-
           The Wazuh indexer API did not report a healthy cluster after 24 attempts. Last HTTP status:
           {{ _result.status | default('none') }}.
-          {{ 'The admin password was rejected: check that indexer-security-init.sh loaded the security
-          configuration and that WAZUH_INDEXER_ADMIN_PASSWORD was in /etc/wazuh/credentials.env before
-          the package was installed.' if (_result.status | default(0)) == 401
+          {{ ('The admin password was rejected: check that indexer-security-init.sh loaded the security
+          configuration and that WAZUH_INDEXER_ADMIN_PASSWORD was in /etc/wazuh-indexer/local.env before
+          the package was installed.' ~ ('' if (single_node | default(false) | bool) else ' After a password
+          change, copy the new value to deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD on the control
+          node.'))
+          if (_result.status | default(0)) == 401
           else 'Check the service with journalctl -u wazuh-indexer.' }}
 
 - name: Reload systemd configuration

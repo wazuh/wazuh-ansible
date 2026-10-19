@@ -16,71 +16,22 @@
   ansible.builtin.include_role:
     name: wazuh-credentials
 
+# The package issues the dashboard certificate from the dashboard CA staged in /etc/wazuh-dashboard/ca/,
+# with these names.
+- name: Credentials | Certificate names of this dashboard node
+  ansible.builtin.set_fact:
+    wazuh_credentials_cert_sans:
+      WAZUH_DASHBOARD_CERT_SANS: >-
+        {{ (['DNS:' ~ dashboard_node_name, 'DNS:' ~ ansible_facts.hostname] | unique)
+           + ['IP:' ~ hostvars[inventory_hostname].private_ip] }}
+
 - name: Credentials | Provide the dashboard credentials before installing the package
   ansible.builtin.include_role:
     name: wazuh-credentials
     tasks_from: deploy.yml
   vars:
     wazuh_credentials_component: dashboard
-
-# The anchor, never its key, and the node's pair are staged before the package is installed, as
-# wazuh-install.sh does it: the package then finds them (case C), uses them and issues nothing. With
-# no CA directory it would mint a bootstrap CA, private key included, and issue its own pair.
-- name: Credentials | Provide the deployment CA anchor before installing the package
-  become: true
-  block:
-    - name: Credentials | Ensure the CA directory exists
-      ansible.builtin.file:
-        path: /etc/wazuh/ca
-        state: directory
-        owner: root
-        group: root
-        mode: "0700"
-
-    - name: Credentials | Provide the CA anchor, never its key
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
-        dest: /etc/wazuh/ca/root-ca.pem
-        owner: root
-        group: root
-        mode: "0644"
-
-- name: Credentials | Check whether the dashboard package is already installed
-  ansible.builtin.stat:
-    path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-  register: wazuh_dashboard_installed_conf
-
-# The wazuh-dashboard user does not exist yet, so the pair is staged root-owned, under the names the
-# package expects. The package keeps a pre-placed pair root-owned and the service then fails with
-# EACCES on dashboard-key.pem: the copies after the installation give it to wazuh-dashboard, as
-# wazuh-install.sh does. Skipped once the package is installed, so a rerun does not reset those owners.
-- name: Credentials | Stage the dashboard certificate pair before installing the package
-  when: not wazuh_dashboard_installed_conf.stat.exists
-  become: true
-  block:
-    # Explicit mode on each level, as wazuh-install.sh does with umask 022: dpkg keeps the mode of a
-    # directory that already exists, and the host's umask may be restrictive.
-    - name: Credentials | Ensure the dashboard certificates directory exists
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
-      loop:
-        - /etc/wazuh-dashboard
-        - /etc/wazuh-dashboard/certs
-
-    - name: Credentials | Stage the dashboard pair
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
-        dest: "/etc/wazuh-dashboard/certs/{{ item.dest }}"
-        owner: root
-        group: root
-        mode: "0400"
-      loop:
-        - { src: "{{ dashboard_node_name }}.pem", dest: dashboard.pem }
-        - { src: "{{ dashboard_node_name }}-key.pem", dest: dashboard-key.pem }
+    wazuh_credentials_node_name: "{{ dashboard_node_name }}"
 
 - name: Linux | Verify the wazuh-dashboard package signature
   ansible.builtin.include_role:
@@ -138,115 +89,46 @@
         regexp: '^(\s*)url:\s*https://.*$'
         replace: '\1url: https://{{ wazuh_manager_master_address }}'
 
-- name: Detect expected dashboard SSL certificate names from opensearch_dashboards.yml
+- name: Credentials | Provide the indexer and manager CAs
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: peer_trust.yml
+  vars:
+    wazuh_credentials_component: dashboard
+
+# The package issues its own pair and verifies each peer against that peer's CA only.
+- name: Dashboard-config | Check that the dashboard verifies each peer against its own CA
+  become: true
   block:
-    - name: Read opensearch_dashboards.yml
+    - name: Dashboard-config | Read opensearch_dashboards.yml
       ansible.builtin.slurp:
         path: /etc/wazuh-dashboard/opensearch_dashboards.yml
       register: wazuh_dashboard_conf_raw
-      changed_when: false
 
-    - name: Extract expected certificate/key
-      ansible.builtin.set_fact:
-        expected_cert_path: "{{ (certificate_paths | first | default('') | trim) }}"
-        expected_key_path: "{{ (key_paths | first | default('') | trim) }}"
-      vars:
-        conf_text: "{{ wazuh_dashboard_conf_raw.content | b64decode }}"
-        # Built via string concatenation (~) instead of an escaped quote (\') inside the
-        # single-quoted regex literal: ansible-core 2.16's Jinja parser fails on that escape
-        # ("unexpected ']', expected ')'"), even though the same pattern is valid Jinja and
-        # works fine on ansible-core >= 2.20.
-        quote_chars: "{{ '\"' ~ \"'\" }}"
-        flat_cert_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.certificate\\s*:\\s*[' ~ quote_chars ~ ']?(/\\S+?\\.pem)[' ~ quote_chars ~ ']?(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
-        flat_key_paths: "{{ conf_text | regex_findall('(?m)^\\s*server\\.ssl\\.key\\s*:\\s*[' ~ quote_chars ~ ']?(/\\S+?\\.pem)[' ~ quote_chars ~ ']?(?:\\s+#.*)?$') }}" # noqa: yaml[line-length]
-        nested_cert_paths: "{{ conf_text | regex_findall('(?ms)^server:.*?^\\s+ssl:.*?^\\s+certificate\\s*:\\s*[' ~ quote_chars ~ ']?(/\\S+?\\.pem)[' ~ quote_chars ~ ']?\\s*$') }}" # noqa: yaml[line-length]
-        nested_key_paths: "{{ conf_text | regex_findall('(?ms)^server:.*?^\\s+ssl:.*?^\\s+key\\s*:\\s*[' ~ quote_chars ~ ']?(/\\S+?\\.pem)[' ~ quote_chars ~ ']?\\s*$') }}" # noqa: yaml[line-length]
-        certificate_paths: "{{ flat_cert_paths + nested_cert_paths }}"
-        key_paths: "{{ flat_key_paths + nested_key_paths }}"
-
-    - name: Detect if server.ssl lines are missing or unparseable
-      ansible.builtin.set_fact:
-        dashboard_ssl_lines_missing: "{{ (expected_cert_path | length == 0) or (expected_key_path | length == 0) }}"
-
-    - name: Fall back to the packaged default cert/key paths when unparseable
-      ansible.builtin.set_fact:
-        expected_cert_path: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}.pem"
-        expected_key_path: "/etc/wazuh-dashboard/certs/{{ dashboard_node_name }}-key.pem"
-      when: dashboard_ssl_lines_missing
-
-    - name: Ensure server.ssl.certificate/key are present in opensearch_dashboards.yml
-      ansible.builtin.lineinfile:
-        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: "^#?\\s*server\\.ssl\\.{{ item.key }}\\s*:.*$"
-        line: "server.ssl.{{ item.key }}: '{{ item.value }}'"
-      loop:
-        - { key: "certificate", value: "{{ expected_cert_path }}" }
-        - { key: "key", value: "{{ expected_key_path }}" }
-      when: dashboard_ssl_lines_missing
-
-    - name: Validate expected certificate and key filenames
+    - name: Dashboard-config | Assert the indexer and manager CAs
       ansible.builtin.assert:
         that:
-          - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
-          - ( expected_cert_path is match('^/.+\\.pem$') ) and ( expected_key_path is match('^/.+\\.pem$') )
+          - conf_text is search('(?m)^opensearch\\.ssl\\.certificateAuthorities:.*certs/indexer-ca\\.pem')
+          - conf_text is search('(?m)^\\s+ca:\\s*.*certs/manager-ca\\.pem')
         fail_msg: >-
-          Invalid dashboard SSL certificate/key filenames detected from
-          /etc/wazuh-dashboard/opensearch_dashboards.yml.
-          expected_cert_path='{{ expected_cert_path }}' expected_key_path='{{ expected_key_path }}'.
-          Lines containing 'ssl' in the parsed file:
-          {{ (wazuh_dashboard_conf_raw.content | b64decode).splitlines() | select('search', 'ssl') | list }}
-      changed_when: false
-
-    - name: Create expected cert/key directory (if does not exist)
-      ansible.builtin.file:
-        path: "{{ expected_cert_path | dirname }}"
-        state: directory
-        owner: wazuh-dashboard
-        group: wazuh-dashboard
-        mode: "0500"
-
-- name: Copy the certificates from local to the Wazuh dashboard instance
-  ansible.builtin.copy:
-    src: "{{ local_configs_path }}/wazuh-certificates/{{ item }}"
-    dest: "{{ expected_cert_path | dirname }}/{{ item }}"
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
-    mode: "0400"
-  with_items:
-    - "root-ca.pem"
-    - "{{ dashboard_node_name }}-key.pem"
-    - "{{ dashboard_node_name }}.pem"
-
-- name: Copy certificates to match default names
-  ansible.builtin.copy:
-    src: "{{ expected_cert_path | dirname }}/{{ item.src }}"
-    dest: "{{ item.dest }}"
-    remote_src: true
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
-    mode: "0400"
-  with_items:
-    - { src: "{{ dashboard_node_name }}.pem", dest: "{{ expected_cert_path }}" }
-    - { src: "{{ dashboard_node_name }}-key.pem", dest: "{{ expected_key_path }}" }
-  when: (expected_cert_path | dirname ~ '/' ~ item.src) != item.dest
+          /etc/wazuh-dashboard/opensearch_dashboards.yml does not verify the indexer against
+          certs/indexer-ca.pem and the Server API against certs/manager-ca.pem: this package does not use
+          the per-component CAs of 5.0.0 RC 2.
+        quiet: true
+      vars:
+        conf_text: "{{ wazuh_dashboard_conf_raw.content | b64decode }}"
 
 - name: Reload systemd configuration
   ansible.builtin.systemd:
     daemon_reload: true
   become: true
 
-- name: Certificates | Wait until the certificate is valid on this host
+- name: Ensure Wazuh dashboard started
   ansible.builtin.include_role:
     name: wazuh-credentials
-    tasks_from: wait_certificate.yml
+    tasks_from: start_service.yml
   vars:
-    wazuh_certificate_path: "{{ expected_cert_path }}"
-
-- name: Ensure Wazuh dashboard started
-  ansible.builtin.service:
-    name: wazuh-dashboard
-    enabled: true
-    state: restarted
+    wazuh_service_name: wazuh-dashboard
 
 - name: Extract server host from dashboard configuration
   ansible.builtin.shell:

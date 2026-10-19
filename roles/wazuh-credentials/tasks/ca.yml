@@ -1,0 +1,46 @@
+---
+
+# The CA of a distributed deployment, created once and kept: every certificate of the deployment chains to
+# it, and its key never leaves the control node. Removing wazuh_ca_path starts a new deployment.
+- name: Certificates | Create the CA of the deployment on the control node
+  run_once: true
+  delegate_to: localhost
+  become: false
+  block:
+    - name: Certificates | Ensure the CA directory exists
+      ansible.builtin.file:
+        path: "{{ wazuh_ca_path }}"
+        state: directory
+        mode: "0700"
+
+    # Same profile as the CAs the packages mint themselves: RSA 2048, SHA-256, ten years.
+    - name: Certificates | Create the CA of the deployment
+      ansible.builtin.shell:
+        cmd: |
+          set -euo pipefail
+          umask 077
+          openssl req -x509 -new -newkey rsa:2048 -nodes -sha256 -days 3650 \
+            -subj "/C=US/L=California/O=Wazuh/OU=Wazuh/CN=wazuh-root-ca" \
+            -addext "basicConstraints=critical,CA:TRUE" \
+            -addext "keyUsage=critical,keyCertSign,cRLSign" \
+            -keyout "{{ wazuh_ca_path }}/root-ca.key" \
+            -out "{{ wazuh_ca_path }}/root-ca.pem"
+        executable: /bin/bash
+        creates: "{{ wazuh_ca_path }}/root-ca.pem"
+
+    # The indexer's administrator certificate, the same for every indexer node.
+    - name: Certificates | Issue the admin pair from the CA of the deployment
+      ansible.builtin.command:
+        argv:
+          - bash
+          - "{{ role_path }}/files/wazuh-issue-pair.sh"
+          - --ca-dir
+          - "{{ wazuh_ca_path }}"
+          - --out
+          - "{{ wazuh_ca_path }}/admin"
+          - --cn
+          - admin
+          - --eku
+          - clientAuth
+          - --cn-first
+        creates: "{{ wazuh_ca_path }}/admin.pem"
