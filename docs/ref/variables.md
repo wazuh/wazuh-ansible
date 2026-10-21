@@ -47,7 +47,7 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `local_configs_path`  
-**Description:** Path on the control node to the directory containing deployment configuration files (e.g. `config.yml`, certificates). This directory must exist before running any deployment playbook.  
+**Description:** Path on the control node to the directory containing deployment configuration files (e.g. the CA of the deployment in `wazuh-ca/`). This directory must exist before running any deployment playbook.  
 **Default value:** `{{ playbook_dir }}/deployment-config-files`
 
 ---
@@ -130,15 +130,33 @@ These variables are defined in `roles/wazuh-credentials/defaults/main.yml`. The 
 
 ---
 
-**Variable:** `wazuh_certificate_max_wait`  
-**Description:** Seconds a host may wait, before a component's first start, for a certificate issued on the control node to become valid on it. This covers a host whose clock is slightly behind the control node's. Beyond that, the run stops and asks to synchronize the clocks (for example with NTP).  
-**Default value:** `300`
-
----
-
 **Variable:** `wazuh_credentials_overrides`  
 **Description:** Optional passwords to use instead of generated ones, keyed by name (`WAZUH_INDEXER_ADMIN_PASSWORD`, `WAZUH_INDEXER_KIBANASERVER_PASSWORD`, `WAZUH_INDEXER_MANAGER_PASSWORD`, `WAZUH_MANAGER_API_PASSWORD`, `WAZUH_MANAGER_WUI_PASSWORD`), for example from Ansible Vault. Each value must be 12 to 64 characters from `A-Z a-z 0-9 . , _ + : @ % ^ = ~ -`, with at least one upper case letter, one lower case letter, one digit, and one symbol. Only used the first time a deployment is created.  
 **Default value:** `{}`
+
+---
+
+**Variable:** `wazuh_credentials_aio`  
+**Description:** Whether the deployment is All-in-One. All-in-One, the packages mint their own CAs, issue their certificates and generate the passwords nobody supplied, and the roles stage no certificate; otherwise one CA for the whole deployment is created on the control node, every certificate is issued there, and each host receives its certificates and the CA certificate, never its key. Follows `single_node`.  
+**Default value:** `{{ single_node | default(false) | bool }}`
+
+---
+
+**Variable:** `wazuh_ca_path`  
+**Description:** Directory on the control node where the CA of a distributed deployment is kept: `root-ca.pem` and its private key `root-ca.key`, created the first time a playbook runs when they are not there and never replaced, so you can place your own CA there before the first run. It also holds the pairs issued from it: `admin.pem` and the pairs of each host in `issued/<inventory host>/`. Keep this directory: it is the only record of the CA and its key, which never leaves the control node. Not used in an All-in-One deployment.  
+**Default value:** `{{ local_configs_path }}/wazuh-ca`
+
+---
+
+**Variable:** `wazuh_manager_indexer_client_certificate`  
+**Description:** In a distributed deployment, when `true`, each manager node gets its own client pair, issued on the control node from the CA of the deployment (the node name as CN, client authentication, the node's names and addresses, as the installation assistant issues it) and staged as `certs/indexer-connector.pem` and `indexer-connector-key.pem`. All-in-One, the Wazuh Manager package imports the pair the Wazuh Indexer publishes. Set to `false` if the Wazuh Manager does not present a client certificate to the Wazuh Indexer.  
+**Default value:** `true`
+
+---
+
+**Variable:** `wazuh_service_settle_seconds`  
+**Description:** Seconds a Wazuh service must stay active after it started before the role moves on. A service that stops in that time fails the run, with the reason its pre-start check gave.  
+**Default value:** `5`
 
 ---
 
@@ -154,14 +172,8 @@ These variables are defined in `roles/wazuh-indexer/defaults/main.yml`.
 
 ---
 
-**Variable:** `generate_certs`  
-**Description:** When set to `true`, the role generates the certificates of the deployment with the Wazuh certificates tool, on the control node, the first time it runs; later runs reuse them. Set to `false` to supply your own: place them in `local_configs_path/wazuh-certificates/` with the names the certificates tool uses (`root-ca.pem`, `admin.pem` and `admin-key.pem`, `<name>.pem` and `<name>-key.pem` for each node of `instances`, and `<name>-remoted.pem` and `<name>-remoted-key.pem` for each manager node); the roles stage them the same way.  
-**Default value:** `true`
-
----
-
 **Variable:** `instances`  
-**Description:** A mapping that defines the indexer node instances involved in the deployment. Each entry specifies the node `name`, its `ip` address, and its `role` (e.g. `aio`, `indexer`). Manager entries also accept an optional `extra_ips` list — additional IPv4/IPv6 addresses (public IP, EIP, NAT) unique to that node, added to its `ip` field in the `config.yml` used to generate certificates. This is used when generating certificates and configuring cluster membership. These variables are resolved on the host where the certificate-generation block runs (`run_once`, the first host of the indexer play — e.g. `wi1` in `wazuh-distributed.yml`); setting `instances` or `extra_ips` as a host var of a `manager` node has no effect.  
+**Description:** A mapping that defines the nodes of the deployment, keyed by inventory host name. Each entry specifies the node `name`, its `ip` address, and its `role` (`aio`, `indexer`, `manager`, `dashboard`); manager entries also take `node_type` (`master` or `worker`) and an optional `extra_ips` list of additional IPv4/IPv6 addresses (public IP, EIP, NAT) unique to that node. The `wazuh-indexer` role uses the indexer entries to configure the cluster, and the `wazuh-manager` role uses the entry of each manager node for the names of its certificates (see [Certificate names](roles/wazuh-manager.md#certificate-names)). `wazuh-distributed.yml` gives the manager plays the same `instances` as the indexer play.  
 **Default value:**  
 ```yaml
 instances:
@@ -170,24 +182,6 @@ instances:
     ip: "{{ hostvars[inventory_hostname].private_ip }}"
     role: aio
 ```
-
----
-
-**Variable:** `wazuh_manager_ips`  
-**Description:** Optional list of additional IPv4/IPv6 addresses (public IP, EIP, NAT) to add to the manager node's `ip` field in the `config.yml` used to generate certificates. **Single-node deployments only** — `wazuh-certs-tool.sh` rejects manager nodes that share an `ip` value, so the role fails fast if this is set with more than one manager node in `instances`. For a multi-node cluster, set `extra_ips` on the corresponding entry of `instances` instead, to give each manager node its own distinct address. When empty (the default), `ip` stays a single scalar value, identical to the previous behavior.  
-**Default value:** `[]`
-
----
-
-**Variable:** `agent_san`  
-**Description:** Optional list of free-standing IP/DNS values (e.g. a load balancer or VIP shared by a manager cluster, not owned by any single node) passed as a repeated `--agent-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's agent listener certificate (`remoted.pem`). Requires a `wazuh-certs-tool.sh` build that includes `wazuh-installation-assistant#1028` (merged 2026-09-17) — an older build does not recognize `--agent-san` and misparses it as the `-A` root-ca path argument instead.  
-**Default value:** `[]`
-
----
-
-**Variable:** `api_san`  
-**Description:** Optional list of IP/DNS values passed as a repeated `--api-san <value>` flag when invoking `wazuh-certs-tool.sh -A`. Each value is added to the SAN of every manager node's Server API certificate (`apid.pem`), on top of the node's `ip`/`name` in `config.yml` and loopback. Requires a `wazuh-certs-tool.sh` build that issues the Server API certificate and accepts `-ap|--api-san`: an older build issues no `*-apid.pem` pair.  
-**Default value:** `[]`
 
 ---
 
@@ -206,12 +200,6 @@ instances:
 **Variable:** `wazuh_indexer_heap_size`  
 **Description:** JVM heap size for the Wazuh Indexer, specified as a string with a size unit (e.g. `2g`, `512m`). When empty (the default), the heap size is set to one quarter of the host's total RAM in AIO deployments (`single_node: true`), where the other components share the host, and to half of it on a dedicated indexer node.  
 **Default value:** `""` (auto-calculated)
-
----
-
-**Variable:** `wazuh_certs_ca_dir`  
-**Description:** Directory on the control node where `wazuh-certs-tool.sh` keeps the root CA of the deployment and its private key (`root-ca.pem`, `root-ca.key`). The tool creates it the first time and reuses it on every later run; the key never leaves it. Every directory of the path must be owned by root and not writable by other users, so it cannot be under the playbook directory. The default is one directory per playbook directory, so deployments run from different directories never share a root CA; the playbooks print it on every run. A new deployment is refused if the directory already holds a root CA.  
-**Default value:** `/var/lib/wazuh-ansible/<first 12 characters of the SHA-256 of local_configs_path>/ca`
 
 ---
 
@@ -265,6 +253,30 @@ wazuh_indexer_hosts:
 **Variable:** `wazuh_manager_install_path`  
 **Description:** Filesystem path where the Wazuh Manager is installed on the target node.  
 **Default value:** `/var/wazuh-manager/`
+
+---
+
+**Variable:** `wazuh_manager_conf_dir`  
+**Description:** Directory where the Wazuh Manager reads its configuration (`wazuh-manager.conf`, `certs/`) on the target node.  
+**Default value:** `/etc/wazuh-manager`
+
+---
+
+**Variable:** `wazuh_manager_ips`  
+**Description:** Optional list of additional IPv4/IPv6 addresses (public IP, EIP, NAT) added to the agent listener (`remoted.pem`) and Server API (`apid.pem`) certificates of the manager node. **Single-node deployments only**: the role fails if it is set in a multi-node cluster. For a cluster, set `extra_ips` on the entry of each manager node in `instances` instead.  
+**Default value:** `[]`
+
+---
+
+**Variable:** `agent_san`  
+**Description:** Optional list of IP/DNS values (e.g. a load balancer, VIP or DNS name shared by a manager cluster, not owned by any single node) added to the agent listener certificate (`remoted.pem`) of every manager node, on top of the node's own names and addresses. In a multi-node cluster, agents enroll through one of these values: the master mints enrollment tokens only for addresses in its own certificate. A bare IPv4 address, or a value with a colon, is an IP entry; any other value a DNS entry. See [Certificate names](roles/wazuh-manager.md#certificate-names).  
+**Default value:** `[]`
+
+---
+
+**Variable:** `api_san`  
+**Description:** Optional list of IP/DNS values added to the Server API certificate (`apid.pem`) of every manager node, on top of the node's own names and addresses, such as a published name or a load balancer in front of the Server API. Classified as in `agent_san`.  
+**Default value:** `[]`
 
 ---
 

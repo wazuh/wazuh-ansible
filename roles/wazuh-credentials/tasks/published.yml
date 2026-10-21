@@ -1,0 +1,65 @@
+---
+
+# Each package publishes the passwords of the accounts it owns in <conf>/export/credentials.env, root
+# 0600, once it resolved them: the values it actually applied, whether supplied in local.env or generated.
+# All-in-one, the packages generate the passwords: the published ones are those the health checks use, and
+# they are kept in deployment-credentials/ too. Distributed, the playbooks supply them, and
+# deployment-credentials/ on the control node stays the reference: the passwords tool only updates the
+# files of the host it runs on, so after a password change the other hosts keep publishing the previous
+# value. A value that differs from deployment-credentials/ is reported by key name, never by value.
+- name: Credentials | Read the passwords published for {{ wazuh_credentials_component }}
+  ansible.builtin.slurp:
+    path: "{{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}/export/credentials.env"
+  register: wazuh_credentials_export
+  failed_when: false
+  no_log: true
+
+- name: Credentials | Compare the published passwords with the deployment ones for {{ wazuh_credentials_component }}
+  ansible.builtin.set_fact:
+    wazuh_credentials_published: "{{ dict(published_pairs | selectattr('0', 'in', wazuh_credentials_keys) | list) }}"
+  vars:
+    published_pairs: >-
+      {{ (wazuh_credentials_export.content | default('') | b64decode)
+         | regex_findall('(?m)^(WAZUH_[A-Z_]+)="?([^"\n]*)"?[ \t]*$') }}
+  no_log: true
+
+# Only the key names leave this task.
+- name: Credentials | Find published passwords that differ for {{ wazuh_credentials_component }}
+  ansible.builtin.set_fact:
+    wazuh_credentials_mismatch: "{{ published_kv | difference(deployment_kv) | map('regex_replace', '=.*$', '') | list }}"
+  vars:
+    published_kv: "{{ wazuh_credentials_published.items() | map('join', '=') | list }}"
+    deployment_kv: "{{ wazuh_credentials.items() | map('join', '=') | list }}"
+  no_log: true
+
+- name: Credentials | Warn about published passwords that differ for {{ wazuh_credentials_component }}
+  ansible.builtin.debug:
+    msg: >-
+      [WARNING] The values published in
+      {{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}/export/credentials.env on
+      {{ inventory_hostname }} do not match {{ wazuh_credentials_path }} for:
+      {{ wazuh_credentials_mismatch | join(', ') }}.
+      {{ ('The health checks use the published values; copy them to ' ~ wazuh_credentials_path
+          ~ ' if they are the ones in use.') if (wazuh_credentials_aio | bool)
+         else ('The health checks use ' ~ wazuh_credentials_path ~ '. After a password change, a host where the'
+          ~ ' passwords tool did not run keeps publishing the previous value; that is expected.') }}
+  when: wazuh_credentials_mismatch | length > 0
+
+- name: Credentials | Use the published passwords for {{ wazuh_credentials_component }}
+  ansible.builtin.set_fact:
+    wazuh_credentials: "{{ wazuh_credentials | combine(wazuh_credentials_published) }}"
+  no_log: true
+  when: wazuh_credentials_aio | bool
+
+- name: Credentials | Keep the published passwords on the control node for {{ wazuh_credentials_component }}
+  ansible.builtin.copy:
+    dest: "{{ wazuh_credentials_path }}/{{ item.key }}"
+    content: "{{ item.value }}"
+    mode: "0600"
+  loop: "{{ wazuh_credentials_published | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  delegate_to: localhost
+  become: false
+  no_log: true
+  when: wazuh_credentials_aio | bool

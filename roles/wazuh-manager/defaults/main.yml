@@ -10,3 +10,12 @@ wazuh_indexer_hosts:
 wazuh_manager_package_download_path: "/tmp/wazuh-manager"
 wazuh_manager_package_name: "wazuh-manager-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
 wazuh_manager_install_path: "/var/wazuh-manager/"
+# The manager reads its configuration from here, not from <install path>/etc.
+wazuh_manager_conf_dir: "/etc/wazuh-manager"
+
+# Extra names on this node's manager certificates: wazuh_manager_ips (single node only; per node in a
+# cluster, extra_ips in instances) on both, agent_san on the agent listener (remoted.pem) of every node,
+# the address agents of a cluster enroll through, and api_san on the Server API (apid.pem).
+wazuh_manager_ips: []
+agent_san: []
+api_san: []
