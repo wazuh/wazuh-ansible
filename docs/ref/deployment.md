@@ -117,7 +117,7 @@ Every certificate carries the names the playbooks set for it: `WAZUH_INDEXER_CER
 | Wazuh Manager | `root-ca.pem` | `remoted.pem` / `remoted-key.pem` (agent listener), `apid.pem` / `apid-key.pem` (Wazuh server API), `root-ca.pem` (the CA served to agents), `indexer-ca.pem`, and `indexer-connector.pem` / `indexer-connector-key.pem` (its own client certificate for the Wazuh Indexer, with the node name as CN) |
 | Wazuh Dashboard | — | `dashboard.pem` / `dashboard-key.pem`, `indexer-ca.pem` and `manager-ca.pem` |
 
-With the CA certificate and no key in `ca/`, the packages use these certificates and issue none. The Wazuh Indexer and Wazuh Dashboard packages give the files in `certs/` the group of their service account when they are installed. The Wazuh Manager package checks them before that on RPM systems, so after its installation the playbooks give `certs/` to `root:wazuh-manager` (`0750`, files `0640`) and run its credential resolver again (`wazuh-manager-resolve-credentials --upgrade`), which completes what it skipped and issues nothing.
+With the CA certificate and no key in `ca/`, the packages use these certificates and issue none. The Wazuh Indexer and Wazuh Dashboard packages give the files in `certs/` the group of their service account when they are installed. After the Wazuh Manager package is installed, the playbooks give `certs/` to `root:wazuh-manager` (`0750`, files `0640`) and run its credential resolver again (`wazuh-manager-resolve-credentials --upgrade`), which issues nothing. The step is not required: on RPM systems the package checks the staged files before it gives them its group (it prints `UNSAFE … group is root, not wazuh-manager`), fixes their owner at the end of its installation, and resolves the rest when it first starts. Running the resolver again completes that resolution when the package is installed instead.
 
 The certificates are RSA 2048, SHA-256, valid ten years, and valid from the day before they are issued, so a host whose clock is behind the control node accepts them. The pairs of each host are kept in `deployment-config-files/wazuh-ca/issued/<inventory host>/`. Set `wazuh_manager_indexer_client_certificate` to `false` to skip the client certificate of the Wazuh Manager.
 
@@ -137,6 +137,14 @@ In a distributed deployment, a host whose component already holds the CA of anot
 
 To add a node to a distributed deployment, add it to `instances` and run the playbook again: its certificates are issued from the CA of the deployment and staged before its package is installed. The certificates of the nodes already installed are kept as they are.
 
+Running the playbook again with the same packages leaves them installed as they are and does not write `local.env` again. It downloads the packages and checks their signatures again, writes the Wazuh Indexer hosts of `wazuh-manager.conf` and `opensearch_dashboards.yml` again, and restarts the services.
+
+### Upgrading
+
+The playbooks are not an upgrade procedure. Between 5.x releases, upgrade each component as its documentation describes.
+
+A Wazuh Manager 4.x cannot be upgraded in place to 5.0, and neither can a 5.0.0 RC 1 or earlier pre-release (wazuh/wazuh#40338). Deploy 5.0 on new hosts and carry the agent keys, the agent registry and groups, the enrollment password and the Wazuh server API users across with the manager migration procedure, [Migrating a Wazuh manager from 4.x to 5.0](https://github.com/wazuh/wazuh/blob/5.0.0/docs/guide/migration/manager-4x-to-5x.md), automated by [`wazuh-migrate-identity.py`](https://github.com/wazuh/wazuh/blob/5.0.0/tools/migration/wazuh-migrate-identity.py). The same guide covers the configuration, the ruleset and the agents.
+
 ## Post-Deployment Steps
 
 After deployment, access the Wazuh Dashboard by navigating to `https://<WAZUH_DASHBOARD_IP_ADDRESS>` in your web browser. Log in as `admin`, with the password in `deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD` on the control node:
@@ -152,9 +160,18 @@ The deployment playbooks do not rotate passwords. To change them, use the `wazuh
 - **All-in-One.** Run `wazuh-passwords-tool.sh -a` on the host. It changes every password, updates the keystores and the credential files of the host, and restarts the services.
 - **Distributed.**
   1. On a Wazuh Indexer node, run `wazuh-passwords-tool.sh -a`. It changes `admin`, `kibanaserver` and `wazuh-manager`.
-  2. On the Wazuh Manager master node, run `wazuh-passwords-tool.sh -a`. It changes `wazuh` and `wazuh-internal-client`.
+  2. On the Wazuh Manager master node, run `wazuh-passwords-tool.sh -a`. It changes `wazuh` and `wazuh-internal-client`. These users live in the `rbac.db` of the master, which the cluster does not synchronize: a node promoted to master later keeps the passwords it was installed with, so change them again on it.
   3. On every Wazuh Manager node, write the new `WAZUH_INDEXER_MANAGER_PASSWORD` to the keystore (`wazuh-manager-keystore -f indexer -k password`) and to `/etc/wazuh-manager/local.env`, and restart `wazuh-manager`.
-  4. On every Wazuh Dashboard node, write the new `WAZUH_INDEXER_KIBANASERVER_PASSWORD` (`opensearch.password`) and `WAZUH_MANAGER_WUI_PASSWORD` (`wazuh_core.hosts.default.password`) to the keystore and to `/etc/wazuh-dashboard/local.env`, and restart `wazuh-dashboard`.
+  4. On every Wazuh Dashboard node, write the new `WAZUH_INDEXER_KIBANASERVER_PASSWORD` (`opensearch.password`) and `WAZUH_MANAGER_WUI_PASSWORD` (`wazuh_core.hosts.default.password`) to the keystore and to `/etc/wazuh-dashboard/local.env`, and restart `wazuh-dashboard`. Write the keystore as root, then give it back to the service group:
+
+     ```bash
+     cd /
+     printf '%s' '<new password>' | sudo OSD_PATH_CONF=/etc/wazuh-dashboard /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
+     sudo chown root:wazuh-dashboard /etc/wazuh-dashboard/opensearch_dashboards.keystore
+     sudo chmod 640 /etc/wazuh-dashboard/opensearch_dashboards.keystore
+     ```
+
+     Repeat the `printf` line with `wazuh_core.hosts.default.password` for the Wazuh server API password.
 
   The new values are in the `export/credentials.env` file of the node where the tool ran. The other nodes keep the previous values in their own `export/credentials.env`.
 
