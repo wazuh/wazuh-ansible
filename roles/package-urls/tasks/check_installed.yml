@@ -1,0 +1,21 @@
+---
+
+# Tells whether wazuh_installed_package is installed at the version these playbooks deploy, so a rerun skips
+# its download, signature check and installation. dpkg still lists a package removed with its configuration
+# kept (status rc): only ii counts as installed.
+- name: Package | Read the installed version of {{ wazuh_installed_package }}
+  ansible.builtin.command:
+    argv: >-
+      {{ ['rpm', '-q', '--qf', '%{VERSION}-%{RELEASE}', wazuh_installed_package]
+         if ansible_facts.os_family == 'RedHat'
+         else ['dpkg-query', '-W', '-f=${db:Status-Abbrev}${Version}', wazuh_installed_package] }}
+  register: wazuh_installed_package_query
+  changed_when: false
+  failed_when: false
+
+- name: Package | Check whether the deployed version is installed for {{ wazuh_installed_package }}
+  ansible.builtin.set_fact:
+    wazuh_package_installed: >-
+      {{ wazuh_installed_package_query.rc == 0
+         and (wazuh_installed_package_query.stdout | trim)
+             == (('' if ansible_facts.os_family == 'RedHat' else 'ii ') ~ wazuh_full_version ~ '-' ~ wazuh_package_revision) }}

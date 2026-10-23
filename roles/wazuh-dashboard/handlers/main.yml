@@ -1,0 +1,6 @@
+---
+
+# The package or the configuration of the dashboard changed: start_service.yml restarts it.
+- name: Wazuh dashboard changed
+  ansible.builtin.set_fact:
+    wazuh_dashboard_restart: true

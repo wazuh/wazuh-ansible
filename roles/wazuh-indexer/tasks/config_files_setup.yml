@@ -20,6 +20,7 @@
         conf_text: "{{ wazuh_indexer_conf_raw.content | b64decode }}"
 
 - name: OpenSearch Config | Configure Wazuh indexer
+  notify: Wazuh indexer changed
   block:
     - name: OpenSearch Config | Update network.host configuration
       ansible.builtin.lineinfile:
@@ -107,6 +108,7 @@
 # Same sizing as wazuh-install.sh: a quarter of the memory on an all-in-one host, which the manager and
 # the dashboard share, half of it on a dedicated indexer node.
 - name: JVM Config | Configure heap size
+  notify: Wazuh indexer changed
   vars:
     wazuh_indexer_heap_divisor: "{{ 4 if single_node | bool else 2 }}"
     wazuh_indexer_heap_size_computed: "{{ wazuh_indexer_heap_size if wazuh_indexer_heap_size | length > 0 else ((ansible_memtotal_mb // (wazuh_indexer_heap_divisor | int)) | string) + 'm' }}" # noqa: yaml[line-length]
