@@ -29,71 +29,58 @@
       ansible.builtin.include_role:
         name: wazuh-credentials
 
+    - name: Credentials | Fail if wazuh_manager_ips is set for a multi-node cluster
+      ansible.builtin.fail:
+        msg: >-
+          wazuh_manager_ips applies only to single-node deployments. Set extra_ips on the
+          corresponding entry of 'instances' instead for a per-node address, or use agent_san for an
+          address shared by the whole cluster (e.g. a load balancer).
+      when:
+        - not single_node
+        - wazuh_manager_ips | length > 0
+
+    # The names of this node's agent listener (remoted.pem) and Server API (apid.pem) certificates (the
+    # loopback names are always added). Each certificate names this node only, as the installation
+    # assistant issues them: its name, host name and addresses. agent_san adds the address agents use
+    # to reach the cluster (a DNS name or a load balancer, the same on every node), so the master mints
+    # enrolment tokens for it and agents connect to any node through it; the master refuses a token
+    # for an address its certificate does not name. api_san does the same for the Server API. Bare
+    # values are classified: an IPv4 address, or anything with a colon, is an IP entry; anything else
+    # a DNS entry.
+    - name: Credentials | Certificate names of this manager node
+      ansible.builtin.set_fact:
+        # The names of the node alone, for its client pair for the indexer (indexer-connector.pem).
+        wazuh_credentials_node_sans: >-
+          {{ own_names
+             | map('regex_replace', '^(?!(DNS|IP):)([0-9.]+|.*:.*)$', 'IP:\g<2>')
+             | map('regex_replace', '^(?!(DNS|IP):)', 'DNS:') | unique | list }}
+        wazuh_credentials_cert_sans:
+          WAZUH_MANAGER_REMOTED_CERT_SANS: >-
+            {{ (own_names + agent_san)
+               | map('regex_replace', '^(?!(DNS|IP):)([0-9.]+|.*:.*)$', 'IP:\g<2>')
+               | map('regex_replace', '^(?!(DNS|IP):)', 'DNS:') | unique | list }}
+          WAZUH_MANAGER_APID_CERT_SANS: >-
+            {{ (own_names + api_san)
+               | map('regex_replace', '^(?!(DNS|IP):)([0-9.]+|.*:.*)$', 'IP:\g<2>')
+               | map('regex_replace', '^(?!(DNS|IP):)', 'DNS:') | unique | list }}
+      vars:
+        # In a cluster, this node comes from instances (keyed by inventory host name); a single node, or
+        # a play without instances, is just this host, with wazuh_manager_ips as its extra addresses.
+        own_node: { name: "{{ manager_node_name }}", ip: "{{ private_ip }}", extra_ips: "{{ wazuh_manager_ips }}" }
+        this_node: >-
+          {{ (instances | default({}))[inventory_hostname]
+             if (not single_node and inventory_hostname in (instances | default({}))) else own_node }}
+        own_names: >-
+          {{ [this_node.name, manager_node_name, ansible_facts.hostname, this_node.ip]
+             + this_node.extra_ips | default([]) }}
+
     - name: Credentials | Provide the manager credentials before installing the package
       ansible.builtin.include_role:
         name: wazuh-credentials
         tasks_from: deploy.yml
       vars:
         wazuh_credentials_component: manager
-
-    # The anchor, never its key, and the node's pairs are staged before the package is installed, as
-    # wazuh-install.sh does it: the package then finds them (case C), uses them and issues nothing.
-    - name: Credentials | Ensure the CA directory exists
-      ansible.builtin.file:
-        path: /etc/wazuh/ca
-        state: directory
-        owner: root
-        group: root
-        mode: "0700"
-
-    - name: Credentials | Provide the CA anchor, never its key
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
-        dest: /etc/wazuh/ca/root-ca.pem
-        owner: root
-        group: root
-        mode: "0644"
-
-    - name: Credentials | Check whether the manager package is already installed
-      ansible.builtin.stat:
-        path: "{{ wazuh_manager_install_path }}etc/wazuh-manager.conf"
-      register: wazuh_manager_installed_conf
-
-    # The wazuh-manager user does not exist yet, so the pairs are staged root-owned; the package's
-    # postinst hands remoted* and apid* to wazuh-manager and indexer-connector* to root:wazuh-manager
-    # before it resolves certificates. Skipped once the package is installed: staging again would
-    # reset those owners, and the copies after the installation keep the pairs up to date.
-    - name: Credentials | Stage the manager certificate pairs before installing the package
-      when: not wazuh_manager_installed_conf.stat.exists
-      block:
-        # Each level is created with an explicit mode, as wazuh-install.sh does with umask 022: dpkg
-        # keeps the mode of a directory that already exists, and the host's umask may be restrictive.
-        - name: Credentials | Ensure the manager certificates directory exists
-          ansible.builtin.file:
-            path: "{{ item }}"
-            state: directory
-            owner: root
-            group: root
-            mode: "0755"
-          loop:
-            - "{{ wazuh_manager_install_path }}"
-            - "{{ wazuh_manager_install_path }}etc"
-            - "{{ wazuh_manager_install_path }}etc/certs"
-
-        - name: Credentials | Stage the indexer connector, agent listener and Server API pairs
-          ansible.builtin.copy:
-            src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
-            dest: "{{ wazuh_manager_install_path }}etc/certs/{{ item.dest }}"
-            owner: root
-            group: root
-            mode: "0640"
-          loop:
-            - { src: "{{ manager_node_name }}.pem", dest: indexer-connector.pem }
-            - { src: "{{ manager_node_name }}-key.pem", dest: indexer-connector-key.pem }
-            - { src: "{{ manager_node_name }}-remoted.pem", dest: remoted.pem }
-            - { src: "{{ manager_node_name }}-remoted-key.pem", dest: remoted-key.pem }
-            - { src: "{{ manager_node_name }}-apid.pem", dest: apid.pem }
-            - { src: "{{ manager_node_name }}-apid-key.pem", dest: apid-key.pem }
+        wazuh_credentials_node_name: "{{ manager_node_name }}"
 
     - name: Ensure wazuh-manager package download directory exists
       ansible.builtin.file:
@@ -170,80 +157,33 @@
         daemon_reload: true
       become: true
 
-    - name: Detect the manager's indexer client certificate/key paths from wazuh-manager.conf
-      block:
-        - name: Read wazuh-manager.conf
-          ansible.builtin.slurp:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
-          register: wazuh_manager_conf_raw
-          changed_when: false
+    # The staged trust and pairs get the manager group, and the resolver runs again (distributed only).
+    - name: Credentials | Hand the staged certificates to the manager
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: peer_trust.yml
+      vars:
+        wazuh_credentials_component: manager
 
-        - name: Extract the indexer SSL certificate/key paths
-          ansible.builtin.set_fact:
-            expected_cert_path: "{{ (indexer_certificates | first | default('') | trim) }}"
-            expected_key_path: "{{ (indexer_keys | first | default('') | trim) }}"
+    - name: Manager-config | Check that the manager verifies the indexer against the indexer CA
+      block:
+        - name: Manager-config | Read wazuh-manager.conf
+          ansible.builtin.slurp:
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
+          register: wazuh_manager_conf_raw
+
+        - name: Manager-config | Assert the indexer CA in <indexer><ssl>
+          ansible.builtin.assert:
+            that: indexer_cas | select('search', '(^|/)certs/indexer-ca\\.pem$') | list | length > 0
+            fail_msg: >-
+              The <indexer><ssl> block of {{ wazuh_manager_conf_dir }}/wazuh-manager.conf does not name
+              certs/indexer-ca.pem as its certificate authority ({{ indexer_cas | join(', ') or 'none' }}):
+              this package does not use the per-component CAs of 5.0.0 RC 2.
+            quiet: true
           vars:
             conf_text: "{{ wazuh_manager_conf_raw.content | b64decode | regex_replace('(?s)<!--.*?-->', '') }}"
             indexer_ssl_block: "{{ conf_text | regex_findall('(?s)<indexer[^>]*>.*?<ssl>(.*?)</ssl>.*?</indexer>') | first | default('') }}"
-            indexer_certificates: "{{ indexer_ssl_block | regex_findall('(?s)<certificate>\\s*([^<]+\\.pem)\\s*</certificate>') }}"
-            indexer_keys: "{{ indexer_ssl_block | regex_findall('(?s)<key>\\s*([^<]+\\.pem)\\s*</key>') }}"
-
-        - name: Validate expected certificate and key filenames
-          ansible.builtin.assert:
-            that:
-              - ( expected_cert_path | length > 0 ) and ( expected_key_path | length > 0 )
-              - ( expected_cert_path is match('^/?.+\\.pem$') )
-              - ( expected_key_path is match('^/?.+\\.pem$') )
-            fail_msg: >-
-              Could not find the indexer SSL certificate/key paths inside the <indexer><ssl>
-              block of /var/wazuh-manager/etc/wazuh-manager.conf.
-          changed_when: false
-
-        - name: Set cert and key full paths
-          ansible.builtin.set_fact:
-            full_cert_path: "{{ wazuh_manager_install_path }}{{ expected_cert_path }}"
-            full_key_path: "{{ wazuh_manager_install_path }}{{ expected_key_path }}"
-
-        - name: Create expected cert/key directory (if does not exist)
-          ansible.builtin.file:
-            path: "{{ full_cert_path | dirname }}"
-            state: directory
-            owner: root
-            group: wazuh-manager
-            mode: "1770"
-
-    - name: Copy root-ca certificate from local to the Wazuh Manager instance
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/root-ca.pem"
-        dest: "{{ full_cert_path | dirname }}/root-ca.pem"
-        owner: root
-        group: wazuh-manager
-        mode: '0640'
-
-    - name: Copy the manager's indexer certificate/key to the Wazuh Manager instance
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: root
-        group: wazuh-manager
-        mode: '0640'
-      with_items:
-        - { src: "{{ manager_node_name }}.pem", dest: "{{ full_cert_path }}" }
-        - { src: "{{ manager_node_name }}-key.pem", dest: "{{ full_key_path }}" }
-      when: item.src != item.dest
-
-    - name: Copy the agent listener and Server API certificates to the Wazuh Manager instance
-      ansible.builtin.copy:
-        src: "{{ local_configs_path }}/wazuh-certificates/{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: wazuh-manager
-        group: wazuh-manager
-        mode: '0640'
-      with_items:
-        - { src: "{{ manager_node_name }}-remoted.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted.pem" }
-        - { src: "{{ manager_node_name }}-remoted-key.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/remoted-key.pem" }
-        - { src: "{{ manager_node_name }}-apid.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/apid.pem" }
-        - { src: "{{ manager_node_name }}-apid-key.pem", dest: "{{ wazuh_manager_install_path }}etc/certs/apid-key.pem" }
+            indexer_cas: "{{ indexer_ssl_block | regex_findall('<ca>\\s*([^<]+?)\\s*</ca>') }}"
 
     - name: Manager-config | Configure cluster authentication key
       when: not single_node
@@ -274,7 +214,7 @@
       block:
         - name: Manager-config | Replace indexer hosts in wazuh-manager.conf
           ansible.builtin.replace:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
             regexp: '(^[ \t]*)<hosts>[\s\S]*?</hosts>'
             replace: |1
                   <hosts>
@@ -285,32 +225,32 @@
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (node name)
           ansible.builtin.replace:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
             regexp: '(<node_name>)[^<]+(</node_name>)'
             replace: '\1{{ manager_node_name }}\2'
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (node type)
           ansible.builtin.replace:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
             regexp: '(<node_type>)[^<]+(</node_type>)'
             replace: '\1{% if node_type == "master" or single_node %}master{% else %}worker{% endif %}\2'
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (cluster key)
           ansible.builtin.replace:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
             regexp: '(<node_type>[^<]+</node_type>\s*)<key>[^<]*(</key>)'
             replace: '\g<1><key>{{ wazuh_cluster_key }}\g<2>'
           when: not single_node
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (bind address)
           ansible.builtin.replace:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
             regexp: '(<bind_addr>)[\s\S]*?(</bind_addr>)'
             replace: '<bind_addr>0.0.0.0</bind_addr>'
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (nodes list)
           ansible.builtin.replace:
-            path: /var/wazuh-manager/etc/wazuh-manager.conf
+            path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
             regexp: '(<node>)[\s\S]*?(</node>)'
             replace: '<node>{{ hostvars["manager"].private_ip }}</node>'
           when: not single_node
@@ -320,18 +260,20 @@
         daemon_reload: true
       become: true
 
-    - name: Certificates | Wait until the certificate is valid on this host
+    - name: Ensure Wazuh Manager service is started
       ansible.builtin.include_role:
         name: wazuh-credentials
-        tasks_from: wait_certificate.yml
+        tasks_from: start_service.yml
       vars:
-        wazuh_certificate_path: "{{ full_cert_path }}"
+        wazuh_service_name: wazuh-manager
 
-    - name: Ensure Wazuh Manager service is started
-      ansible.builtin.service:
-        name: "wazuh-manager"
-        enabled: true
-        state: restarted
+    # A worker publishes nothing: the Server API passwords live on the master.
+    - name: Credentials | Use the passwords the manager published
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: published.yml
+      vars:
+        wazuh_credentials_component: manager
 
     - name: Wazuh Manager | Health check (master)
       when: node_type == "master" or single_node
@@ -374,8 +316,10 @@
             msg: >-
               The Server API health check failed. Last HTTP status:
               {{ wazuh_api_healthcheck.status | default(wazuh_api_auth.status | default('none')) }}.
-              {{ 'The wazuh password was rejected: check that WAZUH_MANAGER_API_PASSWORD was in
-              /etc/wazuh/credentials.env before the package was installed.'
+              {{ ('The wazuh password was rejected: check that WAZUH_MANAGER_API_PASSWORD was in '
+                  ~ wazuh_manager_conf_dir ~ '/local.env before the package was installed.'
+                  ~ ('' if (single_node | default(false) | bool) else ' After a password change, copy the new'
+                     ~ ' value to deployment-credentials/WAZUH_MANAGER_API_PASSWORD on the control node.'))
               if (wazuh_api_auth.status | default(0)) == 401
               else 'Check the service with journalctl -u wazuh-manager.' }}
 
