@@ -1,0 +1,46 @@
+---
+
+# Distributed, after the manager package is installed: the pairs and CA files were staged root's before
+# the wazuh-manager group existed, and the package requires them root:wazuh-manager. On RPM the package
+# checks certs/ before it fixes its owner (it fixes it at the end of its installation and resolves the
+# rest at the first start). Giving them the group and running the resolver again completes the resolution
+# at install time; it never mints a CA or issues a pair (as the installation assistant does). The indexer
+# and dashboard packages set the group themselves.
+- name: Credentials | Hand the staged certificates to the manager
+  when:
+    - not (wazuh_credentials_aio | bool)
+    - wazuh_credentials_component == 'manager'
+  vars:
+    wazuh_credentials_certs_dir: "{{ wazuh_credentials_component_conf_dir.manager }}/certs"
+  block:
+    - name: Credentials | Give the certificates directory to the wazuh-manager group
+      ansible.builtin.file:
+        path: "{{ wazuh_credentials_certs_dir }}"
+        state: directory
+        owner: root
+        group: wazuh-manager
+        mode: "0750"
+
+    - name: Credentials | Find the certificate files
+      ansible.builtin.find:
+        paths: "{{ wazuh_credentials_certs_dir }}"
+        patterns: "*.pem"
+      register: wazuh_credentials_certs
+
+    - name: Credentials | Give the certificate files to the wazuh-manager group
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        owner: root
+        group: wazuh-manager
+        mode: "0640"
+      loop: "{{ wazuh_credentials_certs.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+
+    - name: Credentials | Run the manager credential resolver again
+      ansible.builtin.command:
+        argv:
+          - "{{ wazuh_manager_install_path | default('/var/wazuh-manager/') }}bin/wazuh-manager-resolve-credentials"
+          - --upgrade
+      register: wazuh_credentials_resolver
+      changed_when: false

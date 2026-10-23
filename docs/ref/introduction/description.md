@@ -26,12 +26,14 @@ The available playbooks in the project include:
 
 ### Roles
 
-The roles utilized in the project, executed in sequence, are:
+The roles utilized in the project are:
 
-- `package-urls`: Configures the URLs for Wazuh packages.
+- `package-urls`: Configures the URLs for Wazuh packages and checks their signatures.
 - `wazuh-indexer`: Installs and configures the Wazuh Indexer component.
 - `wazuh-manager`: Installs and configures the Wazuh manager.
 - `wazuh-dashboard`: Installs and configures the Wazuh User Interface (WUI).
+- `wazuh-credentials`: Provides the passwords and certificates of each component before its package is installed. The component roles run it; it is not used on its own.
+- `wazuh-agent`: Installs, configures and enrolls the Wazuh agent.
 
 ## Use Cases
 
