@@ -42,7 +42,7 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 
 **Target Node Requirements**:
 
-- **Python**: Python 3.10 or newer.
+- **Python**: Python 3.9 or newer; the default `python3` of RHEL 9 works. The version of ansible-core on the control node may require a newer one: see the [Ansible support matrix](https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html).
 - **Additional Tools**:
   - For Linux: Ensure SSH is configured and accessible for remote connections.
   - For Debian-based Linux: `gpgv`, installed by default with `apt`, to check the signature of the `.deb` packages.
@@ -62,7 +62,7 @@ Depending on the deployment method (AIO or distributed) and the scale of your en
 Refer to the official documentation of each Wazuh component for detailed hardware requirements:
 
 - **Wazuh Indexer**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-indexer/index.html)
-- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-server/index.html)
+- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-manager/index.html)
 - **Wazuh Dashboard**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-dashboard/index.html)
 - **Wazuh Agent**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html)
 

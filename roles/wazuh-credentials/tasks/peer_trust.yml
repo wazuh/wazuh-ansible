@@ -2,9 +2,10 @@
 
 # Distributed, after the manager package is installed: the pairs and CA files were staged root's before
 # the wazuh-manager group existed, and the package requires them root:wazuh-manager. On RPM the package
-# checks certs/ before it fixes its owner, so its resolver refused them at install: give them the group
-# and run the resolver again, which completes what it skipped and never mints a CA or issues a pair (as
-# the installation assistant does). The indexer and dashboard packages set the group themselves.
+# checks certs/ before it fixes its owner (it fixes it at the end of its installation and resolves the
+# rest at the first start). Giving them the group and running the resolver again completes the resolution
+# at install time; it never mints a CA or issues a pair (as the installation assistant does). The indexer
+# and dashboard packages set the group themselves.
 - name: Credentials | Hand the staged certificates to the manager
   when:
     - not (wazuh_credentials_aio | bool)
