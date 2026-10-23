@@ -1,6 +1,6 @@
 ---
 
-- name: Cert-gen | Check that the package reads the staged certificate pair
+- name: Cert-gen | Check that the package reads the certificate pair it issued
   block:
     - name: Cert-gen | Read opensearch.yml
       ansible.builtin.slurp:
@@ -14,7 +14,7 @@
           - conf_text is search('(?m)^plugins\.security\.ssl\.http\.pemcert_filepath:\s*/etc/wazuh-indexer/certs/indexer\.pem\s*$')
         fail_msg: >-
           /etc/wazuh-indexer/opensearch.yml does not point at /etc/wazuh-indexer/certs/indexer.pem,
-          the pair staged before installation.
+          the pair of this node (issued by the package all-in-one, staged by the role distributed).
         quiet: true
       vars:
         conf_text: "{{ wazuh_indexer_conf_raw.content | b64decode }}"
@@ -72,22 +72,14 @@
 
     - name: OpenSearch Config | Add SSL configuration
       block:
-        # The DN is read from each node's certificate rather than rebuilt from its name: wazuh-certs-tool
-        # has used both subject orders (wazuh/wazuh-installation-assistant#1048), and the security plugin
-        # rejects a node whose DN is not listed exactly as its certificate presents it. RFC 2253 is the
-        # form the indexer package itself writes.
-        - name: OpenSearch Config | Read the DN of every indexer node certificate
+        # Each node's package issued its own certificate, with the node's host name as CN, not its
+        # node_name. The DN is read from the certificate on every node, as the security plugin rejects a
+        # node whose DN is not listed exactly as its certificate presents it. RFC 2253 is the form the
+        # indexer package itself writes.
+        - name: OpenSearch Config | Read the DN of this node certificate
           ansible.builtin.command:
-            cmd: >-
-              openssl x509 -in "{{ local_configs_path }}/wazuh-certificates/{{ item.value.name }}.pem"
-              -noout -subject -nameopt RFC2253
-          loop: "{{ instances | dict2items | selectattr('value.role', 'defined') | selectattr('value.role', 'in', ['indexer', 'aio']) | list }}"
-          loop_control:
-            label: "{{ item.value.name }}"
-          register: wazuh_indexer_node_subjects
-          run_once: true
-          delegate_to: localhost
-          become: false
+            cmd: openssl x509 -in /etc/wazuh-indexer/certs/indexer.pem -noout -subject -nameopt RFC2253
+          register: wazuh_indexer_node_subject
           changed_when: false
 
         - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
@@ -101,7 +93,7 @@
               {% endfor %}
           vars:
             wazuh_indexer_nodes_dn: >-
-              {{ wazuh_indexer_node_subjects.results | map(attribute='stdout')
+              {{ ansible_play_hosts | map('extract', hostvars, ['wazuh_indexer_node_subject', 'stdout'])
                  | map('regex_replace', '^subject= *', '') | list }}
 
     - name: Add single-node discovery type if needed

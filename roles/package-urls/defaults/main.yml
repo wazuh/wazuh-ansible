@@ -13,3 +13,13 @@ wazuh_gpg_key_fingerprints:
   - "0DCFCA5547B19D2A6099506096B3EE5F29111145"
 # Development builds are not signed. Set to true only to install them.
 wazuh_skip_package_signature_check: false
+
+# The Windows and macOS packages are not signed with the GPG key: the MSI carries an Authenticode
+# signature and the PKG an Apple Developer ID Installer signature. The signer is pinned by name, not
+# by certificate: the Windows certificate is short-lived and renewed every few days, and the Apple
+# certificate is renewed with the same team ID.
+wazuh_windows_signer_name: "Wazuh, Inc"
+# Optional: an extended key usage OID the Windows signer certificate must also carry, such as the
+# per-identity EKU of the Azure Artifact Signing account that signs the MSI. Empty, it is not checked.
+wazuh_windows_signer_eku: ""
+wazuh_macos_signer_team_id: "KLZK8P68R5"

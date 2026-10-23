@@ -1,0 +1,64 @@
+---
+
+# The packages check their credential and trust material before every start (ExecStartPre) and refuse
+# to start on a problem, printing one MISSING, INVALID or UNSAFE line per problem that names the file
+# or the variable to act on; never a secret. A failed start is reported with those lines.
+- name: Service | Start {{ wazuh_service_name }}
+  block:
+    - name: Service | Mark the time before starting {{ wazuh_service_name }}
+      ansible.builtin.command: date +%s
+      register: wazuh_service_start_time
+      changed_when: false
+
+    - name: Service | Restart {{ wazuh_service_name }}
+      ansible.builtin.service:
+        name: "{{ wazuh_service_name }}"
+        enabled: true
+        state: restarted
+
+    - name: Service | Wait until the service is active for {{ wazuh_service_name }}
+      ansible.builtin.systemd_service:
+        name: "{{ wazuh_service_name }}"
+      register: wazuh_service_active
+      until: wazuh_service_active.status.ActiveState == 'active'
+      retries: 6
+      delay: 5
+
+    # A service may exit right after systemd reports it started: check it is still running a moment later.
+    - name: Service | Let the service settle for {{ wazuh_service_name }}
+      ansible.builtin.wait_for:
+        timeout: "{{ wazuh_service_settle_seconds }}"
+
+    - name: Service | Read the state of the service for {{ wazuh_service_name }}
+      ansible.builtin.systemd_service:
+        name: "{{ wazuh_service_name }}"
+      register: wazuh_service_settled
+
+    - name: Service | Assert the service is still active for {{ wazuh_service_name }}
+      ansible.builtin.assert:
+        that: wazuh_service_settled.status.ActiveState == 'active'
+        quiet: true
+
+  rescue:
+    - name: Service | Read the journal since this start for {{ wazuh_service_name }}
+      ansible.builtin.command: >-
+        journalctl -u {{ wazuh_service_name }} --since @{{ wazuh_service_start_time.stdout | default('0') }}
+        --no-pager -o cat
+      register: wazuh_service_journal
+      changed_when: false
+      failed_when: false
+
+    - name: Service | Report why the service did not start for {{ wazuh_service_name }}
+      ansible.builtin.fail:
+        msg: >-
+          {{ wazuh_service_name }} did not start on {{ inventory_hostname }}.
+          {{ (wazuh_service_reasons | join(' | ')) if wazuh_service_reasons | length > 0
+             else 'No MISSING, INVALID or UNSAFE line in its journal. Last errors: '
+                  ~ ((wazuh_service_errors[-3:] | join(' | ')) or 'none') ~ '. See journalctl -u ' ~ wazuh_service_name ~ '.' }}
+      vars:
+        wazuh_service_reasons: >-
+          {{ wazuh_service_journal.stdout_lines | default([])
+             | select('search', '(MISSING|INVALID|UNSAFE) ') | unique | list }}
+        wazuh_service_errors: >-
+          {{ wazuh_service_journal.stdout_lines | default([])
+             | select('search', '(?i)(error|invalid|critical|fail)') | list }}
