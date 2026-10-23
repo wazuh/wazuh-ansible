@@ -1,0 +1,71 @@
+---
+
+# Checks that the MSI at wazuh_package_file has a valid Authenticode signature from Wazuh, on the
+# target host, before the calling role installs it. msiexec installs an unsigned or re-signed MSI.
+# Valid means Windows trusts the chain and the signature matches the file; the signer is then
+# matched by its CN and O, since the certificate itself is renewed every few days, and optionally
+# by an extended key usage that the signer certificate must carry (wazuh_windows_signer_eku).
+- name: Signature | Warn that the signature check is skipped for {{ wazuh_package_file | win_basename }}
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: wazuh_skip_package_signature_check is set, {{ wazuh_package_file }} is installed
+      without checking its signature. Use it only with development packages, which are not signed.
+  when: wazuh_skip_package_signature_check | bool
+
+- name: Signature | Check the signature of {{ wazuh_package_file | win_basename }}
+  when: not (wazuh_skip_package_signature_check | bool)
+  block:
+    - name: "Signature | Check the Authenticode signature: {{ wazuh_package_file | win_basename }}"
+      ansible.windows.win_powershell:
+        parameters:
+          Path: "{{ wazuh_package_file }}"
+          SignerName: "{{ wazuh_windows_signer_name }}"
+          SignerEku: "{{ wazuh_windows_signer_eku | default('') }}"
+        script: |
+          [CmdletBinding()]
+          param ([String]$Path, [String]$SignerName, [String]$SignerEku)
+          $ErrorActionPreference = 'Stop'
+          $Ansible.Changed = $false
+          if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+              $Ansible.Result = @{ status = 'NotFound'; message = "$Path does not exist."; subject = ''; eku_ok = $true; valid = $false }
+              return
+          }
+          $sig = Get-AuthenticodeSignature -LiteralPath $Path
+          $cert = $sig.SignerCertificate
+          $cn = ''
+          $o = ''
+          $ekus = @()
+          if ($cert) {
+              $ekus = @($cert.Extensions | Where-Object { $_ -is [System.Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension] } |
+                  ForEach-Object { $_.EnhancedKeyUsages } | ForEach-Object { $_.Value })
+              $cn = $cert.GetNameInfo([System.Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false)
+              # .NET quotes the values that contain a comma: CN="Wazuh, Inc", O="Wazuh, Inc", L=...
+              if ($cert.Subject -match '(?:^|,\s*)O=(?:"((?:[^"]|"")*)"|([^,]*))') {
+                  $o = if ($Matches[1]) { $Matches[1] -replace '""', '"' } else { $Matches[2].Trim() }
+              }
+          }
+          $ekuOk = [String]::IsNullOrEmpty($SignerEku) -or ($ekus -contains $SignerEku)
+          $Ansible.Result = @{
+              status  = [String]$sig.Status
+              # Only the first sentence: for NotSigned, Windows appends a note about script execution policies.
+              message = ([String]$sig.StatusMessage -split '(?<=\.)\s+')[0]
+              subject = if ($cert) { $cert.Subject } else { '' }
+              eku_ok  = $ekuOk
+              valid   = ($sig.Status -eq 'Valid') -and ($cn -ceq $SignerName) -and ($o -ceq $SignerName) -and $ekuOk
+          }
+      register: wazuh_msi_signature
+
+    - name: "Signature | Fail if the package is not signed by Wazuh: {{ wazuh_package_file | win_basename }}"
+      vars:
+        wazuh_msi_eku_note: >-
+          {{ ('The signer certificate does not carry the extended key usage ' ~ wazuh_windows_signer_eku ~ ' (wazuh_windows_signer_eku).')
+             if not (wazuh_msi_signature.result.eku_ok | default(true) | bool) else '' }}
+      ansible.builtin.fail:
+        msg: >-
+          {{ wazuh_package_file }} is not signed by {{ wazuh_windows_signer_name }}.
+          Authenticode status: {{ wazuh_msi_signature.result.status | default('unknown') }}
+          {{- (', signer: ' ~ wazuh_msi_signature.result.subject) if wazuh_msi_signature.result.subject | default('') else '' }}.
+          {{ [wazuh_msi_signature.result.message | default(''), wazuh_msi_eku_note] | select | join(' ') }}
+          Wazuh packages are signed. Set wazuh_skip_package_signature_check to true only for
+          unsigned development packages.
+      when: not (wazuh_msi_signature.result.valid | default(false) | bool)

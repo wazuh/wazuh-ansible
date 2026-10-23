@@ -13,8 +13,8 @@
     - role: wazuh-indexer
   become: true
   vars:
-    # generate_certs: false                    # Set to false if you are using your own certificates
-    instances:
+    # Own CA: place root-ca.pem and root-ca.key in deployment-config-files/wazuh-ca/ before the first run
+    instances: &instances
       wi1:                                     # Must be same as inventory hostname
         name: indexer
         ip: "{{ hostvars.wi1.private_ip }}"
@@ -52,6 +52,7 @@
   vars:
     node_type: "master"
     manager_node_name: "manager"
+    instances: *instances
     wazuh_indexer_hosts:
       - host: "{{ hostvars.wi1.private_ip }}"
         port: 9200
@@ -68,6 +69,7 @@
   vars:
     node_type: "worker"
     manager_node_name: "manager-2"
+    instances: *instances
     wazuh_indexer_hosts:
       - host: "{{ hostvars.wi1.private_ip }}"
         port: 9200

@@ -14,8 +14,8 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 - **Additional Tools**:
   - Git: Required for cloning the wazuh-ansible repository.
   - SSH: Necessary for connecting to remote servers.
-  - OpenSSL: Used to read the certificates of the deployment.
-- **Privileges**: `sudo` for the user running the playbooks. The deployment playbooks run `wazuh-certs-tool.sh` as root on the control node, to create and keep the root CA of the deployment in `wazuh_certs_ca_dir`. Add `-K` (`--ask-become-pass`) to `ansible-playbook` if `sudo` asks for a password.
+  - OpenSSL: Used to create the certificate authority of a distributed deployment and issue its certificates.
+- **Privileges**: the deployment playbooks need no `sudo` on the control node: they create the passwords and the certificate authority of the deployment as the user running `ansible-playbook`.
 - **Ansible Collections**: Ensure all required Ansible collections listed in the `requirements.yml` file are installed. Use the `ansible-galaxy` command to do so.
 
   ```bash
@@ -42,11 +42,12 @@ Here is a detailed outline of the requirements needed to implement Wazuh using w
 
 **Target Node Requirements**:
 
-- **Python**: Python 3.10 or newer.
+- **Python**: Python 3.9 or newer; the default `python3` of RHEL 9 works. The version of ansible-core on the control node may require a newer one: see the [Ansible support matrix](https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html).
 - **Additional Tools**:
   - For Linux: Ensure SSH is configured and accessible for remote connections.
   - For Debian-based Linux: `gpgv`, installed by default with `apt`, to check the signature of the `.deb` packages.
-- **Network**: Access to `packages.wazuh.com` to download the Wazuh GPG key that the package signatures are checked against, or a copy of the key set in `wazuh_gpg_key_url`.
+  - For Windows: the `Microsoft Identity Verification Root Certificate Authority 2020` certificate in the Trusted Root Certification Authorities store, to trust the signature of the `.msi` package. Windows installs it with the automatic root certificates update; on hosts where that update is disabled or that are offline, import it by hand (see [KB5022661](https://support.microsoft.com/topic/kb5022661-windows-support-for-the-azure-code-signing-program-4b505a31-fa1e-4ea6-85dd-6630229e8ef4)).
+- **Network**: Access to `packages.wazuh.com` to download the Wazuh GPG key that the Linux package signatures are checked against, or a copy of the key set in `wazuh_gpg_key_url`.
   - For Windows: Configure and enable the `winrm` service for remote access.
 
 ## Hardware and Network Requirements
@@ -61,7 +62,7 @@ Depending on the deployment method (AIO or distributed) and the scale of your en
 Refer to the official documentation of each Wazuh component for detailed hardware requirements:
 
 - **Wazuh Indexer**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-indexer/index.html)
-- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-server/index.html)
+- **Wazuh Manager**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-manager/index.html)
 - **Wazuh Dashboard**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-dashboard/index.html)
 - **Wazuh Agent**: [Installation Guide](https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html)
 

@@ -9,16 +9,37 @@ wazuh_credentials_path: "{{ playbook_dir }}/deployment-credentials"
 # them (wazuh/wazuh-indexer#1928 FR 34). Use wazuh-passwords-tool.sh to rotate.
 wazuh_credentials_overrides: {}
 
+# Configuration directory of each package, where its local.env and ca/ are provided.
+wazuh_credentials_component_conf_dir:
+  indexer: /etc/wazuh-indexer
+  manager: "{{ wazuh_manager_conf_dir | default('/etc/wazuh-manager') }}"
+  dashboard: /etc/wazuh-dashboard
+
+# Peers whose CA each component trusts, staged as certs/<peer>-ca.pem in a distributed deployment.
+wazuh_credentials_component_peers:
+  indexer: []
+  manager:
+    - indexer
+  dashboard:
+    - indexer
+    - manager
+
+# Group of each package's service account, which reads the files in certs/.
+wazuh_credentials_component_group:
+  indexer: wazuh-indexer
+  manager: wazuh-manager
+  dashboard: wazuh-dashboard
+
+# Names each component's certificates must carry, written to its local.env as
+# KEY=entry,entry (e.g. WAZUH_INDEXER_CERT_SANS: ["DNS:node-1", "IP:10.0.0.1"]). Set by each role.
+wazuh_credentials_cert_sans: {}
+
 # A file each package installs, to tell whether a component is already installed on the host. The
-# packages read credentials.env only at installation, so the file is written only before it.
+# packages resolve their credentials only at installation, so local.env and ca/ are provided only before it.
 wazuh_credentials_component_installed_file:
   indexer: /etc/wazuh-indexer/opensearch.yml
-  manager: /var/wazuh-manager/etc/wazuh-manager.conf
+  manager: "{{ wazuh_manager_conf_dir | default('/etc/wazuh-manager') }}/wazuh-manager.conf"
   dashboard: /etc/wazuh-dashboard/opensearch_dashboards.yml
-
-# How many seconds a host may wait for a certificate issued on the control node to become valid on it,
-# when its clock is behind the control node's. Beyond that the run stops and asks to synchronize the clocks.
-wazuh_certificate_max_wait: 300
 
 wazuh_credentials_keys:
   - WAZUH_INDEXER_ADMIN_PASSWORD
@@ -41,3 +62,45 @@ wazuh_credentials_component_keys:
   dashboard:
     - WAZUH_INDEXER_KIBANASERVER_PASSWORD
     - WAZUH_MANAGER_WUI_PASSWORD
+
+# All-in-one (single_node): every package mints its own CA and imports its peers' from their export/ on
+# the same host, and generates the passwords nobody supplied; the role only writes local.env with the
+# names of the certificates and the supplied passwords, and reads the generated ones back. Distributed:
+# one CA for the whole deployment whose key never leaves the control node, where every certificate pair
+# is issued; each host receives the CA certificate and its pairs before its package is installed, as the
+# installation assistant does.
+wazuh_credentials_aio: "{{ single_node | default(false) | bool }}"
+
+# Where the CA of a distributed deployment and its key are kept on the control node (root-ca.pem,
+# root-ca.key), with the pairs issued from it: admin, and the pairs of each host in
+# issued/<inventory host>/. Back it up.
+wazuh_ca_path: "{{ local_configs_path }}/wazuh-ca"
+
+# Pairs issued on the control node for each host of a distributed deployment and staged as
+# certs/<name>.pem and <name>-key.pem. san: the local.env key whose names the certificate carries
+# (plus the loopback names), or empty for the names of the node alone (wazuh_credentials_node_sans);
+# eku: extendedKeyUsage; cn_first: the subject order the indexer package writes in nodes_dn; chain: the
+# CA appended to the leaf, for the servers that hand their chain to peers; indexer_client: issued only
+# when wazuh_manager_indexer_client_certificate is true.
+wazuh_credentials_component_pairs:
+  indexer:
+    - { name: indexer, san: WAZUH_INDEXER_CERT_SANS, eku: "serverAuth,clientAuth", cn_first: true, chain: false }
+  manager:
+    - { name: remoted, san: WAZUH_MANAGER_REMOTED_CERT_SANS, eku: serverAuth, cn_first: false, chain: true }
+    - { name: apid, san: WAZUH_MANAGER_APID_CERT_SANS, eku: serverAuth, cn_first: false, chain: true }
+    - { name: indexer-connector, san: "", eku: clientAuth, cn_first: false, chain: false, indexer_client: true }
+  dashboard:
+    - { name: dashboard, san: WAZUH_DASHBOARD_CERT_SANS, eku: serverAuth, cn_first: false, chain: false }
+wazuh_credentials_loopback_sans:
+  - "DNS:localhost"
+  - "IP:127.0.0.1"
+  - "IP:::1"
+
+# The manager presents a client certificate to the indexer (decision D5 of
+# wazuh/internal-devel-requests#7048): in a distributed deployment each manager node gets its own, issued
+# from the deployment CA on the control node with the node name as CN, as the installation assistant does.
+# All-in-one, the manager imports the one the indexer publishes.
+wazuh_manager_indexer_client_certificate: true
+
+# Seconds a service must stay active after it started before the role moves on.
+wazuh_service_settle_seconds: 5
