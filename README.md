@@ -9,29 +9,16 @@ These playbooks install and configure Wazuh agent, manager and indexer and dashb
 
 ## Branches
 
-- `main` branch contains the latest code, be aware of possible bugs on this branch.
+Each Wazuh version has its own branch (for example `5.0.0`), and each release has its tag (for example `v5.0.0`).
 
-## Compatibility Matrix
+## Compatibility
 
-| Wazuh version | Elastic | ODFE   |
-|---------------|---------|--------|
-| v4.3.0+       |   N/A   |   N/A  |
-| v4.2.6        | 7.10.2  | 1.13.2 |
-| v4.2.5        | 7.10.2  | 1.13.2 |
-| v4.2.4        | 7.10.2  | 1.13.2 |
-| v4.2.3        | 7.10.2  | 1.13.2 |
-| v4.2.2        | 7.10.2  | 1.13.2 |
-| v4.2.1        | 7.10.2  | 1.13.2 |
-| v4.2.0        | 7.10.2  | 1.13.2 |
-| v4.1.5        | 7.10.2  | 1.13.2 |
-| v4.1.4        | 7.10.0  | 1.12.0 |
-| v4.1.3        | 7.10.0  | 1.12.0 |
-| v4.1.2        | 7.10.0  | 1.12.0 |
-| v4.1.1        | 7.10.0  | 1.12.0 |
+This version of the playbooks deploys Wazuh 5.0 and later. See [Compatibility](docs/ref/introduction/compatibility.md).
 
 ## Documentation
 
-- [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deploying-with-ansible/index.html)
+- [Wazuh Ansible documentation in this repository](docs/README.md)
+- [Wazuh Ansible documentation](https://documentation.wazuh.com/current/deployment-options/deploying-with-ansible/index.html)
 - [Full documentation](http://documentation.wazuh.com)
 
 ## Contribute
