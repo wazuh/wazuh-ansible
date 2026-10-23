@@ -82,14 +82,29 @@
         wazuh_credentials_component: manager
         wazuh_credentials_node_name: "{{ manager_node_name }}"
 
+    - name: Linux | Check whether wazuh-manager is already installed
+      ansible.builtin.include_role:
+        name: package-urls
+        tasks_from: check_installed.yml
+      vars:
+        wazuh_installed_package: wazuh-manager
+
+    # Kept apart: the next component's check overwrites wazuh_package_installed.
+    - name: Linux | Keep whether wazuh-manager is already installed
+      ansible.builtin.set_fact:
+        wazuh_manager_package_installed: "{{ wazuh_package_installed }}"
+
     - name: Ensure wazuh-manager package download directory exists
       ansible.builtin.file:
         path: "{{ wazuh_manager_package_download_path }}"
         state: directory
         mode: '0755'
+      when: not wazuh_manager_package_installed
 
     - name: RHEL-based | Download wazuh-manager package
-      when: ansible_facts.os_family == 'RedHat'
+      when:
+        - ansible_facts.os_family == 'RedHat'
+        - not wazuh_manager_package_installed
       block:
         - name: RedHat/CentOS/Fedora (x86_64) | Download wazuh-manager package
           ansible.builtin.get_url:
@@ -120,9 +135,12 @@
             state: present
             # dnf also checks a local package, against any key rpm trusts: skipped only along with the Wazuh key check.
             disable_gpg_check: "{{ wazuh_skip_package_signature_check | default(false) | bool }}"
+          notify: Wazuh manager changed
 
     - name: Debian-based systems | Download wazuh-manager package
-      when: ansible_facts.os_family == 'Debian'
+      when:
+        - ansible_facts.os_family == 'Debian'
+        - not wazuh_manager_package_installed
       block:
         - name: Debian-based (AMD64) | Download wazuh-manager package
           ansible.builtin.get_url:
@@ -151,6 +169,7 @@
           ansible.builtin.apt:
             deb: "{{ wazuh_manager_package_download_path }}/{{ wazuh_manager_package_name }}_{{ ansible_facts.architecture }}.deb"
             state: present
+          notify: Wazuh manager changed
 
     - name: Linux | Reload systemd configuration
       ansible.builtin.systemd:
@@ -211,12 +230,15 @@
             wazuh_cluster_key: "{{ wazuh_cluster_key_raw.content | b64decode | trim }}"
 
     - name: Manager-config | Edit the wazuh-manager.conf file
+      notify: Wazuh manager changed
       block:
         - name: Manager-config | Replace indexer hosts in wazuh-manager.conf
           ansible.builtin.replace:
             path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
-            regexp: '(^[ \t]*)<hosts>[\s\S]*?</hosts>'
-            replace: |1
+            # Up to the end of the line, and the blank lines earlier runs left after it, as the replacement
+            # ends its last line: a rerun then finds the same text and changes nothing.
+            regexp: '(?m)^[ \t]*<hosts>[\s\S]*?</hosts>[ \t]*\n(?:[ \t]*\n)*'
+            replace: |2
                   <hosts>
               {% for node in wazuh_indexer_hosts %}
                     <host>https://{{ node.host }}:{{ node.port }}</host>
@@ -260,12 +282,17 @@
         daemon_reload: true
       become: true
 
+    # The handler records whether the package or the configuration changed: only then is the manager restarted.
+    - name: Apply the pending changes of the manager
+      ansible.builtin.meta: flush_handlers
+
     - name: Ensure Wazuh Manager service is started
       ansible.builtin.include_role:
         name: wazuh-credentials
         tasks_from: start_service.yml
       vars:
         wazuh_service_name: wazuh-manager
+        wazuh_service_restart: "{{ wazuh_manager_restart | default(false) }}"
 
     # A worker publishes nothing: the Server API passwords live on the master.
     - name: Credentials | Use the passwords the manager published

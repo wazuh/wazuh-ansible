@@ -35,7 +35,7 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `wazuh_package_revision`  
-**Description:** The package revision number appended to package filenames. Increment this when a new package revision is released for the same version.  
+**Description:** The package revision number appended to package filenames. Increment this when a new package revision is released for the same version. A rerun skips the download and installation of a component already installed at `wazuh_full_version`-`wazuh_package_revision`: set it to the revision of the packages in use (e.g. `latest` for development packages) for reruns to skip them.  
 **Default value:** `1`
 
 ---

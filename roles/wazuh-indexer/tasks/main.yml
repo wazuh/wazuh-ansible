@@ -8,6 +8,18 @@
   ansible.builtin.include_vars:
     file: ../../vars/{{ urls_file }}
 
+- name: Linux | Check whether wazuh-indexer is already installed
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: check_installed.yml
+  vars:
+    wazuh_installed_package: wazuh-indexer
+
+# Kept apart: the next component's check overwrites wazuh_package_installed.
+- name: Linux | Keep whether wazuh-indexer is already installed
+  ansible.builtin.set_fact:
+    wazuh_indexer_package_installed: "{{ wazuh_package_installed }}"
+
 - name: Importing dependencies.yml
   ansible.builtin.import_tasks: dependencies.yml
   become: true
@@ -55,6 +67,7 @@
   vars:
     wazuh_package_file: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.{{ wazuh_package_type }}"
     wazuh_package_type: "{{ 'rpm' if ansible_facts.os_family == 'RedHat' else 'deb' }}"
+  when: not wazuh_indexer_package_installed
 
 - name: Linux CentOS/RedHat | Install wazuh-indexer using yum
   ansible.builtin.dnf:
@@ -64,6 +77,8 @@
     disable_gpg_check: "{{ wazuh_skip_package_signature_check | default(false) | bool }}"
   when:
     - ansible_facts.os_family == 'RedHat'
+    - not wazuh_indexer_package_installed
+  notify: Wazuh indexer changed
 
 - name: Linux Debian | Install wazuh-indexer using apt
   ansible.builtin.apt:
@@ -71,6 +86,8 @@
     state: present
   when:
     - ansible_facts.os_family == 'Debian'
+    - not wazuh_indexer_package_installed
+  notify: Wazuh indexer changed
 
 - name: Importing config_files_setup.yml
   ansible.builtin.import_tasks: config_files_setup.yml
@@ -81,12 +98,17 @@
     daemon_reload: true
   become: true
 
+# The handler records whether the package or the configuration changed: only then is the indexer restarted.
+- name: Apply the pending changes of the indexer
+  ansible.builtin.meta: flush_handlers
+
 - name: Ensure Wazuh indexer started
   ansible.builtin.include_role:
     name: wazuh-credentials
     tasks_from: start_service.yml
   vars:
     wazuh_service_name: wazuh-indexer
+    wazuh_service_restart: "{{ wazuh_indexer_restart | default(false) }}"
 
 # The package never loads the security configuration into the cluster: it cannot know whether other
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
@@ -142,12 +164,6 @@
           node.'))
           if (_result.status | default(0)) == 401
           else 'Check the service with journalctl -u wazuh-indexer.' }}
-
-- name: Reload systemd configuration
-  ansible.builtin.systemd:
-    daemon_reload: true
-  become: true
-  notify: restart wazuh-indexer
 
 - name: Remove Wazuh Indexer installation leftovers
   ansible.builtin.file:

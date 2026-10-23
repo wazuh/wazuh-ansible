@@ -10,11 +10,13 @@
       register: wazuh_service_start_time
       changed_when: false
 
-    - name: Service | Restart {{ wazuh_service_name }}
+    # A rerun on an unchanged host only makes sure the service runs: the caller sets wazuh_service_restart
+    # when the package was installed or the configuration changed.
+    - name: Service | Start or restart {{ wazuh_service_name }}
       ansible.builtin.service:
         name: "{{ wazuh_service_name }}"
         enabled: true
-        state: restarted
+        state: "{{ 'restarted' if (wazuh_service_restart | default(true) | bool) else 'started' }}"
 
     - name: Service | Wait until the service is active for {{ wazuh_service_name }}
       ansible.builtin.systemd_service:
