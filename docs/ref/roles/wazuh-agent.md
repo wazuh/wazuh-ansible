@@ -44,9 +44,13 @@ Leaving `wazuh_ssl_verification` empty (the default) does not disable verificati
 
 ### Existing agents are not reconfigured
 
-**The role only wires the token on a fresh install.** The installers apply `WAZUH_ENROLLMENT_TOKEN`/`WAZUH_SSL_VERIFICATION` on a fresh install only — Debian's `postinst`, the RPM `%post`, the macOS `postinstall.sh` and the Windows MSI all gate that step on "this is not an upgrade of an already-installed agent". On top of that, `apt`, `dnf` and `win_package` skip a package that is already installed, and `macOS.yml` is guarded on `pkgutil`. So re-running this role against an agent that is already installed passes `wazuh_enrollment_token`/`wazuh_ssl_verification` to nothing, and still reports success.
+**The role only wires the token on a fresh install.** The installers apply `WAZUH_ENROLLMENT_TOKEN`/`WAZUH_SSL_VERIFICATION` on a fresh install only — Debian's `postinst`, the RPM `%post`, the macOS `postinstall.sh` and the Windows MSI all gate that step on "this is not an upgrade of an already-installed agent". On top of that, the role skips the download, the signature check and the installation of an agent already installed: on Linux at the version and revision in the name of its package URL, on Windows at `wazuh_full_version` (the MSI records no revision), and on macOS whenever `pkgutil` lists it. So re-running this role against an agent that is already installed passes `wazuh_enrollment_token`/`wazuh_ssl_verification` to nothing, and still reports success.
 
 This matters more with a token than it did with the old password: an agent whose first run failed — an expired, revoked or otherwise refused token, or one left as the `wazuh-agent.yml` placeholder before `validate.yml` started catching that case — stays installed but never enrolled. Fixing the token in the inventory and re-running the role does **not** recover it; the package is already present, so the install task (and the token with it) is skipped. The only fix is to remove the agent and run this role again, or, to change `wazuh_ssl_verification` on an agent that already enrolled successfully, edit `<verification_mode>` in `ossec.conf` by hand and restart the agent.
+
+### Reruns
+
+The agent is restarted only when this run installed its package; otherwise the role only makes sure it runs. The Linux packages and the Windows MSI do not start the agent, so the role starts a new installation itself; on macOS, the role loads and starts it after the installation.
 
 ## Usage
 

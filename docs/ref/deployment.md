@@ -137,7 +137,7 @@ In a distributed deployment, a host whose component already holds the CA of anot
 
 To add a node to a distributed deployment, add it to `instances` and run the playbook again: its certificates are issued from the CA of the deployment and staged before its package is installed. The certificates of the nodes already installed are kept as they are.
 
-Running the playbook again with the same packages leaves them installed as they are and does not write `local.env` again. It downloads the packages and checks their signatures again, writes the Wazuh Indexer hosts of `wazuh-manager.conf` and `opensearch_dashboards.yml` again, and restarts the services.
+Running the playbook again with the same packages leaves them installed as they are and does not write `local.env` again. It skips their download and signature check, and restarts a service only when its package or its configuration changed.
 
 ### Upgrading
 

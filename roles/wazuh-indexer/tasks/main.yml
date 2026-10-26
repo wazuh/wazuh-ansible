@@ -116,7 +116,31 @@
 # The package never loads the security configuration into the cluster: it cannot know whether other
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
 # the bcrypt digests of the supplied passwords into internal_users.yml, so one upload from one node
-# is what makes them live, on a single node and on a cluster alike.
+# is what makes them live, on a single node and on a cluster alike. The upload replaces the security
+# configuration of the cluster with the files of that node, so it is done only while no node of the
+# play has one: the users, roles and passwords changed later are kept on a rerun.
+# A node reports UP once it loaded the configuration from the cluster. A node installed by an earlier
+# run answers DOWN for a while after a restart, so it is given time to load it again; a node of a new
+# cluster answers DOWN until the upload.
+- name: Read whether this node loaded the security configuration
+  ansible.builtin.uri:
+    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_plugins/_security/health"
+    validate_certs: false
+    status_code: [200, 503]
+    timeout: 4
+  register: wazuh_indexer_security_health
+  until: >-
+    wazuh_indexer_security_health.status in [200, 503]
+    and (not (wazuh_indexer_package_installed | bool)
+         or (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP')
+  retries: 24
+  delay: 5
+  failed_when: false
+
+- name: Keep whether this node loaded the security configuration
+  ansible.builtin.set_fact:
+    wazuh_indexer_security_loaded: "{{ (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP' }}"
+
 - name: Initialize Wazuh Indexer cluster
   ansible.builtin.shell: |
     /usr/share/wazuh-indexer/bin/indexer-security-init.sh
@@ -124,7 +148,10 @@
     executable: /bin/bash
   become: true
   run_once: true
-  changed_when: false
+  changed_when: true
+  when: >-
+    (wazuh_indexer_security_init_force | bool)
+    or (ansible_play_hosts | map('extract', hostvars, 'wazuh_indexer_security_loaded') | select | list | length == 0)
 
 - name: Credentials | Use the passwords the indexer published
   ansible.builtin.include_role:

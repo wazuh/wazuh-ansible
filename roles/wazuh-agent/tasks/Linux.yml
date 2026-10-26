@@ -1,10 +1,23 @@
 ---
 
+- name: Linux | Check whether wazuh-agent is already installed
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: check_installed.yml
+  vars:
+    wazuh_installed_package: wazuh-agent
+
+# Kept apart: another check would overwrite wazuh_package_installed.
+- name: Linux | Keep whether wazuh-agent is already installed
+  ansible.builtin.set_fact:
+    wazuh_agent_package_installed: "{{ wazuh_package_installed }}"
+
 - name: Linux | Create directory for wazuh-agent package
   ansible.builtin.file:
     path: "{{ wazuh_agent_package_download_path }}"
     state: directory
     mode: '0755'
+  when: not wazuh_agent_package_installed
 
 # Since wazuh/wazuh#39063, a 5.x agent enrolls with a single enrollment token:
 # the manager address and the CA pin travel inside the token itself, fetched
@@ -29,12 +42,16 @@
 - name: Linux CentOS/RedHat | Importing tasks for RHEL-based systems
   ansible.builtin.include_tasks:
     file: "RedHat.yml"
-  when: ansible_facts.os_family == "RedHat"
+  when:
+    - ansible_facts.os_family == "RedHat"
+    - not wazuh_agent_package_installed
 
 - name: Linux Debian | Importing tasks for Debian-based systems
   ansible.builtin.include_tasks:
     file: "Debian.yml"
-  when: ansible_facts.os_family == "Debian"
+  when:
+    - ansible_facts.os_family == "Debian"
+    - not wazuh_agent_package_installed
 
 - name: Linux | Verify the wazuh-agent package signature
   ansible.builtin.include_role:
@@ -43,6 +60,7 @@
   vars:
     wazuh_package_file: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}_{{ ansible_facts.architecture }}.{{ wazuh_package_type }}"
     wazuh_package_type: "{{ 'rpm' if ansible_facts.os_family == 'RedHat' else 'deb' }}"
+  when: not wazuh_agent_package_installed
 
 - name: Linux CentOS/RedHat | Install wazuh-agent
   ansible.builtin.dnf:
@@ -53,6 +71,8 @@
   environment: "{{ wazuh_agent_install_env }}"
   when:
     - ansible_facts.os_family == "RedHat"
+    - not wazuh_agent_package_installed
+  notify: Wazuh agent changed
 
 - name: Linux Debian | Install wazuh-agent
   ansible.builtin.apt:
@@ -61,6 +81,12 @@
   environment: "{{ wazuh_agent_install_env }}"
   when:
     - ansible_facts.os_family == "Debian"
+    - not wazuh_agent_package_installed
+  notify: Wazuh agent changed
+
+# The handler records whether the package changed: only then is the agent restarted.
+- name: Linux | Apply the pending changes of the agent
+  ansible.builtin.meta: flush_handlers
 
 - name: Linux | Start and enable Wazuh Agent service
   block:
@@ -69,11 +95,13 @@
         daemon_reload: true
       become: true
 
+    # A rerun on an unchanged host only makes sure the agent runs: the package does not start it, so a
+    # new installation is started here too.
     - name: Linux | Start and enable Wazuh Agent service
       ansible.builtin.service:
         name: wazuh-agent
         enabled: true
-        state: restarted
+        state: "{{ 'restarted' if (wazuh_agent_restart | default(false) | bool) else 'started' }}"
 
 - name: Linux | Remove leftover wazuh-agent installation directory
   ansible.builtin.file:

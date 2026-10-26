@@ -21,7 +21,7 @@ The role can operate in single-node or multi-node cluster configurations, contro
 | Configure node | Applies node-specific settings via `config_files_setup.yml`, including `plugins.security.nodes_dn` with the DN of every indexer node, read from the certificate the package issued on that node. |
 | Reload systemd | Reloads the systemd daemon after installation. |
 | Start service | Starts the `wazuh-indexer` service and checks that it stays active, with `start_service.yml` from the [`wazuh-credentials`](wazuh-credentials.md) role. |
-| Initialize security | Runs `indexer-security-init.sh` once, from one indexer node, to load the security configuration into the cluster. |
+| Initialize security | Runs `indexer-security-init.sh` once, from one indexer node, to load the security configuration into a new cluster. It is skipped when a node of the play already reports it loaded (`/_plugins/_security/health`), so a rerun, or the addition of a node, keeps the users, roles and passwords changed later. Set `wazuh_indexer_security_init_force` to load it again. |
 | Verify API | Waits for the Wazuh Indexer REST API on port `9200`, authenticating as `admin` with the password the package published. |
 | Configure JVM heap | Sets the JVM heap size to one quarter of the host's total RAM in AIO deployments (`single_node: true`), and to half of it on a dedicated indexer node, unless `wazuh_indexer_heap_size` is set. |
 
