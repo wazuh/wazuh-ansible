@@ -1,11 +1,12 @@
 ---
-- name: Debian/Ubuntu | Install apt-transport-https, ca-certificates and acl
+- name: Debian/Ubuntu | Install apt-transport-https, ca-certificates, gnupg, acl and python3-debian
   apt:
     name:
       - apt-transport-https
       - ca-certificates
       - gnupg
       - acl
+      - python3-debian
     state: present
     cache_valid_time: 3600
     install_recommends: false
@@ -50,11 +51,34 @@
     - not (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
     - not wazuh_custom_packages_installation_manager_enabled
 
+- name: Remove the apt source files of previous versions of the role
+  file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - wazuh-indexer.list
+    - wazuh_repo.list
+    - packages_wazuh_com_4_x_apt.list
+    - packages_dev_wazuh_com_pre_release_apt.list
+    - packages_dev_wazuh_com_staging_apt.list
+  when:
+    - not wazuh_custom_packages_installation_manager_enabled
+
 - name: Debian/Ubuntu | Add Wazuh repositories
-  apt_repository:
-    filename: wazuh_repo
-    repo: "{{ wazuh_manager_config.repo.apt }}"
+  deb822_repository:
+    name: wazuh
+    types: deb
+    uris: "{{ wazuh_manager_config.repo.apt_uri }}"
+    suites: "{{ wazuh_manager_config.repo.apt_suite }}"
+    components: "{{ wazuh_manager_config.repo.apt_component }}"
+    signed_by: "{{ wazuh_manager_config.repo.keyring_path }}"
     state: present
+  changed_when: false
+  when:
+    - not wazuh_custom_packages_installation_manager_enabled
+
+- name: Update the apt cache
+  apt:
     update_cache: true
   changed_when: false
   when:
@@ -63,14 +87,6 @@
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
     cis_distribution_filename: cis_debian_linux_rcl.txt
-
-- name: Debian/Ubuntu | Install OpenJDK-8 repo
-  apt_repository:
-    repo: 'ppa:openjdk-r/ppa'
-    state: present
-    update_cache: true
-  when:
-    - (ansible_facts.distribution == "Ubuntu" and ansible_facts.distribution_major_version | int == 14)
 
 - when:
     - wazuh_manager_config.cis_cat.disable == 'no'
