@@ -8,6 +8,18 @@
   ansible.builtin.include_vars:
     file: ../../vars/{{ urls_file }}
 
+- name: Linux | Check whether wazuh-dashboard is already installed
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: check_installed.yml
+  vars:
+    wazuh_installed_package: wazuh-dashboard
+
+# Kept apart: the next component's check overwrites wazuh_package_installed.
+- name: Linux | Keep whether wazuh-dashboard is already installed
+  ansible.builtin.set_fact:
+    wazuh_dashboard_package_installed: "{{ wazuh_package_installed }}"
+
 - name: Importing dependencies.yml
   ansible.builtin.import_tasks: dependencies.yml
   become: true
@@ -42,6 +54,7 @@
     wazuh_package_file: >-
       {{ wazuh_dashboard_package_download_path }}/{{ wazuh_dashboard_package_name }}_{{ ansible_facts.architecture }}.{{ wazuh_package_type }}
     wazuh_package_type: "{{ 'rpm' if ansible_facts.os_family == 'RedHat' else 'deb' }}"
+  when: not wazuh_dashboard_package_installed
 
 - name: Linux CentOS/RedHat | Install wazuh-dashboard using yum
   ansible.builtin.dnf:
@@ -52,6 +65,8 @@
   become: true
   when:
     - ansible_facts.os_family == "RedHat"
+    - not wazuh_dashboard_package_installed
+  notify: Wazuh dashboard changed
 
 - name: Linux Debian | Install wazuh-dashboard using APT
   ansible.builtin.apt:
@@ -60,6 +75,8 @@
   become: true
   when:
     - ansible_facts.os_family == 'Debian'
+    - not wazuh_dashboard_package_installed
+  notify: Wazuh dashboard changed
 
 - name: Linux | Reload systemd configuration
   ansible.builtin.systemd:
@@ -67,17 +84,14 @@
   become: true
 
 - name: Dashboard-config | Configure Wazuh dashboard
+  notify: Wazuh dashboard changed
   block:
-    - name: Dashboard-config | Remove current opensearch.hosts configuration
+    # The scalar the package writes and the list of a previous run alike, up to the end of its last line:
+    # a rerun finds the same text and changes nothing.
+    - name: Dashboard-config | Set opensearch.hosts configuration
       ansible.builtin.replace:
         path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: '^opensearch\.hosts:.*(?:\n\s+-\s+https?://[^\n]+)*'
-        replace: 'opensearch.hosts:'
-
-    - name: Dashboard-config | Add opensearch.hosts configuration
-      ansible.builtin.replace:
-        path: /etc/wazuh-dashboard/opensearch_dashboards.yml
-        regexp: '^opensearch\.hosts:\s*$'
+        regexp: '(?m)^opensearch\.hosts:.*\n(?:[ \t]+-[ \t]+https?://.*\n)*'
         replace: |
           opensearch.hosts:
           {% for node in indexer_cluster_nodes %}
@@ -124,12 +138,19 @@
     daemon_reload: true
   become: true
 
+# The handler records whether the package or the configuration changed: only then is the dashboard restarted.
+- name: Apply the pending changes of the dashboard
+  ansible.builtin.meta: flush_handlers
+
 - name: Ensure Wazuh dashboard started
   ansible.builtin.include_role:
     name: wazuh-credentials
     tasks_from: start_service.yml
   vars:
     wazuh_service_name: wazuh-dashboard
+    wazuh_service_restart: "{{ wazuh_dashboard_restart | default(false) }}"
+    wazuh_service_watched_files:
+      - /etc/wazuh-dashboard/opensearch_dashboards.yml
 
 - name: Extract server host from dashboard configuration
   ansible.builtin.shell:

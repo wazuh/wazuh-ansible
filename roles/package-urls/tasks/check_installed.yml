@@ -1,0 +1,37 @@
+---
+
+# Tells whether wazuh_installed_package is installed at the version these playbooks deploy, so a rerun skips
+# its download, signature check and installation. dpkg still lists a package removed with its configuration
+# kept (status rc): only ii counts as installed.
+- name: Package | Read the installed version of {{ wazuh_installed_package }}
+  ansible.builtin.command:
+    argv: >-
+      {{ ['rpm', '-q', '--qf', '%{VERSION}-%{RELEASE}', wazuh_installed_package]
+         if ansible_facts.os_family == 'RedHat'
+         else ['dpkg-query', '-W', '-f=${db:Status-Abbrev}${Version}', wazuh_installed_package] }}
+  register: wazuh_installed_package_query
+  changed_when: false
+  failed_when: false
+
+# The release deployed is the one in the name of the package the role downloads for this host
+# (wazuh-indexer-5.0.0-latest.x86_64.rpm, wazuh-indexer_5.0.0-1_amd64.deb), so development packages are
+# recognized without setting wazuh_package_revision. A name without it falls back to wazuh_package_revision.
+- name: Package | Check whether the deployed version is installed for {{ wazuh_installed_package }}
+  ansible.builtin.set_fact:
+    wazuh_package_installed: >-
+      {{ wazuh_installed_package_query.rc == 0
+         and (wazuh_installed_package_query.stdout | trim)
+             == (('' if ansible_facts.os_family == 'RedHat' else 'ii ') ~ wazuh_full_version ~ '-' ~ wazuh_installed_package_release) }}
+  vars:
+    wazuh_installed_package_url_var: >-
+      {{ wazuh_installed_package | replace('-', '_') ~ '_'
+         ~ ((ansible_facts.architecture ~ '_rpm') if ansible_facts.os_family == 'RedHat'
+            else (('amd64' if ansible_facts.architecture == 'x86_64' else 'arm64') ~ '_deb')) }}
+    wazuh_installed_package_file: >-
+      {{ (lookup('ansible.builtin.vars', wazuh_installed_package_url_var, default='') | string).split('?') | first
+         | basename }}
+    wazuh_installed_package_release: >-
+      {{ (wazuh_installed_package_file
+          | regex_search('^' ~ (wazuh_installed_package | regex_escape) ~ '[-_]' ~ (wazuh_full_version | regex_escape)
+                         ~ '-([^_.]+)', '\1')
+          or [wazuh_package_revision]) | first }}

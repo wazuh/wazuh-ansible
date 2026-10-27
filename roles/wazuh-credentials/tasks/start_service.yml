@@ -10,11 +10,33 @@
       register: wazuh_service_start_time
       changed_when: false
 
-    - name: Service | Restart {{ wazuh_service_name }}
+    # A run stopped between a configuration change and the restart leaves the service on the previous
+    # configuration, and the next run finds nothing to change: a watched file changed after the service
+    # started restarts it too. The packages need no such check: their upgrade restarts a running service.
+    - name: Service | List the files changed since the last start of {{ wazuh_service_name }}
+      ansible.builtin.shell: |
+        set -o pipefail
+        [ "$(systemctl is-active {{ wazuh_service_name | quote }})" = active ] || exit 0
+        started=$(date -d "$(TZ=UTC systemctl show -p ActiveEnterTimestamp --value {{ wazuh_service_name | quote }})" +%s)
+        {% for file in wazuh_service_watched_files | default([]) %}
+        [ "$(stat -c %Y {{ file | quote }} 2>/dev/null || echo 0)" -gt "$started" ] && echo {{ file | quote }}
+        {% endfor %}
+        exit 0
+      args:
+        executable: /bin/bash
+      register: wazuh_service_changed_files
+      changed_when: false
+
+    # A rerun on an unchanged host only makes sure the service runs: the caller sets wazuh_service_restart
+    # when the package was installed or the configuration changed.
+    - name: Service | Start or restart {{ wazuh_service_name }}
       ansible.builtin.service:
         name: "{{ wazuh_service_name }}"
         enabled: true
-        state: restarted
+        state: >-
+          {{ 'restarted' if (wazuh_service_restart | default(true) | bool)
+                            or wazuh_service_changed_files.stdout_lines | length > 0
+             else 'started' }}
 
     - name: Service | Wait until the service is active for {{ wazuh_service_name }}
       ansible.builtin.systemd_service:
