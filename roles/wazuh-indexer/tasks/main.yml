@@ -109,6 +109,9 @@
   vars:
     wazuh_service_name: wazuh-indexer
     wazuh_service_restart: "{{ wazuh_indexer_restart | default(false) }}"
+    wazuh_service_watched_files:
+      - /etc/wazuh-indexer/opensearch.yml
+      - /etc/wazuh-indexer/jvm.options
 
 # The package never loads the security configuration into the cluster: it cannot know whether other
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
