@@ -35,7 +35,7 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `wazuh_package_revision`  
-**Description:** The package revision number appended to package filenames. Increment this when a new package revision is released for the same version. A rerun skips the download and installation of a component already installed at the version and revision in the name of its package URL (`wazuh-indexer-5.0.0-latest.x86_64.rpm`, `wazuh-indexer_5.0.0-1_amd64.deb`), so development packages need no change here; this revision is used only for a URL whose name does not have them.  
+**Description:** The package revision number appended to package filenames. Increment this when a new package revision is released for the same version. A rerun skips the download and installation of a component already installed at the version and revision in the name of its package URL (`wazuh-indexer-5.0.0-latest.x86_64.rpm`, `wazuh-indexer_5.0.0-1_amd64.deb`), so development packages need no change here; this revision is used only for a URL whose name does not have them. On Windows the installed agent is compared with `wazuh_full_version` only.  
 **Default value:** `1`
 
 ---
@@ -188,6 +188,12 @@ instances:
 **Variable:** `wazuh_indexer_package_download_path`  
 **Description:** Path on the target node where the Wazuh Indexer package file will be downloaded before installation.  
 **Default value:** `/tmp/wazuh-indexer`
+
+---
+
+**Variable:** `wazuh_indexer_security_init_force`  
+**Description:** When set to `true`, the run loads the security configuration files of the first indexer node of the play (`/etc/wazuh-indexer/opensearch-security/`) into the cluster again with `indexer-security-init.sh`, even if the cluster already has one. This replaces the internal users, roles, role mappings and passwords of the cluster with those of the files. By default, the configuration is loaded only when no node of the play has it, that is, on a new cluster. When no node of the play reports it loaded and one of them was installed by an earlier run, the run stops instead of loading it: after a first run that stopped before the upload, run again with this variable set to `true`.  
+**Default value:** `false`
 
 ---
 

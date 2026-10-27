@@ -1,0 +1,6 @@
+---
+
+# The package of the agent changed: the agent tasks restart it.
+- name: Wazuh agent changed
+  ansible.builtin.set_fact:
+    wazuh_agent_restart: true

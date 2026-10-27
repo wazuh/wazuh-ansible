@@ -1,10 +1,22 @@
 ---
 
+- name: MacOS | Check installed packages
+  ansible.builtin.command: "pkgutil --pkgs"
+  register: installed_packages
+  failed_when: false
+  changed_when: false
+
+# A rerun on a host where the agent is installed skips the download and the signature check too.
+- name: MacOS | Check if Wazuh agent is already installed
+  ansible.builtin.set_fact:
+    wazuh_agent_already_installed: "{{ 'com.wazuh.pkg.wazuh-agent' in installed_packages.stdout }}"
+
 - name: MacOS | Create directory for Wazuh agent package
   ansible.builtin.file:
     path: "{{ wazuh_agent_package_download_path }}"
     state: directory
     mode: '0755'
+  when: not wazuh_agent_already_installed
 
 - name: MacOS (Intel) | Download Wazuh agent package
   ansible.builtin.get_url:
@@ -13,6 +25,7 @@
     mode: '0644'
   when:
     - ansible_facts.architecture == "x86_64"
+    - not wazuh_agent_already_installed
 
 - name: MacOS (ARM) | Download Wazuh agent package
   ansible.builtin.get_url:
@@ -21,6 +34,7 @@
     mode: '0644'
   when:
     - ansible_facts.architecture == "arm64"
+    - not wazuh_agent_already_installed
 
 - name: MacOS | Verify the Wazuh agent package signature
   ansible.builtin.include_role:
@@ -28,16 +42,7 @@
     tasks_from: verify_pkg_signature.yml
   vars:
     wazuh_package_file: "{{ wazuh_agent_package_download_path }}/{{ wazuh_agent_package_name }}.pkg"
-
-- name: MacOS | Check installed packages
-  ansible.builtin.command: "pkgutil --pkgs"
-  register: installed_packages
-  failed_when: false
-  changed_when: false
-
-- name: MacOS | Check if Wazuh agent is already installed
-  ansible.builtin.set_fact:
-    wazuh_agent_already_installed: "{{ 'com.wazuh.pkg.wazuh-agent' in installed_packages.stdout }}"
+  when: not wazuh_agent_already_installed
 
 - name: MacOS | Install and load Wazuh agent
   when: not wazuh_agent_already_installed
