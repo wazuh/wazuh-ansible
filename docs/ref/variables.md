@@ -192,7 +192,7 @@ instances:
 ---
 
 **Variable:** `wazuh_indexer_security_init_force`  
-**Description:** When set to `true`, the run loads the security configuration files of the first indexer node of the play (`/etc/wazuh-indexer/opensearch-security/`) into the cluster again with `indexer-security-init.sh`, even if the cluster already has one. This replaces the internal users, roles, role mappings and passwords of the cluster with those of the files. By default, the configuration is loaded only when no node of the play has it, that is, on a new cluster.  
+**Description:** When set to `true`, the run loads the security configuration files of the first indexer node of the play (`/etc/wazuh-indexer/opensearch-security/`) into the cluster again with `indexer-security-init.sh`, even if the cluster already has one. This replaces the internal users, roles, role mappings and passwords of the cluster with those of the files. By default, the configuration is loaded only when no node of the play has it, that is, on a new cluster. When no node of the play reports it loaded and one of them was installed by an earlier run, the run stops instead of loading it: after a first run that stopped before the upload, run again with this variable set to `true`.  
 **Default value:** `false`
 
 ---

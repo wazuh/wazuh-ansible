@@ -135,7 +135,7 @@ Running the same playbook again, from the same directory, keeps the passwords, t
 
 In a distributed deployment, a host whose component already holds the CA of another deployment is refused before anything is written. This happens, for example, when the playbook runs from another directory, or after `deployment-config-files/` was removed. To deploy again from scratch, use new hosts, or first uninstall the Wazuh packages from the hosts and remove `/etc/wazuh-indexer`, `/etc/wazuh-manager` and `/etc/wazuh-dashboard` (uninstalling a package may keep part of them). On the control node, remove `deployment-credentials/` and `deployment-config-files/`. The playbooks provide the credentials and the CA of a component only before its package is installed.
 
-To add a node to a distributed deployment, add it to `instances` and run the playbook again: its certificates are issued from the CA of the deployment and staged before its package is installed. The certificates of the nodes already installed are kept as they are.
+To add a node to a distributed deployment, add it to `instances` and run the playbook again: its certificates are issued from the CA of the deployment and staged before its package is installed. The certificates of the nodes already installed are kept as they are. The run must include every Wazuh Indexer node, not only the new one (no `--limit` to it): the security configuration is loaded only when no node of the run has it, and a new node alone does not have it.
 
 Running the playbook again with the same packages leaves them installed as they are and does not write `local.env` again. It skips their download and signature check, and restarts a service only when its package or its configuration changed.
 

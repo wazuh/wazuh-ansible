@@ -141,6 +141,26 @@
   ansible.builtin.set_fact:
     wazuh_indexer_security_loaded: "{{ (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP' }}"
 
+# A node installed by an earlier run that is still DOWN after the wait may belong to a cluster that has a
+# configuration, and the upload would replace it: only wazuh_indexer_security_init_force loads it then.
+- name: Stop when no node installed by an earlier run reports the security configuration
+  ansible.builtin.fail:
+    msg: >-
+      No indexer node of the play reports the security configuration loaded
+      (GET /_plugins/_security/health), but some were installed by an earlier run
+      ({{ wazuh_indexer_earlier_nodes | join(', ') }}): loading the files of the first node would replace the
+      users, roles and passwords of the cluster. To load them anyway, for instance after a first run that
+      stopped before the upload, run again with wazuh_indexer_security_init_force=true.
+  run_once: true
+  when:
+    - not (wazuh_indexer_security_init_force | bool)
+    - ansible_play_hosts | map('extract', hostvars, 'wazuh_indexer_security_loaded') | select | list | length == 0
+    - wazuh_indexer_earlier_nodes | length > 0
+  vars:
+    wazuh_indexer_earlier_nodes: >-
+      {{ ansible_play_hosts | map('extract', hostvars) | selectattr('wazuh_indexer_package_installed')
+         | map(attribute='inventory_hostname') | list }}
+
 - name: Initialize Wazuh Indexer cluster
   ansible.builtin.shell: |
     /usr/share/wazuh-indexer/bin/indexer-security-init.sh
