@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Run the wazuh-indexer run_once tasks once in wazuh-production-ready.yml ([#NNNN](https://github.com/wazuh/wazuh-ansible/pull/NNNN))
 
 ### Deleted
 
