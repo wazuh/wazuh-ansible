@@ -82,6 +82,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2397](https://github.com/wazuh/wazuh-ansible/issues/2397) | Fixing integration tests |
 | [#2380](https://github.com/wazuh/wazuh-ansible/issues/2380) | Restart a service only when its package or configuration changed, also on the next run when a run stopped before the restart, keep the indexer hosts of the manager and the dashboard stable across runs, skip the download of a package already installed at the version in the name of its package URL, and run needrestart only after the dashboard dependencies changed, so a rerun on an unchanged host changes nothing |
 | [#2389](https://github.com/wazuh/wazuh-ansible/issues/2389) | Load the indexer security configuration only on a new cluster, so a rerun keeps the users, roles and passwords changed later |
 | [#2390](https://github.com/wazuh/wazuh-ansible/issues/2390) | Restart the agent only when its package changed and skip the download of an agent already installed, so a rerun changes nothing on Linux and Windows, and skips the download and the signature check on macOS too |
