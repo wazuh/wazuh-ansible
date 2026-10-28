@@ -1,11 +1,12 @@
 ---
-- name: Debian/Ubuntu | Install apt-transport-https, ca-certificate, acl and gnupg
+- name: Debian/Ubuntu | Install apt-transport-https, ca-certificate, acl, gnupg and python3-debian
   apt:
     name:
       - apt-transport-https
       - ca-certificates
       - acl
       - gnupg
+      - python3-debian
     state: present
   register: filebeat_ca_packages_install
   until: filebeat_ca_packages_install is succeeded
@@ -25,9 +26,29 @@
     path: "{{ wazuh_repo.keyring_path }}"
     mode: '0644'
 
+- name: Remove the apt source files of previous versions of the role
+  file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - wazuh-indexer.list
+    - wazuh_repo.list
+    - packages_wazuh_com_4_x_apt.list
+    - packages_dev_wazuh_com_pre_release_apt.list
+    - packages_dev_wazuh_com_staging_apt.list
+
 - name: Debian/Ubuntu | Add Filebeat-oss repository.
-  apt_repository:
-    repo: "{{ wazuh_repo.apt }}"
+  deb822_repository:
+    name: wazuh
+    types: deb
+    uris: "{{ wazuh_repo.apt_uri }}"
+    suites: "{{ wazuh_repo.apt_suite }}"
+    components: "{{ wazuh_repo.apt_component }}"
+    signed_by: "{{ wazuh_repo.keyring_path }}"
     state: present
+  changed_when: false
+
+- name: Update the apt cache
+  apt:
     update_cache: true
   changed_when: false

@@ -13,6 +13,7 @@
       - curl
       - apt-transport-https
       - gnupg
+      - python3-debian
     state: present
 
 - name: Add Wazuh indexer repository
@@ -32,12 +33,31 @@
         path: "{{ wazuh_repo.keyring_path }}"
         mode: '0644'
 
+    - name: Remove the apt source files of previous versions of the role
+      file:
+        path: "/etc/apt/sources.list.d/{{ item }}"
+        state: absent
+      loop:
+        - wazuh-indexer.list
+        - wazuh_repo.list
+        - packages_wazuh_com_4_x_apt.list
+        - packages_dev_wazuh_com_pre_release_apt.list
+        - packages_dev_wazuh_com_staging_apt.list
+
     - name: Add Wazuh indexer repository
-      apt_repository:
-        repo: "{{ wazuh_repo.apt }}"
+      deb822_repository:
+        name: wazuh
+        types: deb
+        uris: "{{ wazuh_repo.apt_uri }}"
+        suites: "{{ wazuh_repo.apt_suite }}"
+        components: "{{ wazuh_repo.apt_component }}"
+        signed_by: "{{ wazuh_repo.keyring_path }}"
         state: present
-        filename: 'wazuh-indexer'
-        update_cache: yes
+
+    - name: Update the apt cache
+      apt:
+        update_cache: true
+      changed_when: false
 
 - name: Install Wazuh indexer
   apt:

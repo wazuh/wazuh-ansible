@@ -1,6 +1,9 @@
 wazuh_repo:
   keyring_path: '/usr/share/keyrings/wazuh.gpg'
   apt: 'deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+  apt_uri: 'https://packages-dev.wazuh.com/pre-release/apt/'
+  apt_suite: 'unstable'
+  apt_component: 'main'
   yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
   gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   path: '/tmp/WAZUH-GPG-KEY'
