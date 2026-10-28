@@ -86,7 +86,7 @@ flowchart TD
 | `environment` | Fixed: `development` |
 | `commit_list` | Fixed: `["latest","latest","latest","latest","latest"]` |
 | `skip_signature_check` | Fixed: `false` |
-| `automation_reference` | Defaults to `main` |
+| `automation_reference` | Base branch of the PR (`github.base_ref`), for example `5.0.0` |
 
 ---
 
