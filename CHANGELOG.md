@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Remove force_time from the agent registration request ([#2328](https://github.com/wazuh/wazuh-ansible/pull/2328))
 - Remove software-properties-common from the wazuh-indexer dependencies ([#2327](https://github.com/wazuh/wazuh-ansible/pull/2327))
 - Skip the certificates copy when generate_certs is false ([#2329](https://github.com/wazuh/wazuh-ansible/pull/2329))
+- Fix the macOS Intel package URL in the pre-release repository vars ([#2393](https://github.com/wazuh/wazuh-ansible/pull/2393))
 - Replace apt_repository with deb822_repository in the Debian tasks of the roles ([#2392](https://github.com/wazuh/wazuh-ansible/pull/2392))
 
 ### Deleted
