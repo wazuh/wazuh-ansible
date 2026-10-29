@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Skip the syslog files covered by journald in the agent ossec.conf to avoid duplicated events
 
 ### Deleted
 
