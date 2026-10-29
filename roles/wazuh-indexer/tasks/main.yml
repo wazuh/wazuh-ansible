@@ -89,6 +89,13 @@
     - not wazuh_indexer_package_installed
   notify: Wazuh indexer changed
 
+# On Amazon Linux 2023, /tmp is a tmpfs: the package would use memory the indexer needs.
+- name: Remove Wazuh Indexer installation leftovers
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_package_download_path }}"
+    state: absent
+  become: true
+
 - name: Importing config_files_setup.yml
   ansible.builtin.import_tasks: config_files_setup.yml
   become: true
@@ -214,9 +221,3 @@
           node.'))
           if (_result.status | default(0)) == 401
           else 'Check the service with journalctl -u wazuh-indexer.' }}
-
-- name: Remove Wazuh Indexer installation leftovers
-  ansible.builtin.file:
-    path: "{{ wazuh_indexer_package_download_path }}"
-    state: absent
-  become: true

@@ -171,6 +171,12 @@
             state: present
           notify: Wazuh manager changed
 
+    - name: Remove leftover installation files
+      ansible.builtin.file:
+        path: "{{ wazuh_manager_package_download_path }}"
+        state: absent
+        force: true
+
     - name: Linux | Reload systemd configuration
       ansible.builtin.systemd:
         daemon_reload: true
@@ -364,9 +370,3 @@
             - "'ERR' not in cluster_control_list.stdout"
           retries: 12
           delay: 5
-
-    - name: Remove leftover installation files
-      ansible.builtin.file:
-        path: "{{ wazuh_manager_package_download_path }}"
-        state: absent
-        force: true

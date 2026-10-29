@@ -84,6 +84,12 @@
     - not wazuh_agent_package_installed
   notify: Wazuh agent changed
 
+- name: Linux | Remove leftover wazuh-agent installation directory
+  ansible.builtin.file:
+    path: "{{ wazuh_agent_package_download_path }}"
+    state: absent
+    force: true
+
 # The handler records whether the package changed: only then is the agent restarted.
 - name: Linux | Apply the pending changes of the agent
   ansible.builtin.meta: flush_handlers
@@ -102,9 +108,3 @@
         name: wazuh-agent
         enabled: true
         state: "{{ 'restarted' if (wazuh_agent_restart | default(false) | bool) else 'started' }}"
-
-- name: Linux | Remove leftover wazuh-agent installation directory
-  ansible.builtin.file:
-    path: "{{ wazuh_agent_package_download_path }}"
-    state: absent
-    force: true

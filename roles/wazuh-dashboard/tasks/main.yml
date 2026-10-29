@@ -78,6 +78,13 @@
     - not wazuh_dashboard_package_installed
   notify: Wazuh dashboard changed
 
+- name: Remove installation leftovers
+  ansible.builtin.file:
+    path: "{{ wazuh_dashboard_package_download_path }}"
+    state: absent
+    force: true
+  become: true
+
 - name: Linux | Reload systemd configuration
   ansible.builtin.systemd:
     daemon_reload: true
@@ -180,10 +187,3 @@
   retries: 24
   delay: 5
   until: result.status == 200
-
-- name: Remove installation leftovers
-  ansible.builtin.file:
-    path: "{{ wazuh_dashboard_package_download_path }}"
-    state: absent
-    force: true
-  become: true
