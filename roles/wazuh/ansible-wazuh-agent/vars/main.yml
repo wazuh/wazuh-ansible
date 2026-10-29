@@ -1,0 +1,17 @@
+---
+# Syslog files already covered by the journald localfile. Same list as the
+# '[!journald]' entries of the agent package
+# (wazuh/wazuh: etc/templates/config/generic/localfile-logs/syslog-logs.template).
+# When journalctl is available, these files are not added to ossec.conf to
+# avoid reading the same event twice (journald + rsyslog file).
+wazuh_agent_journald_covered_logs:
+  - /var/log/messages
+  - /var/log/auth.log
+  - /var/log/secure
+  - /var/log/syslog
+  - /var/log/mail.info
+  - /var/log/mail.notice
+  - /var/log/mail.err
+  - /var/log/mail.log
+  - /var/log/maillog
+  - /var/log/kern.log
