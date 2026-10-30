@@ -117,7 +117,6 @@ The hereunder example playbook uses the `wazuh-ansible` role to provision a prod
 
 # Wazuh indexer cluster
     - hosts: wi_cluster
-      strategy: free
       roles:
         - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"
