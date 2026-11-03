@@ -31,21 +31,74 @@
     - "{{ indexer_node_name }}.pem"
     - admin-key.pem
     - admin.pem
+  register: indexer_certs_copy
   when: generate_certs | bool
 
 - name: Restart Wazuh indexer with security configuration
   systemd:
     name: wazuh-indexer
     state: restarted
+  when: >-
+    (indexer_package_redhat | default({})) is changed
+    or (indexer_package_debian | default({})) is changed
+    or (indexer_opensearch_conf | default({})) is changed
+    or (indexer_certs_copy | default({})) is changed
 
-- name: Copy the Opensearch security internal users template
-  template:
-    src: "templates/internal_users.yml.j2"
-    dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
-    mode: 0644
+- name: Ensure Wazuh indexer is started before the security initialization
+  systemd:
+    name: wazuh-indexer
+    state: started
+
+# A node reports UP once it loaded the security configuration of the cluster. A node installed by an
+# earlier run answers DOWN for a while after a restart, so it is given time to load it again; a node
+# of a new cluster answers DOWN until securityadmin.sh loads the configuration.
+- name: Read whether this node loaded the security configuration
+  uri:
+    url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/health"
+    validate_certs: no
+    status_code: 200,503
+    timeout: 4
+  register: indexer_security_health
+  until: >-
+    indexer_security_health.status in [200, 503]
+    and (not indexer_earlier_install.stat.exists
+         or (indexer_security_health.json | default({})).status | default('') == 'UP')
+  retries: 24
+  delay: 5
+  failed_when: false
+
+- name: Keep whether this node loaded the security configuration
+  set_fact:
+    indexer_security_loaded: "{{ (indexer_security_health.json | default({})).status | default('') == 'UP' }}"
+
+# securityadmin.sh replaces the users, roles and passwords of the cluster with the files of the first
+# node, so it runs only while no node of the play has a configuration. If none reports it but some were
+# installed by an earlier run, the cluster may still have one: only indexer_security_init_force loads it then.
+- name: Stop when no node installed by an earlier run reports the security configuration
+  fail:
+    msg: >-
+      No Wazuh indexer node of the play reports the security configuration loaded
+      (GET /_plugins/_security/health), but some were installed by an earlier run
+      ({{ indexer_earlier_nodes | join(', ') }}): loading the files of the first node would replace the
+      users, roles and passwords of the cluster. To load them anyway, for instance after a first run that
+      stopped before the security initialization, run again with indexer_security_init_force=true.
   run_once: true
+  when:
+    - not (indexer_security_init_force | bool)
+    - ansible_play_hosts | map('extract', hostvars, 'indexer_security_loaded') | select | list | length == 0
+    - indexer_earlier_nodes | length > 0
+  vars:
+    indexer_earlier_nodes: >-
+      {{ ansible_play_hosts | map('extract', hostvars) | selectattr('indexer_earlier_install.stat.exists')
+         | map(attribute='inventory_hostname') | list }}
 
 - block:
+  - name: Copy the Opensearch security internal users template
+    template:
+      src: "templates/internal_users.yml.j2"
+      dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+      mode: 0644
+
   - name: Hashing the custom admin password
     shell: |
       export JAVA_HOME=/usr/share/wazuh-indexer/jdk
@@ -94,7 +147,10 @@
     register: result
     until: result.rc == 0
 
-  when: inventory_hostname == ansible_play_hosts[0]
+  when:
+    - inventory_hostname == ansible_play_hosts[0]
+    - (indexer_security_init_force | bool)
+      or (ansible_play_hosts | map('extract', hostvars, 'indexer_security_loaded') | select | list | length == 0)
 
 - name: Create custom user
   uri:

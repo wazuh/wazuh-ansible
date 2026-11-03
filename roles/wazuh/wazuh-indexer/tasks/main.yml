@@ -15,6 +15,12 @@
     - generate_certs
 
 - block:
+    # A node installed by an earlier run has a security configuration to keep (see security_actions.yml).
+    - name: Check whether the Wazuh indexer was installed by an earlier run
+      stat:
+        path: /usr/share/wazuh-indexer/bin/opensearch-plugin
+      register: indexer_earlier_install
+
     - import_tasks: RedHat.yml
       when: ansible_facts.os_family == 'RedHat'
 
@@ -33,12 +39,6 @@
         - '"not found" not in remove_opensearch_performance_analyzer.stderr'
       changed_when: "remove_opensearch_performance_analyzer.rc == 0"
 
-    - name: Remove Opensearch configuration file
-      file:
-        path: "{{ indexer_conf_path }}/opensearch.yml"
-        state: absent
-      tags: install
-
     - name: Copy Opensearch Configuration File
       template:
         src: "templates/opensearch.yml.j2"
@@ -47,6 +47,7 @@
         group: wazuh-indexer
         mode: 0640
         force: yes
+      register: indexer_opensearch_conf
       tags: install
 
     - include_tasks: security_actions.yml

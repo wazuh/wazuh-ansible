@@ -8,6 +8,7 @@
       baseurl: "{{ wazuh_repo.yum }}"
       gpgkey: "{{ wazuh_repo.gpg }}"
       gpgcheck: true
+    changed_when: false
 
   - name: Install Wazuh dashboard
     package:

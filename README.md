@@ -271,6 +271,10 @@ sudo ansible-playbook wazuh-production-ready.yml -i inventory
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<dashboard_host>`
 
+### Running the playbook again
+
+A second run with no changes restarts no service. The indexer security configuration (`internal_users.yml`, with `indexer_admin_password` and `dashboard_password`) is loaded only while no indexer node has one, so the users, roles and passwords changed after the deployment are kept. To load it into an existing cluster, replacing them, run the playbook with `-e indexer_security_init_force=true`.
+
 ## Example: single-host environment
 
 ### Playbook
