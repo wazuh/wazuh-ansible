@@ -9,6 +9,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2256](https://github.com/wazuh/wazuh-ansible/pull/2256) | Adapt Allocator install and invocation to the new installable Python package |
 
 ### Removed
 
