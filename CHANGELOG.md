@@ -84,6 +84,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2406](https://github.com/wazuh/wazuh-ansible/issues/2406) | Report the passwords the packages generated on the first All-in-One run as saved to deployment-credentials, instead of warning that they do not match |
 | [#2397](https://github.com/wazuh/wazuh-ansible/pull/2397) | Fixing integration tests |
 | [#2380](https://github.com/wazuh/wazuh-ansible/issues/2380) | Restart a service only when its package or configuration changed, also on the next run when a run stopped before the restart, keep the indexer hosts of the manager and the dashboard stable across runs, skip the download of a package already installed at the version in the name of its package URL, and run needrestart only after the dashboard dependencies changed, so a rerun on an unchanged host changes nothing |
 | [#2389](https://github.com/wazuh/wazuh-ansible/issues/2389) | Load the indexer security configuration only on a new cluster, so a rerun keeps the users, roles and passwords changed later |
