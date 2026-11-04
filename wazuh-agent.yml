@@ -1,5 +1,13 @@
 ---
 
+# Linear, so that run_once holds: the package URL file is downloaded once, on the control node. On the
+# agent hosts, not localhost, so that --limit still runs it.
+- name: Configure package URLs
+  hosts: agents
+  gather_facts: false
+  roles:
+    - role: package-urls
+
 - name: Deploy Wazuh agent(s)
   hosts: agents
   strategy: free
@@ -14,8 +22,6 @@
     # Verification posture: full (CA + hostname), certificate (CA only), system
     # (OS trust store) or none. Empty leaves it unset.
     wazuh_ssl_verification: ""
-  roles:
-    - role: package-urls
   tasks:
     - name: Include wazuh-agent role for Linux/MacOS hosts
       when: ansible_facts.system == "Linux" or ansible_facts.system == "Darwin"

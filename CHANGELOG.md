@@ -84,6 +84,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2407](https://github.com/wazuh/wazuh-ansible/issues/2407) | Download the package URL file once per run of wazuh-agent.yml, in its own play before the agent play, so the free strategy of the agent play no longer ignores run_once |
 | [#2397](https://github.com/wazuh/wazuh-ansible/pull/2397) | Fixing integration tests |
 | [#2380](https://github.com/wazuh/wazuh-ansible/issues/2380) | Restart a service only when its package or configuration changed, also on the next run when a run stopped before the restart, keep the indexer hosts of the manager and the dashboard stable across runs, skip the download of a package already installed at the version in the name of its package URL, and run needrestart only after the dashboard dependencies changed, so a rerun on an unchanged host changes nothing |
 | [#2389](https://github.com/wazuh/wazuh-ansible/issues/2389) | Load the indexer security configuration only on a new cluster, so a rerun keeps the users, roles and passwords changed later |
