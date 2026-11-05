@@ -86,7 +86,7 @@ flowchart TD
 | `environment` | Fixed: `development` |
 | `commit_list` | Fixed: `["latest","latest","latest","latest","latest"]` |
 | `skip_signature_check` | Fixed: `false` |
-| `automation_reference` | Defaults to `main` |
+| `automation_reference` | Base branch of the PR (`github.base_ref`), for example `5.1.0` |
 
 ---
 
@@ -169,7 +169,7 @@ The private key is saved locally and used for all SSH connections in this matrix
 **AIO — 1 instance:**
 
 ```bash
-python3 wazuh-automation/deployability/modules/allocation/main.py \
+wazuh-allocator \
   --action create \
   --provider aws \
   --size medium \
