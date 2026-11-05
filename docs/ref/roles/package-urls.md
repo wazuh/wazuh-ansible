@@ -32,7 +32,7 @@ Set `wazuh_skip_package_signature_check` to `true` only to install unsigned deve
 
 ## Usage
 
-This role is included in the `wazuh-aio.yml`, `wazuh-distributed.yml`, and `wazuh-agent.yml` playbooks as the first role to execute, ensuring that package URLs are available before any installation task runs.
+This role is included in the `wazuh-aio.yml`, `wazuh-distributed.yml`, and `wazuh-agent.yml` playbooks as the first role to execute, ensuring that package URLs are available before any installation task runs. The download runs once (`run_once`), which the `free` strategy does not support: `wazuh-agent.yml` runs the role in its own play, with the default strategy, before the agent play.
 
 ## Related
 

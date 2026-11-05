@@ -1,0 +1,6 @@
+---
+
+# The package or the configuration of the indexer changed: start_service.yml restarts it.
+- name: Wazuh indexer changed
+  ansible.builtin.set_fact:
+    wazuh_indexer_restart: true
