@@ -31,7 +31,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- None
+- Skip the syslog files covered by journald in the agent ossec.conf to avoid duplicated events ([#2401](https://github.com/wazuh/wazuh-ansible/pull/2401))
+- Run the wazuh-indexer run_once tasks once in wazuh-production-ready.yml ([#2398](https://github.com/wazuh/wazuh-ansible/pull/2398))
 
 ### Deleted
 
@@ -52,6 +53,9 @@ All notable changes to this project will be documented in this file.
 - Remove force_time from the agent registration request ([#2328](https://github.com/wazuh/wazuh-ansible/pull/2328))
 - Remove software-properties-common from the wazuh-indexer dependencies ([#2327](https://github.com/wazuh/wazuh-ansible/pull/2327))
 - Skip the certificates copy when generate_certs is false ([#2329](https://github.com/wazuh/wazuh-ansible/pull/2329))
+- Fix the macOS Intel package URL in the pre-release repository vars ([#2393](https://github.com/wazuh/wazuh-ansible/pull/2393))
+- Replace apt_repository with deb822_repository in the Debian tasks of the roles ([#2392](https://github.com/wazuh/wazuh-ansible/pull/2392))
+- Start the Wazuh dashboard once on a fresh install, without the handler restarting it during the first start ([#2394](https://github.com/wazuh/wazuh-ansible/pull/2394))
 
 ### Deleted
 

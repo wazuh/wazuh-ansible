@@ -225,6 +225,16 @@
     name: wazuh
     state: present
 
+- name: Linux | Check if journald is available
+  ansible.builtin.shell: command -v journalctl
+  register: wazuh_agent_journalctl
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags:
+    - init
+    - config
+
 - name: Linux | Installing agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
