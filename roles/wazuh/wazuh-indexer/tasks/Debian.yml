@@ -4,6 +4,7 @@
 - name: Update cache
   apt:
     update_cache: yes
+  changed_when: false
 
 - name: Install Wazuh indexer dependencies
   apt:
@@ -43,5 +44,5 @@
   apt:
     name: wazuh-indexer={{ indexer_version }}-1
     state: present
-  register: install
+  register: indexer_package_debian
   tags: install

@@ -31,21 +31,60 @@
     - "{{ indexer_node_name }}.pem"
     - admin-key.pem
     - admin.pem
+  register: indexer_certs_copy
   when: generate_certs | bool
 
 - name: Restart Wazuh indexer with security configuration
   systemd:
     name: wazuh-indexer
     state: restarted
+  when: >-
+    (indexer_package_redhat | default({})) is changed
+    or (indexer_package_debian | default({})) is changed
+    or (indexer_opensearch_conf | default({})) is changed
+    or (indexer_certs_copy | default({})) is changed
 
-- name: Copy the Opensearch security internal users template
-  template:
-    src: "templates/internal_users.yml.j2"
-    dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
-    mode: 0644
-  run_once: true
+- name: Ensure Wazuh indexer is started before the security initialization
+  systemd:
+    name: wazuh-indexer
+    state: started
+
+# The admin certificate is accepted by the REST API even before the security configuration is loaded, and
+# it does not depend on passwords that may have been changed through the API.
+- name: Wait for the Wazuh indexer node to join a cluster with an elected cluster manager
+  uri:
+    url: "https://{{ target_address }}:{{ indexer_http_port }}/_cluster/health"
+    client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+    client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
+    validate_certs: no
+    timeout: 4
+  register: indexer_cluster_health
+  until: indexer_cluster_health.status == 200
+  retries: "{{ indexer_api_retries }}"
+  delay: 5
+
+# securityadmin.sh replaces the users, roles and passwords of the whole cluster with the files of this
+# node, so it runs only while the cluster has no security index. The node already joined the cluster, so
+# a node added to an existing cluster (also with --limit) sees the index of the cluster.
+- name: Check whether the cluster has the security configuration
+  uri:
+    url: "https://{{ target_address }}:{{ indexer_http_port }}/.opendistro_security"
+    method: HEAD
+    client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+    client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
+    validate_certs: no
+    status_code: 200,404
+    timeout: 4
+  register: indexer_security_index
+  when: inventory_hostname == ansible_play_hosts[0]
 
 - block:
+  - name: Copy the Opensearch security internal users template
+    template:
+      src: "templates/internal_users.yml.j2"
+      dest: "{{ indexer_sec_plugin_conf_path }}/internal_users.yml"
+      mode: 0644
+
   - name: Hashing the custom admin password
     shell: |
       export JAVA_HOME=/usr/share/wazuh-indexer/jdk
@@ -94,26 +133,127 @@
     register: result
     until: result.rc == 0
 
+  when:
+    - inventory_hostname == ansible_play_hosts[0]
+    - (indexer_security_init_force | bool) or indexer_security_index.status == 404
+
+# indexer_admin_password and dashboard_password are the passwords the manager, Filebeat and the dashboard
+# use, so the admin and kibanaserver users are given them again when they no longer match (a password
+# rotated in the inventory, or changed through the API). The other users of the cluster are not touched.
+- block:
+  - name: Wait for the Wazuh indexer node to load the security configuration
+    uri:
+      url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/health"
+      validate_certs: no
+      timeout: 4
+    register: indexer_security_health
+    until: >-
+      indexer_security_health.status == 200
+      and (indexer_security_health.json | default({})).status | default('') == 'UP'
+    retries: "{{ indexer_api_retries }}"
+    delay: 5
+
+  - name: Check the passwords of the admin and kibanaserver users
+    uri:
+      url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/authinfo"
+      user: "{{ item.user }}"
+      password: "{{ item.password }}"
+      force_basic_auth: yes
+      validate_certs: no
+      status_code: 200,401
+      timeout: 4
+    loop: "{{ indexer_api_users }}"
+    loop_control:
+      label: "{{ item.user }}"
+    register: indexer_users_auth
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+
+  - name: Hash the passwords that no longer match
+    shell: |
+      export JAVA_HOME=/usr/share/wazuh-indexer/jdk
+      {{ indexer_sec_plugin_tools_path }}/hash.sh -p '{{ item.item.password }}'
+    loop: "{{ indexer_users_auth.results | selectattr('status', 'equalto', 401) | list }}"
+    loop_control:
+      label: "{{ item.item.user }}"
+    register: indexer_users_hashed
+    changed_when: false
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+
+  - name: Set the passwords that no longer match
+    uri:
+      url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ item.item.item.user }}"
+      method: PATCH
+      client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+      client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
+      body_format: json
+      body:
+        - op: replace
+          path: /hash
+          value: "{{ item.stdout_lines | last }}"
+      validate_certs: no
+      timeout: 10
+    loop: "{{ indexer_users_hashed.results }}"
+    loop_control:
+      label: "{{ item.item.item.user }}"
+    changed_when: true
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+
+  - name: Check the passwords that were set
+    uri:
+      url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/authinfo"
+      user: "{{ item.item.user }}"
+      password: "{{ item.item.password }}"
+      force_basic_auth: yes
+      validate_certs: no
+      timeout: 4
+    loop: "{{ indexer_users_auth.results | selectattr('status', 'equalto', 401) | list }}"
+    loop_control:
+      label: "{{ item.item.user }}"
+    register: indexer_users_recheck
+    until: indexer_users_recheck.status == 200
+    retries: 12
+    delay: 5
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+
+  vars:
+    indexer_api_users:
+      - user: admin
+        password: "{{ indexer_admin_password }}"
+      - user: kibanaserver
+        password: "{{ dashboard_password }}"
   when: inventory_hostname == ansible_play_hosts[0]
 
-- name: Create custom user
-  uri:
-    url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
-    method: PUT
-    user: "admin" # Default Indexer user is always "admin"
-    password: "{{ indexer_admin_password }}"
-    body: |
-      {
-        "password": "{{ indexer_admin_password }}",
-        "backend_roles": ["{{ indexer_custom_user_role }}"]
-      }
-    body_format: json
-    validate_certs: no
-    status_code: 200,201,401
-    return_content: yes
-    timeout: 4
-  register: result
-  until: result.status in [200,201,401]
+- block:
+  - name: Check whether the custom user exists
+    uri:
+      url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
+      client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+      client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
+      validate_certs: no
+      status_code: 200,404
+      timeout: 4
+    register: indexer_custom_user_check
+
+  # Only created: a password or role changed after the deployment is kept.
+  - name: Create custom user
+    uri:
+      url: "https://{{ target_address }}:{{ indexer_http_port }}/_plugins/_security/api/internalusers/{{ indexer_custom_user }}"
+      method: PUT
+      client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+      client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
+      body: |
+        {
+          "password": "{{ indexer_admin_password }}",
+          "backend_roles": ["{{ indexer_custom_user_role }}"]
+        }
+      body_format: json
+      validate_certs: no
+      status_code: 200,201
+      timeout: 4
+    changed_when: true
+    no_log: '{{ indexer_nolog_sensible | bool }}'
+    when: indexer_custom_user_check.status == 404
+
   when:
     - indexer_custom_user | default('') | trim | length > 0
     - inventory_hostname == ansible_play_hosts[0]

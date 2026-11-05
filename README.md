@@ -271,6 +271,10 @@ sudo ansible-playbook wazuh-production-ready.yml -i inventory
 
 After the playbook execution, the Wazuh UI should be reachable through `https://<dashboard_host>`
 
+### Running the playbook again
+
+A second run with no changes restarts no service. The indexer security configuration (`internal_users.yml`) is loaded with `securityadmin.sh` only while the cluster has no security index, also when a node is added with `--limit`, so the users, roles and passwords changed after the deployment are kept. On an existing cluster, the passwords of the `admin` and `kibanaserver` users are set again to `indexer_admin_password` and `dashboard_password` when they no longer match, for instance after rotating them in the inventory; the other users are not changed. To load the files into an existing cluster anyway, replacing every user, role and password, run the playbook with `-e indexer_security_init_force=true`. The checks of the indexer API are retried `indexer_api_retries` times (24 by default) every 5 seconds.
+
 ## Example: single-host environment
 
 ### Playbook

@@ -5,6 +5,7 @@
     - name: "Refresh APT cache on Debian"
       apt:
         update_cache: true
+      changed_when: false
       when: ansible_facts.os_family == "Debian"
       register: package_status
       until: "package_status is not failed"
@@ -67,9 +68,37 @@
 - include_tasks: "Debian.yml"
   when: ansible_facts.os_family == "Debian"
 
+# wazuh-keystore cannot print the stored values, so a hash of the credentials it was last given is kept:
+# the keystore is written, and the manager restarted, only when the credentials or the package change.
+- name: Read the hash of the credentials stored in the wazuh-keystore
+  slurp:
+    src: "{{ wazuh_dir }}/etc/.ansible_indexer_keystore.sha256"
+  register: wazuh_manager_keystore_marker
+  failed_when: false
+  tags:
+    - init
+    - config
+
+- name: Check whether the wazuh-keystore has to be updated
+  set_fact:
+    wazuh_manager_keystore_hash: "{{ (indexer_security_user ~ ':' ~ indexer_security_password) | hash('sha256') }}"
+    wazuh_manager_keystore_update: >-
+      {{ (wazuh_manager_keystore_marker.content | default('') | b64decode | trim)
+         != ((indexer_security_user ~ ':' ~ indexer_security_password) | hash('sha256'))
+         or (wazuh_manager_package_redhat | default({})) is changed
+         or (wazuh_manager_package_debian | default({})) is changed
+         or (wazuh_manager_custom_package_deb | default({})) is changed
+         or (wazuh_manager_custom_package_yum | default({})) is changed
+         or (wazuh_manager_custom_package_dnf | default({})) is changed }}
+  no_log: true
+  tags:
+    - init
+    - config
+
 - name: Generate the wazuh-keystore (username)
   shell: >
     /var/ossec/bin/wazuh-keystore -f indexer -k username -v {{ indexer_security_user }}
+  when: wazuh_manager_keystore_update | bool
   notify: restart wazuh-manager
   tags:
     - init
@@ -78,7 +107,21 @@
 - name: Generate the wazuh-keystore (password)
   shell: >
     /var/ossec/bin/wazuh-keystore -f indexer -k password -v {{ indexer_security_password }}
+  when: wazuh_manager_keystore_update | bool
+  no_log: true
   notify: restart wazuh-manager
+  tags:
+    - init
+    - config
+
+- name: Keep the hash of the credentials stored in the wazuh-keystore
+  copy:
+    content: "{{ wazuh_manager_keystore_hash }}\n"
+    dest: "{{ wazuh_dir }}/etc/.ansible_indexer_keystore.sha256"
+    owner: root
+    group: root
+    mode: 0600
+  when: wazuh_manager_keystore_update | bool
   tags:
     - init
     - config

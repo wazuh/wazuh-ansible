@@ -34,7 +34,8 @@
       name: "wazuh-dashboard={{ dashboard_version }}-*"
       state: present
       update_cache: yes
-    register: install
+    register: dashboard_package_debian
+    notify: restart wazuh-dashboard
 
   tags:
     - install

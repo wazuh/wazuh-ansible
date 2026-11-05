@@ -48,3 +48,13 @@ generate_certs: true
 perform_installation: true
 
 indexer_nolog_sensible: true
+
+# Load the security configuration files (internal_users.yml with indexer_admin_password and
+# dashboard_password) into a cluster that already has one. It replaces the users, roles and passwords
+# changed after the deployment. Without it, the files are loaded only while the cluster has no security
+# index, and on an existing cluster only the admin and kibanaserver passwords are set when they differ.
+indexer_security_init_force: false
+
+# Checks of the Wazuh indexer API (cluster formed, security configuration loaded, cluster green) are
+# retried every 5 seconds this many times.
+indexer_api_retries: 24
