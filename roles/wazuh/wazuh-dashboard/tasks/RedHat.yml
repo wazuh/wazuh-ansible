@@ -15,7 +15,8 @@
       name: "wazuh-dashboard-{{ dashboard_version }}"
       state: present
       update_cache: yes
-    register: install
+    register: dashboard_package_redhat
+    notify: restart wazuh-dashboard
 
   tags:
     - install

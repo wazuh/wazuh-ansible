@@ -116,6 +116,7 @@
     name:
       - "wazuh-manager={{ wazuh_manager_version }}-*"
     state: present
+  register: wazuh_manager_package_debian
   tags: init
   when:
     - not wazuh_custom_packages_installation_manager_enabled

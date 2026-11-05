@@ -76,7 +76,7 @@
   changed_when: False
 
 # The keystore cannot print the stored value, so a hash of the password it was last given is kept:
-# the keystore is written, and the dashboard restarted, only when the password changes.
+# the keystore is written, and the dashboard restarted, only when the password or the package changes.
 - name: Read the hash of the password stored in opensearch_dashboards.keystore
   slurp:
     src: "{{ dashboard_conf_path }}/.ansible_keystore.sha256"
@@ -88,7 +88,9 @@
     dashboard_keystore_hash: "{{ dashboard_password | hash('sha256') }}"
     dashboard_keystore_update: >-
       {{ (dashboard_keystore_marker.content | default('') | b64decode | trim)
-         != (dashboard_password | hash('sha256')) }}
+         != (dashboard_password | hash('sha256'))
+         or (dashboard_package_redhat | default({})) is changed
+         or (dashboard_package_debian | default({})) is changed }}
   no_log: true
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore

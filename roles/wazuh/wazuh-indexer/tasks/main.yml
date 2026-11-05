@@ -15,12 +15,6 @@
     - generate_certs
 
 - block:
-    # A node installed by an earlier run has a security configuration to keep (see security_actions.yml).
-    - name: Check whether the Wazuh indexer was installed by an earlier run
-      stat:
-        path: /usr/share/wazuh-indexer/bin/opensearch-plugin
-      register: indexer_earlier_install
-
     - import_tasks: RedHat.yml
       when: ansible_facts.os_family == 'RedHat'
 
@@ -95,17 +89,16 @@
     - name: Wait for Wazuh indexer API
       uri:
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
-        user: "admin" # Default Indexer user is always "admin"
-        password: "{{ indexer_admin_password }}"
+        client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+        client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
         validate_certs: no
-        status_code: 200,401
         return_content: yes
         timeout: 4
       register: _result
       until:
         - _result is defined
         - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
-      retries: 24
+      retries: "{{ indexer_api_retries }}"
       delay: 5
       tags: debug
       when:
@@ -115,17 +108,16 @@
     - name: Wait for Wazuh indexer API (Private IP)
       uri:
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
-        user: "admin" # Default Indexer user is always "admin"
-        password: "{{ indexer_admin_password }}"
+        client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+        client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
         validate_certs: no
-        status_code: 200,401
         return_content: yes
         timeout: 4
       register: _result
       until:
         - _result is defined
         - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
-      retries: 24
+      retries: "{{ indexer_api_retries }}"
       delay: 5
       tags: debug
       when:
