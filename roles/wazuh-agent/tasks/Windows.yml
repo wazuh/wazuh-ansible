@@ -1,14 +1,31 @@
 ---
 
+# The MSI records the version without the package revision: a rerun skips the download and the installation
+# when the agent installed is the version deployed, whatever its revision.
+- name: Windows | Read the installed version of the Wazuh agent
+  ansible.windows.win_shell: |
+    $paths = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+             'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    (Get-ItemProperty $paths -ErrorAction SilentlyContinue | Where-Object DisplayName -eq 'Wazuh Agent' | Select-Object -First 1).DisplayVersion
+  register: wazuh_agent_win_installed_version
+  changed_when: false
+  failed_when: false
+
+- name: Windows | Check whether the Wazuh agent is already installed
+  ansible.builtin.set_fact:
+    wazuh_agent_package_installed: "{{ (wazuh_agent_win_installed_version.stdout | default('') | trim) == wazuh_full_version }}"
+
 - name: Windows | Ensure Wazuh agent download directory exists
   ansible.windows.win_file:
     path: "{{ wazuh_agent_win_package_download_path }}"
     state: directory
+  when: not wazuh_agent_package_installed
 
 - name: Windows | Download Wazuh agent installer
   ansible.windows.win_get_url:
     url: "{{ wazuh_agent_windows }}"
     dest: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
+  when: not wazuh_agent_package_installed
 
 - name: Windows | Verify the Wazuh agent installer signature
   ansible.builtin.include_role:
@@ -16,6 +33,7 @@
     tasks_from: verify_msi_signature.yml
   vars:
     wazuh_package_file: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
+  when: not wazuh_agent_package_installed
 
 # Since wazuh/wazuh#39063, a 5.x agent enrolls with a single enrollment token:
 # the manager address and the CA pin travel inside the token itself, fetched
@@ -39,6 +57,7 @@
       /q WAZUH_ENROLLMENT_TOKEN="{{ wazuh_enrollment_token }}"
       {%- if wazuh_ssl_verification | default('') | length > 0 %} WAZUH_SSL_VERIFICATION="{{ wazuh_ssl_verification }}"{% endif %}
   no_log: true
+  when: not wazuh_agent_package_installed
 
 - name: Windows | Install Wazuh agent
   ansible.windows.win_package:
@@ -46,16 +65,18 @@
     arguments: "{{ wazuh_agent_install_args }}"
     state: present
   no_log: true
+  when: not wazuh_agent_package_installed
+  notify: Wazuh agent changed
 
-- name: Windows | Stop Wazuh agent service (if already running)
-  ansible.windows.win_service:
-    name: "Wazuh"
-    state: stopped
+# The handler records whether the package changed: only then is the agent restarted.
+- name: Windows | Apply the pending changes of the agent
+  ansible.builtin.meta: flush_handlers
 
+# The MSI does not start the service: a new installation is started here, a rerun only makes sure it runs.
 - name: Windows | Start Wazuh agent service
   ansible.windows.win_service:
     name: "Wazuh"
-    state: started
+    state: "{{ 'restarted' if (wazuh_agent_restart | default(false) | bool) else 'started' }}"
 
 # win_service's own `state: started` above does not detect this failure mode:
 # Start-Service is called without -Wait and win_service echoes the requested state

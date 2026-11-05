@@ -59,7 +59,7 @@ permissions:
   issues: write
 
 env:
-  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || 'main' }}
+  AUTOMATION_REFERENCE: ${{ inputs.automation_reference || github.base_ref || 'main' }}
   ALLOCATOR_PATH: /tmp/wazuh-ansible/allocator_instance
   INSTANCE_NAMES: "wi1 wi2 wi3 dashboard manager worker"
 
@@ -507,6 +507,7 @@ jobs:
       # Test: install test module and run integration tests
       # -----------------------------------------------------------------------
       - name: Install test module
+        id: install_tests
         run: |
           pip install -r wazuh-automation/integration-test-module/requirements.txt
           pip install -e wazuh-automation/integration-test-module/
@@ -630,7 +631,7 @@ jobs:
 
       - name: Run AIO integration tests
         id: run_tests_aio
-        if: always() && matrix.deployment_type == 'aio'
+        if: always() && steps.install_tests.outcome == 'success' && matrix.deployment_type == 'aio'
         continue-on-error: true
         run: |
           test_runner \
@@ -644,9 +645,10 @@ jobs:
 
       - name: Run distributed indexer tests
         id: run_tests_indexer
-        if: always() && matrix.deployment_type == 'distributed'
+        if: always() && steps.install_tests.outcome == 'success' && matrix.deployment_type == 'distributed'
         continue-on-error: true
         run: |
+          rc=0
           for host in wi1 wi2 wi3; do
             echo "=== Testing indexer on: $host ==="
             test_runner \
@@ -658,12 +660,14 @@ jobs:
               --version "${{ needs.prepare.outputs.wazuh_version }}" \
               --log-level INFO \
               --output github \
-              --output-file "test-results-ansible-distributed-indexer-${host}-${{ matrix.system }}.github"
+              --output-file "test-results-ansible-distributed-indexer-${host}-${{ matrix.system }}.github" \
+              || rc=1
           done
+          exit $rc
 
       - name: Run distributed manager tests
         id: run_tests_manager
-        if: always() && matrix.deployment_type == 'distributed'
+        if: always() && steps.install_tests.outcome == 'success' && matrix.deployment_type == 'distributed'
         continue-on-error: true
         run: |
           test_runner \
@@ -679,7 +683,7 @@ jobs:
 
       - name: Run distributed dashboard tests
         id: run_tests_dashboard
-        if: always() && matrix.deployment_type == 'distributed'
+        if: always() && steps.install_tests.outcome == 'success' && matrix.deployment_type == 'distributed'
         continue-on-error: true
         run: |
           test_runner \
@@ -816,7 +820,9 @@ jobs:
         if: always()
         run: |
           for f in test-results-ansible-*.github; do
-            [ -f "$f" ] && aws s3 cp "$f" "${{ env.S3_PATH }}/$f"
+            if [ -f "$f" ]; then
+              aws s3 cp "$f" "${{ env.S3_PATH }}/$f"
+            fi
           done
 
       # -----------------------------------------------------------------------

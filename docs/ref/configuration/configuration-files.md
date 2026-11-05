@@ -100,8 +100,8 @@ The Wazuh Agent deployment playbook is designed to install and configure the Waz
 
 The playbook `wazuh-agent.yml` includes:
 
-- **Wazuh Agent Role**: Installs and configures the Wazuh agent on each host and enrolls to the Wazuh Manager node.
-- **Package URLs Role**: Manages package sources for agent installation.
+- **Package URLs Role**: Manages package sources for agent installation. It runs first, in its own play, and downloads the package URL file once per run, on the control node. That play is on the `agents` hosts, so it also runs with `--limit`.
+- **Wazuh Agent Role**: Installs and configures the Wazuh agent on each host and enrolls to the Wazuh Manager node. Its play uses the `free` strategy: each agent goes through the role at its own pace.
 
 **Important:**
 Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Agent Enrollment Token>` with a real enrollment token, minted against the target manager (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`; see the [wazuh-agent role docs](../roles/wazuh-agent.md#enrollment-token-based)).

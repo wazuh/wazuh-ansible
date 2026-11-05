@@ -8,6 +8,18 @@
   ansible.builtin.include_vars:
     file: ../../vars/{{ urls_file }}
 
+- name: Linux | Check whether wazuh-indexer is already installed
+  ansible.builtin.include_role:
+    name: package-urls
+    tasks_from: check_installed.yml
+  vars:
+    wazuh_installed_package: wazuh-indexer
+
+# Kept apart: the next component's check overwrites wazuh_package_installed.
+- name: Linux | Keep whether wazuh-indexer is already installed
+  ansible.builtin.set_fact:
+    wazuh_indexer_package_installed: "{{ wazuh_package_installed }}"
+
 - name: Importing dependencies.yml
   ansible.builtin.import_tasks: dependencies.yml
   become: true
@@ -55,6 +67,7 @@
   vars:
     wazuh_package_file: "{{ wazuh_indexer_package_download_path }}/{{ wazuh_indexer_package_name }}_{{ ansible_facts.architecture }}.{{ wazuh_package_type }}"
     wazuh_package_type: "{{ 'rpm' if ansible_facts.os_family == 'RedHat' else 'deb' }}"
+  when: not wazuh_indexer_package_installed
 
 - name: Linux CentOS/RedHat | Install wazuh-indexer using yum
   ansible.builtin.dnf:
@@ -64,6 +77,8 @@
     disable_gpg_check: "{{ wazuh_skip_package_signature_check | default(false) | bool }}"
   when:
     - ansible_facts.os_family == 'RedHat'
+    - not wazuh_indexer_package_installed
+  notify: Wazuh indexer changed
 
 - name: Linux Debian | Install wazuh-indexer using apt
   ansible.builtin.apt:
@@ -71,6 +86,15 @@
     state: present
   when:
     - ansible_facts.os_family == 'Debian'
+    - not wazuh_indexer_package_installed
+  notify: Wazuh indexer changed
+
+# On Amazon Linux 2023, /tmp is a tmpfs: the package would use memory the indexer needs.
+- name: Remove Wazuh Indexer installation leftovers
+  ansible.builtin.file:
+    path: "{{ wazuh_indexer_package_download_path }}"
+    state: absent
+  become: true
 
 - name: Importing config_files_setup.yml
   ansible.builtin.import_tasks: config_files_setup.yml
@@ -81,17 +105,69 @@
     daemon_reload: true
   become: true
 
+# The handler records whether the package or the configuration changed: only then is the indexer restarted.
+- name: Apply the pending changes of the indexer
+  ansible.builtin.meta: flush_handlers
+
 - name: Ensure Wazuh indexer started
   ansible.builtin.include_role:
     name: wazuh-credentials
     tasks_from: start_service.yml
   vars:
     wazuh_service_name: wazuh-indexer
+    wazuh_service_restart: "{{ wazuh_indexer_restart | default(false) }}"
+    wazuh_service_watched_files:
+      - /etc/wazuh-indexer/opensearch.yml
+      - /etc/wazuh-indexer/jvm.options
 
 # The package never loads the security configuration into the cluster: it cannot know whether other
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
 # the bcrypt digests of the supplied passwords into internal_users.yml, so one upload from one node
-# is what makes them live, on a single node and on a cluster alike.
+# is what makes them live, on a single node and on a cluster alike. The upload replaces the security
+# configuration of the cluster with the files of that node, so it is done only while no node of the
+# play has one: the users, roles and passwords changed later are kept on a rerun.
+# A node reports UP once it loaded the configuration from the cluster. A node installed by an earlier
+# run answers DOWN for a while after a restart, so it is given time to load it again; a node of a new
+# cluster answers DOWN until the upload.
+- name: Read whether this node loaded the security configuration
+  ansible.builtin.uri:
+    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_plugins/_security/health"
+    validate_certs: false
+    status_code: [200, 503]
+    timeout: 4
+  register: wazuh_indexer_security_health
+  until: >-
+    wazuh_indexer_security_health.status in [200, 503]
+    and (not (wazuh_indexer_package_installed | bool)
+         or (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP')
+  retries: 24
+  delay: 5
+  failed_when: false
+
+- name: Keep whether this node loaded the security configuration
+  ansible.builtin.set_fact:
+    wazuh_indexer_security_loaded: "{{ (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP' }}"
+
+# A node installed by an earlier run that is still DOWN after the wait may belong to a cluster that has a
+# configuration, and the upload would replace it: only wazuh_indexer_security_init_force loads it then.
+- name: Stop when no node installed by an earlier run reports the security configuration
+  ansible.builtin.fail:
+    msg: >-
+      No indexer node of the play reports the security configuration loaded
+      (GET /_plugins/_security/health), but some were installed by an earlier run
+      ({{ wazuh_indexer_earlier_nodes | join(', ') }}): loading the files of the first node would replace the
+      users, roles and passwords of the cluster. To load them anyway, for instance after a first run that
+      stopped before the upload, run again with wazuh_indexer_security_init_force=true.
+  run_once: true
+  when:
+    - not (wazuh_indexer_security_init_force | bool)
+    - ansible_play_hosts | map('extract', hostvars, 'wazuh_indexer_security_loaded') | select | list | length == 0
+    - wazuh_indexer_earlier_nodes | length > 0
+  vars:
+    wazuh_indexer_earlier_nodes: >-
+      {{ ansible_play_hosts | map('extract', hostvars) | selectattr('wazuh_indexer_package_installed')
+         | map(attribute='inventory_hostname') | list }}
+
 - name: Initialize Wazuh Indexer cluster
   ansible.builtin.shell: |
     /usr/share/wazuh-indexer/bin/indexer-security-init.sh
@@ -99,7 +175,10 @@
     executable: /bin/bash
   become: true
   run_once: true
-  changed_when: false
+  changed_when: true
+  when: >-
+    (wazuh_indexer_security_init_force | bool)
+    or (ansible_play_hosts | map('extract', hostvars, 'wazuh_indexer_security_loaded') | select | list | length == 0)
 
 - name: Credentials | Use the passwords the indexer published
   ansible.builtin.include_role:
@@ -142,15 +221,3 @@
           node.'))
           if (_result.status | default(0)) == 401
           else 'Check the service with journalctl -u wazuh-indexer.' }}
-
-- name: Reload systemd configuration
-  ansible.builtin.systemd:
-    daemon_reload: true
-  become: true
-  notify: restart wazuh-indexer
-
-- name: Remove Wazuh Indexer installation leftovers
-  ansible.builtin.file:
-    path: "{{ wazuh_indexer_package_download_path }}"
-    state: absent
-  become: true
