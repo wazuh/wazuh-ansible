@@ -5,6 +5,7 @@
     path: "{{ wazuh_indexer_package_download_path }}"
     state: directory
     mode: '0755'
+  when: not wazuh_indexer_package_installed
 
 - name: Amazon Linux | Configure system settings
   when: ansible_facts.distribution == 'Amazon'
@@ -49,6 +50,7 @@
         mode: '0644'
       when:
         - ansible_facts.architecture == "x86_64"
+        - not wazuh_indexer_package_installed
 
     - name: RedHat/CentOS/Fedora (aarch64) | Download wazuh-indexer package
       ansible.builtin.get_url:
@@ -57,6 +59,7 @@
         mode: '0644'
       when:
         - ansible_facts.architecture == "aarch64"
+        - not wazuh_indexer_package_installed
 
 - name: Debian-based systems | Install Wazuh indexer dependencies and download package
   when: ansible_facts.os_family == 'Debian'
@@ -76,6 +79,7 @@
         mode: '0644'
       when:
         - ansible_facts.architecture == "x86_64"
+        - not wazuh_indexer_package_installed
 
     - name: Debian-based (ARM64) | Download wazuh-indexer package
       ansible.builtin.get_url:
@@ -84,3 +88,4 @@
         mode: '0644'
       when:
         - ansible_facts.architecture == "aarch64"
+        - not wazuh_indexer_package_installed
