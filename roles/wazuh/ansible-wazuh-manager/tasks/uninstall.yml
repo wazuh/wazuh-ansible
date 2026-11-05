@@ -1,8 +1,8 @@
 ---
 
 - name: Debian/Ubuntu | Remove Wazuh repository.
-  apt_repository:
-    repo: "{{ wazuh_manager_config.repo.apt }}"
+  deb822_repository:
+    name: wazuh
     state: absent
   changed_when: false
   when: ansible_facts.os_family == "Debian"

@@ -7,10 +7,11 @@
       url: "{{ wazuh_repo.gpg }}"
       dest: "{{ wazuh_repo.path }}"
 
-  - name: Debian/Ubuntu | Install gnupg
+  - name: Debian/Ubuntu | Install gnupg and python3-debian
     apt:
       name:
         - gnupg
+        - python3-debian
       state: present
 
   - name: Import Wazuh repository GPG key
@@ -23,11 +24,31 @@
       path: "{{ wazuh_repo.keyring_path }}"
       mode: '0644'
 
+  - name: Remove the apt source files of previous versions of the role
+    file:
+      path: "/etc/apt/sources.list.d/{{ item }}"
+      state: absent
+    loop:
+      - wazuh-indexer.list
+      - wazuh_repo.list
+      - packages_wazuh_com_4_x_apt.list
+      - packages_dev_wazuh_com_pre_release_apt.list
+      - packages_dev_wazuh_com_staging_apt.list
+
   - name: Debian systems | Add Wazuh dashboard repo
-    apt_repository:
-      repo: "{{ wazuh_repo.apt }}"
+    deb822_repository:
+      name: wazuh
+      types: deb
+      uris: "{{ wazuh_repo.apt_uri }}"
+      suites: "{{ wazuh_repo.apt_suite }}"
+      components: "{{ wazuh_repo.apt_component }}"
+      signed_by: "{{ wazuh_repo.keyring_path }}"
       state: present
-      update_cache: yes
+
+  - name: Update the apt cache
+    apt:
+      update_cache: true
+    changed_when: false
 
   - name: Install Wazuh dashboard
     apt:
