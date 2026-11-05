@@ -1,6 +1,9 @@
 wazuh_repo:
   keyring_path: '/usr/share/keyrings/wazuh.gpg'
   apt: 'deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages-dev.wazuh.com/pre-release/apt/ unstable main'
+  apt_uri: 'https://packages-dev.wazuh.com/pre-release/apt/'
+  apt_suite: 'unstable'
+  apt_component: 'main'
   yum: 'https://packages-dev.wazuh.com/pre-release/yum/'
   gpg: 'https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH'
   path: '/tmp/WAZUH-GPG-KEY'
@@ -11,7 +14,7 @@ filebeat_module_package_url: https://packages-dev.wazuh.com/pre-release/filebeat
 
 wazuh_macos_intel_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.intel64.pkg"
 wazuh_macos_arm_package_name: "wazuh-agent-{{ wazuh_agent_version }}-1.arm64.pkg"
-wazuh_macos_intel_package_url: "https://packages-dev.wazuh.com/pre-release/{{ wazuh_macos_intel_package_name }}"
+wazuh_macos_intel_package_url: "https://packages-dev.wazuh.com/pre-release/macos/{{ wazuh_macos_intel_package_name }}"
 wazuh_macos_arm_package_url: "https://packages-dev.wazuh.com/pre-release/macos/{{ wazuh_macos_arm_package_name }}"
 
 certs_gen_tool_version: "4.14"

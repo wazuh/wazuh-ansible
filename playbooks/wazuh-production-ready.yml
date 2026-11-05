@@ -48,7 +48,6 @@
 
 # Wazuh indexer cluster
     - hosts: wi_cluster
-      strategy: free
       roles:
         - role: ../roles/wazuh/wazuh-indexer
           indexer_network_host: "{{ private_ip }}"

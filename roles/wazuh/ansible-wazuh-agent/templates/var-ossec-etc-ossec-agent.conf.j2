@@ -357,8 +357,11 @@
   {% endif %}
 
   <!-- Files to monitor (localfiles) -->
+  {# Same as the agent package: when journald is available, add the journald
+     localfile and skip the syslog files it already covers (wazuh_agent_journald_covered_logs). #}
+  {% set wazuh_agent_has_journald = ansible_facts.system == "Linux" and (wazuh_agent_journalctl.rc | default(1)) == 0 %}
   {% if ansible_facts.system == "Linux" %}
-  {% for localfile in wazuh_agent_config.localfiles.linux %}
+  {% for localfile in wazuh_agent_config.localfiles.linux if not (wazuh_agent_has_journald and localfile.location is defined and localfile.location in wazuh_agent_journald_covered_logs) %}
 
   <localfile>
     <log_format>{{ localfile.format }}</log_format>
@@ -378,10 +381,12 @@
     {% endif %}
   </localfile>
   {% endfor %}
+  {% if wazuh_agent_has_journald %}
   <localfile>
     <log_format>journald</log_format>
     <location>journald</location>
   </localfile>
+  {% endif %}
   {% endif %}
 
   {% if ansible_facts.system == "Darwin" %}
@@ -406,7 +411,7 @@
   {% endif %}
 
   {% if ansible_facts.os_family == "Debian" %}
-  {% for localfile in wazuh_agent_config.localfiles.debian %}
+  {% for localfile in wazuh_agent_config.localfiles.debian if not (wazuh_agent_has_journald and localfile.location is defined and localfile.location in wazuh_agent_journald_covered_logs) %}
 
   <localfile>
       <log_format>{{ localfile.format }}</log_format>
@@ -429,7 +434,7 @@
   {% endif %}
 
   {% if ansible_facts.os_family == "RedHat" %}
-  {% for localfile in wazuh_agent_config.localfiles.centos %}
+  {% for localfile in wazuh_agent_config.localfiles.centos if not (wazuh_agent_has_journald and localfile.location is defined and localfile.location in wazuh_agent_journald_covered_logs) %}
 
   <localfile>
       <log_format>{{ localfile.format }}</log_format>

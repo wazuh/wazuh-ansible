@@ -89,6 +89,10 @@
     executable: /bin/bash
   become: yes
 
+# Restart before the first start, not during it: a restart while the dashboard creates its saved objects index leaves it "not ready".
+- name: Apply the pending changes of the dashboard
+  meta: flush_handlers
+
 - name: Ensure Wazuh dashboard started and enabled
   service:
     name: wazuh-dashboard
