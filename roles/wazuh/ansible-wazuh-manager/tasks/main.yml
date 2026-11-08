@@ -89,7 +89,8 @@
          or (wazuh_manager_package_debian | default({})) is changed
          or (wazuh_manager_custom_package_deb | default({})) is changed
          or (wazuh_manager_custom_package_yum | default({})) is changed
-         or (wazuh_manager_custom_package_dnf | default({})) is changed }}
+         or (wazuh_manager_custom_package_dnf | default({})) is changed
+         or indexer_security_user in (groups['all'] | map('extract', hostvars) | selectattr('indexer_users_updated', 'defined') | map(attribute='indexer_users_updated') | flatten) }}
   no_log: true
   tags:
     - init

@@ -90,7 +90,8 @@
       {{ (dashboard_keystore_marker.content | default('') | b64decode | trim)
          != (dashboard_password | hash('sha256'))
          or (dashboard_package_redhat | default({})) is changed
-         or (dashboard_package_debian | default({})) is changed }}
+         or (dashboard_package_debian | default({})) is changed
+         or dashboard_user in (groups['all'] | map('extract', hostvars) | selectattr('indexer_users_updated', 'defined') | map(attribute='indexer_users_updated') | flatten) }}
   no_log: true
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore

@@ -55,6 +55,6 @@ indexer_nolog_sensible: true
 # index, and on an existing cluster only the admin and kibanaserver passwords are set when they differ.
 indexer_security_init_force: false
 
-# Checks of the Wazuh indexer API (cluster formed, security configuration loaded, cluster green) are
-# retried every 5 seconds this many times.
+# Checks of the Wazuh indexer API (cluster state recovered, security index, security configuration loaded,
+# passwords set, cluster green) are retried every 5 seconds this many times.
 indexer_api_retries: 24
