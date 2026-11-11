@@ -84,6 +84,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2414](https://github.com/wazuh/wazuh-ansible/issues/2414) | Write plugins.security.nodes_dn from every indexer node of instances, so a run with --limit keeps the cluster, load the security configuration only when the cluster has no security index, and stop indexer-security-init.sh after a timeout instead of waiting without end |
 | [#2407](https://github.com/wazuh/wazuh-ansible/issues/2407) | Download the package URL file once per run of wazuh-agent.yml, in its own play before the agent play, so the free strategy of the agent play no longer ignores run_once |
 | [#2406](https://github.com/wazuh/wazuh-ansible/issues/2406) | Report the passwords the packages generated on the first All-in-One run as saved to deployment-credentials, instead of warning that they do not match |
 | [#2397](https://github.com/wazuh/wazuh-ansible/pull/2397) | Fixing integration tests |

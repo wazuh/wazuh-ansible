@@ -11,3 +11,13 @@ wazuh_indexer_package_download_path: "/tmp/wazuh-indexer"
 wazuh_indexer_package_name: "wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
 wazuh_indexer_heap_size: ""
 wazuh_indexer_security_init_force: false
+
+# Attempts, 5 seconds apart, of the waits on the indexer API, and seconds indexer-security-init.sh may
+# take before it is stopped.
+wazuh_indexer_api_retries: 24
+wazuh_indexer_security_init_timeout: 600
+
+# DN of the indexer node certificates of a distributed deployment, without the node name: the subject
+# wazuh-credentials/files/wazuh-issue-pair.sh --cn-first writes, as openssl prints it in RFC 2253 form.
+# Keep both in sync.
+wazuh_indexer_node_dn_prefix: "C=US,L=California,O=Wazuh,OU=Wazuh,CN="

@@ -73,15 +73,27 @@
 
     - name: OpenSearch Config | Add SSL configuration
       block:
-        # Each node's package issued its own certificate, with the node's host name as CN, not its
-        # node_name. The DN is read from the certificate on every node, as the security plugin rejects a
-        # node whose DN is not listed exactly as its certificate presents it. RFC 2253 is the form the
-        # indexer package itself writes.
+        # The security plugin rejects a node whose DN is not listed exactly as its certificate presents
+        # it; RFC 2253 is the form the indexer package itself writes. All-in-one, the package issues the
+        # node certificate with the host name as CN, so the DN is read from it. Distributed, every node
+        # certificate is issued on the control node with CN=<node name>, so the DN of every indexer node
+        # is known from instances: the list stays whole in a run with --limit, also for the nodes
+        # outside it.
         - name: OpenSearch Config | Read the DN of this node certificate
           ansible.builtin.command:
             cmd: openssl x509 -in /etc/wazuh-indexer/certs/indexer.pem -noout -subject -nameopt RFC2253
           register: wazuh_indexer_node_subject
           changed_when: false
+
+        - name: OpenSearch Config | Check that this node certificate has the DN listed for it
+          ansible.builtin.assert:
+            that: (wazuh_indexer_node_subject.stdout | regex_replace('^subject= *', '')) == wazuh_indexer_node_dn_prefix ~ node_name
+            fail_msg: >-
+              /etc/wazuh-indexer/certs/indexer.pem on {{ inventory_hostname }} has the subject
+              {{ wazuh_indexer_node_subject.stdout | regex_replace('^subject= *', '') }}, not
+              {{ wazuh_indexer_node_dn_prefix ~ node_name }}: plugins.security.nodes_dn would not list it.
+            quiet: true
+          when: not single_node
 
         - name: OpenSearch Config | Update SSL configuration values in plugins.security.nodes_dn
           ansible.builtin.replace:
@@ -94,8 +106,12 @@
               {% endfor %}
           vars:
             wazuh_indexer_nodes_dn: >-
-              {{ ansible_play_hosts | map('extract', hostvars, ['wazuh_indexer_node_subject', 'stdout'])
-                 | map('regex_replace', '^subject= *', '') | list }}
+              {{ (ansible_play_hosts | map('extract', hostvars, ['wazuh_indexer_node_subject', 'stdout'])
+                  | map('regex_replace', '^subject= *', '') | list)
+                 if single_node | bool else
+                 (instances | dict2items | selectattr('value.role', 'defined')
+                  | selectattr('value.role', 'in', ['indexer', 'aio'])
+                  | map(attribute='value.name') | map('regex_replace', '^', wazuh_indexer_node_dn_prefix) | list) }}
 
     - name: Add single-node discovery type if needed
       ansible.builtin.lineinfile:
