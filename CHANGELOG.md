@@ -84,6 +84,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2424](https://github.com/wazuh/wazuh-ansible/issues/2424) | Recognize an installed pre-release package, named after its stage (rc2) but released as 1, so a rerun with source=prerelease does not download the packages and the GPG key again |
 | [#2407](https://github.com/wazuh/wazuh-ansible/issues/2407) | Download the package URL file once per run of wazuh-agent.yml, in its own play before the agent play, so the free strategy of the agent play no longer ignores run_once |
 | [#2406](https://github.com/wazuh/wazuh-ansible/issues/2406) | Report the passwords the packages generated on the first All-in-One run as saved to deployment-credentials, instead of warning that they do not match |
 | [#2397](https://github.com/wazuh/wazuh-ansible/pull/2397) | Fixing integration tests |

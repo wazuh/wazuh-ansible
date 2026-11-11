@@ -35,7 +35,7 @@ These variables are defined in `roles/vars/main.yml` and are automatically loade
 ---
 
 **Variable:** `wazuh_package_revision`  
-**Description:** The package revision number appended to package filenames. Increment this when a new package revision is released for the same version. A rerun skips the download and installation of a component already installed at the version and revision in the name of its package URL (`wazuh-indexer-5.0.0-latest.x86_64.rpm`, `wazuh-indexer_5.0.0-1_amd64.deb`), so development packages need no change here; this revision is used only for a URL whose name does not have them. On Windows the installed agent is compared with `wazuh_full_version` only.  
+**Description:** The package revision number appended to package filenames. Increment this when a new package revision is released for the same version. A rerun skips the download and installation of a component already installed at the version and revision in the name of its package URL (`wazuh-indexer-5.0.0-latest.x86_64.rpm`, `wazuh-indexer_5.0.0-1_amd64.deb`), so development packages need no change here; this revision is used only for a URL whose name does not have them, or whose name has a pre-release stage instead (`wazuh-indexer-5.0.0-rc2.x86_64.rpm`, which installs `5.0.0-1`). On Windows the installed agent is compared with `wazuh_full_version` only.  
 **Default value:** `1`
 
 ---
