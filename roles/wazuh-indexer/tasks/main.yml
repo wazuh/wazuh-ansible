@@ -200,16 +200,48 @@
       delay: 5
       run_once: true
 
+  # The health answers 503 without a cluster manager and 408 when a cluster manager is elected but the
+  # cluster is not yellow in time. Any other failure of the health, or a failure of the HEAD after a
+  # healthy cluster, is reported with its own status.
   rescue:
     - name: Security init | Report why the cluster did not answer
       ansible.builtin.fail:
-        msg: >-
-          {{ inventory_hostname }} did not see a cluster manager after {{ wazuh_indexer_api_retries }}
-          attempts (GET /_cluster/health, last HTTP status
-          {{ (wazuh_indexer_cluster_health | default({})).status | default('none') }}). A node added to
-          instances after the other indexer nodes were installed is rejected by them until their
-          plugins.security.nodes_dn lists it: run the playbook with every Wazuh Indexer node, not --limit to
-          the new one. Otherwise check the service with journalctl -u wazuh-indexer.
+        msg: "{{ wazuh_indexer_security_check_messages[wazuh_indexer_security_check_case] }}"
+      vars:
+        wazuh_indexer_health_status: "{{ (wazuh_indexer_cluster_health | default({})).status | default(-1) | int }}"
+        wazuh_indexer_security_check_case: >-
+          {{ 'index' if wazuh_indexer_health_status | int == 200
+             else (wazuh_indexer_health_status | string if wazuh_indexer_health_status | int in [408, 503]
+                   else 'health') }}
+        wazuh_indexer_security_check_detail: >-
+          {{ (wazuh_indexer_security_index | default({})) if wazuh_indexer_security_check_case == 'index'
+             else (wazuh_indexer_cluster_health | default({})) }}
+        wazuh_indexer_security_check_messages:
+          '503': >-
+            {{ inventory_hostname }} did not see a cluster manager after {{ wazuh_indexer_api_retries }}
+            attempts (GET /_cluster/health answered 503). A node added to instances after the other indexer
+            nodes were installed is rejected by them until their plugins.security.nodes_dn lists it: run the
+            playbook with every Wazuh Indexer node, not --limit to the new one. Otherwise check that most of
+            the indexer nodes are up, and journalctl -u wazuh-indexer.
+          '408': >-
+            {{ inventory_hostname }} sees a cluster manager, but the cluster did not reach the yellow status
+            after {{ wazuh_indexer_api_retries }} attempts (GET /_cluster/health?wait_for_status=yellow answered
+            408): its state is not recovered yet, or it is red, for instance with a primary shard on a node that
+            is down. Check GET /_cluster/health and GET /_cluster/allocation/explain, and journalctl -u
+            wazuh-indexer on the indexer nodes.
+          health: >-
+            {{ inventory_hostname }} could not ask the cluster for its health after {{ wazuh_indexer_api_retries }}
+            attempts (GET /_cluster/health, HTTP status {{ wazuh_indexer_security_check_detail.status | default(-1) }}:
+            {{ wazuh_indexer_security_check_detail.msg | default('no response') | truncate(300) }}). Check that the
+            indexer listens on {{ hostvars[inventory_hostname].private_ip }}:9200, that
+            /etc/wazuh-indexer/certs/admin.pem and admin-key.pem are in place, and journalctl -u wazuh-indexer.
+          index: >-
+            The cluster is healthy, but HEAD /.opendistro_security failed after {{ wazuh_indexer_api_retries }}
+            attempts (HTTP status {{ wazuh_indexer_security_check_detail.status | default(-1) }}:
+            {{ wazuh_indexer_security_check_detail.msg | default('no response') | truncate(300) }}), so the role
+            cannot tell whether the security configuration is loaded, and loads nothing. Check that the admin
+            certificate (/etc/wazuh-indexer/certs/admin.pem) is listed in plugins.security.authcz.admin_dn, and
+            journalctl -u wazuh-indexer.
 
 # securityadmin.sh waits without end for a cluster with a manager, so the run is bounded.
 - name: Initialize Wazuh Indexer cluster

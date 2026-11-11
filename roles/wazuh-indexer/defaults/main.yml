@@ -16,8 +16,3 @@ wazuh_indexer_security_init_force: false
 # take before it is stopped.
 wazuh_indexer_api_retries: 24
 wazuh_indexer_security_init_timeout: 600
-
-# DN of the indexer node certificates of a distributed deployment, without the node name: the subject
-# wazuh-credentials/files/wazuh-issue-pair.sh --cn-first writes, as openssl prints it in RFC 2253 form.
-# Keep both in sync.
-wazuh_indexer_node_dn_prefix: "C=US,L=California,O=Wazuh,OU=Wazuh,CN="
