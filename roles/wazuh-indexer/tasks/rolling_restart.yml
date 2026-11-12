@@ -1,0 +1,60 @@
+---
+
+# The turn of one node of a running cluster (main.yml loops over the nodes with a pending restart, and
+# only the node of the turn runs these tasks). The next node restarts only once this one joined the
+# cluster again and the cluster is as healthy as before: green if it was green, yellow otherwise. Any
+# failure stops the run for every node, so no other node restarts while this one is out.
+- name: Restart | Turn of {{ inventory_hostname }}
+  any_errors_fatal: true
+  block:
+    - name: Restart | Read the cluster health before restarting {{ inventory_hostname }}
+      ansible.builtin.uri:
+        url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cluster/health"
+        client_cert: /etc/wazuh-indexer/certs/admin.pem
+        client_key: /etc/wazuh-indexer/certs/admin-key.pem
+        validate_certs: false
+        timeout: 10
+      register: wazuh_indexer_health_before
+      failed_when: false
+
+    - name: Restart | Restart {{ inventory_hostname }}
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: start_service.yml
+      vars:
+        wazuh_service_name: wazuh-indexer
+        wazuh_service_restart: true
+        wazuh_service_watched_files: "{{ wazuh_indexer_watched_files }}"
+
+    - name: Restart | Wait for the node to join the cluster again, {{ inventory_hostname }}
+      vars:
+        wazuh_indexer_restart_wait_status: >-
+          {{ 'green' if (wazuh_indexer_health_before.json | default({})).status | default('') == 'green'
+             else 'yellow' }}
+      block:
+        - name: Restart | Wait for the node and the cluster status, {{ wazuh_indexer_restart_wait_status }}
+          ansible.builtin.uri:
+            url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cluster/health?wait_for_status={{ wazuh_indexer_restart_wait_status }}&timeout=4s"
+            client_cert: /etc/wazuh-indexer/certs/admin.pem
+            client_key: /etc/wazuh-indexer/certs/admin-key.pem
+            validate_certs: false
+            timeout: 10
+          register: wazuh_indexer_health_after
+          until: wazuh_indexer_health_after.status == 200
+          retries: "{{ wazuh_indexer_restart_retries }}"
+          delay: 10
+
+      rescue:
+        - name: Restart | Report that the node did not join the cluster again, {{ inventory_hostname }}
+          ansible.builtin.fail:
+            msg: >-
+              {{ inventory_hostname }} restarted, but {{ wazuh_indexer_restart_failure }} after
+              {{ wazuh_indexer_restart_retries }} attempts (GET /_cluster/health, last HTTP status
+              {{ wazuh_indexer_health_after.status | default(-1) }}). The indexer nodes after it were not
+              restarted and still run their previous configuration: they restart on the next run. Check
+              GET /_cluster/health and GET /_cluster/allocation/explain, and journalctl -u wazuh-indexer on
+              {{ inventory_hostname }}, then run the playbook again.
+          vars:
+            wazuh_indexer_restart_failure: >-
+              {{ 'it did not see a cluster manager' if (wazuh_indexer_health_after.status | default(-1)) == 503
+                 else 'the cluster did not reach the ' ~ wazuh_indexer_restart_wait_status ~ ' status' }}

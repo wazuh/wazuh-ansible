@@ -20,6 +20,13 @@
   ansible.builtin.set_fact:
     wazuh_indexer_package_installed: "{{ wazuh_package_installed }}"
 
+# A node that already runs is part of a cluster: it restarts in its own turn (rolling_restart.yml).
+- name: Linux | Read whether wazuh-indexer runs before this run
+  ansible.builtin.systemd_service:
+    name: wazuh-indexer
+  register: wazuh_indexer_active_before
+  failed_when: false
+
 - name: Importing dependencies.yml
   ansible.builtin.import_tasks: dependencies.yml
   become: true
@@ -109,6 +116,42 @@
 - name: Apply the pending changes of the indexer
   ansible.builtin.meta: flush_handlers
 
+# Distributed: restarting every node of a running cluster at the same time leaves it without a cluster
+# manager. A node that ran before this run and has a pending restart waits for its turn. A node that did
+# not run starts now in a new cluster, where no node restarts in a turn; when nodes restart in turns (a
+# node added to a running cluster), it starts after them: started before, it would get replicas from the
+# nodes that do not list it in plugins.security.nodes_dn yet, and the cluster would never be green again.
+- name: Restart | List the files changed since the last start of wazuh-indexer
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: changed_files.yml
+  vars:
+    wazuh_service_name: wazuh-indexer
+    wazuh_service_watched_files: "{{ wazuh_indexer_watched_files }}"
+  when: not (single_node | bool)
+
+- name: Restart | Tell whether this node restarts in its own turn
+  ansible.builtin.set_fact:
+    wazuh_indexer_rolling_restart: >-
+      {{ not (single_node | bool)
+         and (wazuh_indexer_active_before.status | default({})).ActiveState | default('') == 'active'
+         and ((wazuh_indexer_restart | default(false) | bool)
+              or (wazuh_service_changed_files.stdout_lines | default([]) | length > 0)) }}
+
+- name: Restart | List the nodes that restart in turns
+  ansible.builtin.set_fact:
+    wazuh_indexer_restart_turns: >-
+      {{ ansible_play_hosts | map('extract', hostvars) | selectattr('wazuh_indexer_rolling_restart', 'defined')
+         | selectattr('wazuh_indexer_rolling_restart', 'equalto', true) | map(attribute='inventory_hostname') | list }}
+    wazuh_indexer_start_after_turns: false
+
+- name: Restart | Tell whether this node starts after the turns
+  ansible.builtin.set_fact:
+    wazuh_indexer_start_after_turns: >-
+      {{ not (wazuh_indexer_rolling_restart | bool)
+         and (wazuh_indexer_active_before.status | default({})).ActiveState | default('') != 'active'
+         and wazuh_indexer_restart_turns | length > 0 }}
+
 - name: Ensure Wazuh indexer started
   ansible.builtin.include_role:
     name: wazuh-credentials
@@ -116,9 +159,27 @@
   vars:
     wazuh_service_name: wazuh-indexer
     wazuh_service_restart: "{{ wazuh_indexer_restart | default(false) }}"
-    wazuh_service_watched_files:
-      - /etc/wazuh-indexer/opensearch.yml
-      - /etc/wazuh-indexer/jvm.options
+    wazuh_service_watched_files: "{{ wazuh_indexer_watched_files }}"
+  when:
+    - not (wazuh_indexer_rolling_restart | bool)
+    - not (wazuh_indexer_start_after_turns | bool)
+
+- name: Restart the Wazuh indexer nodes of the cluster one at a time
+  ansible.builtin.include_tasks: rolling_restart.yml
+  loop: "{{ wazuh_indexer_restart_turns }}"
+  loop_control:
+    loop_var: wazuh_indexer_restart_turn
+  when: inventory_hostname == wazuh_indexer_restart_turn
+
+- name: Ensure the Wazuh indexer nodes added to the cluster started
+  ansible.builtin.include_role:
+    name: wazuh-credentials
+    tasks_from: start_service.yml
+  vars:
+    wazuh_service_name: wazuh-indexer
+    wazuh_service_restart: "{{ wazuh_indexer_restart | default(false) }}"
+    wazuh_service_watched_files: "{{ wazuh_indexer_watched_files }}"
+  when: wazuh_indexer_start_after_turns | bool
 
 # The package never loads the security configuration into the cluster: it cannot know whether other
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
