@@ -16,6 +16,9 @@
 # The release deployed is the one in the name of the package the role downloads for this host
 # (wazuh-indexer-5.0.0-latest.x86_64.rpm, wazuh-indexer_5.0.0-1_amd64.deb), so development packages are
 # recognized without setting wazuh_package_revision. A name without it falls back to wazuh_package_revision.
+# Pre-release packages are named after their stage (wazuh-indexer-5.0.0-rc2.x86_64.rpm) but carry the
+# release of the package (5.0.0-1), so a stage in the name (alphaN, betaN, rcN) also means
+# wazuh_package_revision.
 - name: Package | Check whether the deployed version is installed for {{ wazuh_installed_package }}
   ansible.builtin.set_fact:
     wazuh_package_installed: >-
@@ -30,8 +33,11 @@
     wazuh_installed_package_file: >-
       {{ (lookup('ansible.builtin.vars', wazuh_installed_package_url_var, default='') | string).split('?') | first
          | basename }}
-    wazuh_installed_package_release: >-
+    wazuh_installed_package_file_release: >-
       {{ (wazuh_installed_package_file
           | regex_search('^' ~ (wazuh_installed_package | regex_escape) ~ '[-_]' ~ (wazuh_full_version | regex_escape)
                          ~ '-([^_.]+)', '\1')
           or [wazuh_package_revision]) | first }}
+    wazuh_installed_package_release: >-
+      {{ wazuh_package_revision if wazuh_installed_package_file_release is match('^(alpha|beta|rc)[0-9]+$')
+         else wazuh_installed_package_file_release }}
