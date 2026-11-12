@@ -192,8 +192,20 @@ instances:
 ---
 
 **Variable:** `wazuh_indexer_security_init_force`  
-**Description:** When set to `true`, the run loads the security configuration files of the first indexer node of the play (`/etc/wazuh-indexer/opensearch-security/`) into the cluster again with `indexer-security-init.sh`, even if the cluster already has one. This replaces the internal users, roles, role mappings and passwords of the cluster with those of the files. By default, the configuration is loaded only when no node of the play has it, that is, on a new cluster. When no node of the play reports it loaded and one of them was installed by an earlier run, the run stops instead of loading it: after a first run that stopped before the upload, run again with this variable set to `true`.  
+**Description:** When set to `true`, the run loads the security configuration files of the first indexer node of the play (`/etc/wazuh-indexer/opensearch-security/`) into the cluster again with `indexer-security-init.sh`, even if the cluster already has one. This replaces the internal users, roles, role mappings and passwords of the cluster with those of the files. By default, the configuration is loaded only on a new cluster: in a distributed deployment, when the cluster has no security index (`HEAD /.opendistro_security`, asked with the `admin` certificate); All-in-One, when the node does not report it loaded, and the run stops instead when the node was installed by an earlier run. After an All-in-One first run that stopped before the upload, run again with this variable set to `true`.  
 **Default value:** `false`
+
+---
+
+**Variable:** `wazuh_indexer_security_init_timeout`  
+**Description:** Seconds `indexer-security-init.sh` may take before it is stopped and the run fails. `securityadmin.sh` waits without end for a cluster with a manager, for instance when the other nodes reject this one.  
+**Default value:** `600`
+
+---
+
+**Variable:** `wazuh_indexer_api_retries`  
+**Description:** Attempts, 5 seconds apart, of each wait on the Wazuh Indexer API: the cluster manager and the security index before the security initialization, and the healthy cluster after it.  
+**Default value:** `24`
 
 ---
 
