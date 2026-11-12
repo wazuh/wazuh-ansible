@@ -16,3 +16,8 @@ wazuh_indexer_security_init_force: false
 # take before it is stopped.
 wazuh_indexer_api_retries: 24
 wazuh_indexer_security_init_timeout: 600
+
+# Attempts, 10 seconds apart, of the wait after a node of a running cluster restarts: the node must join
+# the cluster again, and the cluster must be green again if it was green before the restart (yellow
+# otherwise), before the next node restarts.
+wazuh_indexer_restart_retries: 60

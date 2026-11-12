@@ -209,6 +209,12 @@ instances:
 
 ---
 
+**Variable:** `wazuh_indexer_restart_retries`  
+**Description:** Attempts, 10 seconds apart, of the wait after a Wazuh Indexer node of a running cluster restarts, before the next node restarts: the node must join the cluster again, and the cluster must be green again if it was green before that restart (yellow otherwise). When the wait ends without it, the run stops and the remaining nodes restart on the next run.  
+**Default value:** `60`
+
+---
+
 **Variable:** `wazuh_indexer_package_name`  
 **Description:** Base filename (without architecture suffix or extension) of the Wazuh Indexer package to download and install.  
 **Default value:** `wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}`
