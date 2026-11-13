@@ -17,6 +17,7 @@
 #   --eku       extendedKeyUsage, e.g. "serverAuth,clientAuth"
 #   --san       subjectAltName entries, comma separated, e.g. "DNS:node-1,IP:10.0.0.1"
 #   --cn-first  subject with the CN first, as the indexer package writes nodes_dn and admin_dn
+#               (wazuh-indexer/vars/main.yml has this subject as wazuh_indexer_node_dn_prefix: change both)
 #   --chain     append the CA certificate to the leaf (servers that hand their chain to peers)
 
 set -euo pipefail

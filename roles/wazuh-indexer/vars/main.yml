@@ -1,0 +1,6 @@
+---
+
+# DN of the indexer node certificates of a distributed deployment, without the node name: the subject
+# wazuh-credentials/files/wazuh-issue-pair.sh --cn-first writes, as openssl prints it in RFC 2253 form.
+# Not a setting (an inventory cannot override role vars): it changes only together with that script.
+wazuh_indexer_node_dn_prefix: "C=US,L=California,O=Wazuh,OU=Wazuh,CN="
