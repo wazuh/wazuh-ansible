@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
 
 - Skip the syslog files covered by journald in the agent ossec.conf to avoid duplicated events ([#2401](https://github.com/wazuh/wazuh-ansible/pull/2401))
 - Run the wazuh-indexer run_once tasks once in wazuh-production-ready.yml ([#2398](https://github.com/wazuh/wazuh-ansible/pull/2398))
+- Restart the Wazuh services and load the indexer security configuration only when something changed on playbook re-runs ([#2404](https://github.com/wazuh/wazuh-ansible/pull/2404))
 
 ### Deleted
 
