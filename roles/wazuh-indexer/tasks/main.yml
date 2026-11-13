@@ -124,61 +124,157 @@
 # nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
 # the bcrypt digests of the supplied passwords into internal_users.yml, so one upload from one node
 # is what makes them live, on a single node and on a cluster alike. The upload replaces the security
-# configuration of the cluster with the files of that node, so it is done only while no node of the
-# play has one: the users, roles and passwords changed later are kept on a rerun.
-# A node reports UP once it loaded the configuration from the cluster. A node installed by an earlier
-# run answers DOWN for a while after a restart, so it is given time to load it again; a node of a new
-# cluster answers DOWN until the upload.
-- name: Read whether this node loaded the security configuration
-  ansible.builtin.uri:
-    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_plugins/_security/health"
-    validate_certs: false
-    status_code: [200, 503]
-    timeout: 4
-  register: wazuh_indexer_security_health
-  until: >-
-    wazuh_indexer_security_health.status in [200, 503]
-    and (not (wazuh_indexer_package_installed | bool)
-         or (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP')
-  retries: 24
-  delay: 5
-  failed_when: false
+# configuration of the cluster with the files of that node, so it is done only while the cluster has
+# none: the users, roles and passwords changed later are kept on a rerun.
+#
+# All-in-one: the node itself tells. It reports UP once it loaded the configuration; installed by an
+# earlier run, it answers DOWN for a while after a restart, so it is given time to load it again.
+- name: Security init | All-in-one
+  when: single_node | bool
+  block:
+    - name: Read whether this node loaded the security configuration
+      ansible.builtin.uri:
+        url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_plugins/_security/health"
+        validate_certs: false
+        status_code: [200, 503]
+        timeout: 4
+      register: wazuh_indexer_security_health
+      until: >-
+        wazuh_indexer_security_health.status in [200, 503]
+        and (not (wazuh_indexer_package_installed | bool)
+             or (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP')
+      retries: "{{ wazuh_indexer_api_retries }}"
+      delay: 5
+      failed_when: false
 
-- name: Keep whether this node loaded the security configuration
-  ansible.builtin.set_fact:
-    wazuh_indexer_security_loaded: "{{ (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP' }}"
+    - name: Keep whether this node loaded the security configuration
+      ansible.builtin.set_fact:
+        wazuh_indexer_security_loaded: "{{ (wazuh_indexer_security_health.json | default({})).status | default('') == 'UP' }}"
 
-# A node installed by an earlier run that is still DOWN after the wait may belong to a cluster that has a
-# configuration, and the upload would replace it: only wazuh_indexer_security_init_force loads it then.
-- name: Stop when no node installed by an earlier run reports the security configuration
-  ansible.builtin.fail:
-    msg: >-
-      No indexer node of the play reports the security configuration loaded
-      (GET /_plugins/_security/health), but some were installed by an earlier run
-      ({{ wazuh_indexer_earlier_nodes | join(', ') }}): loading the files of the first node would replace the
-      users, roles and passwords of the cluster. To load them anyway, for instance after a first run that
-      stopped before the upload, run again with wazuh_indexer_security_init_force=true.
-  run_once: true
-  when:
-    - not (wazuh_indexer_security_init_force | bool)
-    - ansible_play_hosts | map('extract', hostvars, 'wazuh_indexer_security_loaded') | select | list | length == 0
-    - wazuh_indexer_earlier_nodes | length > 0
-  vars:
-    wazuh_indexer_earlier_nodes: >-
-      {{ ansible_play_hosts | map('extract', hostvars) | selectattr('wazuh_indexer_package_installed')
-         | map(attribute='inventory_hostname') | list }}
+    # Installed by an earlier run and still DOWN after the wait: the upload would replace the configuration
+    # it may have, so only wazuh_indexer_security_init_force loads it then.
+    - name: Stop when the node installed by an earlier run does not report the security configuration
+      ansible.builtin.fail:
+        msg: >-
+          The indexer does not report the security configuration loaded (GET /_plugins/_security/health),
+          but it was installed by an earlier run: loading the files of the node would replace its users,
+          roles and passwords. To load them anyway, for instance after a first run that stopped before the
+          upload, run again with wazuh_indexer_security_init_force=true.
+      when:
+        - not (wazuh_indexer_security_init_force | bool)
+        - not (wazuh_indexer_security_loaded | bool)
+        - wazuh_indexer_package_installed | bool
 
+# Distributed: the cluster tells, asked with the admin certificate, which the REST API accepts before the
+# security configuration is loaded and which does not depend on passwords changed later. A node that
+# joined an existing cluster, also in a run with --limit, sees its security index. A node the others
+# reject (added to instances after they were installed, so their nodes_dn does not list it) never sees a
+# cluster manager, and the run stops before anything is loaded.
+- name: Security init | Distributed
+  when: not (single_node | bool)
+  block:
+    - name: Wait for the Wazuh indexer cluster to recover its state
+      ansible.builtin.uri:
+        url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cluster/health?wait_for_status=yellow&timeout=4s"
+        client_cert: /etc/wazuh-indexer/certs/admin.pem
+        client_key: /etc/wazuh-indexer/certs/admin-key.pem
+        validate_certs: false
+        timeout: 10
+      register: wazuh_indexer_cluster_health
+      until: wazuh_indexer_cluster_health.status == 200
+      retries: "{{ wazuh_indexer_api_retries }}"
+      delay: 5
+
+    - name: Check whether the cluster has the security configuration
+      ansible.builtin.uri:
+        url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/.opendistro_security"
+        method: HEAD
+        client_cert: /etc/wazuh-indexer/certs/admin.pem
+        client_key: /etc/wazuh-indexer/certs/admin-key.pem
+        validate_certs: false
+        status_code: [200, 404]
+        timeout: 4
+      register: wazuh_indexer_security_index
+      until: wazuh_indexer_security_index.status in [200, 404]
+      retries: "{{ wazuh_indexer_api_retries }}"
+      delay: 5
+      run_once: true
+
+  # The health answers 503 without a cluster manager and 408 when a cluster manager is elected but the
+  # cluster is not yellow in time. Any other failure of the health, or a failure of the HEAD after a
+  # healthy cluster, is reported with its own status.
+  rescue:
+    - name: Security init | Report why the cluster did not answer
+      ansible.builtin.fail:
+        msg: "{{ wazuh_indexer_security_check_messages[wazuh_indexer_security_check_case] }}"
+      vars:
+        wazuh_indexer_health_status: "{{ (wazuh_indexer_cluster_health | default({})).status | default(-1) | int }}"
+        wazuh_indexer_security_check_case: >-
+          {{ 'index' if wazuh_indexer_health_status | int == 200
+             else (wazuh_indexer_health_status | string if wazuh_indexer_health_status | int in [408, 503]
+                   else 'health') }}
+        wazuh_indexer_security_check_detail: >-
+          {{ (wazuh_indexer_security_index | default({})) if wazuh_indexer_security_check_case == 'index'
+             else (wazuh_indexer_cluster_health | default({})) }}
+        wazuh_indexer_security_check_messages:
+          '503': >-
+            {{ inventory_hostname }} did not see a cluster manager after {{ wazuh_indexer_api_retries }}
+            attempts (GET /_cluster/health answered 503). A node added to instances after the other indexer
+            nodes were installed is rejected by them until their plugins.security.nodes_dn lists it: run the
+            playbook with every Wazuh Indexer node, not --limit to the new one. Otherwise check that most of
+            the indexer nodes are up, and journalctl -u wazuh-indexer.
+          '408': >-
+            {{ inventory_hostname }} sees a cluster manager, but the cluster did not reach the yellow status
+            after {{ wazuh_indexer_api_retries }} attempts (GET /_cluster/health?wait_for_status=yellow answered
+            408): its state is not recovered yet, or it is red, for instance with a primary shard on a node that
+            is down. Check GET /_cluster/health and GET /_cluster/allocation/explain, and journalctl -u
+            wazuh-indexer on the indexer nodes.
+          health: >-
+            {{ inventory_hostname }} could not ask the cluster for its health after {{ wazuh_indexer_api_retries }}
+            attempts (GET /_cluster/health, HTTP status {{ wazuh_indexer_security_check_detail.status | default(-1) }}:
+            {{ wazuh_indexer_security_check_detail.msg | default('no response') | truncate(300) }}). Check that the
+            indexer listens on {{ hostvars[inventory_hostname].private_ip }}:9200, that
+            /etc/wazuh-indexer/certs/admin.pem and admin-key.pem are in place, and journalctl -u wazuh-indexer.
+          index: >-
+            The cluster is healthy, but HEAD /.opendistro_security failed after {{ wazuh_indexer_api_retries }}
+            attempts (HTTP status {{ wazuh_indexer_security_check_detail.status | default(-1) }}:
+            {{ wazuh_indexer_security_check_detail.msg | default('no response') | truncate(300) }}), so the role
+            cannot tell whether the security configuration is loaded, and loads nothing. Check that the admin
+            certificate (/etc/wazuh-indexer/certs/admin.pem) is listed in plugins.security.authcz.admin_dn, and
+            journalctl -u wazuh-indexer.
+
+# securityadmin.sh waits without end for a cluster with a manager, so the run is bounded.
 - name: Initialize Wazuh Indexer cluster
-  ansible.builtin.shell: |
-    /usr/share/wazuh-indexer/bin/indexer-security-init.sh
-  args:
-    executable: /bin/bash
-  become: true
-  run_once: true
-  changed_when: true
   when: >-
     (wazuh_indexer_security_init_force | bool)
-    or (ansible_play_hosts | map('extract', hostvars, 'wazuh_indexer_security_loaded') | select | list | length == 0)
+    or ((single_node | bool) and not (wazuh_indexer_security_loaded | bool))
+    or (not (single_node | bool) and wazuh_indexer_security_index.status == 404)
+  block:
+    - name: Initialize Wazuh Indexer cluster
+      ansible.builtin.command:
+        argv:
+          - timeout
+          - --kill-after=30
+          - "{{ wazuh_indexer_security_init_timeout }}"
+          - /usr/share/wazuh-indexer/bin/indexer-security-init.sh
+      become: true
+      run_once: true
+      changed_when: true
+      register: wazuh_indexer_security_init
+
+  rescue:
+    - name: Initialize Wazuh Indexer cluster | Report the failure
+      ansible.builtin.fail:
+        msg: >-
+          indexer-security-init.sh {{ wazuh_indexer_security_init_outcome }}.
+          securityadmin.sh needs a cluster with a manager: check that every indexer node is up and that
+          plugins.security.nodes_dn lists all of them on every node. Its output is in the task above.
+      vars:
+        wazuh_indexer_security_init_outcome: >-
+          {{ ('did not finish in ' ~ wazuh_indexer_security_init_timeout ~ ' seconds and was stopped')
+             if (wazuh_indexer_security_init.rc | default(0)) in [124, 137]
+             else ('failed (exit code ' ~ (wazuh_indexer_security_init.rc | default('none')) ~ ')') }}
+      run_once: true
 
 - name: Credentials | Use the passwords the indexer published
   ansible.builtin.include_role:
@@ -202,7 +298,7 @@
       until:
         - _result is defined
         - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
-      retries: 24
+      retries: "{{ wazuh_indexer_api_retries }}"
       delay: 5
       no_log: true
 
@@ -212,8 +308,8 @@
     - name: Wait for Wazuh indexer API | Report the last HTTP status
       ansible.builtin.fail:
         msg: >-
-          The Wazuh indexer API did not report a healthy cluster after 24 attempts. Last HTTP status:
-          {{ _result.status | default('none') }}.
+          The Wazuh indexer API did not report a healthy cluster after {{ wazuh_indexer_api_retries }} attempts.
+          Last HTTP status: {{ _result.status | default('none') }}.
           {{ ('The admin password was rejected: check that indexer-security-init.sh loaded the security
           configuration and that WAZUH_INDEXER_ADMIN_PASSWORD was in /etc/wazuh-indexer/local.env before
           the package was installed.' ~ ('' if (single_node | default(false) | bool) else ' After a password
