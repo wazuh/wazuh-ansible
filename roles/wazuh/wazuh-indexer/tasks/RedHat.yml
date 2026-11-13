@@ -31,9 +31,17 @@
           create: true
         become: yes
 
-      - name: Update vm.max_map_count
-        shell: sysctl -p
+      - name: Get the current vm.max_map_count
+        command: sysctl -n vm.max_map_count
+        register: indexer_max_map_count
+        changed_when: false
+        check_mode: false
         become: yes
+
+      - name: Update vm.max_map_count
+        command: sysctl -w vm.max_map_count=262144
+        become: yes
+        when: indexer_max_map_count.stdout | int < 262144
 
     when:
       - ansible_facts.distribution == 'Amazon'
@@ -52,7 +60,7 @@
     package:
       name: wazuh-indexer-{{ indexer_version }}
       state: present
-    register: install
+    register: indexer_package_redhat
     tags: install
 
   tags:

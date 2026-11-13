@@ -98,8 +98,8 @@
   package:
     name: "wazuh-manager-{{ wazuh_manager_version }}"
     state: "{{ wazuh_manager_package_state }}"
-  register: wazuh_manager_main_packages_installed
-  until: wazuh_manager_main_packages_installed is succeeded
+  register: wazuh_manager_package_redhat
+  until: wazuh_manager_package_redhat is succeeded
   when:
     - ansible_facts.os_family|lower == "redhat"
     - not wazuh_custom_packages_installation_manager_enabled
