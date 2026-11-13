@@ -33,12 +33,6 @@
         - '"not found" not in remove_opensearch_performance_analyzer.stderr'
       changed_when: "remove_opensearch_performance_analyzer.rc == 0"
 
-    - name: Remove Opensearch configuration file
-      file:
-        path: "{{ indexer_conf_path }}/opensearch.yml"
-        state: absent
-      tags: install
-
     - name: Copy Opensearch Configuration File
       template:
         src: "templates/opensearch.yml.j2"
@@ -47,6 +41,7 @@
         group: wazuh-indexer
         mode: 0640
         force: yes
+      register: indexer_opensearch_conf
       tags: install
 
     - include_tasks: security_actions.yml
@@ -94,17 +89,16 @@
     - name: Wait for Wazuh indexer API
       uri:
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
-        user: "admin" # Default Indexer user is always "admin"
-        password: "{{ indexer_admin_password }}"
+        client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+        client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
         validate_certs: no
-        status_code: 200,401
         return_content: yes
         timeout: 4
       register: _result
       until:
         - _result is defined
         - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
-      retries: 24
+      retries: "{{ indexer_api_retries }}"
       delay: 5
       tags: debug
       when:
@@ -114,17 +108,16 @@
     - name: Wait for Wazuh indexer API (Private IP)
       uri:
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
-        user: "admin" # Default Indexer user is always "admin"
-        password: "{{ indexer_admin_password }}"
+        client_cert: "{{ indexer_conf_path }}/certs/admin.pem"
+        client_key: "{{ indexer_conf_path }}/certs/admin-key.pem"
         validate_certs: no
-        status_code: 200,401
         return_content: yes
         timeout: 4
       register: _result
       until:
         - _result is defined
         - '"green" in _result.content or ( "yellow" in _result.content and single_node )'
-      retries: 24
+      retries: "{{ indexer_api_retries }}"
       delay: 5
       tags: debug
       when:
