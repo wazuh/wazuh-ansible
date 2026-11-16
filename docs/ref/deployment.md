@@ -137,7 +137,7 @@ In a distributed deployment, a host whose component already holds the CA of anot
 
 To add a node to a distributed deployment, add it to `instances` and run the playbook again: its certificates are issued from the CA of the deployment and staged before its package is installed. The certificates of the nodes already installed are kept as they are. A new Wazuh Indexer node is accepted by the cluster only when the other nodes list it in `plugins.security.nodes_dn`, which the role writes from `instances`, so the run must include every Wazuh Indexer node, not only the new one (no `--limit` to it). The nodes already installed are restarted to read the new list, all at the same time, so the cluster is unavailable until they join again. The security configuration of the cluster is kept: it is loaded only when the cluster has none. When the new node was already in `instances` when the other nodes were installed, `--limit` to it is enough. When the run has `--limit` to the new node and the other nodes do not list it, the run stops without loading anything, with a message that asks for a run with every Wazuh Indexer node.
 
-A run with `--limit` to Wazuh Indexer nodes already installed keeps `plugins.security.nodes_dn` with every node of `instances`, so it does not restart them or change the cluster. The list follows the order of `instances`: on a deployment installed before this list was built from `instances`, the first run rewrites it when that order differs from the order of the hosts in the inventory, and restarts every Wazuh Indexer node at the same time once.
+A run with `--limit` to Wazuh Indexer nodes already installed keeps `plugins.security.nodes_dn` with every node of `instances`, so it does not restart them or change the cluster. The list follows the order of `instances`.
 
 Running the playbook again with the same packages leaves them installed as they are and does not write `local.env` again. It skips their download and signature check, and restarts a service only when its package or its configuration changed.
 
@@ -145,7 +145,7 @@ Running the playbook again with the same packages leaves them installed as they 
 
 The playbooks are not an upgrade procedure. Between 5.x releases, upgrade each component as its documentation describes.
 
-A Wazuh Manager 4.x cannot be upgraded in place to 5.0, and neither can a 5.0.0 RC 1 or earlier pre-release (wazuh/wazuh#40338). Deploy 5.0 on new hosts and carry the agent keys, the agent registry and groups, the enrollment password and the Wazuh server API users across with the manager migration procedure, [Migrating a Wazuh manager from 4.x to 5.0](https://github.com/wazuh/wazuh/blob/5.0.0/docs/guide/migration/manager-4x-to-5x.md), automated by [`wazuh-migrate-identity.py`](https://github.com/wazuh/wazuh/blob/5.0.0/tools/migration/wazuh-migrate-identity.py). The same guide covers the configuration, the ruleset and the agents.
+A Wazuh Manager 4.x cannot be upgraded in place to 5.0. Deploy 5.0 on new hosts and carry the agent keys, the agent registry and groups, the enrollment password and the Wazuh server API users across with the manager migration procedure, [Migrating a Wazuh manager from 4.x to 5.0](https://github.com/wazuh/wazuh/blob/v5.0.0/docs/guide/migration/manager-4x-to-5x.md), automated by [`wazuh-migrate-identity.py`](https://github.com/wazuh/wazuh/blob/v5.0.0/tools/migration/wazuh-migrate-identity.py). The same guide covers the configuration, the ruleset and the agents.
 
 ## Post-Deployment Steps
 
