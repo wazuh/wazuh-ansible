@@ -15,10 +15,14 @@
   vars:
     wazuh_installed_package: wazuh-indexer
 
-# Kept apart: the next component's check overwrites wazuh_package_installed.
+# Kept apart: the next component's check overwrites wazuh_package_installed. A node with the package in
+# any version (dpkg: ii) was installed before this run: stopped, it is still a node of the cluster.
 - name: Linux | Keep whether wazuh-indexer is already installed
   ansible.builtin.set_fact:
     wazuh_indexer_package_installed: "{{ wazuh_package_installed }}"
+    wazuh_indexer_package_present: >-
+      {{ wazuh_installed_package_query.rc == 0
+         and (ansible_facts.os_family == 'RedHat' or wazuh_installed_package_query.stdout is match('ii ')) }}
 
 # A node that already runs is part of a cluster: it restarts in its own turn (rolling_restart.yml).
 - name: Linux | Read whether wazuh-indexer runs before this run
@@ -44,6 +48,19 @@
   when:
     - single_node
     - ( instances | length ) > 1
+
+# The role restarts the nodes of a cluster one at a time itself: in batches (serial), each batch would
+# restart its nodes without waiting for the nodes of the other batches.
+- name: Restart | Check that every Wazuh indexer node runs in the same batch
+  ansible.builtin.assert:
+    that: ansible_play_batch | length == ansible_play_hosts | length
+    fail_msg: >-
+      The play runs the Wazuh Indexer nodes in batches (serial): this batch has {{ ansible_play_batch | join(', ') }}
+      of {{ ansible_play_hosts | join(', ') }}. The wazuh-indexer role restarts the nodes of a cluster one at a
+      time itself and needs every node in the same batch: remove serial from the play.
+    quiet: true
+  run_once: true
+  when: not (single_node | bool)
 
 - name: Cert-gen | Set node name variable
   ansible.builtin.set_fact:
@@ -118,9 +135,11 @@
 
 # Distributed: restarting every node of a running cluster at the same time leaves it without a cluster
 # manager. A node that ran before this run and has a pending restart waits for its turn. A node that did
-# not run starts now in a new cluster, where no node restarts in a turn; when nodes restart in turns (a
-# node added to a running cluster), it starts after them: started before, it would get replicas from the
-# nodes that do not list it in plugins.security.nodes_dn yet, and the cluster would never be green again.
+# not run starts now, except a new node (no package before this run) when nodes restart in turns: it
+# starts after them, since started before, it would get replicas from the nodes that do not list it in
+# plugins.security.nodes_dn yet, and the cluster would never be green again. A stopped node that was
+# already installed is listed by the others: it starts now and joins the cluster before the turns, so a
+# turn never leaves the cluster without most of its nodes.
 - name: Restart | List the files changed since the last start of wazuh-indexer
   ansible.builtin.include_role:
     name: wazuh-credentials
@@ -145,11 +164,17 @@
          | selectattr('wazuh_indexer_rolling_restart', 'equalto', true) | map(attribute='inventory_hostname') | list }}
     wazuh_indexer_start_after_turns: false
 
-- name: Restart | Tell whether this node starts after the turns
+- name: Restart | Tell whether this node starts before or after the turns
   ansible.builtin.set_fact:
     wazuh_indexer_start_after_turns: >-
       {{ not (wazuh_indexer_rolling_restart | bool)
          and (wazuh_indexer_active_before.status | default({})).ActiveState | default('') != 'active'
+         and not (wazuh_indexer_package_present | bool)
+         and wazuh_indexer_restart_turns | length > 0 }}
+    wazuh_indexer_start_before_turns: >-
+      {{ not (wazuh_indexer_rolling_restart | bool)
+         and (wazuh_indexer_active_before.status | default({})).ActiveState | default('') != 'active'
+         and (wazuh_indexer_package_present | bool)
          and wazuh_indexer_restart_turns | length > 0 }}
 
 - name: Ensure Wazuh indexer started
@@ -163,6 +188,47 @@
   when:
     - not (wazuh_indexer_rolling_restart | bool)
     - not (wazuh_indexer_start_after_turns | bool)
+    - not (wazuh_indexer_start_before_turns | bool)
+
+# A stopped node that was already installed, when other nodes restart in turns: it starts and joins the
+# cluster first, and any failure stops the run for every node, so no node restarts while it is out.
+# A 200 from the node itself means that it sees a cluster manager, so it joined the cluster.
+- name: Restart | Start the stopped nodes before the turns
+  when: wazuh_indexer_start_before_turns | bool
+  any_errors_fatal: true
+  block:
+    - name: Restart | Start the stopped node {{ inventory_hostname }}
+      ansible.builtin.include_role:
+        name: wazuh-credentials
+        tasks_from: start_service.yml
+      vars:
+        wazuh_service_name: wazuh-indexer
+        wazuh_service_restart: "{{ wazuh_indexer_restart | default(false) }}"
+        wazuh_service_watched_files: "{{ wazuh_indexer_watched_files }}"
+
+    - name: Restart | Wait for the stopped node to join the cluster, {{ inventory_hostname }}
+      block:
+        - name: Restart | Wait for the stopped node to see a cluster manager, {{ inventory_hostname }}
+          ansible.builtin.uri:
+            url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_cluster/health?timeout=4s"
+            client_cert: /etc/wazuh-indexer/certs/admin.pem
+            client_key: /etc/wazuh-indexer/certs/admin-key.pem
+            validate_certs: false
+            timeout: 10
+          register: wazuh_indexer_stopped_joined
+          until: wazuh_indexer_stopped_joined.status == 200
+          retries: "{{ wazuh_indexer_restart_retries }}"
+          delay: 10
+
+      rescue:
+        - name: Restart | Report that the stopped node did not join the cluster, {{ inventory_hostname }}
+          ansible.builtin.fail:
+            msg: >-
+              {{ inventory_hostname }} was stopped before this run and started, but it did not join the cluster
+              after {{ wazuh_indexer_restart_retries }} attempts (GET /_cluster/health, last HTTP status
+              {{ wazuh_indexer_stopped_joined.status | default(-1) }}). No indexer node was restarted: they still
+              run their previous configuration and restart on the next run. Check that most of the indexer nodes
+              are up, and journalctl -u wazuh-indexer on {{ inventory_hostname }}, then run the playbook again.
 
 - name: Restart the Wazuh indexer nodes of the cluster one at a time
   ansible.builtin.include_tasks: rolling_restart.yml

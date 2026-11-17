@@ -210,7 +210,7 @@ instances:
 ---
 
 **Variable:** `wazuh_indexer_restart_retries`  
-**Description:** Attempts, 10 seconds apart, of the wait after a Wazuh Indexer node of a running cluster restarts, before the next node restarts: the node must join the cluster again, and the cluster must be green again if it was green before that restart (yellow otherwise). When the wait ends without it, the run stops and the remaining nodes restart on the next run.  
+**Description:** Attempts, 10 seconds apart, of the wait after a Wazuh Indexer node of a running cluster restarts, before the next node restarts: the node must join the cluster again, and the cluster must be as healthy as before that restart (green if it was green, yellow with no shard initializing if it was yellow). Also the attempts of the wait for a stopped node to join the cluster before the first restart. When a wait ends without it, the run stops and the remaining nodes restart on the next run.  
 **Default value:** `60`
 
 ---
