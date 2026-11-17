@@ -148,12 +148,6 @@ These variables are defined in `roles/wazuh-credentials/defaults/main.yml`. The 
 
 ---
 
-**Variable:** `wazuh_manager_indexer_client_certificate`  
-**Description:** In a distributed deployment, when `true`, each manager node gets its own client pair, issued on the control node from the CA of the deployment (the node name as CN, client authentication, the node's names and addresses, as the installation assistant issues it) and staged as `certs/indexer-connector.pem` and `indexer-connector-key.pem`. All-in-One, the Wazuh Manager package imports the pair the Wazuh Indexer publishes. Set to `false` if the Wazuh Manager does not present a client certificate to the Wazuh Indexer.  
-**Default value:** `true`
-
----
-
 **Variable:** `wazuh_service_settle_seconds`  
 **Description:** Seconds a Wazuh service must stay active after it started before the role moves on. A service that stops in that time fails the run, with the reason its pre-start check gave.  
 **Default value:** `5`

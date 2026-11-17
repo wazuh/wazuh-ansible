@@ -49,11 +49,6 @@
     # a DNS entry.
     - name: Credentials | Certificate names of this manager node
       ansible.builtin.set_fact:
-        # The names of the node alone, for its client pair for the indexer (indexer-connector.pem).
-        wazuh_credentials_node_sans: >-
-          {{ own_names
-             | map('regex_replace', '^(?!(DNS|IP):)([0-9.]+|.*:.*)$', 'IP:\g<2>')
-             | map('regex_replace', '^(?!(DNS|IP):)', 'DNS:') | unique | list }}
         wazuh_credentials_cert_sans:
           WAZUH_MANAGER_REMOTED_CERT_SANS: >-
             {{ (own_names + agent_san)

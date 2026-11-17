@@ -78,6 +78,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2435](https://github.com/wazuh/wazuh-ansible/issues/2435) | Stop issuing and staging the manager's indexer client certificate (indexer-connector.pem) in distributed deployments, and remove wazuh_manager_indexer_client_certificate, which inventories must drop |
 | [#2239](https://github.com/wazuh/wazuh-ansible/issues/2239) | Remove unnecessary `debhelper` install-time dependency from the `wazuh-dashboard` role. |
 
 ### Fixed

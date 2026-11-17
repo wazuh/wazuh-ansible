@@ -107,19 +107,19 @@ No task prints a password.
 
 Every certificate carries the names the playbooks set for it: `WAZUH_INDEXER_CERT_SANS`, `WAZUH_MANAGER_REMOTED_CERT_SANS` (agent listener), `WAZUH_MANAGER_APID_CERT_SANS` (Wazuh server API) and `WAZUH_DASHBOARD_CERT_SANS`, plus `localhost`, `127.0.0.1` and `::1`. See [Certificate names](roles/wazuh-manager.md#certificate-names) for the Wazuh Manager.
 
-**All-in-One.** The playbooks stage no CA: each package mints its own CA, and the Wazuh Manager and Wazuh Dashboard packages import the Wazuh Indexer CA, the Wazuh Manager CA, and the client pair of the Wazuh Manager from the `export/` directories on the host.
+**All-in-One.** The playbooks stage no CA: each package mints its own CA, and the Wazuh Manager and Wazuh Dashboard packages import the Wazuh Indexer CA and the Wazuh Manager CA from the `export/` directories on the host.
 
 **Distributed.** As the installation assistant does it: the playbooks create one CA for the whole deployment, once, on the control node, in `deployment-config-files/wazuh-ca/` (`root-ca.pem` and its private key, `root-ca.key`), and issue every certificate there. The private key never leaves the control node. Before each package is installed, each host receives:
 
 | Component | `ca/` | `certs/` |
 |-----------|-------|----------|
 | Wazuh Indexer | `root-ca.pem` | `indexer.pem` / `indexer-key.pem` (the node) and `admin.pem` / `admin-key.pem` |
-| Wazuh Manager | `root-ca.pem` | `remoted.pem` / `remoted-key.pem` (agent listener), `apid.pem` / `apid-key.pem` (Wazuh server API), `root-ca.pem` (the CA served to agents), `indexer-ca.pem`, and `indexer-connector.pem` / `indexer-connector-key.pem` (its own client certificate for the Wazuh Indexer, with the node name as CN) |
+| Wazuh Manager | `root-ca.pem` | `remoted.pem` / `remoted-key.pem` (agent listener), `apid.pem` / `apid-key.pem` (Wazuh server API), `root-ca.pem` (the CA served to agents) and `indexer-ca.pem` |
 | Wazuh Dashboard | — | `dashboard.pem` / `dashboard-key.pem`, `indexer-ca.pem` and `manager-ca.pem` |
 
 With the CA certificate and no key in `ca/`, the packages use these certificates and issue none. The Wazuh Indexer and Wazuh Dashboard packages give the files in `certs/` the group of their service account when they are installed. After the Wazuh Manager package is installed, the playbooks give `certs/` to `root:wazuh-manager` (`0750`, files `0640`) and run its credential resolver again (`wazuh-manager-resolve-credentials --upgrade`), which issues nothing. The step is not required: on RPM systems the package checks the staged files before it gives them its group (it prints `UNSAFE … group is root, not wazuh-manager`), fixes their owner at the end of its installation, and resolves the rest when it first starts. Running the resolver again completes that resolution when the package is installed instead.
 
-The certificates are RSA 2048, SHA-256, valid ten years, and valid from the day before they are issued, so a host whose clock is behind the control node accepts them. The pairs of each host are kept in `deployment-config-files/wazuh-ca/issued/<inventory host>/`. Set `wazuh_manager_indexer_client_certificate` to `false` to skip the client certificate of the Wazuh Manager.
+The certificates are RSA 2048, SHA-256, valid ten years, and valid from the day before they are issued, so a host whose clock is behind the control node accepts them. The pairs of each host are kept in `deployment-config-files/wazuh-ca/issued/<inventory host>/`.
 
 To use your own CA, place its `root-ca.pem` and `root-ca.key` in `deployment-config-files/wazuh-ca/` before the first run. The playbooks only create a CA that is not there.
 
