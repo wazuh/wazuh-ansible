@@ -147,7 +147,7 @@ Running the playbook again with the same packages leaves them installed as they 
 
 The playbooks are not an upgrade procedure. Between 5.x releases, upgrade each component as its documentation describes.
 
-A Wazuh Manager 4.x cannot be upgraded in place to 5.0, and neither can a 5.0.0 RC 1 or earlier pre-release (wazuh/wazuh#40338). Deploy 5.0 on new hosts and carry the agent keys, the agent registry and groups, the enrollment password and the Wazuh server API users across with the manager migration procedure, [Migrating a Wazuh manager from 4.x to 5.0](https://github.com/wazuh/wazuh/blob/5.0.0/docs/guide/migration/manager-4x-to-5x.md), automated by [`wazuh-migrate-identity.py`](https://github.com/wazuh/wazuh/blob/5.0.0/tools/migration/wazuh-migrate-identity.py). The same guide covers the configuration, the ruleset and the agents.
+A Wazuh Manager 4.x cannot be upgraded in place to 5.0. Deploy 5.0 on new hosts and carry the agent keys, the agent registry and groups, the enrollment password and the Wazuh server API users across with the manager migration procedure, [Migrating a Wazuh manager from 4.x to 5.0](https://github.com/wazuh/wazuh/blob/v5.0.0/docs/guide/migration/manager-4x-to-5x.md), automated by [`wazuh-migrate-identity.py`](https://github.com/wazuh/wazuh/blob/v5.0.0/tools/migration/wazuh-migrate-identity.py). The same guide covers the configuration, the ruleset and the agents.
 
 ## Post-Deployment Steps
 

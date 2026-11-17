@@ -248,7 +248,7 @@
   when: wazuh_indexer_start_after_turns | bool
 
 # The package never loads the security configuration into the cluster: it cannot know whether other
-# nodes are still to be installed (wazuh/wazuh-indexer#1928 FR 29). Its postinst has already written
+# nodes are still to be installed. Its postinst has already written
 # the bcrypt digests of the supplied passwords into internal_users.yml, so one upload from one node
 # is what makes them live, on a single node and on a cluster alike. The upload replaces the security
 # configuration of the cluster with the files of that node, so it is done only while the cluster has

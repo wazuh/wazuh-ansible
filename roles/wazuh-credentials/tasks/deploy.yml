@@ -1,12 +1,11 @@
 ---
 
 # Each package reads the values the operator supplies from /etc/<package>/local.env and issues its
-# certificates from the CA in /etc/<package>/ca/ (wazuh/internal-devel-requests#7048). Both are provided
-# only before the package is installed: the package resolves its credentials once and keeps them, so
-# writing them again afterwards would change nothing but the file. All-in-one, the package mints its own
-# CA: only local.env is provided. Distributed, the pairs of the host are issued on the control node and
-# staged with the CA certificate, never its key, so the package issues nothing (the installation
-# assistant's model).
+# certificates from the CA in /etc/<package>/ca/. Both are provided only before the package is
+# installed: the package resolves its credentials once and keeps them, so writing them again afterwards
+# would change nothing but the file. All-in-one, the package mints its own CA: only local.env is
+# provided. Distributed, the pairs of the host are issued on the control node and staged with the CA
+# certificate, never its key, so the package issues nothing (the installation assistant's model).
 - name: Credentials | Set the configuration directory of {{ wazuh_credentials_component }}
   ansible.builtin.set_fact:
     wazuh_credentials_conf_dir: "{{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}"
