@@ -4,11 +4,11 @@ wazuh_agent_package_download_path: "/tmp/wazuh-agent"
 wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
 wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
 
-# Agent installation directory per platform. Not read by any task in this
-# role as of wazuh/wazuh#39063 (enrollment moved to a single token, so no task
-# needs the install path to place a CA file or read ossec.conf back), kept as
-# documented per-platform metadata. The Windows MSI is 32-bit, so on a 64-bit
-# host it lands under the x86 Program Files.
+# Agent installation directory per platform. They do not change where the
+# package installs the agent: the macOS and Windows ones only name the location
+# of the agent log in the error shown when the agent does not stay running, and
+# the Linux one is not read by any task. The Windows MSI is 32-bit, so on a
+# 64-bit host it lands under the x86 Program Files.
 wazuh_agent_install_path: "/var/ossec"
 wazuh_agent_macos_install_path: "/Library/Ossec"
 wazuh_agent_win_install_path: >-

@@ -4,3 +4,8 @@
 # wazuh-credentials/files/wazuh-issue-pair.sh --cn-first writes, as openssl prints it in RFC 2253 form.
 # Not a setting (an inventory cannot override role vars): it changes only together with that script.
 wazuh_indexer_node_dn_prefix: "C=US,L=California,O=Wazuh,OU=Wazuh,CN="
+
+# Files whose change after the last start of the indexer means it runs on an older configuration.
+wazuh_indexer_watched_files:
+  - /etc/wazuh-indexer/opensearch.yml
+  - /etc/wazuh-indexer/jvm.options

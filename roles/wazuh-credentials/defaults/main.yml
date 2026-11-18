@@ -6,7 +6,7 @@ wazuh_credentials_path: "{{ playbook_dir }}/deployment-credentials"
 
 # Optional supplied passwords (e.g. from Ansible Vault), keyed by credentials.env name. Only honoured
 # the first time a deployment is created: a component that already resolved its credentials keeps
-# them (wazuh/wazuh-indexer#1928 FR 34). Use wazuh-passwords-tool.sh to rotate.
+# them. Use wazuh-passwords-tool.sh to rotate.
 wazuh_credentials_overrides: {}
 
 # Configuration directory of each package, where its local.env and ca/ are provided.
@@ -48,7 +48,7 @@ wazuh_credentials_keys:
   - WAZUH_MANAGER_API_PASSWORD
   - WAZUH_MANAGER_WUI_PASSWORD
 
-# Keys each component reads, owned or consumed (wazuh/wazuh-indexer#1928 FR 13). Each host only
+# Keys each component reads, owned or consumed. Each host only
 # receives the keys of the components it runs.
 wazuh_credentials_component_keys:
   indexer:

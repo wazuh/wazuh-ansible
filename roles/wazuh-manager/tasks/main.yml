@@ -198,7 +198,8 @@
             fail_msg: >-
               The <indexer><ssl> block of {{ wazuh_manager_conf_dir }}/wazuh-manager.conf does not name
               certs/indexer-ca.pem as its certificate authority ({{ indexer_cas | join(', ') or 'none' }}):
-              this package does not use the per-component CAs of 5.0.0 RC 2.
+              the installed wazuh-manager package does not configure one CA per component. Install a
+              wazuh-manager package that matches the version of these playbooks.
             quiet: true
           vars:
             conf_text: "{{ wazuh_manager_conf_raw.content | b64decode | regex_replace('(?s)<!--.*?-->', '') }}"

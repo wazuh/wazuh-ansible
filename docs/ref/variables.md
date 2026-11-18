@@ -203,6 +203,12 @@ instances:
 
 ---
 
+**Variable:** `wazuh_indexer_restart_retries`  
+**Description:** Attempts, 10 seconds apart, of the wait after a Wazuh Indexer node of a running cluster restarts, before the next node restarts: the node must join the cluster again, and the cluster must be as healthy as before that restart (green if it was green, yellow with no shard initializing if it was yellow). Also the attempts of the wait for a stopped node to join the cluster before the first restart. When a wait ends without it, the run stops and the remaining nodes restart on the next run.  
+**Default value:** `60`
+
+---
+
 **Variable:** `wazuh_indexer_package_name`  
 **Description:** Base filename (without architecture suffix or extension) of the Wazuh Indexer package to download and install.  
 **Default value:** `wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_package_revision }}`
@@ -357,17 +363,17 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 ---
 
 **Variable:** `wazuh_enrollment_token`  
-**Description:** Enrollment token for 5.x agents — Linux, Windows and macOS alike — maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable (see [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063)). The manager address always travels inside the token; the CA either travels with it too (a token minted with `--embed-ca`) or is fetched separately over `/cacerts` on the agent's first start and verified against the token's pin. Either way, no separate manager-address or CA variable exists in this role. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`); this role does not mint tokens, the operator must provide one (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`).  
+**Description:** Enrollment token for 5.x agents — Linux, Windows and macOS alike — maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable. The manager address always travels inside the token; the CA either travels with it too (a token minted with `--embed-ca`) or is fetched separately over `/cacerts` on the agent's first start and verified against the token's pin. Either way, no separate manager-address or CA variable exists in this role. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`); this role does not mint tokens, the operator must provide one (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`).  
 **Default value:** `<Your Wazuh Agent Enrollment Token>` (must be overridden)
 
 ---
 
 **Variable:** `wazuh_ssl_verification`  
-**Description:** Optional. Agent TLS verification posture, mapped to the `WAZUH_SSL_VERIFICATION` install-time variable and written to `<agent><ssl><verification_mode>`. One of `full` (verify against the CA **and** check the manager's hostname), `certificate` (verify against the CA only), `system` (trust the OS store) or `none` (no verification, for lab/CI). Empty leaves the tag unset. **Do not set `full` or `certificate` on a fresh install with `wazuh_enrollment_token`**: `wazuh-agentd` validates `<certificate_authorities>` before it will start, but that file is only written by the enrollment-token bootstrap, which runs on the very first start the validation just refused — a real deadlock, verified against a live 5.0.0 agent, that leaves the agent needing to be reinstalled. Leaving this empty does not disable verification: the agent bootstraps its trust anchor and verifies against it from then on, confirmed including a restart after enrollment. Re-running this role does not apply a changed value to an agent that is already installed — see [Existing agents are not reconfigured](roles/wazuh-agent.md#existing-agents-are-not-reconfigured).  
+**Description:** Optional. Agent TLS verification posture, mapped to the `WAZUH_SSL_VERIFICATION` install-time variable and written to `<agent><ssl><verification_mode>`. One of `full` (verify against the CA **and** check the manager's hostname), `certificate` (verify against the CA only), `system` (trust the OS store) or `none` (no verification, for lab/CI). Empty leaves the tag unset. **Do not set `full` or `certificate` on a fresh install with `wazuh_enrollment_token`**: `wazuh-agentd` validates `<certificate_authorities>` before it will start, but that file is only written by the enrollment-token bootstrap, which runs on the very first start the validation just refused — a deadlock that leaves the agent needing to be reinstalled. Leaving this empty does not disable verification: the agent bootstraps its trust anchor and verifies against it from then on, also after a restart. Re-running this role does not apply a changed value to an agent that is already installed — see [Existing agents are not reconfigured](roles/wazuh-agent.md#existing-agents-are-not-reconfigured).  
 **Default value:** `""`
 
 ---
 
 **Variable:** `wazuh_agent_install_path` / `wazuh_agent_macos_install_path` / `wazuh_agent_win_install_path`  
-**Description:** Agent installation directory per platform. Not read by any task in this role as of [wazuh/wazuh#39063](https://github.com/wazuh/wazuh/issues/39063) (enrollment moved to a single token, so no task needs the install path to place a CA file or read `ossec.conf` back); kept as documented per-platform metadata.  
-**Default value:** `/var/ossec`, `/Library/Ossec`, `{{ ansible_facts.env['ProgramFiles(x86)'] }}\ossec-agent`
+**Description:** Agent installation directory per platform (Linux, macOS, Windows). They do not change where the package installs the agent. `wazuh_agent_macos_install_path` and `wazuh_agent_win_install_path` only name the location of the agent log in the error shown when the agent does not stay running after it is started; `wazuh_agent_install_path` is not read by any task.  
+**Default value:** `/var/ossec`, `/Library/Ossec`, `{{ ansible_facts.env['ProgramFiles(x86)'] | default('C:\Program Files (x86)', true) }}\ossec-agent`

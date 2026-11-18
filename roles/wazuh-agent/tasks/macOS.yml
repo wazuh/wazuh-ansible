@@ -51,14 +51,13 @@
     # that reads it, and mode 0600 because it carries the enrollment token.
     # Removed again in `always` below: the installer deletes it itself on
     # success (register_configure_agent.sh, WAZUH_MACOS_AGENT_DEPLOYMENT_VARS),
-    # so this covers the failure paths. Since wazuh/wazuh#39063, a 5.x agent
-    # enrolls with a single enrollment token: the manager address and the CA
-    # pin travel inside the token itself, fetched over /cacerts and verified
-    # against the token's pin on the agent's first start. No CA file is
-    # pre-staged, and none of WAZUH_MANAGER, WAZUH_REGISTRATION_PASSWORD,
-    # WAZUH_MANAGER_ENDPOINT or WAZUH_REGISTRATION_CA apply anymore
-    # (warn-and-ignore on install); SSL_VERIFICATION is renamed
-    # WAZUH_SSL_VERIFICATION, same rename as on Linux and Windows.
+    # so this covers the failure paths. A 5.x agent enrolls with a single
+    # enrollment token: the manager address and the CA pin travel inside the
+    # token itself, fetched over /cacerts and verified against the token's pin
+    # on the agent's first start. No CA file is pre-staged, and the installer
+    # warns about and ignores WAZUH_MANAGER, WAZUH_REGISTRATION_PASSWORD,
+    # WAZUH_MANAGER_ENDPOINT and WAZUH_REGISTRATION_CA. The verification mode
+    # is set with WAZUH_SSL_VERIFICATION, not SSL_VERIFICATION.
     # no_log: the rendered content carries the enrollment token in the clear --
     # without it, -v prints the token (unlimited uses, 30-day default lifetime)
     # straight into the play output.
