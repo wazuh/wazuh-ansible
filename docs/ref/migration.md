@@ -93,9 +93,10 @@ There are two paths:
    sudo systemctl restart wazuh-indexer
    ```
 
-   Register the folder and take the snapshot, with the 4.x `admin` password:
+   Wait until the Wazuh Indexer answers again, then register the folder and take the snapshot, with the 4.x `admin` password:
 
    ```bash
+   until curl -sk -u admin:<4.x admin password> https://<indexer address>:9200/_cluster/health | grep -q '"status"'; do sleep 5; done
    curl -sk -u admin:<4.x admin password> -X PUT https://<indexer address>:9200/_snapshot/wazuh-4x \
      -H 'Content-Type: application/json' -d '{"type":"fs","settings":{"location":"/var/backups/wazuh-4x-snapshots"}}'
    curl -sk -u admin:<4.x admin password> -X PUT 'https://<indexer address>:9200/_snapshot/wazuh-4x/alerts-4x?wait_for_completion=true' \
@@ -135,9 +136,10 @@ There are two paths:
    path.repo: ["/var/lib/wazuh-indexer/backup", "/var/backups/wazuh-4x-snapshots"]
    ```
 
-   Register the folder as a read-only repository and restore the 4.x indices under another name, with the 5.0 `admin` password from `deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD` on the control node:
+   Wait until the Wazuh Indexer answers again, then register the folder as a read-only repository and restore the 4.x indices under another name, with the 5.0 `admin` password from `deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD` on the control node:
 
    ```bash
+   until curl -sk -u admin:<5.0 admin password> https://<indexer address>:9200/_cluster/health | grep -q '"status"'; do sleep 5; done
    curl -sk -u admin:<5.0 admin password> -X PUT https://<indexer address>:9200/_snapshot/wazuh-4x \
      -H 'Content-Type: application/json' -d '{"type":"fs","settings":{"location":"/var/backups/wazuh-4x-snapshots","readonly":true}}'
    curl -sk -u admin:<5.0 admin password> -X POST 'https://<indexer address>:9200/_snapshot/wazuh-4x/alerts-4x/_restore?wait_for_completion=true' \
