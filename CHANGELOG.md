@@ -25,6 +25,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2440](https://github.com/wazuh/wazuh-ansible/issues/2440) | Move the 4.x migration to its own page and document the new hosts and same hosts paths, and which configuration later runs of the playbooks keep |
 | [#2436](https://github.com/wazuh/wazuh-ansible/pull/2436) | Describe the 5.0.0 product in the docs and the role comments without the pre-release chronology, document the enrollment token check of `validate.yml`, fix the manager installation guide link and pin the `wazuh/wazuh` links to `v5.0.0` |
 | [#2426](https://github.com/wazuh/wazuh-ansible/issues/2426) | Restart the running indexer nodes of a cluster one at a time, each after the previous one joined the cluster again, instead of all at the same time |
 | [#2375](https://github.com/wazuh/wazuh-ansible/issues/2375) | Align the docs with the 5.0.0 code and packages: upgrades and the 4.x migration, the RPM manager certificate step, password changes in a cluster, the target Python requirement and the README |
