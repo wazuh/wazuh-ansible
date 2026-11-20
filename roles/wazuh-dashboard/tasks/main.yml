@@ -134,8 +134,9 @@
           - conf_text is search('(?m)^\\s+ca:\\s*.*certs/manager-ca\\.pem')
         fail_msg: >-
           /etc/wazuh-dashboard/opensearch_dashboards.yml does not verify the indexer against
-          certs/indexer-ca.pem and the Server API against certs/manager-ca.pem: this package does not use
-          the per-component CAs of 5.0.0 RC 2.
+          certs/indexer-ca.pem and the Server API against certs/manager-ca.pem: the installed
+          wazuh-dashboard package does not configure one CA per component. Install a wazuh-dashboard
+          package that matches the version of these playbooks.
         quiet: true
       vars:
         conf_text: "{{ wazuh_dashboard_conf_raw.content | b64decode }}"

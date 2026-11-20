@@ -17,6 +17,7 @@
 - [Configuration](ref/configuration/configuration.md)
   - [Configuration files](ref/configuration/configuration-files.md)
 - [Deployment](ref/deployment.md)
+- [Migration from 4.x](ref/migration.md)
 - [Roles](ref/roles/roles.md)
   - [package-urls](ref/roles/package-urls.md)
   - [wazuh-credentials](ref/roles/wazuh-credentials.md)
