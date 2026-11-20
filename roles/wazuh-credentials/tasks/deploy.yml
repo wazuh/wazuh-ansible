@@ -1,12 +1,11 @@
 ---
 
 # Each package reads the values the operator supplies from /etc/<package>/local.env and issues its
-# certificates from the CA in /etc/<package>/ca/ (wazuh/internal-devel-requests#7048). Both are provided
-# only before the package is installed: the package resolves its credentials once and keeps them, so
-# writing them again afterwards would change nothing but the file. All-in-one, the package mints its own
-# CA: only local.env is provided. Distributed, the pairs of the host are issued on the control node and
-# staged with the CA certificate, never its key, so the package issues nothing (the installation
-# assistant's model).
+# certificates from the CA in /etc/<package>/ca/. Both are provided only before the package is
+# installed: the package resolves its credentials once and keeps them, so writing them again afterwards
+# would change nothing but the file. All-in-one, the package mints its own CA: only local.env is
+# provided. Distributed, the pairs of the host are issued on the control node and staged with the CA
+# certificate, never its key, so the package issues nothing (the installation assistant's model).
 - name: Credentials | Set the configuration directory of {{ wazuh_credentials_component }}
   ansible.builtin.set_fact:
     wazuh_credentials_conf_dir: "{{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}"
@@ -57,10 +56,7 @@
       vars:
         wazuh_credentials_issued_dir: "{{ wazuh_ca_path }}/issued/{{ inventory_hostname }}"
         wazuh_credentials_certs_dir: "{{ wazuh_credentials_conf_dir }}/certs"
-        wazuh_credentials_pairs: >-
-          {{ wazuh_credentials_component_pairs[wazuh_credentials_component] | rejectattr('indexer_client', 'defined') | list
-             + (wazuh_credentials_component_pairs[wazuh_credentials_component] | selectattr('indexer_client', 'defined') | list
-                if wazuh_manager_indexer_client_certificate | bool else []) }}
+        wazuh_credentials_pairs: "{{ wazuh_credentials_component_pairs[wazuh_credentials_component] }}"
       block:
         - name: Credentials | Ensure the directory of the pairs of this host exists on the control node
           ansible.builtin.file:
@@ -81,9 +77,7 @@
                  + (['--cn-first'] if item.cn_first else []) + (['--chain'] if item.chain else []) }}
             creates: "{{ wazuh_credentials_issued_dir }}/{{ item.name }}.pem"
           vars:
-            sans: >-
-              {{ (wazuh_credentials_cert_sans[item.san] + wazuh_credentials_loopback_sans) if item.san
-                 else wazuh_credentials_node_sans | default([]) }}
+            sans: "{{ wazuh_credentials_cert_sans[item.san] + wazuh_credentials_loopback_sans }}"
           loop: "{{ wazuh_credentials_pairs }}"
           loop_control:
             label: "{{ item.name }}"
