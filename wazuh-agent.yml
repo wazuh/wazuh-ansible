@@ -13,7 +13,7 @@
   strategy: free
   vars:
     # Enrollment token for 5.x agents (WAZUH_ENROLLMENT_TOKEN install-time
-    # variable), for Linux, Windows and macOS -- see wazuh/wazuh#39063. The
+    # variable), for Linux, Windows and macOS. The
     # manager address and the CA pin both travel inside the token itself,
     # fetched over /cacerts on the agent's first start. This role does not
     # mint tokens; the operator must provide one (for example via

@@ -7,10 +7,10 @@ Refer to the [Requirements](../ref/getting-started/requirements.md) section in t
 ## Toolchain for Deploying Wazuh with Ansible
 
 - Ansible:
-    Ensure Ansible 2.9 or newer is installed.
+    Ensure ansible-core 2.16 or newer is installed.
 
 - Python:
-    Python 3.6 or newer is recommended.
+    Python 3.10 or newer is required on the control node.
 
 - Additional Required Tools:
   - Git: Required for cloning the repository and managing version control.

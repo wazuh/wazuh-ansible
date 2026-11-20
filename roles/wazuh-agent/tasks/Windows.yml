@@ -35,16 +35,15 @@
     wazuh_package_file: "{{ wazuh_agent_win_package_download_path }}\\{{ wazuh_agent_package_name }}.msi"
   when: not wazuh_agent_package_installed
 
-# Since wazuh/wazuh#39063, a 5.x agent enrolls with a single enrollment token:
-# the manager address and the CA pin travel inside the token itself, fetched
-# over /cacerts and verified against the token's pin on the agent's first
-# start (InstallerScripts.vbs, WAZUH_ENROLLMENT_TOKEN MSI property). No CA file
-# is pre-staged, and none of WAZUH_MANAGER, WAZUH_REGISTRATION_PASSWORD,
-# WAZUH_MANAGER_ENDPOINT, WAZUH_REGISTRATION_CA or SSL_VERIFICATION apply
-# anymore (all warn-and-ignore on install); SSL_VERIFICATION is renamed
-# WAZUH_SSL_VERIFICATION. Each optional property emits its own leading space
-# inside the {%- if -%}, so an unset variable adds nothing at all rather than
-# leaving a stray separator behind.
+# A 5.x agent enrolls with a single enrollment token: the manager address and
+# the CA pin travel inside the token itself, fetched over /cacerts and verified
+# against the token's pin on the agent's first start (InstallerScripts.vbs,
+# WAZUH_ENROLLMENT_TOKEN MSI property). No CA file is pre-staged, and the
+# installer warns about and ignores WAZUH_MANAGER, WAZUH_REGISTRATION_PASSWORD,
+# WAZUH_MANAGER_ENDPOINT, WAZUH_REGISTRATION_CA and SSL_VERIFICATION: the
+# verification mode is set with WAZUH_SSL_VERIFICATION. Each optional property
+# emits its own leading space inside the {%- if -%}, so an unset variable adds
+# nothing at all rather than leaving a stray separator behind.
 #
 # no_log on this and the install task below: both carry the enrollment token in the
 # clear (this one as a fact, the next one in its own module-invocation trace via
