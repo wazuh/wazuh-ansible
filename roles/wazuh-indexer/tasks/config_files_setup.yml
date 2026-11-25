@@ -140,3 +140,7 @@
         path: /etc/wazuh-indexer/jvm.options
         regexp: '^-Xmx'
         line: "-Xmx{{ wazuh_indexer_heap_size_computed }}"
+
+- name: Setup Config | Configure the setup plugin
+  ansible.builtin.import_tasks: setup_config.yml
+  when: wazuh_indexer_setup_config | length > 0 or wazuh_indexer_setup_policies | length > 0

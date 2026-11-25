@@ -444,3 +444,7 @@
           node.'))
           if (_result.status | default(0)) == 401
           else 'Check the service with journalctl -u wazuh-indexer.' }}
+
+- name: Check that the setup plugin applied the setup configuration
+  ansible.builtin.import_tasks: setup_status.yml
+  when: wazuh_indexer_setup_config | length > 0 or wazuh_indexer_setup_policies | length > 0
