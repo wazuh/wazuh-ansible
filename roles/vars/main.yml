@@ -7,4 +7,4 @@ wazuh_stage: "{{ wazuh_version_data.stage }}"
 
 local_configs_path: "{{ playbook_dir }}/deployment-config-files"
 
-urls_file: "artifact_urls.yaml"
+urls_file: "{{ playbook_dir }}/roles/vars/artifact_urls.yaml"

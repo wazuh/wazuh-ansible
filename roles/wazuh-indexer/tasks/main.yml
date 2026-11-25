@@ -6,7 +6,7 @@
 
 - name: Importing urls_file variables
   ansible.builtin.include_vars:
-    file: ../../vars/{{ urls_file }}
+    file: "{{ urls_file }}"
 
 - name: Linux | Check whether wazuh-indexer is already installed
   ansible.builtin.include_role:
