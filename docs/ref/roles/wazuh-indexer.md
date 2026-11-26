@@ -33,7 +33,7 @@ In a distributed deployment, the node certificate (`certs/indexer.pem`, `CN=<nod
 
 ## Setup configuration
 
-The setup plugin of the Wazuh Indexer creates the index templates, the indices and the ISM policies of Wazuh. It reads its configuration directory, `/etc/wazuh-indexer/wazuh-indexer-setup/`, each time it initializes the cluster, and applies it only to the indices it creates afterwards. The directory holds `setup.yml`, with every supported key commented out, and an editable `<policy-id>.json` copy of each default ISM policy. The keys, their valid values and the defaults are described in the [setup plugin documentation](https://wazuh.github.io/wazuh-indexer-plugins/ref/modules/setup/customization.html).
+The setup plugin of the Wazuh Indexer creates the index templates, the indices and the ISM policies of Wazuh. It reads its configuration directory, `/etc/wazuh-indexer/wazuh-indexer-setup/`, each time it initializes the cluster, and applies it only to the indices it creates afterwards. The directory holds `setup.yml`, with every supported key commented out, and an editable `<policy-id>.json` copy of each default ISM policy. The keys, their valid values and the defaults are described in the [setup plugin documentation](https://github.com/wazuh/wazuh-indexer-plugins/blob/v5.0.0/docs/ref/modules/setup/customization.md).
 
 The role changes these files only when it is given them:
 
@@ -76,7 +76,7 @@ wazuh_indexer_setup_policies:
 - A change to a file restarts the indexer: all-in-one, the node restarts; in a distributed deployment, the running nodes restart one at a time (see [Tasks](#tasks)). A run without changes does not restart it.
 - Before writing, the role checks that `setup.yml` is a YAML mapping without tabs, that each policy keeps the id of its file under `policy.policy_id`, and that the package installed the file it replaces. The plugin checks the rest when it initializes the cluster, and a value it does not accept leaves its status `failed` while the indexer keeps running.
 - After the indexer is healthy, the role reads the setup status (`.wazuh-setup-status`, document `setup-status`) written after the start of the current cluster manager, which is the one of the configuration in effect, with the `admin` certificate, for up to `wazuh_indexer_api_retries` attempts 5 seconds apart. When it is `failed`, the run stops and names the cluster manager, whose `/var/log/wazuh-indexer/wazuh-cluster.log` has the error with the key or the file. When it is still `running`, which is also the status while an index waits for a schema upgrade, or not written yet, the run goes on with a warning.
-- Settings and policies apply only to the indices created after the change. The existing indices keep their values: see [Applying a change to the indices that exist](https://wazuh.github.io/wazuh-indexer-plugins/ref/modules/setup/customization.html#applying-a-change-to-the-indices-that-exist).
+- Settings and policies apply only to the indices created after the change. The existing indices keep their values: see [Applying a change to the indices that exist](https://github.com/wazuh/wazuh-indexer-plugins/blob/v5.0.0/docs/ref/modules/setup/customization.md#applying-a-change-to-the-indices-that-exist).
 - Removing a variable leaves the file the role wrote in place: to go back to the defaults, set `wazuh_indexer_setup_config` to the keys to keep, or comment them out.
 
 ## Usage

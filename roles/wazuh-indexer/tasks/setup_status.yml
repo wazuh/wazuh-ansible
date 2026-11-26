@@ -73,7 +73,7 @@
       shards than cluster.max_shards_per_node allows. The error, with the key or the file, is in the
       "Setup initialization failed" line of /var/log/wazuh-indexer/wazuh-cluster.log on
       {{ wazuh_indexer_setup_manager_name }}. Fix the variable and run the playbook again: see
-      https://wazuh.github.io/wazuh-indexer-plugins/ref/modules/setup/customization.html#invalid-configuration
+      https://github.com/wazuh/wazuh-indexer-plugins/blob/v5.0.0/docs/ref/modules/setup/customization.md#invalid-configuration
   vars:
     wazuh_indexer_setup_manager_name: "{{ (wazuh_indexer_setup_manager.json.nodes.values() | first).name }}"
   when: wazuh_indexer_setup_state == 'failed'
