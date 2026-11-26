@@ -32,7 +32,7 @@
   ansible.builtin.set_fact:
     wazuh_agent_install_env: >-
       {{
-        {'WAZUH_ENROLLMENT_TOKEN': wazuh_enrollment_token}
+        {'WAZUH_ENROLLMENT_TOKEN': wazuh_enrollment_token, 'WAZUH_AGENT_NAME': wazuh_agent_name }
         | combine({'WAZUH_SSL_VERIFICATION': wazuh_ssl_verification} if (wazuh_ssl_verification | default('') | length > 0) else {})
       }}
   no_log: true

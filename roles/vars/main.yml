@@ -8,3 +8,5 @@ wazuh_stage: "{{ wazuh_version_data.stage }}"
 local_configs_path: "{{ playbook_dir }}/deployment-config-files"
 
 urls_file: "artifact_urls.yaml"
+
+wazuh_agent_name: ""
