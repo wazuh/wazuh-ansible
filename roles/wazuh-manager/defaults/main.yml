@@ -19,3 +19,8 @@ wazuh_manager_conf_dir: "/etc/wazuh-manager"
 wazuh_manager_ips: []
 agent_san: []
 api_san: []
+
+# The cluster <bind_addr> of this node. Empty: the role chooses it (see the comment of the
+# "Choose the cluster bind address" task). Set it on the master when its private_ip is not an
+# address of the host, such as a NAT address, to its address on the management network.
+wazuh_manager_cluster_bind_addr: ""

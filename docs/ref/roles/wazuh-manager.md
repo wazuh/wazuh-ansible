@@ -27,8 +27,22 @@ The configuration directory of the Wazuh Manager is `/etc/wazuh-manager` (`wazuh
 | Install package (Debian) | Installs the downloaded `.deb` package using `apt`. |
 | Hand the certificates to the service | Distributed only: gives `certs/` to `root:wazuh-manager` (`0750`, files `0640`) and runs `wazuh-manager-resolve-credentials --upgrade`, with `peer_trust.yml` from the [`wazuh-credentials`](wazuh-credentials.md) role. Not required: on RPM systems the package checks the staged files before it gives them its group, fixes their owner at the end of its installation and resolves the rest at its first start; the step completes that resolution at install time. |
 | Check indexer trust | Checks that the `<indexer><ssl>` block of `wazuh-manager.conf` verifies the Wazuh Indexer against `certs/indexer-ca.pem`. |
-| Configure `wazuh-manager.conf` | Sets the Wazuh Indexer hosts and the cluster settings (node name, node type, key, nodes). |
-| Start service | Starts the `wazuh-manager` service and checks that it stays active, with `start_service.yml` from the [`wazuh-credentials`](wazuh-credentials.md) role. Then checks the Wazuh server API as `wazuh` with the password the package published (master), or the cluster with `cluster_control -l` (worker). |
+| Configure `wazuh-manager.conf` | Sets the Wazuh Indexer hosts and the cluster settings (node name, node type, key, bind address, nodes). See [Cluster bind address](#cluster-bind-address). |
+| Start service | Starts the `wazuh-manager` service and checks that it stays active, with `start_service.yml` from the [`wazuh-credentials`](wazuh-credentials.md) role. Then checks the Wazuh server API on `127.0.0.1` as `wazuh` with the password the package published (master), or, on a worker, that it reaches the cluster port (`1516`) of the master at its `private_ip` and the cluster with `cluster_control -l`. |
+
+## Cluster bind address
+
+Only the master listens on the cluster port (`1516`), on the `<bind_addr>` of `<cluster>` in `wazuh-manager.conf`. The role sets it on every run:
+
+| Deployment | Cluster `<bind_addr>` |
+|------------|-----------------------|
+| All-in-One, or a single manager node in `instances` | `127.0.0.1`, the package default. |
+| Master of a cluster with two or more manager nodes in `instances`, or of a play without `instances` | Its `private_ip`, the address the workers dial, when it is an address of the host. A DNS name is used when, on the master, it resolves to an address of the host other than loopback, and to no address outside the host: the master binds every address the name resolves to. |
+| Worker | `0.0.0.0`. |
+
+The master can only listen on an address of its host. When its `private_ip` is not one, nor such a name, for example a NAT address the workers reach, the role keeps `0.0.0.0` and prints a warning: set `wazuh_manager_cluster_bind_addr` on the master to its address on the management network and run the playbook again. When `wazuh_manager_cluster_bind_addr` is set, the role writes it as is on that node. The role reads the addresses of the host from the network facts, and gathers them when the play did not. The agent listener's `<remote><https><bind_addr>` is not changed.
+
+On a worker, the role checks that it reaches the master's `private_ip` on port `1516` and stops with a message that names the address when it does not.
 
 ## Certificate names
 
