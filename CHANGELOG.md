@@ -25,6 +25,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2454](https://github.com/wazuh/wazuh-ansible/issues/2454) | Bind the cluster port of the master to its `private_ip` when it is an address of the host, or a name that resolves only to addresses of the host, keep `127.0.0.1` All-in-One and `0.0.0.0` on workers, leave the agent listener's `<bind_addr>` unchanged, add `wazuh_manager_cluster_bind_addr` to set it, check that workers reach the master, and check the Server API of the master on `127.0.0.1` |
 | [#2440](https://github.com/wazuh/wazuh-ansible/issues/2440) | Move the 4.x migration to its own page and document the new hosts and same hosts paths, and which configuration later runs of the playbooks keep |
 | [#2436](https://github.com/wazuh/wazuh-ansible/pull/2436) | Describe the 5.0.0 product in the docs and the role comments without the pre-release chronology, document the enrollment token check of `validate.yml`, fix the manager installation guide link and pin the `wazuh/wazuh` links to `v5.0.0` |
 | [#2426](https://github.com/wazuh/wazuh-ansible/issues/2426) | Restart the running indexer nodes of a cluster one at a time, each after the previous one joined the cluster again, instead of all at the same time |

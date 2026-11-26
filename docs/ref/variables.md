@@ -292,6 +292,12 @@ wazuh_indexer_hosts:
 
 ---
 
+**Variable:** `wazuh_manager_cluster_bind_addr`  
+**Description:** The `<bind_addr>` of `<cluster>` in `wazuh-manager.conf`, the address the master listens on for the cluster port (`1516`). Empty, the role chooses it: `127.0.0.1` All-in-One or with a single manager node, the `private_ip` of the master when it is an address of the host, or a name that resolves only to addresses of the host (`0.0.0.0` and a warning otherwise), and `0.0.0.0` on workers. Set it on the master when its `private_ip` is not an address of the host, such as a NAT address, to its address on the management network. The value is written as is, not checked. See [Cluster bind address](roles/wazuh-manager.md#cluster-bind-address).  
+**Default value:** `""`
+
+---
+
 **Variable:** `api_san`  
 **Description:** Optional list of IP/DNS values added to the Server API certificate (`apid.pem`) of every manager node, on top of the node's own names and addresses, such as a published name or a load balancer in front of the Server API. Classified as in `agent_san`.  
 **Default value:** `[]`

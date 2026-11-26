@@ -231,6 +231,71 @@
           ansible.builtin.set_fact:
             wazuh_cluster_key: "{{ wazuh_cluster_key_raw.content | b64decode | trim }}"
 
+    # Only the master listens on the cluster port. With other manager nodes, it binds to private_ip, the
+    # address the workers dial, when that is an address of this host, or a name that resolves to one and
+    # to no address outside the host (the master binds every address the name resolves to); otherwise
+    # (a NAT address, for example) it keeps 0.0.0.0 and warns. Workers bind to 0.0.0.0. All-in-One, or a
+    # single manager, binds to 127.0.0.1, the package default. wazuh_manager_cluster_bind_addr, when set,
+    # is used as is.
+    - name: Manager-config | Choose the cluster bind address
+      vars:
+        wazuh_manager_nodes_count: >-
+          {{ instances | default({}) | dict2items | selectattr('value.role', 'defined')
+             | selectattr('value.role', 'equalto', 'manager') | list | length }}
+        wazuh_cluster_master_bind: >-
+          {{ not single_node and node_type == 'master' and wazuh_manager_nodes_count | int > 1
+             and wazuh_manager_cluster_bind_addr | length == 0 }}
+        wazuh_cluster_master_is_ip: "{{ private_ip is match('^([0-9.]+|.*:.*)$') }}"
+        wazuh_cluster_host_addresses: >-
+          {{ ansible_all_ipv4_addresses | default([]) + ansible_all_ipv6_addresses | default([]) }}
+        # The addresses private_ip stands for: itself, or those its name resolves to on the master.
+        wazuh_cluster_master_addresses: >-
+          {{ [private_ip] if (wazuh_cluster_master_is_ip | bool)
+             else (wazuh_cluster_master_resolved.stdout_lines | default([])
+                   | map('split') | map('first') | unique | list) }}
+        # Usable when at least one is an address of this host and none, loopback aside, is outside it.
+        wazuh_cluster_master_on_host: >-
+          {{ (wazuh_cluster_master_addresses | select('in', wazuh_cluster_host_addresses) | list | length > 0)
+             and (wazuh_cluster_master_addresses | reject('in', wazuh_cluster_host_addresses)
+                  | reject('match', '^127[.]') | reject('equalto', '::1') | list | length == 0) }}
+      block:
+        - name: Cluster-bind | Gather the network facts of the host
+          ansible.builtin.setup:
+            gather_subset: ['!all', '!min', 'network']
+          when:
+            - wazuh_cluster_master_bind | bool
+            - ansible_all_ipv4_addresses is not defined
+
+        - name: Cluster-bind | Resolve private_ip when it is a name
+          ansible.builtin.command:
+            argv: [getent, ahosts, "{{ private_ip }}"]
+          register: wazuh_cluster_master_resolved
+          changed_when: false
+          failed_when: false
+          when:
+            - wazuh_cluster_master_bind | bool
+            - not (wazuh_cluster_master_is_ip | bool)
+
+        - name: Cluster-bind | Set the cluster bind address
+          ansible.builtin.set_fact:
+            wazuh_cluster_bind_addr: >-
+              {{ wazuh_manager_cluster_bind_addr if wazuh_manager_cluster_bind_addr | length > 0
+                 else '127.0.0.1' if (single_node or wazuh_manager_nodes_count | int < 2)
+                 else '0.0.0.0' if not (wazuh_cluster_master_bind | bool)
+                 else private_ip if (wazuh_cluster_master_on_host | bool)
+                 else '0.0.0.0' }}
+
+        - name: Cluster-bind | Warn when private_ip is not an address of the master
+          ansible.builtin.debug:
+            msg: >-
+              WARNING: {{ private_ip }} (private_ip) is neither an address of this host nor a name that
+              resolves only to addresses of this host (a NAT address, for example). The cluster <bind_addr>
+              stays at 0.0.0.0. Set wazuh_manager_cluster_bind_addr to the master's address on the
+              management network and run the playbook again.
+          when:
+            - wazuh_cluster_master_bind | bool
+            - wazuh_cluster_bind_addr == '0.0.0.0'
+
     - name: Manager-config | Edit the wazuh-manager.conf file
       notify: Wazuh manager changed
       block:
@@ -269,8 +334,9 @@
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (bind address)
           ansible.builtin.replace:
             path: "{{ wazuh_manager_conf_dir }}/wazuh-manager.conf"
-            regexp: '(<bind_addr>)[\s\S]*?(</bind_addr>)'
-            replace: '<bind_addr>0.0.0.0</bind_addr>'
+            # Only the <bind_addr> of <cluster>: the agent listener's <remote><https><bind_addr> is kept.
+            regexp: '(<cluster>(?:(?!</cluster>)[\s\S])*?<bind_addr>)[^<]*(</bind_addr>)'
+            replace: '\g<1>{{ wazuh_cluster_bind_addr }}\g<2>'
 
         - name: Manager-config | Edit cluster configuration in wazuh-manager.conf (nodes list)
           ansible.builtin.replace:
@@ -306,12 +372,14 @@
       vars:
         wazuh_credentials_component: manager
 
+    # Through the loopback address: private_ip may be an address the master cannot reach itself through,
+    # such as a NAT address.
     - name: Wazuh Manager | Health check (master)
       when: node_type == "master" or single_node
       block:
         - name: Wazuh Manager | Authenticate and obtain API token (master)
           ansible.builtin.uri:
-            url: "https://{{ private_ip }}:55000/security/user/authenticate"
+            url: "https://127.0.0.1:55000/security/user/authenticate"
             method: POST
             user: "wazuh"
             password: "{{ wazuh_credentials.WAZUH_MANAGER_API_PASSWORD }}"
@@ -326,7 +394,7 @@
 
         - name: Wazuh Manager | Perform API healthcheck (master)
           ansible.builtin.uri:
-            url: "https://{{ private_ip }}:55000/cluster/healthcheck"
+            url: "https://127.0.0.1:55000/cluster/healthcheck"
             method: GET
             headers:
               Authorization: "Bearer {{ wazuh_api_auth.json.data.token }}"
@@ -353,6 +421,23 @@
                      ~ ' value to deployment-credentials/WAZUH_MANAGER_API_PASSWORD on the control node.'))
               if (wazuh_api_auth.status | default(0)) == 401
               else 'Check the service with journalctl -u wazuh-manager.' }}
+
+    # The master play runs first, so the master is already listening on the cluster port.
+    - name: Wazuh Manager | Check that the worker reaches the master
+      when: node_type == "worker" and not single_node
+      block:
+        - name: Wazuh Manager | Connect to the cluster port of the master
+          ansible.builtin.wait_for:
+            host: "{{ hostvars['manager'].private_ip }}"
+            port: 1516
+            timeout: 30
+      rescue:
+        - name: Wazuh Manager | Report that the master is unreachable
+          ansible.builtin.fail:
+            msg: >-
+              This worker cannot reach the master at {{ hostvars['manager'].private_ip }}:1516.
+              private_ip of the manager must be an address the workers can reach: check routing,
+              security groups and NAT.
 
     - name: Wazuh Manager | Health check (worker)
       when: node_type == "worker" and not single_node

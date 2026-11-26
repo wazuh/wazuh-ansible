@@ -28,6 +28,8 @@ For a distributed deployment, the inventory file specifies multiple nodes, each 
 
 Each entry defines the required connection details, allowing Ansible to efficiently manage and configure the environment. Ensure that node names remain consistent with those used in the documentation's inventory examples.
 
+The `private_ip` of `manager` is the address the workers use to reach the master on the cluster port (`1516`), and the master binds that port to it. Use its address on the network between the manager nodes. See [Cluster bind address](../roles/wazuh-manager.md#cluster-bind-address).
+
 ```ini
 [all]
 wi1 ansible_host=<indexer1_public_ip> private_ip=<indexer1_private_ip>
