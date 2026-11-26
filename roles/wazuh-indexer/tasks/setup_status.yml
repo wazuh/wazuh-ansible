@@ -1,0 +1,90 @@
+---
+
+# The setup plugin applies setup.yml and the policy files when it initializes the cluster, and an invalid
+# value leaves its status failed while the indexer keeps running. Its marker (.wazuh-setup-status,
+# document setup-status) is written once per initialization: running, then ready or failed. The cluster
+# manager initializes the cluster the first time it is elected after it starts, so the marker of the
+# configuration in effect is the one written after the start of the current cluster manager: an older
+# one is the marker of a previous initialization. Asked with the admin certificate, which does not depend
+# on passwords changed later.
+- name: Setup Status | Read the start time of the cluster manager
+  ansible.builtin.uri:
+    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/_nodes/_cluster_manager/jvm?filter_path=nodes.*.name,nodes.*.jvm.start_time_in_millis" # noqa: yaml[line-length]
+    client_cert: /etc/wazuh-indexer/certs/admin.pem
+    client_key: /etc/wazuh-indexer/certs/admin-key.pem
+    validate_certs: false
+    timeout: 10
+  register: wazuh_indexer_setup_manager
+  until: wazuh_indexer_setup_manager.status == 200 and (wazuh_indexer_setup_manager.json.nodes | default({})) | length == 1
+  retries: "{{ wazuh_indexer_api_retries }}"
+  delay: 5
+  become: true
+  run_once: true
+
+# running is also the status while an index waits for a schema upgrade: only failed stops the run.
+- name: Setup Status | Wait for the setup plugin to initialize the cluster
+  ansible.builtin.uri:
+    url: "https://{{ hostvars[inventory_hostname].private_ip }}:9200/.wazuh-setup-status/_search?filter_path=hits.hits._source"
+    method: POST
+    body_format: json
+    body:
+      query:
+        bool:
+          filter:
+            - ids:
+                values: [setup-status]
+            - range:
+                timestamp:
+                  gte: "{{ wazuh_indexer_setup_manager_start }}"
+                  format: epoch_millis
+    client_cert: /etc/wazuh-indexer/certs/admin.pem
+    client_key: /etc/wazuh-indexer/certs/admin-key.pem
+    validate_certs: false
+    status_code: [200, 404]
+    timeout: 10
+  vars:
+    wazuh_indexer_setup_manager_start: >-
+      {{ (wazuh_indexer_setup_manager.json.nodes.values() | first).jvm.start_time_in_millis }}
+  register: wazuh_indexer_setup_status
+  until: >-
+    wazuh_indexer_setup_status.status == 200
+    and ((wazuh_indexer_setup_status.json.hits | default({})).hits | default([]) | length) > 0
+    and wazuh_indexer_setup_status.json.hits.hits[0]._source.status in ['ready', 'failed']
+  retries: "{{ wazuh_indexer_api_retries }}"
+  delay: 5
+  failed_when: false
+  become: true
+  run_once: true
+
+- name: Setup Status | Keep the setup status
+  ansible.builtin.set_fact:
+    wazuh_indexer_setup_state: >-
+      {{ ((wazuh_indexer_setup_status.json | default({})).hits | default({})).hits | default([])
+         | map(attribute='_source.status') | first | default('') }}
+  run_once: true
+
+- name: Setup Status | Stop when the setup plugin rejected the configuration
+  ansible.builtin.fail:
+    msg: >-
+      The setup status of the Wazuh indexer is failed after {{ wazuh_indexer_setup_manager_name }} initialized
+      the cluster: the setup plugin did not create or update the index templates, indices and ISM policies.
+      The indexer keeps running. The usual cause is a value of wazuh_indexer_setup_config or
+      wazuh_indexer_setup_policies the plugin does not accept, or a value the cluster refuses, such as more
+      shards than cluster.max_shards_per_node allows. The error, with the key or the file, is in the
+      "Setup initialization failed" line of /var/log/wazuh-indexer/wazuh-cluster.log on
+      {{ wazuh_indexer_setup_manager_name }}. Fix the variable and run the playbook again: see
+      https://github.com/wazuh/wazuh-indexer-plugins/blob/v5.0.0/docs/ref/modules/setup/customization.md#invalid-configuration
+  vars:
+    wazuh_indexer_setup_manager_name: "{{ (wazuh_indexer_setup_manager.json.nodes.values() | first).name }}"
+  when: wazuh_indexer_setup_state == 'failed'
+  run_once: true
+
+- name: Setup Status | Warn when the setup status did not settle
+  ansible.builtin.debug:
+    msg: >-
+      [WARNING] The setup plugin did not report ready or failed for the current cluster manager after
+      {{ wazuh_indexer_api_retries }} attempts (status: {{ wazuh_indexer_setup_state or 'not written yet' }}).
+      It stays running while an index waits for a schema upgrade. Check it later with
+      GET .wazuh-setup-status/_doc/setup-status, and the indexer log of the cluster manager.
+  when: wazuh_indexer_setup_state not in ['ready', 'failed']
+  run_once: true

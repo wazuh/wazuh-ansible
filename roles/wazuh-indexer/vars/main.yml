@@ -5,7 +5,13 @@
 # Not a setting (an inventory cannot override role vars): it changes only together with that script.
 wazuh_indexer_node_dn_prefix: "C=US,L=California,O=Wazuh,OU=Wazuh,CN="
 
-# Files whose change after the last start of the indexer means it runs on an older configuration.
-wazuh_indexer_watched_files:
-  - /etc/wazuh-indexer/opensearch.yml
-  - /etc/wazuh-indexer/jvm.options
+# Configuration directory of the setup plugin, as the package installs it.
+wazuh_indexer_setup_dir: /etc/wazuh-indexer/wazuh-indexer-setup
+
+# Files whose change after the last start of the indexer means it runs on an older configuration. The
+# setup files only when the role writes them: an edit by hand or a package upgrade does not restart.
+wazuh_indexer_watched_files: >-
+  {{ ['/etc/wazuh-indexer/opensearch.yml', '/etc/wazuh-indexer/jvm.options']
+     + ([wazuh_indexer_setup_dir ~ '/setup.yml'] if wazuh_indexer_setup_config | length > 0 else [])
+     + (wazuh_indexer_setup_policies.keys() | map('regex_replace', '^', wazuh_indexer_setup_dir ~ '/')
+        | map('regex_replace', '$', '.json') | list) }}

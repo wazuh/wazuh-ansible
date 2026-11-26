@@ -221,6 +221,24 @@ instances:
 
 ---
 
+**Variable:** `wazuh_indexer_setup_config`  
+**Description:** Content of `/etc/wazuh-indexer/wazuh-indexer-setup/setup.yml`, the file where the setup plugin of the Wazuh Indexer reads the settings of the index templates it creates and the switch of each ISM policy. The role writes it on every indexer node, replacing the packaged file as a whole, before the first start of the service. When empty (the default), the packaged file is left as it is. See [Setup configuration](roles/wazuh-indexer.md#setup-configuration).  
+**Default value:** `""`
+
+```yaml
+wazuh_indexer_setup_config: |
+  templates.streams.events.settings.index.number_of_shards: 3
+  templates.streams.events.settings.index.auto_expand_replicas: "0-2"
+```
+
+---
+
+**Variable:** `wazuh_indexer_setup_policies`  
+**Description:** Default ISM policies to replace, as a mapping of the policy id to the content of its `<policy-id>.json` file (the `policy` object, written as YAML). The role writes each one in `/etc/wazuh-indexer/wazuh-indexer-setup/` on every indexer node. The plugin uses a file only when `setup.yml` sets `policies.<policy-id>.custom: true`. When empty (the default), the packaged files are left as they are. See [Setup configuration](roles/wazuh-indexer.md#setup-configuration).  
+**Default value:** `{}`
+
+---
+
 ## wazuh-manager
 
 These variables are defined in `roles/wazuh-manager/defaults/main.yml`.

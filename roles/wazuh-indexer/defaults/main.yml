@@ -12,6 +12,14 @@ wazuh_indexer_package_name: "wazuh-indexer-{{ wazuh_full_version }}-{{ wazuh_pac
 wazuh_indexer_heap_size: ""
 wazuh_indexer_security_init_force: false
 
+# Content of /etc/wazuh-indexer/wazuh-indexer-setup/setup.yml, the index template settings and ISM policy
+# switches of the setup plugin, written on every indexer node. Empty: the packaged file is left as it is.
+wazuh_indexer_setup_config: ""
+# Default ISM policy id -> content of its <policy-id>.json, as YAML ({policy: {...}}), written on every
+# indexer node; used when setup.yml sets policies.<policy-id>.custom: true. Empty: the packaged files are
+# left as they are.
+wazuh_indexer_setup_policies: {}
+
 # Attempts, 5 seconds apart, of the waits on the indexer API, and seconds indexer-security-init.sh may
 # take before it is stopped.
 wazuh_indexer_api_retries: 24

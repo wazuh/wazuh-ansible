@@ -4,6 +4,7 @@
 
 | Issue | Comment |
 | - | - |
+| [#2441](https://github.com/wazuh/wazuh-ansible/issues/2441) | Write the setup configuration file and the ISM policy files of the Wazuh Indexer setup plugin from the `wazuh_indexer_setup_config` and `wazuh_indexer_setup_policies` variables in the wazuh-indexer role, and stop the run when the plugin reports the setup failed |
 | [#2355](https://github.com/wazuh/wazuh-ansible/issues/2355) | Verify the signature of the Windows (Authenticode) and macOS (Developer ID Installer) agent packages before installing them |
 | [#2308](https://github.com/wazuh/wazuh-ansible/issues/2308) | Support additional manager IPs and agent-san addresses in config.yml (wazuh-indexer role) |
 | [#2289](https://github.com/wazuh/wazuh-ansible/issues/2289) | Deploy the agent listener certificate (remoted.pem/remoted-key.pem) in the wazuh-manager role |

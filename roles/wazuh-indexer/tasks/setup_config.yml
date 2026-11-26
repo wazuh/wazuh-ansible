@@ -1,0 +1,90 @@
+---
+
+# The setup plugin reads setup.yml and the <policy-id>.json files of its configuration directory when it
+# initializes the cluster (a node that has just started is elected cluster manager), and applies them only
+# to the indices it creates afterwards. Written before the first start, a new cluster starts configured.
+# Every node gets the same files: the elected node reads its own copy. The package installs them, with
+# their ownership and mode, and the role replaces the content only of the files it is given.
+
+- name: Setup Config | Check the setup configuration
+  ansible.builtin.assert:
+    that:
+      - wazuh_indexer_setup_config is string
+      - wazuh_indexer_setup_config is not search('\t')
+      - (wazuh_indexer_setup_config | from_yaml) is mapping or (wazuh_indexer_setup_config | from_yaml) is none
+    fail_msg: >-
+      wazuh_indexer_setup_config must be the content of setup.yml as a string: a YAML mapping of
+      templates.<group>.<name>.settings.<setting> and policies.<policy-id>.custom keys, indented with
+      spaces (a tab makes the whole file invalid for the setup plugin).
+    quiet: true
+  when: wazuh_indexer_setup_config | length > 0
+
+- name: Setup Config | Check the ISM policies
+  ansible.builtin.assert:
+    that:
+      - wazuh_indexer_setup_policies is mapping
+      - wazuh_indexer_setup_policies.keys() | reject('match', '^[a-z0-9][a-z0-9-]*$') | list | length == 0
+    fail_msg: >-
+      wazuh_indexer_setup_policies must map the id of a default ISM policy (such as stream-events-policy)
+      to the content of its <policy-id>.json.
+    quiet: true
+
+- name: Setup Config | Check that each policy is a policy object with the id of its file
+  ansible.builtin.assert:
+    that:
+      - item.value is mapping
+      - item.value.policy is defined and item.value.policy is mapping
+      - item.value.policy.policy_id | default('') == item.key
+    fail_msg: >-
+      The policy given for {{ item.key }} must be the content of {{ item.key }}.json as YAML: a mapping with
+      the policy object under "policy", whose policy_id is {{ item.key }}, the id of the default policy.
+    quiet: true
+  loop: "{{ wazuh_indexer_setup_policies | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Setup Config | Read the packaged setup files
+  ansible.builtin.stat:
+    path: "{{ wazuh_indexer_setup_dir }}/{{ item }}"
+  loop: >-
+    {{ (['setup.yml'] if wazuh_indexer_setup_config | length > 0 else [])
+       + (wazuh_indexer_setup_policies.keys() | map('regex_replace', '$', '.json') | list) }}
+  register: wazuh_indexer_setup_packaged
+
+- name: Setup Config | Check that the package installed the setup files
+  ansible.builtin.assert:
+    that: item.stat.exists and item.stat.isreg
+    fail_msg: >-
+      {{ wazuh_indexer_setup_dir }}/{{ item.item }} is not installed: the wazuh-indexer package does not have the
+      setup configuration directory, or {{ item.item | regex_replace('\.json$', '') }} is not the id of a
+      default ISM policy.
+    quiet: true
+  loop: "{{ wazuh_indexer_setup_packaged.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Setup Config | Write setup.yml
+  ansible.builtin.copy:
+    content: "{{ (wazuh_indexer_setup_config | regex_replace('\\n+$', '')) ~ '\n' }}"
+    dest: "{{ wazuh_indexer_setup_dir }}/setup.yml"
+    owner: "{{ packaged.stat.pw_name }}"
+    group: "{{ packaged.stat.gr_name }}"
+    mode: "{{ packaged.stat.mode }}"
+  vars:
+    packaged: "{{ wazuh_indexer_setup_packaged.results | selectattr('item', 'equalto', 'setup.yml') | first }}"
+  when: wazuh_indexer_setup_config | length > 0
+  notify: Wazuh indexer changed
+
+- name: Setup Config | Write the ISM policy files
+  ansible.builtin.copy:
+    content: "{{ item.value | to_nice_json(indent=2, sort_keys=False) }}\n"
+    dest: "{{ wazuh_indexer_setup_dir }}/{{ item.key }}.json"
+    owner: "{{ packaged.stat.pw_name }}"
+    group: "{{ packaged.stat.gr_name }}"
+    mode: "{{ packaged.stat.mode }}"
+  vars:
+    packaged: "{{ wazuh_indexer_setup_packaged.results | selectattr('item', 'equalto', item.key ~ '.json') | first }}"
+  loop: "{{ wazuh_indexer_setup_policies | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  notify: Wazuh indexer changed
