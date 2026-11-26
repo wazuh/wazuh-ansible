@@ -235,19 +235,23 @@
     # address the workers dial, when that is an address of this host, or a name that resolves to one and
     # to no address outside the host (the master binds every address the name resolves to); otherwise
     # (a NAT address, for example) it keeps 0.0.0.0 and warns. Workers bind to 0.0.0.0. All-in-One, or a
-    # single manager, binds to 127.0.0.1, the package default. wazuh_manager_cluster_bind_addr, when set,
+    # single manager in instances, binds to 127.0.0.1, the package default. wazuh_manager_cluster_bind_addr, when set,
     # is used as is.
     - name: Manager-config | Choose the cluster bind address
       vars:
         wazuh_manager_nodes_count: >-
           {{ instances | default({}) | dict2items | selectattr('value.role', 'defined')
              | selectattr('value.role', 'equalto', 'manager') | list | length }}
+        # A single manager only when the play says so: single_node, or instances listing one manager.
+        # A play without instances may be part of a cluster, so it is not taken as a single manager.
+        wazuh_cluster_single_manager: >-
+          {{ single_node or (instances is defined and wazuh_manager_nodes_count | int == 1) }}
         wazuh_cluster_master_bind: >-
-          {{ not single_node and node_type == 'master' and wazuh_manager_nodes_count | int > 1
+          {{ not (wazuh_cluster_single_manager | bool) and node_type == 'master'
              and wazuh_manager_cluster_bind_addr | length == 0 }}
         wazuh_cluster_master_is_ip: "{{ private_ip is match('^([0-9.]+|.*:.*)$') }}"
         wazuh_cluster_host_addresses: >-
-          {{ ansible_all_ipv4_addresses | default([]) + ansible_all_ipv6_addresses | default([]) }}
+          {{ ansible_facts.all_ipv4_addresses | default([]) + ansible_facts.all_ipv6_addresses | default([]) }}
         # The addresses private_ip stands for: itself, or those its name resolves to on the master.
         wazuh_cluster_master_addresses: >-
           {{ [private_ip] if (wazuh_cluster_master_is_ip | bool)
@@ -264,7 +268,7 @@
             gather_subset: ['!all', '!min', 'network']
           when:
             - wazuh_cluster_master_bind | bool
-            - ansible_all_ipv4_addresses is not defined
+            - ansible_facts.all_ipv4_addresses is not defined
 
         - name: Cluster-bind | Resolve private_ip when it is a name
           ansible.builtin.command:
@@ -280,7 +284,7 @@
           ansible.builtin.set_fact:
             wazuh_cluster_bind_addr: >-
               {{ wazuh_manager_cluster_bind_addr if wazuh_manager_cluster_bind_addr | length > 0
-                 else '127.0.0.1' if (single_node or wazuh_manager_nodes_count | int < 2)
+                 else '127.0.0.1' if (wazuh_cluster_single_manager | bool)
                  else '0.0.0.0' if not (wazuh_cluster_master_bind | bool)
                  else private_ip if (wazuh_cluster_master_on_host | bool)
                  else '0.0.0.0' }}

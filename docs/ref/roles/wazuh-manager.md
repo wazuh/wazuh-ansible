@@ -37,7 +37,7 @@ Only the master listens on the cluster port (`1516`), on the `<bind_addr>` of `<
 | Deployment | Cluster `<bind_addr>` |
 |------------|-----------------------|
 | All-in-One, or a single manager node in `instances` | `127.0.0.1`, the package default. |
-| Master of a cluster with two or more manager nodes | Its `private_ip`, the address the workers dial, when it is an address of the host. A DNS name is used when, on the master, it resolves to an address of the host other than loopback, and to no address outside the host: the master binds every address the name resolves to. |
+| Master of a cluster with two or more manager nodes in `instances`, or of a play without `instances` | Its `private_ip`, the address the workers dial, when it is an address of the host. A DNS name is used when, on the master, it resolves to an address of the host other than loopback, and to no address outside the host: the master binds every address the name resolves to. |
 | Worker | `0.0.0.0`. |
 
 The master can only listen on an address of its host. When its `private_ip` is not one, nor such a name, for example a NAT address the workers reach, the role keeps `0.0.0.0` and prints a warning: set `wazuh_manager_cluster_bind_addr` on the master to its address on the management network and run the playbook again. When `wazuh_manager_cluster_bind_addr` is set, the role writes it as is on that node. The role reads the addresses of the host from the network facts, and gathers them when the play did not. The agent listener's `<remote><https><bind_addr>` is not changed.
