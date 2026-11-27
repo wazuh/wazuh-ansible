@@ -8,20 +8,97 @@
   roles:
     - role: package-urls
 
+# Without wazuh_enrollment_token, create one on the Wazuh manager of the inventory (the first host of
+# aio, or the master node, host manager), delegated from the agent hosts so that --limit still runs it.
+# Linear, so that run_once holds; the new token is set on every agent host of the play.
+- name: Create the enrollment token
+  hosts: agents
+  gather_facts: false
+  vars:
+    # Play vars take precedence over the inventory, so these read the inventory names with a default.
+    wazuh_token_manager: >-
+      {{ wazuh_enrollment_token_manager
+         | default((groups['aio'] | default([]) + (['manager'] if 'manager' in groups['all'] else [])) | first)
+         | default('') }}
+    # The address the token names, which the manager certificates must list: the first of agent_san (the
+    # address agents use to reach the cluster), wazuh_manager_ips, the address Ansible reaches the manager
+    # at (ansible_host, when its certificates name it) and its private_ip.
+    wazuh_token_address: >-
+      {{ wazuh_enrollment_token_address
+         | default((hostvars[wazuh_token_manager].agent_san | default([])
+                    | map('regex_replace', '^(DNS|IP):', '') | list
+                    + hostvars[wazuh_token_manager].wazuh_manager_ips | default([])
+                    + ([hostvars[wazuh_token_manager].ansible_host]
+                       if (hostvars[wazuh_token_manager].wazuh_manager_san_ansible_host | default(true) | bool
+                           and 'ansible_host' in hostvars[wazuh_token_manager]
+                           and hostvars[wazuh_token_manager].ansible_host not in ['localhost', '127.0.0.1', '::1'])
+                       else [])
+                    + [hostvars[wazuh_token_manager].private_ip | default(wazuh_token_manager)]) | first) }}
+  tasks:
+    - name: Token | Create the enrollment token on the Wazuh manager
+      when: wazuh_enrollment_token | default('') | length == 0
+      run_once: true
+      block:
+        - name: Token | Assert the inventory has a Wazuh manager
+          ansible.builtin.assert:
+            that: wazuh_token_manager in hostvars
+            fail_msg: >-
+              wazuh_enrollment_token is not set, and the inventory has no Wazuh manager to create one on
+              (the first host of aio, or the host manager). Add the manager to the inventory, set
+              wazuh_enrollment_token_manager to the host to create it on, or set wazuh_enrollment_token.
+            quiet: true
+
+        # One enrollment for each agent host of the play, valid for wazuh_enrollment_token_ttl. The token
+        # goes to stdout; the details and any warning, to stderr.
+        - name: Token | Run wazuh-manager-authd --create-enrollment-token on {{ wazuh_token_manager }}
+          ansible.builtin.command:
+            argv:
+              - /var/wazuh-manager/bin/wazuh-manager-authd
+              - --create-enrollment-token
+              - --address
+              - "{{ wazuh_token_address }}"
+              - --ttl
+              - "{{ wazuh_enrollment_token_ttl | default('1d') }}"
+              - --max-uses
+              - "{{ ansible_play_hosts_all | length }}"
+              - --description
+              - wazuh-ansible wazuh-agent.yml
+          delegate_to: "{{ wazuh_token_manager }}"
+          become: true
+          register: wazuh_token_output
+          changed_when: wazuh_token_output.rc | default(1) == 0
+          failed_when: false
+          no_log: true
+
+        # no_log hides the token, and also the error: show stderr, which never has the token.
+        - name: Token | Fail when the enrollment token was not created
+          ansible.builtin.fail:
+            msg: >-
+              wazuh-manager-authd could not create an enrollment token on {{ wazuh_token_manager }} for
+              {{ wazuh_token_address }}. When the address is not in the manager certificates, set
+              wazuh_enrollment_token_address to one that is, or set wazuh_enrollment_token.
+              Error (rc {{ wazuh_token_output.rc | default('none') }}):
+              {{ wazuh_token_output.stderr | default('') | trim or wazuh_token_output.msg | default('') }}
+          when: wazuh_token_output.rc | default(1) != 0
+
+        - name: Token | Report the enrollment token created
+          ansible.builtin.debug:
+            msg: >-
+              Created an enrollment token on {{ wazuh_token_manager }} for {{ wazuh_token_address }}, for
+              {{ ansible_play_hosts_all | length }} agent(s):
+              {{ wazuh_token_output.stderr_lines | select('match', '^(id|expires|WARNING):') | join('; ') }}
+
+        # Last: the block condition is checked again for each task, and the token is no longer empty after it.
+        - name: Token | Use the new token for this run
+          ansible.builtin.set_fact:
+            wazuh_enrollment_token: "{{ wazuh_token_output.stdout | trim }}"
+          no_log: true
+
 - name: Deploy Wazuh agent(s)
   hosts: agents
   strategy: free
-  vars:
-    # Enrollment token for 5.x agents (WAZUH_ENROLLMENT_TOKEN install-time
-    # variable), for Linux, Windows and macOS. The
-    # manager address and the CA pin both travel inside the token itself,
-    # fetched over /cacerts on the agent's first start. This role does not
-    # mint tokens; the operator must provide one (for example via
-    # `wazuh-manager-authd --create-enrollment-token --address <address>`).
-    wazuh_enrollment_token: "<Your Wazuh Agent Enrollment Token>"
-    # Verification posture: full (CA + hostname), certificate (CA only), system
-    # (OS trust store) or none. Empty leaves it unset.
-    wazuh_ssl_verification: ""
+  # wazuh_enrollment_token and wazuh_ssl_verification come from the wazuh-agent role defaults, so the
+  # inventory, group_vars or -e set them; without a token, the previous play created one.
   tasks:
     - name: Include wazuh-agent role for Linux/MacOS hosts
       when: ansible_facts.system == "Linux" or ansible_facts.system == "Darwin"

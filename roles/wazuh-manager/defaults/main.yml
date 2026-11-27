@@ -19,6 +19,10 @@ wazuh_manager_conf_dir: "/etc/wazuh-manager"
 wazuh_manager_ips: []
 agent_san: []
 api_san: []
+# Also name the address Ansible reaches this node at (ansible_host) on both certificates, when the inventory
+# sets it and it is not a loopback address: usually the address agents and API clients dial too, such as a public IP
+# address or a DNS name.
+wazuh_manager_san_ansible_host: true
 
 # The cluster <bind_addr> of this node. Empty: the role chooses it (see the comment of the
 # "Choose the cluster bind address" task). Set it on the master when its private_ip is not an

@@ -65,9 +65,15 @@
         this_node: >-
           {{ (instances | default({}))[inventory_hostname]
              if (not single_node and inventory_hostname in (instances | default({}))) else own_node }}
+        # The address Ansible reaches this node at, when the inventory sets it (ansible_host is always
+        # defined: without a value, it is the inventory host name) and wazuh_manager_san_ansible_host allows it.
+        own_ansible_host: >-
+          {{ [ansible_host] if (wazuh_manager_san_ansible_host | bool
+                                and 'ansible_host' in hostvars[inventory_hostname]
+                                and ansible_host not in ['localhost', '127.0.0.1', '::1']) else [] }}
         own_names: >-
           {{ [this_node.name, manager_node_name, ansible_facts.hostname, this_node.ip]
-             + this_node.extra_ips | default([]) }}
+             + this_node.extra_ips | default([]) + own_ansible_host }}
 
     - name: Credentials | Provide the manager credentials before installing the package
       ansible.builtin.include_role:
