@@ -66,8 +66,20 @@
           delegate_to: "{{ wazuh_token_manager }}"
           become: true
           register: wazuh_token_output
-          changed_when: true
+          changed_when: wazuh_token_output.rc | default(1) == 0
+          failed_when: false
           no_log: true
+
+        # no_log hides the token, and also the error: show stderr, which never has the token.
+        - name: Token | Fail when the enrollment token was not created
+          ansible.builtin.fail:
+            msg: >-
+              wazuh-manager-authd could not create an enrollment token on {{ wazuh_token_manager }} for
+              {{ wazuh_token_address }}. When the address is not in the manager certificates, set
+              wazuh_enrollment_token_address to one that is, or set wazuh_enrollment_token.
+              Error (rc {{ wazuh_token_output.rc | default('none') }}):
+              {{ wazuh_token_output.stderr | default('') | trim or wazuh_token_output.msg | default('') }}
+          when: wazuh_token_output.rc | default(1) != 0
 
         - name: Token | Report the enrollment token created
           ansible.builtin.debug:

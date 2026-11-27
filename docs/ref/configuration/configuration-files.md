@@ -110,4 +110,4 @@ The playbook `wazuh-agent.yml` includes:
 - **Summary** (`summary.yml`): Ends the run with the state of the Wazuh agent on each host of the run, and flags an agent that runs without being enrolled. See [Post-Deployment Steps](../deployment.md#post-deployment-steps).
 
 **Important:**
-Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Agent Enrollment Token>` with a real enrollment token, minted against the target manager (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`; see the [wazuh-agent role docs](../roles/wazuh-agent.md#enrollment-token-based)).
+When the inventory has the Wazuh manager, the run creates the enrollment token itself. To use a token created beforehand (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`), set `wazuh_enrollment_token` in the inventory, in `group_vars` or with `-e`; there is nothing to edit in `wazuh-agent.yml`. See the [wazuh-agent role docs](../roles/wazuh-agent.md#enrollment-token-based).
