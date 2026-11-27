@@ -10,3 +10,11 @@
     - role: wazuh-dashboard
   vars:
     single_node: true
+
+- name: Summary
+  ansible.builtin.import_playbook: summary.yml
+  vars:
+    wazuh_summary_components:
+      wazuh-indexer: aio
+      wazuh-manager: aio
+      wazuh-dashboard: aio

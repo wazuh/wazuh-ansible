@@ -90,3 +90,11 @@
       - "{{ hostvars.wi1.private_ip }}"
       - "{{ hostvars.wi2.private_ip }}"
       - "{{ hostvars.wi3.private_ip }}"
+
+- name: Summary
+  ansible.builtin.import_playbook: summary.yml
+  vars:
+    wazuh_summary_components:
+      wazuh-indexer: wi_cluster
+      wazuh-manager: manager:worker
+      wazuh-dashboard: dashboard

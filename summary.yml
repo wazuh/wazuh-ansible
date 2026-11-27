@@ -1,0 +1,130 @@
+---
+
+# Ends wazuh-aio.yml, wazuh-distributed.yml and wazuh-agent.yml: whether each Wazuh service is active on
+# each host of the run and, when the inventory has the Wazuh dashboard, where to sign in. Never shows a
+# password. The playbook that imports this one sets wazuh_summary_components: each Wazuh service and the
+# inventory hosts or groups it runs on.
+
+- name: Summary | Check the Wazuh services
+  hosts: "{{ (wazuh_summary_components | default({})).values() | join(':') | default('!all', true) }}"
+  gather_facts: true
+  gather_subset: [min]
+  become: false
+  tasks:
+    - name: Summary | Services of this host
+      ansible.builtin.set_fact:
+        wazuh_summary_services: >-
+          {%- set services = [] -%}
+          {%- for service, hosts in wazuh_summary_components.items() -%}
+            {%- if inventory_hostname in query('inventory_hostnames', hosts) -%}
+              {%- set _ = services.append(service) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ services }}
+
+    # A service that a handler just restarted, or an agent that restarts itself after enrolling, can still
+    # be starting or reloading.
+    - name: Summary | State of the services (Linux)
+      ansible.builtin.command:
+        argv: "{{ ['systemctl', 'is-active'] + wazuh_summary_services }}"
+      register: wazuh_summary_linux
+      changed_when: false
+      failed_when: false
+      until: wazuh_summary_linux.stdout is not search('activating|reloading|deactivating')
+      retries: 12
+      delay: 5
+      when: ansible_facts.system == 'Linux'
+
+    - name: Summary | State of the agent (macOS)
+      ansible.builtin.command:
+        argv: [pgrep, -x, wazuh-agentd]
+      register: wazuh_summary_macos
+      changed_when: false
+      failed_when: false
+      until: wazuh_summary_macos.rc == 0
+      retries: 6
+      delay: 5
+      when: ansible_facts.system == 'Darwin'
+
+    - name: Summary | State of the agent (Windows)
+      ansible.windows.win_service_info:
+        name: Wazuh
+      register: wazuh_summary_windows
+      until: >-
+        wazuh_summary_windows.services | length == 0
+        or wazuh_summary_windows.services[0].state not in ['start_pending', 'stop_pending']
+      retries: 6
+      delay: 5
+      when: ansible_facts.os_family == 'Windows'
+
+    # An agent that runs but whose enrollment the manager refused (for example, a duplicate name or an
+    # expired token) keeps an empty client.keys.
+    - name: Summary | Enrollment of the agent (Linux and macOS)
+      ansible.builtin.stat:
+        path: "{{ '/Library/Ossec' if ansible_facts.system == 'Darwin' else '/var/ossec' }}/etc/client.keys"
+      become: true
+      register: wazuh_summary_keys
+      when:
+        - "'wazuh-agent' in wazuh_summary_services"
+        - ansible_facts.os_family != 'Windows'
+
+    # Next to the agent executable that the service runs.
+    - name: Summary | Enrollment of the agent (Windows)
+      ansible.windows.win_stat:
+        path: >-
+          {{ wazuh_summary_windows.services[0].path | replace('"', '') | win_dirname }}\client.keys
+      register: wazuh_summary_keys_windows
+      when:
+        - ansible_facts.os_family == 'Windows'
+        - wazuh_summary_windows.services | default([]) | length > 0
+
+    - name: Summary | Keep the state of each service
+      ansible.builtin.set_fact:
+        wazuh_summary_states: >-
+          {%- if ansible_facts.system == 'Linux' -%}
+            {%- set states = dict(wazuh_summary_services | zip(wazuh_summary_linux.stdout_lines)) -%}
+          {%- elif ansible_facts.system == 'Darwin' -%}
+            {%- set states = {'wazuh-agent': 'active' if wazuh_summary_macos.rc == 0 else 'not running'} -%}
+          {%- else -%}
+            {%- set service = wazuh_summary_windows.services | default([]) | first | default({}) -%}
+            {%- set states = {'wazuh-agent': 'not installed' if not service else
+                                             ('active' if service.state == 'started' else service.state)} -%}
+          {%- endif -%}
+          {%- set keys = (wazuh_summary_keys_windows if ansible_facts.os_family == 'Windows'
+                          else wazuh_summary_keys).stat | default({}) -%}
+          {%- if states.get('wazuh-agent') == 'active' and keys.size | default(0) | int == 0 -%}
+            {%- set _ = states.update({'wazuh-agent': 'active, not enrolled (see the agent log)'}) -%}
+          {%- endif -%}
+          {{ states }}
+
+# Once, from the checked hosts, so that --limit still prints it.
+- name: Summary | Report
+  hosts: "{{ (wazuh_summary_components | default({})).values() | join(':') | default('!all', true) }}"
+  gather_facts: false
+  become: false
+  vars:
+    wazuh_summary_dashboard: >-
+      {{ query('inventory_hostnames', wazuh_summary_components['wazuh-dashboard'] | default('!all')) | first
+         | default('') }}
+  tasks:
+    - name: Summary | Wazuh
+      run_once: true
+      ansible.builtin.debug:
+        msg: >-
+          {%- set lines = [] -%}
+          {%- if wazuh_summary_dashboard | length > 0 -%}
+            {%- set dashboard = hostvars[wazuh_summary_dashboard] -%}
+            {%- set address = dashboard.ansible_host if 'ansible_host' in dashboard
+                              else dashboard.private_ip | default(wazuh_summary_dashboard) -%}
+            {%- set _ = lines.extend([
+                  'Wazuh dashboard: https://' ~ address,
+                  'User: admin, password in '
+                  ~ (wazuh_credentials_path | default(playbook_dir ~ '/deployment-credentials'))
+                  ~ '/WAZUH_INDEXER_ADMIN_PASSWORD on this control node']) -%}
+          {%- endif -%}
+          {%- for host in ansible_play_hosts_all -%}
+            {%- set states = hostvars[host].wazuh_summary_states | default({}) -%}
+            {%- set _ = lines.append(host ~ ': ' ~ (states.items() | map('join', ' ') | join(', ')
+                                                     if states else 'not checked')) -%}
+          {%- endfor -%}
+          {{ lines }}
