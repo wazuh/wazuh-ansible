@@ -36,3 +36,9 @@
       when: ansible_facts.os_family == "Windows"
       ansible.builtin.include_role:
         name: wazuh-agent
+
+- name: Summary
+  ansible.builtin.import_playbook: summary.yml
+  vars:
+    wazuh_summary_components:
+      wazuh-agent: agents

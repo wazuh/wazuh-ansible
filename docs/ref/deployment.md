@@ -98,7 +98,7 @@ What the deployment playbooks provide depends on the deployment type:
 
 - On the control node, they are kept in `deployment-credentials/`, next to the playbook, one file per key. Every later run reuses them.
 - Before each package is installed, the keys its component reads that already have a value are written to `/etc/<package>/local.env` (`root:root`, `0600`), with the names its certificates must carry. In a distributed deployment that is every key; in an All-in-One deployment, the ones you supplied and the ones a component installed earlier on the host already published. The playbooks do not write the file again once the package is in place.
-- Once installed, each package publishes the passwords of the accounts it owns in `/etc/<package>/export/credentials.env` (readable by root only). The health checks of the playbooks use those values. In an All-in-One deployment they are also copied to `deployment-credentials/`; in a distributed deployment, a value that differs from `deployment-credentials/` prints a warning that names the key, never the value.
+- Once installed, each package publishes the passwords of the accounts it owns in `/etc/<package>/export/credentials.env` (readable by root only). The health checks of the playbooks use those values. In an All-in-One deployment they are also copied to `deployment-credentials/`, and a run that updates a file there names its key; in a distributed deployment, a value that differs from `deployment-credentials/` prints a warning that names the key, never the value.
 - To supply your own values, for example from Ansible Vault, set `wazuh_credentials_overrides`. They must follow the password policy of the packages. See [Variables](variables.md#wazuh-credentials).
 
 No task prints a password.
@@ -151,6 +151,8 @@ A Wazuh 4.x deployment cannot be upgraded to 5.0: it is migrated instead, on new
 
 ## Post-Deployment Steps
 
+`wazuh-aio.yml`, `wazuh-distributed.yml` and `wazuh-agent.yml` end with a summary (`summary.yml`): the Wazuh dashboard address, its user and the file on the control node with its password (never the password itself), and the state of each Wazuh service on each host of the run, also with `--limit`. A service that is not `active` shows its `systemctl is-active` state (on macOS, `not running`; on Windows, the service state). An agent that runs but whose enrollment the manager refused, for example for a duplicate name or an expired token, shows as `active, not enrolled`: its `client.keys` is empty, and the agent log has the reason.
+
 After deployment, access the Wazuh Dashboard by navigating to `https://<WAZUH_DASHBOARD_IP_ADDRESS>` in your web browser. Log in as `admin`, with the password in `deployment-credentials/WAZUH_INDEXER_ADMIN_PASSWORD` on the control node:
 
 ```bash
@@ -181,4 +183,4 @@ The deployment playbooks do not rotate passwords. To change them, use the `wazuh
 
 > **Note:** Change one user at a time, or use `-a`, and check that the tool finishes without errors before updating the other nodes. If it stops partway, the Wazuh Manager or Wazuh Dashboard keystore on that host may already hold a password that the Wazuh Indexer did not receive. See the documentation of the tool before running it again.
 
-After changing the passwords, copy each new value to the file of its key in `deployment-credentials/` on the control node. All-in-One, the next run of the playbooks takes the published values and copies them there itself. In a distributed deployment, the health checks of the next run use `deployment-credentials/`, so a run before you copy them fails with the password rejected. A run that finds a published password that differs from `deployment-credentials/` prints a warning that names the key: after a password change, it is expected on the nodes where the tool did not run.
+All-in-One, the next run of the playbooks takes the published values, copies them to `deployment-credentials/` on the control node and names the keys it updated: there is nothing to copy by hand. In a distributed deployment, after changing the passwords, copy each new value to the file of its key in `deployment-credentials/` on the control node: the health checks of the next run use `deployment-credentials/`, so a run before you copy them fails with the password rejected. A distributed run that finds a published password that differs from `deployment-credentials/` prints a warning that names the key: after a password change, it is expected on the nodes where the tool did not run.

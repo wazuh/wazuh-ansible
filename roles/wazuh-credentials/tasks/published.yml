@@ -38,6 +38,8 @@
          if (wazuh_credentials_aio | bool) else [] }}
   no_log: true
 
+# Distributed only: All-in-One, the next tasks take the published values and copy them to
+# deployment-credentials/, and the run reports the keys it updated instead.
 - name: Credentials | Warn about published passwords that differ for {{ wazuh_credentials_component }}
   ansible.builtin.debug:
     msg: >-
@@ -45,11 +47,11 @@
       {{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}/export/credentials.env on
       {{ inventory_hostname }} do not match {{ wazuh_credentials_path }} for:
       {{ wazuh_credentials_mismatch | join(', ') }}.
-      {{ ('The health checks use the published values; copy them to ' ~ wazuh_credentials_path
-          ~ ' if they are the ones in use.') if (wazuh_credentials_aio | bool)
-         else ('The health checks use ' ~ wazuh_credentials_path ~ '. After a password change, a host where the'
-          ~ ' passwords tool did not run keeps publishing the previous value; that is expected.') }}
-  when: wazuh_credentials_mismatch | length > 0
+      The health checks use {{ wazuh_credentials_path }}. After a password change, a host where the
+      passwords tool did not run keeps publishing the previous value; that is expected.
+  when:
+    - not (wazuh_credentials_aio | bool)
+    - wazuh_credentials_mismatch | length > 0
 
 - name: Credentials | Use the published passwords for {{ wazuh_credentials_component }}
   ansible.builtin.set_fact:
@@ -78,3 +80,13 @@
   when:
     - wazuh_credentials_aio | bool
     - wazuh_credentials_new | length > 0
+
+- name: Credentials | Report the passwords updated from the published values for {{ wazuh_credentials_component }}
+  ansible.builtin.debug:
+    msg: >-
+      Updated {{ wazuh_credentials_path }} with the passwords published in
+      {{ wazuh_credentials_component_conf_dir[wazuh_credentials_component] }}/export/credentials.env on
+      {{ inventory_hostname }}, which the health checks use: {{ wazuh_credentials_mismatch | join(', ') }}.
+  when:
+    - wazuh_credentials_aio | bool
+    - wazuh_credentials_mismatch | length > 0

@@ -79,6 +79,7 @@ The playbook `wazuh-aio.yml` includes:
 - **Wazuh Indexer Role**: Manages configuration and certificate creation for each node, deploying a single Wazuh Indexer instance.
 - **Wazuh Manager Role**: Sets up a Wazuh manager instance and establishes its connection to the Wazuh Indexer node.
 - **Wazuh Dashboard Role**: Installs the Wazuh Dashboard on the same node and configures connections to both the Wazuh Indexer and Wazuh Manager nodes.
+- **Summary** (`summary.yml`): Ends the run with the Wazuh dashboard address and the file with its password, and the state of each Wazuh service on each host of the run. See [Post-Deployment Steps](../deployment.md#post-deployment-steps).
 
 ### Distributed Deployment Playbook
 
@@ -95,6 +96,7 @@ The playbook `wazuh-distributed.yml` includes:
   - Configures the `manager` and `worker` nodes and their connectivity to the Indexer nodes.
   - When customizing the `instances` section in `wazuh-distributed.yml`, set `role: manager` for both manager and worker nodes, and use `node_type: master` or `node_type: worker` as needed.
 - Wazuh Dashboard role: Configures connectivity to both the Wazuh Indexer and Wazuh Manager nodes.
+- **Summary** (`summary.yml`): Ends the run with the Wazuh dashboard address and the file with its password, and the state of each Wazuh service on each host of the run. See [Post-Deployment Steps](../deployment.md#post-deployment-steps).
 
 ### Wazuh Agent Deployment Playbook
 
@@ -104,6 +106,7 @@ The playbook `wazuh-agent.yml` includes:
 
 - **Package URLs Role**: Manages package sources for agent installation. It runs first, in its own play, and downloads the package URL file once per run, on the control node. That play is on the `agents` hosts, so it also runs with `--limit`.
 - **Wazuh Agent Role**: Installs and configures the Wazuh agent on each host and enrolls to the Wazuh Manager node. Its play uses the `free` strategy: each agent goes through the role at its own pace.
+- **Summary** (`summary.yml`): Ends the run with the state of the Wazuh agent on each host of the run, and flags an agent that runs without being enrolled. See [Post-Deployment Steps](../deployment.md#post-deployment-steps).
 
 **Important:**
 Before running the playbook, edit the `wazuh-agent.yml` file and replace `<Your Wazuh Agent Enrollment Token>` with a real enrollment token, minted against the target manager (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`; see the [wazuh-agent role docs](../roles/wazuh-agent.md#enrollment-token-based)).
