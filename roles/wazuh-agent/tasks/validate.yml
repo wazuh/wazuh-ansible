@@ -11,7 +11,8 @@
       - wazuh_enrollment_token | default('') | length > 0
       - not (wazuh_enrollment_token is match('<.*>$'))
     fail_msg: >-
-      wazuh_enrollment_token is empty or still holds the placeholder from wazuh-agent.yml. The
+      wazuh_enrollment_token is empty or holds a placeholder. Set it, or add the Wazuh manager to the
+      inventory so that wazuh-agent.yml creates one (with roles/wazuh-agent alone, set it). The
       installer does not fail on a missing or refused token: the package installs, the agent is
       left without a manager, and a later run with the right token is skipped because the
       package is already present.

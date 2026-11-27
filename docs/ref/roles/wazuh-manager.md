@@ -50,16 +50,16 @@ The agent listener certificate (`remoted.pem`, served on ports 1515 and 1517 for
 
 | Certificate | Names |
 |-------------|-------|
-| `remoted.pem` (`WAZUH_MANAGER_REMOTED_CERT_SANS`) | The `name`, host name, `ip` and `extra_ips` of the node, `wazuh_manager_ips` (single-node only), and `agent_san`. |
-| `apid.pem` (`WAZUH_MANAGER_APID_CERT_SANS`) | The `name`, host name, `ip` and `extra_ips` of the node, `wazuh_manager_ips` (single-node only), and `api_san`. |
+| `remoted.pem` (`WAZUH_MANAGER_REMOTED_CERT_SANS`) | The `name`, host name, `ip`, `extra_ips` and `ansible_host` of the node, `wazuh_manager_ips` (single-node only), and `agent_san`. |
+| `apid.pem` (`WAZUH_MANAGER_APID_CERT_SANS`) | The `name`, host name, `ip`, `extra_ips` and `ansible_host` of the node, `wazuh_manager_ips` (single-node only), and `api_san`. |
 
-`localhost`, `127.0.0.1` and `::1` are added to both. A bare value in `agent_san` or `api_san` is taken as an IP address when it is an IPv4 address or contains a colon, and as a DNS name otherwise; `IP:` and `DNS:` prefixes are kept.
+`localhost`, `127.0.0.1` and `::1` are added to both. `ansible_host`, the address Ansible reaches the node at, is added when the inventory sets it and it is not a loopback address, so agents and API clients can use the same public IP address or DNS name without setting it again in `wazuh_manager_ips` or `extra_ips`; set `wazuh_manager_san_ansible_host: false` to leave it out. A bare value in `agent_san` or `api_san` is taken as an IP address when it is an IPv4 address or contains a colon, and as a DNS name otherwise; `IP:` and `DNS:` prefixes are kept.
 
 Each node's certificates name that node only. Enrollment tokens are minted on the master only, and `wazuh-manager-authd --create-enrollment-token --address <address>` refuses an address that is not in the master's agent listener certificate, so in a multi-node cluster agents enroll through an address shared by every manager node, such as a load balancer or a DNS name that resolves to the workers: set it in `agent_san` and mint the tokens for it. A token minted for the address of a single worker is refused.
 
 In a single-node deployment, `wazuh_manager_ips` adds extra addresses (public IP, EIP, NAT). In a multi-node cluster, each manager node gets its own extra addresses through the `extra_ips` list on its entry in `instances` instead; `wazuh_manager_ips` is rejected there. `agent_san` and `api_san` add addresses that are not tied to a single node, such as a load balancer. See [Variables](../variables.md#wazuh-manager).
 
-Re-running the deployment playbook keeps the CA and every certificate, so agents enrolled earlier keep trusting the manager.
+Re-running the deployment playbook keeps the CA and every certificate, so agents enrolled earlier keep trusting the manager. A name added later, such as a new `agent_san` value or the `ansible_host` of a node deployed before it was named, is only in certificates issued after the change.
 
 ## Usage
 

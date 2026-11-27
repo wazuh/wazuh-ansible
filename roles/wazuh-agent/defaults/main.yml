@@ -2,6 +2,11 @@
 
 wazuh_agent_package_download_path: "/tmp/wazuh-agent"
 wazuh_agent_win_package_download_path: "C:\\Temp\\wazuh-agent"
+# Enrollment token (WAZUH_ENROLLMENT_TOKEN install-time variable) for Linux, Windows and macOS agents; the
+# manager address and the CA pin travel inside it. Empty: wazuh-agent.yml creates one on the Wazuh manager of
+# the inventory. Set it in the inventory, group_vars, a vaulted file or with -e to use your own.
+wazuh_enrollment_token: ""
+
 wazuh_agent_package_name: "wazuh-agent-{{ wazuh_full_version }}-{{ wazuh_package_revision }}"
 
 # Agent installation directory per platform. They do not change where the

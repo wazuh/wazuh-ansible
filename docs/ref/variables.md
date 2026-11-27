@@ -310,6 +310,12 @@ wazuh_indexer_hosts:
 
 ---
 
+**Variable:** `wazuh_manager_san_ansible_host`  
+**Description:** Add the address Ansible reaches the node at (`ansible_host`) to its agent listener (`remoted.pem`) and Server API (`apid.pem`) certificates, when the inventory sets it and it is not `localhost`, `127.0.0.1` or `::1`. It is usually the address agents and API clients use too, such as a public IP address or a DNS name, so tokens can be minted for it on the master without setting `wazuh_manager_ips` or `extra_ips`. Set it to `false` to leave it out. Only certificates issued after the change carry it: a re-run keeps the existing ones. See [Certificate names](roles/wazuh-manager.md#certificate-names).  
+**Default value:** `true`
+
+---
+
 **Variable:** `wazuh_manager_cluster_bind_addr`  
 **Description:** The `<bind_addr>` of `<cluster>` in `wazuh-manager.conf`, the address the master listens on for the cluster port (`1516`). Empty, the role chooses it: `127.0.0.1` All-in-One or with a single manager node, the `private_ip` of the master when it is an address of the host, or a name that resolves only to addresses of the host (`0.0.0.0` and a warning otherwise), and `0.0.0.0` on workers. Set it on the master when its `private_ip` is not an address of the host, such as a NAT address, to its address on the management network. The value is written as is, not checked. See [Cluster bind address](roles/wazuh-manager.md#cluster-bind-address).  
 **Default value:** `""`
@@ -387,8 +393,26 @@ These variables are defined in `roles/wazuh-agent/defaults/main.yml`.
 ---
 
 **Variable:** `wazuh_enrollment_token`  
-**Description:** Enrollment token for 5.x agents — Linux, Windows and macOS alike — maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable. The manager address always travels inside the token; the CA either travels with it too (a token minted with `--embed-ca`) or is fetched separately over `/cacerts` on the agent's first start and verified against the token's pin. Either way, no separate manager-address or CA variable exists in this role. Defined in `wazuh-agent.yml` (not in `defaults/main.yml`); this role does not mint tokens, the operator must provide one (for example via `wazuh-manager-authd --create-enrollment-token --address <address>`).  
-**Default value:** `<Your Wazuh Agent Enrollment Token>` (must be overridden)
+**Description:** Enrollment token for 5.x agents — Linux, Windows and macOS alike — maps to the `WAZUH_ENROLLMENT_TOKEN` install-time variable. The manager address always travels inside the token; the CA either travels with it too (a token minted with `--embed-ca`) or is fetched separately over `/cacerts` on the agent's first start and verified against the token's pin. Either way, no separate manager-address or CA variable exists in this role. Set it in the inventory, `group_vars` or with `-e`. Empty, `wazuh-agent.yml` mints one on the Wazuh manager of the inventory before installing the agents; the role alone does not mint tokens. See [Enrollment (token-based)](roles/wazuh-agent.md#enrollment-token-based).  
+**Default value:** `""`
+
+---
+
+**Variable:** `wazuh_enrollment_token_manager`  
+**Description:** Optional. Inventory host on which `wazuh-agent.yml` mints the enrollment token when `wazuh_enrollment_token` is not set: the master node, or the single manager. Unset, the first host of the `aio` group or, if there is none, the `manager` host.  
+**Default value:** unset
+
+---
+
+**Variable:** `wazuh_enrollment_token_address`  
+**Description:** Optional. Address written into the enrollment token minted by `wazuh-agent.yml`, which the agents connect to. It must be named by the manager's agent listener certificate (`remoted.pem`), or the manager refuses the token. Unset, the first of the manager host's `agent_san`, `wazuh_manager_ips`, `ansible_host` (when `wazuh_manager_san_ansible_host` adds it to the certificates) and `private_ip`.  
+**Default value:** unset
+
+---
+
+**Variable:** `wazuh_enrollment_token_ttl`  
+**Description:** Optional. Lifetime of the enrollment token minted by `wazuh-agent.yml`, in the `wazuh-manager-authd --ttl` format (`30d`, `12h`, `45m`, `90s`). The token allows one enrollment for each agent host of the run.  
+**Default value:** `1d`
 
 ---
 

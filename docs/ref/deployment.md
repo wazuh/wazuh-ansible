@@ -55,11 +55,13 @@ To execute a distributed deployment, use the `wazuh-distributed.yml` playbook, w
 
 ### Wazuh Agent Deployment
 
-For installing Wazuh Agents on one or more hosts, use the `wazuh-agent.yml` playbook. This playbook installs and configures the Wazuh Agent on specified nodes in the inventory.
+For installing Wazuh Agents on one or more hosts, use the `wazuh-agent.yml` playbook. This playbook installs and configures the Wazuh Agent on the hosts of the `agents` group of the inventory.
 
 ```bash
   ansible-playbook -i inventory.ini wazuh-agent.yml
 ```
+
+The agents enroll with an enrollment token. When `wazuh_enrollment_token` is not set and the inventory has the Wazuh manager (the `aio` host, or the `manager` host of a distributed deployment), the playbook creates the token on it, also with `--limit` on the agents, for an address its certificates name: the first of `agent_san`, `wazuh_manager_ips`, `ansible_host` and `private_ip`. To use your own token, set `wazuh_enrollment_token` in the inventory, `group_vars` or with `-e`. See [Enrollment (token-based)](roles/wazuh-agent.md#enrollment-token-based).
 
 ## Package signatures
 
